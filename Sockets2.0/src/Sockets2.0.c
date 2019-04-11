@@ -16,8 +16,7 @@ int main(void) {
 		struct sockddr_in dirreccionServidor;
 		dirreccionServidor.sin_family = AF_INET;
 		dirreccionServidor.sin_port = htons(9999);
-		dirreccionServidor.sin_addr.s_addr = inet_addr("127.0.0.1");;
-
+		dirreccionServidor.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 
 
