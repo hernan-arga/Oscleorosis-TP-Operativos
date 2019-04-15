@@ -1,0 +1,1 @@
+Memoria.d: ../Memoria.c
