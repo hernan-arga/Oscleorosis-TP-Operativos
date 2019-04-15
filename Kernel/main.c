@@ -8,12 +8,16 @@
 
 int main()
 {
-	printf("Soy el kernel");
-	char mensaje[256] = "Te has conectado al servidor";
+	printf("\tSoy Kernel, mis subprocesos se reactivan una vez mas.\n");
+	char mensaje[256] = "\nBienvenida memoria, mis puertos son tus puertos.\n";
 
 	//Crear Servidor
 	int socketServidor;
 	socketServidor = socket(AF_INET, SOCK_STREAM, 0);
+
+	//Configuracion para evitar esperar que el addr se pueda volver a usar por un cierre inesperado
+	int activado = 1;
+	setsockopt(socketServidor,SOL_SOCKET,SO_REUSEADDR, &activado, sizeof(activado));
 
 	struct sockaddr_in direccionServer;
 	direccionServer.sin_family = AF_INET;
@@ -39,7 +43,7 @@ int main()
 
 	//Recibir Mensajes
 
-	char* buffer = malloc(1000);
+	char* buffer = malloc(1001);
 
 	while(1)
 	{
