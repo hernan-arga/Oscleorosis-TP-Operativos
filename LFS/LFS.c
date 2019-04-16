@@ -1,3 +1,5 @@
+// FS
+
 #include<stdlib.h>
 #include<stdio.h>
 #include<unistd.h>
@@ -15,7 +17,8 @@
 
 int main()
 {
-	char mensaje[256] = "Te has conectado al servidor";
+	printf("Soy el file system \n");
+	char mensaje[256] = "\"Te has conectado con el FS\"";
 
 	int sock_servidor_de_memoria;
 	sock_servidor_de_memoria = socket(AF_INET, SOCK_STREAM, 0);
@@ -44,7 +47,59 @@ int main()
 
 	send(sock_memoria, mensaje, sizeof(mensaje), 0);
 
+	//Recibir Mensajes
+	char* buffer = malloc(1000);
+
+	while(1)
+	{
+		int bytesRecibidos = recv(sock_memoria, buffer, 1000, 0);
+		if(bytesRecibidos <= 0)
+		{
+			perror("Error en recepcion de mensaje");
+			return 1;
+		}
+
+		buffer[bytesRecibidos] = '\0';
+
+		printf("Me llegaron %d bytes con %s\n", bytesRecibidos, buffer);
+	}
+
+	free(buffer);
+
+	//Cerramos socket
 	close(sock_servidor_de_memoria);
 
 	return 0;
+}
+
+
+void menu(){
+	int opcionElegida;
+
+	printf("Elija una opcion : \n");
+	printf("1. SELECT \n	2. INSERT \n	3. CREATE\n		4. DESCRIBE \n		5. DROP\n");
+	do{
+		scanf("%i",opcionElegida);
+	}while(opcionElegida<1 || opcionElegida>6);
+
+	switch(opcionElegida){
+		case 1:
+			printf("Elegiste SELECT\n");
+			break;
+		case 2:
+			printf("Elegiste INSERT\n");
+			break;
+		case 3:
+			printf("Elegiste CREATE\n");
+			break;
+		case 4:
+			printf("Elegiste DESCRIBE\n");
+			break;
+		case 5:
+			printf("Elegiste DROP\n");
+			break;
+		default:
+			printf("ERROR");
+			break;
+	}
 }
