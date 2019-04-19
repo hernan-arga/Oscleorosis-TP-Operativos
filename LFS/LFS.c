@@ -34,8 +34,18 @@ int main(int argc , char *argv[])
 	//a message
 	char *message = "Este es el mensaje del server\r\n";
 
+	//initialise all client_socket[] to 0 so not checked
+	for (i = 0; i < max_clients; i++)
+	{
+	  client_socket[i] = 0;
+	}
+
 	//create a master socket
-	master_socket = socket(AF_INET , SOCK_STREAM , 0);
+	if( (master_socket = socket(AF_INET , SOCK_STREAM , 0)) == 0)
+	{
+	  perror("socket failed");
+	  exit(EXIT_FAILURE);
+	}
 
 	//set master socket to allow multiple connections ,
 	//this is just a good habit, it will work without this
@@ -162,9 +172,9 @@ int main(int argc , char *argv[])
 				{
 					//set the string terminating NULL byte on the end
 					//of the data read
-					buffer[valread] = '\0';
 					printf("Client: %s\n", buffer);
 					send(sd , buffer , strlen(buffer) , 0 );
+					buffer[valread] = '\0';
 				}
 			}
 		}
