@@ -1,8 +1,5 @@
 // FS
 
-
-//Example code: A simple server side code, which echos back the received message.
-//Handle multiple socket connections with select and fd_set on Linux
 #include <stdio.h>
 #include <string.h> //strlen
 #include <stdlib.h>
@@ -64,7 +61,7 @@ int main(int argc , char *argv[])
 	//bind the socket to localhost port 8888
 	if (bind(master_socket, (struct sockaddr *)&address, sizeof(address))<0)
 	{
-		perror("bind failed");
+		perror("bind failed en lfs");
 		exit(EXIT_FAILURE);
 	}
 	printf("Listener on port %d \n", PORT);
@@ -115,12 +112,13 @@ int main(int argc , char *argv[])
 			new_socket = accept(master_socket,(struct sockaddr *)&address, (socklen_t*)&addrlen);
 			if (new_socket <0)
 			{
+
 				perror("accept");
 				exit(EXIT_FAILURE);
 			}
 
 			//inform user of socket number - used in send and receive commands
-			printf("New connection , socket fd is %d , ip is : %s , port : %d 	\n" , new_socket , inet_ntoa(address.sin_addr) , ntohs
+			printf("New connection , socket fd is : %d , ip is : %s , port : %d 	\n" , new_socket , inet_ntoa(address.sin_addr) , ntohs
 				(address.sin_port));
 
 			//send new connection greeting message
@@ -154,7 +152,8 @@ int main(int argc , char *argv[])
 			{
 				//Check if it was for closing , and also read the
 				//incoming message
-				if ((valread = read( sd , buffer, 1024)) == 0)
+				valread = read( sd , buffer, 1024);
+				if ( valread == 0)
 				{
 					//Somebody disconnected , get his details and print
 					getpeername(sd , (struct sockaddr*)&address , \
@@ -172,8 +171,10 @@ int main(int argc , char *argv[])
 				{
 					//set the string terminating NULL byte on the end
 					//of the data read
-					printf("Client: %s\n", buffer);
-					send(sd , buffer , strlen(buffer) , 0 );
+					char mensaje[] = "Le llego tu mensaje al File System";
+
+					printf("Memoria: %s\n", buffer);
+					send(sd , mensaje , strlen(mensaje) , 0 );
 					buffer[valread] = '\0';
 				}
 			}
@@ -258,7 +259,7 @@ int main()
 
 	return 0;
 }
-
+*/
 
 void menu(){
 	int opcionElegida;
@@ -290,4 +291,4 @@ void menu(){
 			break;
 	}
 }
-*/
+

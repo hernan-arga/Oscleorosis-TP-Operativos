@@ -20,7 +20,7 @@ int main()
 
 	struct sockaddr_in direccion_server_memoria_kernel;
 	direccion_server_memoria_kernel.sin_family = AF_INET;
-	direccion_server_memoria_kernel.sin_port = htons(9003);
+	direccion_server_memoria_kernel.sin_port = htons(4441);
 	direccion_server_memoria_kernel.sin_addr.s_addr = INADDR_ANY;
 
 	if(connect(sock_cliente_de_memoria, (struct sockaddr *) &direccion_server_memoria_kernel, sizeof(direccion_server_memoria_kernel)) == -1)
@@ -32,7 +32,7 @@ int main()
 	char buffer[256];
 	recv(sock_cliente_de_memoria, &buffer, sizeof(buffer), 0);
 
-	printf("RECIBI INFORMACION: %s\n", buffer);
+	printf("RECIBI INFORMACION DE LA MEMORIA: %s\n", buffer);
 
 	//Mandar Mensajes
 	while (1) {
