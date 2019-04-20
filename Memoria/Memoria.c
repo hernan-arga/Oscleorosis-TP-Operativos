@@ -44,11 +44,11 @@ int main()
 	    }
 	    printf("\nEl thread Cliente inició su ejecución\n");
 
-	    err = pthread_create(&(tid[1]), NULL, menu, NULL);
+	    //err = pthread_create(&(tid[1]), NULL, menu, NULL);
 
 	    pthread_join(tid[0], NULL);
 	    pthread_join(tid[1], NULL);
-	    pthread_join(tid[2], NULL);
+	    //pthread_join(tid[2], NULL);
 
 	    return 0;
 }
