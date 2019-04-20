@@ -30,15 +30,17 @@ int main()
 	}
 
 	char buffer[256];
-	recv(sock_cliente_de_memoria, &buffer, sizeof(buffer), 0);
+	int leng = recv(sock_cliente_de_memoria, &buffer, sizeof(buffer), 0);
+	buffer[leng] = '\0';
 
 	printf("RECIBI INFORMACION DE LA MEMORIA: %s\n", buffer);
 
 	//Mandar Mensajes
 	while (1) {
-		char mensaje[1000];
+		char* mensaje = malloc(1000);
 		fgets(mensaje, 1024, stdin);
 		send(sock_cliente_de_memoria, mensaje, strlen(mensaje), 0);
+		free(mensaje);
 	}
 
 	close(sock_cliente_de_memoria);

@@ -14,62 +14,84 @@
 #include<commons/string.h>
 #include<commons/config.h>
 #include<readline/readline.h>
-#include <errno.h>
+#include<errno.h>
+#include<pthread.h>
 
 #define TRUE 1
 #define FALSE 0
 #define PORT 4441
 
+void serServidor();
+void serCliente();
+void menu();
+
+int main()
+{
+	pthread_t tid[3];
+	int err;
+
+	    err = pthread_create(&(tid[0]), NULL, serServidor, NULL);
+	    if (err != 0){
+	    	printf("\nHubo un problema al crear el thread", strerror(err));
+	    	return err;
+	    }
+	    printf("\nEl thread Servidor inició su ejecución\n");
+
+	    err = pthread_create(&(tid[1]), NULL, serCliente, NULL);
+	    if (err != 0){
+	    	printf("\nHubo un problema al crear el thread", strerror(err));
+	    	return err;
+	    }
+	    printf("\nEl thread Cliente inició su ejecución\n");
+
+	    err = pthread_create(&(tid[1]), NULL, menu, NULL);
+
+	    pthread_join(tid[0], NULL);
+	    pthread_join(tid[1], NULL);
+	    pthread_join(tid[2], NULL);
+
+	    return 0;
+}
+
 // ABAJO MEMORIA COMO CLIENTE DEL SERVER FILE SYSTEM
-int main(int argc , char *argv[]){
-	printf("Soy Memoria \n");
 
-	int socketClienteDelFS;
-	socketClienteDelFS = socket(AF_INET, SOCK_STREAM, 0);
+void serCliente()
+{
+		printf("Soy Memoria \n");
 
-	struct sockaddr_in direccionServer;
-	direccionServer.sin_family = AF_INET;
-	direccionServer.sin_port = htons(4444);
-	direccionServer.sin_addr.s_addr = INADDR_ANY;
+		int socketClienteDelFS;
+		socketClienteDelFS = socket(AF_INET, SOCK_STREAM, 0);
 
-	if (connect(socketClienteDelFS, (struct sockaddr *) &direccionServer,
-			sizeof(direccionServer)) == -1) {
-		perror("Hubo un error en la conexion \n");
-		return -1;
-	}
+		struct sockaddr_in direccionServer;
+		direccionServer.sin_family = AF_INET;
+		direccionServer.sin_port = htons(4444);
+		direccionServer.sin_addr.s_addr = INADDR_ANY;
 
-	char buffer[256];
-	recv(socketClienteDelFS, &buffer, sizeof(buffer), 0);
+		if (connect(socketClienteDelFS, (struct sockaddr *) &direccionServer,
+				sizeof(direccionServer)) == -1) {
+			perror("Hubo un error en la conexion \n");
+		}
 
-	printf("RECIBI INFORMACION DEL FS: %s\n", buffer);
+		char buffer[256];
+		recv(socketClienteDelFS, &buffer, sizeof(buffer), 0);
 
-
-	// Mandar Mensajes
-	char mensaje[1000];
-	scanf("%s", mensaje);
-	send(socketClienteDelFS, mensaje, strlen(mensaje), 0);
-
-	char buffer2[256];
-	recv(socketClienteDelFS, &buffer2, sizeof(buffer2), 0);
-	printf("fs dice : %s\n", buffer2);
+		printf("RECIBI INFORMACION DEL FS: %s\n", buffer);
 
 
-/*
-	// Mandar Mensajes
-	while (1) {
-		char mensaje[1000];
-		scanf("%s", mensaje);
-		send(socketClienteDelFS, mensaje, strlen(mensaje), 0);
-
-		char buffer2[256];
-		recv(socketClienteDelFS, &buffer2, sizeof(buffer2), 0);
-		printf("fs dice : %s\n", buffer2);
-	}
-*/
-
+		// Mandar Mensajes
+		while (1) {
+			char* mensaje = malloc(1000);
+			fgets(mensaje, 1024, stdin);
+			send(socketClienteDelFS, mensaje, strlen(mensaje), 0);
+			free(mensaje);
+		}
+}
 
 //-------------------- ABAJO MEMORIA COMO SERVER DEL KERNEL CLIENTE
 
+
+void serServidor()
+{
 
 	int opt = TRUE;
 	int master_socket , addrlen , new_socket , client_socket[30] ,
@@ -83,7 +105,7 @@ int main(int argc , char *argv[]){
 	fd_set readfds;
 
 	//a message
-	char *message = "Este es el mensaje del server\r\n";
+	char message[100] = "Este es el mensaje del server\r\n";
 
 	//initialise all client_socket[] to 0 so not checked
 	for (i = 0; i < max_clients; i++)
@@ -225,86 +247,22 @@ int main(int argc , char *argv[]){
 					//set the string terminating NULL byte on the end
 					//of the data read
 					char mensaje[] = "Le llego tu mensaje a la memoria";
-
+					buffer3[valread] = '\0';
 					printf("Kernel: %s\n", buffer3);
 					send(sd , mensaje , strlen(mensaje) , 0 );
-					buffer3[valread] = '\0';
 				}
 			}
 		}
 	}
-
-	return 0;
 }
-
-
-
-
-/*
-	char mensaje2[256] = "\"Te has conectado con la memoria\"";
-
-	int socketServidorDelKernel;
-	socketServidorDelKernel = socket(AF_INET, SOCK_STREAM, 0);
-
-	struct sockaddr_in direccionKernel;
-	direccionKernel.sin_family = AF_INET;
-	direccionKernel.sin_port = htons(9003);
-	direccionKernel.sin_addr.s_addr = INADDR_ANY;
-
-	int activado = 1;
-	setsockopt(socketServidorDelKernel, SOL_SOCKET, SO_REUSEADDR, &activado, sizeof(activado));
-
-	if (bind(socketServidorDelKernel, (struct sockaddr*) &direccionKernel,
-			sizeof(direccionKernel)) != 0) {
-			perror("Fallo el bind");
-			return -1;
-	}
-
-	listen(socketServidorDelKernel, 100);
-
-	int sock_kernel;
-	struct sockaddr_in direccion_kernel;
-	unsigned int tamanio_coneccion;
-	sock_kernel = accept(socketServidorDelKernel, (void*) &direccion_kernel, &tamanio_coneccion);
-
-	//Mandar Mensaje
-	send(sock_kernel, mensaje2, sizeof(mensaje2), 0);
-
-	//Recibir Mensajes
-
-	char* buffer3 = malloc(1000);
-
-	while (1) {
-		int bytesRecibidos = recv(sock_kernel, buffer3, 1000, 0);
-		if (bytesRecibidos <= 0) {
-			perror("Error en recepcion de mensaje");
-			return 1;
-		}
-
-		buffer2[bytesRecibidos] = '\0';
-
-		printf("Me llegaron %d bytes con %s\n", bytesRecibidos, buffer3);
-	}
-
-	free(buffer3);
-
-	//Cerrar el socket
-	close(socketServidorDelKernel);
-	close(socketClienteDelFS);
-
-	return 0;
-}
-
-*/
 
 void menu(){
-	int opcionElegida;
+	int opcionElegida = 7;
 
 	printf("Elija una opcion : \n");
 	printf("1. SELECT \n	2. INSERT \n	3. CREATE\n		4. DESCRIBE \n		5. DROP\n		6. JOURNAL\n");
+	scanf("%d", &opcionElegida);
 	do{
-		scanf("%i",opcionElegida);
-	}while(opcionElegida<1 || opcionElegida>6);
 
 	switch(opcionElegida){
 		case 1:
@@ -328,6 +286,8 @@ void menu(){
 		default:
 			printf("ERROR");
 			break;
-	}
+		}
+	scanf("%d", &opcionElegida);
+	}while(opcionElegida != 0);
 }
 

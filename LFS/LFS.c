@@ -172,10 +172,10 @@ int main(int argc , char *argv[])
 					//set the string terminating NULL byte on the end
 					//of the data read
 					char mensaje[] = "Le llego tu mensaje al File System";
-
+					buffer[valread] = '\0';
 					printf("Memoria %d: %s\n",sd, buffer);
 					send(sd , mensaje , strlen(mensaje) , 0 );
-					buffer[valread] = '\0';
+
 				}
 			}
 		}
