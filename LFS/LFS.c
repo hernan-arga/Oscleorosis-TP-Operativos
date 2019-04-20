@@ -173,7 +173,7 @@ int main(int argc , char *argv[])
 					//of the data read
 					char mensaje[] = "Le llego tu mensaje al File System";
 
-					printf("Memoria: %s\n", buffer);
+					printf("Memoria %d: %s\n",sd, buffer);
 					send(sd , mensaje , strlen(mensaje) , 0 );
 					buffer[valread] = '\0';
 				}
