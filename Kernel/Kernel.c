@@ -37,7 +37,7 @@ int main()
 	//Mandar Mensajes
 	while (1) {
 		char mensaje[1000];
-		scanf("%s", mensaje);
+		fgets(mensaje, 1024, stdin);
 		send(sock_cliente_de_memoria, mensaje, strlen(mensaje), 0);
 	}
 
