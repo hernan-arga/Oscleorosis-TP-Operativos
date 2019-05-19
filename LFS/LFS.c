@@ -51,8 +51,8 @@ int main(int argc, char *argv[]) {
 }
 
 void verificarPeticion(char* mensaje) {
-	char* peticion = malloc(1000);
-	char* parametros = malloc(1000);
+	char* peticion = malloc(strlen(mensaje)+1);
+	char* parametros = malloc(strlen(mensaje)+1);
 	int seInsertaronParametros = separarPalabra(mensaje, &peticion, &parametros);
 	if (seInsertaronParametros) {
 		realizarPeticion(peticion, parametros);
@@ -66,44 +66,35 @@ void verificarPeticion(char* mensaje) {
 //Las cadenas son especiales, ya que cuando paso char* paso el valor de la cadena, no su referencia.
 //Para modificar cadenas se usa la doble referencia char**
 int separarPalabra(char* mensaje, char** palabra, char** restoDelMensaje) {
-	char* delimitador = malloc(4);
-	//Es necesario liberar la memoria de la variable que sigue?
-	char* loQueSigue;
-	strcpy(delimitador, " \n");
+	char delimitador[2] = " \n";
 	strcpy(*palabra, strtok(mensaje, delimitador));
 	//En la siguiente llamada strtok espera NULL en lugar de mensaje para saber que tiene que seguir operando con el resto
-	loQueSigue = strtok(NULL, "\0");
+	char* loQueSigue = strtok(NULL, "\0");
 	if (loQueSigue != NULL) {
 		strcpy(*restoDelMensaje, loQueSigue);
 	} else {
 		return 0;
-		//strcpy(*restoDelMensaje, "VACIO");
 	}
-	free(delimitador);
 	return 1;
-	//free(loQueSigue);
 }
 
 //Separa los parametros e indica si la cantidad de los mismos es igual a la cantidad que se necesita
 //Hay que arreglar que en lugar de que las palabras sean 30 fijo de tamaño sean dinamicos
 int separarEnVector(char** parametros, char parametrosSeparados[][30],
 		int cantidadDeElementos) {
-	char* delimitador = malloc(4);
-	//Para no modificar el valor de la variable parametros hago una copia
-	char* copiaParametros = malloc(sizeof(*parametros));
-	strcpy(delimitador, " \n");
+	char delimitador[2] = " \n";
+	//Para no modificar el valor de la variable "parametros" hago una copia
+	char* copiaParametros = malloc(strlen(*parametros)+1);
 	strcpy(copiaParametros, *parametros);
 	int posicion = 0;
 	//Es necesario liberar la memoria de la variable que sigue?
 	char* token = strtok(copiaParametros, delimitador);
 	while (token != NULL && posicion < cantidadDeElementos) {
 		//Los vectores de char* son de solo lectura por eso vector de vectores de char para sobreescribir
-		//printf("---%s",token);
 		strcpy(parametrosSeparados[posicion], token);
 		token = strtok(NULL, delimitador);
 		posicion++;
 	}
-	free(delimitador);
 	free(copiaParametros);
 	//si la cantidad de parametros ingresados es igual a lo necesario
 	return (posicion == cantidadDeElementos && token == NULL);
@@ -115,9 +106,9 @@ void realizarPeticion(char* peticion, char* parametros) {
 	switch (instruccion) {
 	case SELECT:
 		printf("Seleccionaste Select\n");
-		/*Defino de que manera van a ser validos los parametros del select y luego paso el puntero de dicha funcion.
-		 Los parametros son validos si el segundo (la key) es un numero, y la cantidadDeParametrosUsados solo se pasa para hacer
-		 polimorfica la funcion criterioTiposCorrectos.*/
+		//Defino de que manera van a ser validos los parametros del select y luego paso el puntero de dicha funcion.
+		//Los parametros son validos si el segundo (la key) es un numero, y la cantidadDeParametrosUsados solo se pasa para hacer
+		//polimorfica la funcion criterioTiposCorrectos.
 		int criterioSelect(char parametrosSeparados[][30], int cantidadDeParametrosUsados) {
 			return esUnNumero(parametrosSeparados[1]);
 		}
@@ -129,7 +120,6 @@ void realizarPeticion(char* peticion, char* parametros) {
 		printf("Seleccionaste Insert\n");
 		int criterioInsert(char parametrosSeparados[][30],
 				int cantidadDeParametrosUsados) {
-			//printf("%i",sizeof(parametrosSeparados)/30);
 			if (cantidadDeParametrosUsados == 4) {
 				return esUnNumero(parametrosSeparados[1])
 						&& esUnNumero(parametrosSeparados[3]);
@@ -144,7 +134,6 @@ void realizarPeticion(char* peticion, char* parametros) {
 	case CREATE:
 		printf("Seleccionaste Create\n");
 		int criterioCreate(char parametrosSeparados[][30], int cantidadDeParametrosUsados) {
-			//printf("%i\n",esUnTipoDeConsistenciaValida(parametrosSeparados[1]));
 			return esUnNumero(parametrosSeparados[2])
 					&& esUnNumero(parametrosSeparados[3])
 					&& esUnTipoDeConsistenciaValida(parametrosSeparados[1]);
@@ -160,7 +149,6 @@ void realizarPeticion(char* peticion, char* parametros) {
 
 int parametrosValidos(int cantidadDeParametrosNecesarios, char* parametros,
 		int (*criterioTiposCorrectos)(char[][30], int)) {
-	//printf("%i - %i", cantidadValidaParametros(parametros, cantidadDeParametrosNecesarios), tiposCorrectos(parametros, cantidadDeParametrosNecesarios, (void *)criterioTiposCorrectos));
 	return cantidadValidaParametros(parametros, cantidadDeParametrosNecesarios)
 			&& tiposCorrectos(parametros, cantidadDeParametrosNecesarios,
 					(void *) criterioTiposCorrectos);
@@ -185,9 +173,8 @@ int cantidadValidaParametros(char* parametros, int cantidadDeParametrosNecesario
 }
 
 OPERACION tipoDePeticion(char* peticion) {
-	char* peticionUpperCase = malloc(strlen(peticion));
+	char* peticionUpperCase = malloc(strlen(peticion)+1);
 	stringToUpperCase(peticion, &peticionUpperCase);
-	//printf("%s\n", peticionUpperCase);
 	if (!strcmp(peticionUpperCase, "SELECT")) {
 		free(peticionUpperCase);
 		return SELECT;
@@ -227,14 +214,13 @@ int esUnTipoDeConsistenciaValida(char* cadena) {
 }
 
 void stringToUpperCase(char* palabra, char** palabraEnMayusculas) {
-	char* aux = malloc(strlen(palabra));
+	char* aux = malloc(strlen(palabra)+1);
 	strcpy(aux, palabra);
 	int i = 0;
 	while (aux[i] != '\0') {
 		aux[i] = toupper(aux[i]);
 		i++;
 	}
-	//strcpy(*palabraEnMayusculas, aux);
 	strcpy(*palabraEnMayusculas, aux);
 	free(aux);
 }
