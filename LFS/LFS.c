@@ -25,11 +25,18 @@ void realizarPeticion(char*);
 void verificarPeticion(char*, char*);
 int numeroDePeticion(char*);
 void stringToUpperCase(char*, char**);
-int separarEnVector(char**, char*[]);
+int separarEnVector(char**, char[][30], int);
+int cantidadValidaParametros(char*, int);
+int parametrosValidos(int, char*, int (*criterioTiposCorrectos)(char[][30], int));
+int tiposCorrectos(char*, int,
+		int (*criterioTiposCorrectos)(char[][30], int));
+int esUnNumero(char* cadena);
 
-typedef enum{
-	CREATE, INSERT, DROP
-}OPERACION;
+/*
+ typedef enum {
+ CREATE, INSERT, DROP
+ } OPERACION;
+ */
 
 int main(int argc, char *argv[]) {
 	while (1) {
@@ -47,10 +54,13 @@ int main(int argc, char *argv[]) {
 void realizarPeticion(char* mensaje) {
 	char* peticion = malloc(1000);
 	char* parametros = malloc(1000);
-	if (separarPalabra(mensaje, &peticion, &parametros) != -1) {
+	//printf("???%p - ???%p\n", peticion, parametros);
+	int seInsertaronParametros = separarPalabra(mensaje, &peticion,
+			&parametros);
+	if (seInsertaronParametros) {
 		verificarPeticion(peticion, parametros);
 	} else {
-		printf("No se ingresaron parametros");
+		printf("No se ingresaron parametros\n");
 	}
 	free(peticion);
 	free(parametros);
@@ -77,51 +87,103 @@ int separarPalabra(char* mensaje, char** palabra, char** restoDelMensaje) {
 	//free(loQueSigue);
 }
 
-int separarEnVector(char** parametros, char* parametrosSeparados[]) {
+//Separa los parametros e indica si la cantidad de los mismos es igual a la cantidad que se necesita
+//Hay que arreglar que en lugar de que las palabras sean 30 fijo de tamaño sean dinamicos
+int separarEnVector(char** parametros, char parametrosSeparados[][30],
+		int cantidadDeElementos) {
 	char* delimitador = malloc(5);
+	//Para no modificar el valor de la variable parametros hago una copia
+	char* copiaParametros = malloc(sizeof(*parametros));
 	strcpy(delimitador, " \n");
+	strcpy(copiaParametros,*parametros);
 	int i = 0;
+	//printf("PPP%s - %i\n", parametrosSeparados[1], &parametrosSeparados);
+	//printf("\"%s\"", copiaParametros);
 	//Es necesario liberar la memoria de la variable que sigue?
-	char* token = strtok(*parametros, delimitador);
-	while (token != NULL || i < sizeof(parametrosSeparados)) {
-		printf("token: %s - i: %i\n", token,i);
-		parametrosSeparados[i] = token;
+	char* token = strtok(copiaParametros, delimitador);
+	while (token != NULL && i<cantidadDeElementos) {
+		//printf("$$$token: %s - i: %i\n", token, i);
+		//Los vectores de char* son de solo lectura por eso vector de vectores de char para sobreescribir
+		strcpy(parametrosSeparados[i], token);
 		token = strtok(NULL, delimitador);
 		i++;
-		printf("---token: %s - i: %i\n", token,i);
+		//printf("###token: %s - i: %i\n", token, i);
 	}
+	//printf("\nAAA%s\n", parametrosSeparados[0]);
 	free(delimitador);
-	if(i>sizeof(parametrosSeparados)){
-		return 0;
-	}
-	return 1;
+	free(copiaParametros);
+	//si la cantidad de parametros es igual a lo necesario
+	//printf("%i - %s\n", i, token);
+	return (i == cantidadDeElementos && token == NULL);
 }
 
 //Aca no se necesita la referencia solo el valor
 void verificarPeticion(char* peticion, char* parametros) {
 	int instruccion = numeroDePeticion(peticion);
+	//printf("???%p - ???%p\n", peticion, parametros);
 	//parametrosSeparados[cantidadParametros] = malloc(1000);
 	switch (instruccion) {
 	case 1:
-		printf("Seleccionaste Insert");
-		validarParametros(&parametros, 4);
+		printf("Seleccionaste Insert\n");
+		//Defino de que manera van a ser validos los parametros del insert y luego paso el puntero de dicha funcion
+		//Los parametros son validos si el segundo y el cuarto son numeros
+		int criterioInsert(char parametrosSeparados[][30], int cantidadDeParametrosNecesarios){
+			//printf("%i",sizeof(parametrosSeparados)/30);
+			if(cantidadDeParametrosNecesarios==4){
+				return esUnNumero(parametrosSeparados[1]) && esUnNumero(parametrosSeparados[3]);
+			}
+			return esUnNumero(parametrosSeparados[1]);
+		}
+		//puede o no estar el timestamp
+		if(parametrosValidos(4, parametros, (void *)criterioInsert) || parametrosValidos(3, parametros, (void *)criterioInsert))
+			//printf("%p", parametros);
+			printf("ESTOY HACIENDO INSERT\n");
 		break;
 	case 2:
 		printf("Seleccionaste Create\n");
-		validarParametros(&parametros, 4);
+		/*if (validarCantidadParametros(&parametros, 4)) {
+			printf("La cantidad de parametros es valida");
+		} else {
+			printf("La cantidad de parametros no es valida");
+		}*/
 		break;
 	default:
 		printf("Error operacion invalida\n");
 	}
 }
 
-int validarParametros(char* parametros, int cantidad){
-	char* parametrosSeparados[cantidad];
-	int cantidadParametrosValida = separarEnVector(&parametros, parametrosSeparados);
-	if(cantidadParametrosValida){
-		return 1;
-	}
-	return 0;
+int parametrosValidos(int cantidadDeParametrosNecesarios, char* parametros, int (*criterioTiposCorrectos)(char[][30], int)) {
+	//printf("%i - %i", cantidadValidaParametros(parametros, cantidadDeParametrosNecesarios), tiposCorrectos(parametros, cantidadDeParametrosNecesarios, (void *)criterioTiposCorrectos));
+	return cantidadValidaParametros(parametros, cantidadDeParametrosNecesarios) &&
+			tiposCorrectos(parametros, cantidadDeParametrosNecesarios, (void *)criterioTiposCorrectos);
+}
+
+int tiposCorrectos(char* parametros, int cantidadDeParametrosNecesarios,
+		int (*criterioTiposCorrectos)(char[][30], int)){
+	char parametrosSeparados[cantidadDeParametrosNecesarios][30];
+	//printf("T%i\n",sizeof(parametrosSeparados)/30);
+	//parametrosSeparados[0] = "123";
+	//printf("OOO%s - %p\n", parametrosSeparados[0], parametrosSeparados);
+	separarEnVector(&parametros,
+				parametrosSeparados, cantidadDeParametrosNecesarios);
+	//printf("OOO%s - %p\n", parametrosSeparados[0], parametrosSeparados);
+	return criterioTiposCorrectos(parametrosSeparados, cantidadDeParametrosNecesarios);
+}
+
+
+
+int cantidadValidaParametros(char* parametros, int cantidadDeParametrosNecesarios) {
+	//printf("---%i", cantidadDeParametrosNecesarios);
+	char parametrosSeparados[cantidadDeParametrosNecesarios][30];
+	//strcpy(parametrosSeparados[0], "HHHHHA");
+	//printf("ZZ%s - %i\n", parametrosSeparados[1], &parametrosSeparados);
+	int cantidadParametrosValida = separarEnVector(&parametros, parametrosSeparados, cantidadDeParametrosNecesarios);
+	//printf("!!!%i -- ", cantidadParametrosValida);
+	//printf("!!!%s", parametros);
+	if(!cantidadParametrosValida)
+		//hay que arreglar esto para que en el caso de insert solo lo muestre si no se cumple con 4 ni con 3
+		printf("La cantidad de parametros no es valida\n");
+	return cantidadParametrosValida;
 }
 
 int numeroDePeticion(char* peticion) {
@@ -140,6 +202,15 @@ int numeroDePeticion(char* peticion) {
 			return -1;
 		}
 	}
+}
+
+int esUnNumero(char* cadena){
+	for(int i=0; i<strlen(cadena); i++){
+		if(!isdigit(cadena[i])){
+			return 0;
+		}
+	}
+	return 1;
 }
 
 void stringToUpperCase(char* palabra, char** palabraEnMayusculas) {
