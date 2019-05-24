@@ -12,6 +12,24 @@
 #include <unistd.h>
 #include <readline/readline.h>
 
+struct RR_config{
+	int quantum;
+};
+
+struct LQL{
+};
+
+struct ColaReady{
+	struct LQL;
+	struct ColaReady*sig;
+};
+
+struct Script{
+	struct LQL;
+	struct Script*sig;
+	struct Script*ant;
+};
+
 int main()
 {
 	printf("Soy Kernel \n");
@@ -87,7 +105,29 @@ void menu(){
 			printf("Elegiste METRICS\n");
 			break;
 		default:
-			printf("ERROR");
+			printf("ERROR\n");
 			break;
 	}
 }
+
+
+void round_robin(){
+	FILE *round_robin= fopen("round_robin.bin","rb");
+	if (round_robin==NULL) {
+		printf("ERROR: Archivo round_robin vacio\n");
+	}
+	else{
+		struct RR_config configuracion;
+
+		fread(&configuracion,sizeof(struct RR_config),1,round_robin);
+		fclose(round_robin);
+		for(int contador=0;contador<configuracion.quantum;contador++){
+			FILE* archivo = fopen(archivo_LQL,"rb");
+			if(archivo==NULL){
+				printf("ERROR: El archivo a ejecutar no contiene peticiones\n");
+			}
+		}
+	}
+}
+
+//Lista de programas activos con PID cada uno, si alguno se termina de correr, el PID vuelve a estar libre para que otro programa entrante lo ocupe.
