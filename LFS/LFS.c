@@ -12,6 +12,8 @@
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
 
 #include <ctype.h>
+#include <sys/stat.h>
+#include <dirent.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -22,8 +24,10 @@ typedef enum {
 } OPERACION;
 
 void iniciarConexion();
-/*void insert();
- void select();*/
+//void insert();
+//void select();
+void create();
+int existeLaTabla(char*);
 int separarPalabra(char*, char**, char**);
 void verificarPeticion(char*);
 void realizarPeticion(char*, char*);
@@ -79,7 +83,7 @@ int separarPalabra(char* mensaje, char** palabra, char** restoDelMensaje) {
 }
 
 //Separa los parametros e indica si la cantidad de los mismos es igual a la cantidad que se necesita
-//Hay que arreglar que en lugar de que las palabras sean 30 fijo de tamaño sean dinamicos
+//Hay que arreglar que en lugar de que las palabras sean 30 fijo de tamaño sean dinamicos respecto a lo que dice el archivo de configuracion del LFS
 int separarEnVector(char** parametros, char parametrosSeparados[][30],
 		int cantidadDeElementos) {
 	char delimitador[2] = " \n";
@@ -113,8 +117,9 @@ void realizarPeticion(char* peticion, char* parametros) {
 			return esUnNumero(parametrosSeparados[1]);
 		}
 
-		if (parametrosValidos(2, parametros, (void *) criterioSelect))
+		if (parametrosValidos(2, parametros, (void *) criterioSelect)){
 			printf("ESTOY HACIENDO SELECT\n");
+		}
 		break;
 	case INSERT:
 		printf("Seleccionaste Insert\n");
@@ -127,9 +132,9 @@ void realizarPeticion(char* peticion, char* parametros) {
 			return esUnNumero(parametrosSeparados[1]);
 		}
 		//puede o no estar el timestamp
-		if (parametrosValidos(4, parametros, (void *) criterioInsert)
-				|| parametrosValidos(3, parametros, (void *) criterioInsert))
+		if (parametrosValidos(4, parametros, (void *) criterioInsert) || parametrosValidos(3, parametros, (void *) criterioInsert)){
 			printf("ESTOY HACIENDO INSERT\n");
+		}
 		break;
 	case CREATE:
 		printf("Seleccionaste Create\n");
@@ -139,8 +144,10 @@ void realizarPeticion(char* peticion, char* parametros) {
 					&& esUnTipoDeConsistenciaValida(parametrosSeparados[1]);
 			return 1;
 		}
-		if (parametrosValidos(4, parametros, (void *) criterioCreate))
+		if (parametrosValidos(4, parametros, (void *) criterioCreate)){
 			printf("ESTOY HACIENDO CREATE\n");
+			create(parametros);
+		}
 		break;
 	default:
 		printf("Error operacion invalida\n");
@@ -225,10 +232,43 @@ void stringToUpperCase(char* palabra, char** palabraEnMayusculas) {
 	free(aux);
 }
 
-/*void insert(){
+void create(char* parametros){
+	FILE *archivoDeErroresCreate = fopen("../erroresCreate.log", "a");
+	char parametrosSeparados[4][30];
+	separarEnVector(&parametros, parametrosSeparados, 4);
+	//Reservo memoria para el nombre de la tabla el salto de linea en caso de que lo precise y el \0
+	char* tablaEnMayusculas = malloc(strlen(parametrosSeparados[0])+2);
+	stringToUpperCase(parametrosSeparados[0], &tablaEnMayusculas);
+	if(existeLaTabla(tablaEnMayusculas)){
+		//¿Como debe retornar esto por socket?
+		printf("Error: ya existe una tabla con el nombre %s\n", tablaEnMayusculas);
+		strcat(tablaEnMayusculas,"\n");
+		fwrite(tablaEnMayusculas, sizeof(char), strlen(tablaEnMayusculas), archivoDeErroresCreate);
+	}
+	else{
+		char* path = malloc(strlen("../Tables/")+strlen(parametrosSeparados[0])+1);
+		strcpy(path, "../Tables/");
+		strcat(path, tablaEnMayusculas);
+		//El segundo parametro es una mascara que define permisos
+		mkdir(path, 0777);
+		free(path);
+	}
+	free(tablaEnMayusculas);
+	fclose(archivoDeErroresCreate);
+}
 
- }
-
+int existeLaTabla(char* nombreDeTabla){
+	DIR *directorio = opendir("../Tables");
+	struct dirent *directorioALeer;
+	while((directorioALeer=readdir(directorio))!=NULL){
+		//Evaluo si de todas las carpetas dentro de TABAS existe alguna que tenga el mismo nombre
+		if((directorioALeer->d_type) == DT_DIR && !strcmp((directorioALeer->d_name), nombreDeTabla)){
+			return 1;
+		}
+	}
+	return 0;
+}
+/*
  void select(){
 
  }*/
