@@ -28,6 +28,7 @@ void iniciarConexion();
 //void select();
 void create();
 int existeLaTabla(char*);
+void crearMetadata(char*, char*, char*, char*);
 int separarPalabra(char*, char**, char**);
 void verificarPeticion(char*);
 void realizarPeticion(char*, char*);
@@ -246,15 +247,48 @@ void create(char* parametros){
 		fwrite(tablaEnMayusculas, sizeof(char), strlen(tablaEnMayusculas), archivoDeErroresCreate);
 	}
 	else{
-		char* path = malloc(strlen("../Tables/")+strlen(parametrosSeparados[0])+1);
+		char* path = malloc(strlen("../Tables/")+strlen(tablaEnMayusculas)+1);
 		strcpy(path, "../Tables/");
 		strcat(path, tablaEnMayusculas);
 		//El segundo parametro es una mascara que define permisos
 		mkdir(path, 0777);
+
+		char* consistencia = malloc(strlen(parametrosSeparados[1])+1);
+		strcpy(consistencia, parametrosSeparados[1]);
+		char* cantidadDeParticiones = malloc(strlen(parametrosSeparados[2])+1);
+		strcpy(cantidadDeParticiones, parametrosSeparados[2]);
+		char* tiempoDeCompactacion = malloc(strlen(parametrosSeparados[3])+1);
+		strcpy(tiempoDeCompactacion, parametrosSeparados[3]);
+
+		//Si en algun momento quiero convertir string a int existe la funcion atoi
+		crearMetadata(path, consistencia, cantidadDeParticiones, tiempoDeCompactacion);
+		free(consistencia);
+		free(cantidadDeParticiones);
+		free(tiempoDeCompactacion);
 		free(path);
 	}
 	free(tablaEnMayusculas);
 	fclose(archivoDeErroresCreate);
+}
+
+void crearMetadata(char* path, char* consistencia, char* cantidadDeParticiones, char* tiempoDeCompactacion){
+	char* directorioMetadata = malloc(strlen(path)+strlen("/metadata")+1);
+	char* datos = malloc(500);
+	strcpy(directorioMetadata, path);
+	strcat(directorioMetadata, "/metadata");
+	FILE *metadata = fopen(directorioMetadata,"w");
+	strcpy(datos, "CONSISTENCY=");
+	strcat(datos, consistencia);
+	strcat(datos, "\n");
+	strcat(datos, "PARTITIONS=");
+	strcat(datos, cantidadDeParticiones);
+	strcat(datos, "\n");
+	strcat(datos, "COMPACTION_TIME=");
+	strcat(datos, tiempoDeCompactacion);
+	fwrite(datos, sizeof(char), strlen(datos), metadata) ;
+	fclose(metadata);
+	free(datos);
+	free(directorioMetadata);
 }
 
 int existeLaTabla(char* nombreDeTabla){
@@ -263,9 +297,11 @@ int existeLaTabla(char* nombreDeTabla){
 	while((directorioALeer=readdir(directorio))!=NULL){
 		//Evaluo si de todas las carpetas dentro de TABAS existe alguna que tenga el mismo nombre
 		if((directorioALeer->d_type) == DT_DIR && !strcmp((directorioALeer->d_name), nombreDeTabla)){
+			closedir(directorio);
 			return 1;
 		}
 	}
+	closedir(directorio);
 	return 0;
 }
 /*
