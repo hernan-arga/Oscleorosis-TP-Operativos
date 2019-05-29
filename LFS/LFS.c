@@ -14,6 +14,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <time.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -24,11 +25,16 @@ typedef enum {
 } OPERACION;
 
 void iniciarConexion();
-//void insert();
+void insert();
+void obtenerDatosMetadata(FILE* , char**, char**, char**);
+int seEncuentraLaPalabra(char*, FILE*);
+void guardarDato(char**, FILE* );
 //void select();
 void create();
 int existeLaTabla(char*);
 void crearMetadata(char*, char*, char*, char*);
+void crearBinarios(char*, int);
+void asignarBloque(FILE *);
 int separarPalabra(char*, char**, char**);
 void verificarPeticion(char*);
 void realizarPeticion(char*, char*);
@@ -133,8 +139,23 @@ void realizarPeticion(char* peticion, char* parametros) {
 			return esUnNumero(parametrosSeparados[1]);
 		}
 		//puede o no estar el timestamp
-		if (parametrosValidos(4, parametros, (void *) criterioInsert) || parametrosValidos(3, parametros, (void *) criterioInsert)){
+		if (parametrosValidos(4, parametros, (void *) criterioInsert)){
 			printf("ESTOY HACIENDO INSERT\n");
+			insert(parametros);
+		}
+		else if (parametrosValidos(3, parametros, (void *) criterioInsert)){
+			printf("ESTOY HACIENDO INSERT\n");
+			//¿El timestamp nesecita conversion? esto esta en segundos y no hay tipo de dato que banque los milisegundos por el tamanio
+			long int timestampActual = (long int)time(NULL);
+			char* timestamp = malloc(100);
+			char* parametrosConTimestamp = malloc(strlen(parametros)+sizeof(long int)+20);
+			strcpy(parametrosConTimestamp, parametros);
+			strcat(parametrosConTimestamp, " ");
+			sprintf(timestamp, "%li", timestampActual);
+			strcat(parametrosConTimestamp, timestamp);
+			free(timestamp);
+			insert(parametrosConTimestamp);
+			free(parametrosConTimestamp);
 		}
 		break;
 	case CREATE:
@@ -233,6 +254,113 @@ void stringToUpperCase(char* palabra, char** palabraEnMayusculas) {
 	free(aux);
 }
 
+void insert(char* parametros){
+	char parametrosSeparados[4][30];
+	separarEnVector(&parametros, parametrosSeparados, 4);
+	char* tablaEnMayusculas = malloc(strlen(parametrosSeparados[0])+1);
+	stringToUpperCase(parametrosSeparados[0], &tablaEnMayusculas);
+	char* key = malloc(strlen(parametrosSeparados[1])+1);
+	strcpy(key, parametrosSeparados[1]);
+	char* value = malloc(strlen(parametrosSeparados[2])+1);
+	strcpy(value, parametrosSeparados[2]);
+	char* timestamp = malloc(strlen(parametrosSeparados[3])+1);
+	strcpy(timestamp, parametrosSeparados[3]);
+	//Aca hace el insert
+	if(!existeLaTabla(tablaEnMayusculas)){
+		printf("Error: no existe una tabla con el nombre %s\n", tablaEnMayusculas);
+	}
+	else{
+		char* tipoConsistencia = malloc(3);
+		char* cantidadDeParticiones = malloc(10);
+		char* tiempoDeCompactacion = malloc(100);
+		char* path = malloc(strlen("../Tables/")+strlen("/metadata")+strlen(tablaEnMayusculas)+1);
+		strcpy(path, "../Tables/");
+		strcat(path, tablaEnMayusculas);
+		strcat(path, "/metadata");
+		FILE *metadata = fopen(path, "rb");
+		//obtenerDatosMetadata(metadata, &tipoConsistencia, &cantidadDeParticiones, &tiempoDeCompactacion);
+		printf(tipoConsistencia);
+		printf(cantidadDeParticiones);
+		printf(tiempoDeCompactacion);
+		free(tipoConsistencia);
+		free(cantidadDeParticiones);
+		free(tiempoDeCompactacion);
+		fclose(metadata);
+	}
+	free(tablaEnMayusculas);
+	free(key);
+	free(timestamp);
+	free(value);
+}
+
+void obtenerDatosMetadata(FILE* metadata, char** tipoConsistencia, char** cantidadDeParticiones, char** tiempoDeCompactacion){
+	//char* datos;
+	if(metadata==NULL){
+		printf("ERROR: La metadata de la tabla seleccionada no existe");
+		exit(-1);
+	}
+	fseek(metadata, 0, SEEK_SET);
+	//ubico el puntero en la posicion correspondiente para leer el valor
+	if(seEncuentraLaPalabra("CONSISTENCY=", metadata)){
+		//& o *?
+		guardarDato(*tipoConsistencia, metadata);
+	}
+	rewind(metadata);
+	if(seEncuentraLaPalabra("PARTITIONS=", metadata)){
+		guardarDato(*cantidadDeParticiones, metadata);
+	}
+	rewind(metadata);
+	if(seEncuentraLaPalabra("COMPACTION_TIME=", metadata)){
+		guardarDato(*tiempoDeCompactacion, metadata);
+	}
+	rewind(metadata);
+	//fread(datos, sizeof(char), 1, metadata);
+}
+
+void guardarDato(char** dondeGuardar, FILE* metadata){
+	char* aux = malloc(1000);
+	char caracterALeer = malloc(sizeof(char));
+	fread(caracterALeer, sizeof(char), 1, metadata);
+	if(caracterALeer!=NULL){
+		strcpy(aux, caracterALeer);
+		fread(caracterALeer, sizeof(char), 1, metadata);
+		while(!feof(metadata) && !strcmp(caracterALeer, '\n') && !strcmp(caracterALeer, '\0')){
+			strcat(aux, caracterALeer);
+			fread(caracterALeer, sizeof(char), 1, metadata);
+		}
+		strcpy(*dondeGuardar, aux);
+	}
+	else{
+		free(aux);
+		free(caracterALeer);
+		printf("ERROR: uno de los datos de la tabla no se encuentra bien cargado");
+		exit(-1);
+	}
+	free(aux);
+	free(caracterALeer);
+}
+
+int seEncuentraLaPalabra(char* palabra, FILE* metadata){
+	char* aux = malloc(1000);
+	char caracterALeer = malloc(sizeof(char));
+	fread(caracterALeer, sizeof(char), 1, metadata);
+	if(caracterALeer!=NULL){
+		strcpy(aux, caracterALeer);
+		while(!feof(metadata)){
+			fread(caracterALeer, sizeof(char), 1, metadata);
+			strcat(aux, caracterALeer);
+			if(strstr(aux, palabra)){
+				free(caracterALeer);
+				free(aux);
+				return 1;
+			}
+		}
+	}
+	free(caracterALeer);
+	free(aux);
+	return 0;
+}
+
 void create(char* parametros){
 	FILE *archivoDeErroresCreate = fopen("../erroresCreate.log", "a");
 	char parametrosSeparados[4][30];
@@ -262,6 +390,7 @@ void create(char* parametros){
 
 		//Si en algun momento quiero convertir string a int existe la funcion atoi
 		crearMetadata(path, consistencia, cantidadDeParticiones, tiempoDeCompactacion);
+		crearBinarios(path, atoi(cantidadDeParticiones));
 		free(consistencia);
 		free(cantidadDeParticiones);
 		free(tiempoDeCompactacion);
@@ -269,6 +398,34 @@ void create(char* parametros){
 	}
 	free(tablaEnMayusculas);
 	fclose(archivoDeErroresCreate);
+}
+
+void crearBinarios(char* path, int cantidadDeParticiones){
+	for(int i = 0; i<cantidadDeParticiones; i++){
+		//10 para dejar cierto margen a la cantidad de particiones
+		char* directorioBinario = malloc(strlen(path)+10);
+		char* numeroDeParticion = malloc(10);
+		sprintf(numeroDeParticion, "%d", i);
+		strcpy(directorioBinario, path);
+		strcat(directorioBinario, "/");
+		strcat(directorioBinario, numeroDeParticion);
+		strcat(directorioBinario, ".bin");
+		FILE *binario = fopen(directorioBinario, "w");
+		asignarBloque(binario);
+		free(directorioBinario);
+		free(numeroDeParticion);
+		fclose(binario);
+	}
+}
+
+//No se como funciona esta parte
+void asignarBloque(FILE *binario){
+	/*char* datos = malloc(500);
+	strcpy(datos, "SIZE=");
+	strcat(datos, tamanioDelArchivo);
+	strcat(datos, "\n");
+	strcpy(datos, "BLOCKS=");
+	strcat(datos, ordenDeLosArchivos);*/
 }
 
 void crearMetadata(char* path, char* consistencia, char* cantidadDeParticiones, char* tiempoDeCompactacion){
