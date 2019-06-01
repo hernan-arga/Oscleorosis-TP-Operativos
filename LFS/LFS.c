@@ -1,5 +1,5 @@
 // FS
-/*
+
 #include <stdio.h>
 #include <string.h> //strlen
 #include <stdlib.h>
@@ -10,7 +10,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
-
 #include <ctype.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -29,7 +28,8 @@ typedef enum {
 	SELECT, INSERT, CREATE, DESCRIBE, DROP, OPERACIONINVALIDA
 } OPERACION;
 
-void iniciarConexion();
+
+//void iniciarConexion();
 
 void insert(char*, char*, char*, char*);
 int existeUnaListaDeDatosADumpear();
@@ -51,6 +51,7 @@ int parametrosValidos(int, char**, int (*criterioTiposCorrectos)(char**, int));
 int esUnNumero(char* cadena);
 int esUnTipoDeConsistenciaValida(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
+
 
 int main(int argc, char *argv[]) {
 	while (1) {
@@ -106,6 +107,7 @@ void realizarPeticion(char** parametros) {
 			char* key = parametros[2];
 			realizarSelect(tabla, key);
 		}
+
 
 		break;
 
@@ -177,6 +179,7 @@ void realizarPeticion(char** parametros) {
 		printf("Error operacion invalida\n");
 	}
 }
+
 
 int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
 		int (*criterioTiposCorrectos)(char**, int)) {
@@ -262,6 +265,7 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 int existeUnaListaDeDatosADumpear() {
 	return 1;
 }
+
 
 void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 		char* tiempoDeCompactacion) {
@@ -383,7 +387,7 @@ void realizarSelect(char* tabla, char* key) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	}
-}*/
+}
 
 /*
  void iniciarConexion(){
