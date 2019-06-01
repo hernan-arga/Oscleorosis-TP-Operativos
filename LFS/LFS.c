@@ -362,18 +362,43 @@ int existeLaTabla(char* nombreDeTabla) {
 void realizarSelect(char* tabla, char* key) {
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
-		char* pathMetadata = malloc(strlen("../Tables/") + strlen(tabla) + strlen("/metadata") + 1);
+		char* pathMetadata = malloc(strlen("../Tables/") + strlen(tabla) + strlen("/Metadata") + 1);
 		strcpy(pathMetadata, "../Tables/");
 		strcat(pathMetadata, tabla);
-		strcat(pathMetadata, "/metadata");
+		strcat(pathMetadata, "/Metadata");
 		t_config *metadata = config_create(pathMetadata);
-		char *consistencia = config_get_string_value(metadata, "CONSISTENCY");
 		int cantidadDeParticiones = config_get_int_value(metadata, "PARTITIONS");
-		int tiempoDeCompactacion = config_get_long_value(metadata, "COMPACTION_TIME");
 		//printf("%i - %i\n",atoi(key), cantidadDeParticiones);
 		int particionQueContieneLaKey = (atoi(key))%cantidadDeParticiones;
 		printf("La key esta en la particion %i\n", particionQueContieneLaKey);
-		config_destroy(metadata);
+
+		//
+		char* pathParticionQueContieneKey = malloc(strlen("../Tables/") + strlen(tabla) + strlen("/") + strlen(particionQueContieneLaKey) + strlen(".bin") + 1);
+		strcpy(pathParticionQueContieneKey, "../Tables/");
+		strcat(pathParticionQueContieneKey, tabla);
+		strcat(pathParticionQueContieneKey, "/");
+		strcat(pathParticionQueContieneKey, particionQueContieneLaKey);
+		strcat(pathParticionQueContieneKey, ".bin");
+		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
+		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS
+		for(int i=0; i<((sizeof(vectorBloques))-1); i++){
+			vectorBloques[i] = atoi(vectorBloques[i]);
+			// por cada bloque, tengo que entrar a este bloque
+			char* pathBloque = malloc(strlen("../Bloques/") + strlen((vectorBloques[i])) + strlen(".bin") +1);
+			strcpy(pathBloque, "../Bloques/");
+			strcat(pathBloque, (vectorBloques[i]));
+			strcat(pathBloque, ".bin");
+			FILE *archivoBloque = fopen(pathBloque, "r");
+
+
+			free(pathBloque);
+		}
+		free(pathMetadata);
+		free(pathParticionQueContieneKey);
+
+
+
+		config_destroy(tamanioYBloques);
 	} else {
 		char* mensajeALogear = malloc(
 				strlen("Error: no existe una tabla con el nombre ")
