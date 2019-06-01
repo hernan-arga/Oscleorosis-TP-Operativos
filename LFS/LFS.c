@@ -1,5 +1,5 @@
 // FS
-
+/*
 #include <stdio.h>
 #include <string.h> //strlen
 #include <stdlib.h>
@@ -383,7 +383,7 @@ void realizarSelect(char* tabla, char* key) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	}
-}
+}*/
 
 /*
  void iniciarConexion(){
