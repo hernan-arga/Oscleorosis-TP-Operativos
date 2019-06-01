@@ -16,6 +16,11 @@
 #include <dirent.h>
 #include <time.h>
 
+#include <commons/collections/dictionary.h>
+#include <commons/config.h>
+#include <commons/log.h>
+#include <commons/string.h>
+
 #define TRUE 1
 #define FALSE 0
 #define PORT 4444
@@ -25,28 +30,27 @@ typedef enum {
 } OPERACION;
 
 void iniciarConexion();
-void insert();
-void obtenerDatosMetadata(FILE* , char**, char**, char**);
-int seEncuentraLaPalabra(char*, FILE*);
-void guardarDato(char**, FILE* );
-//void select();
-void create();
-int existeLaTabla(char*);
+
+void insert(char*, char*, char*, char*);
+int existeUnaListaDeDatosADumpear();
+
+void realizarSelect(char*, char*);
+
+void create(char*, char*, char*, char*);
 void crearMetadata(char*, char*, char*, char*);
 void crearBinarios(char*, int);
-void asignarBloque(FILE *);
-int separarPalabra(char*, char**, char**);
-void verificarPeticion(char*);
-void realizarPeticion(char*, char*);
+void asignarBloque(char*);
+
+//Funciones Auxiliares
+int existeLaTabla(char*);
+void tomarPeticion(char*);
+void realizarPeticion(char**);
 OPERACION tipoDePeticion(char*);
-void stringToUpperCase(char*, char**);
-int separarEnVector(char**, char[][30], int);
-int cantidadValidaParametros(char*, int);
-int parametrosValidos(int, char*,
-		int (*criterioTiposCorrectos)(char[][30], int));
-int tiposCorrectos(char*, int, int (*criterioTiposCorrectos)(char[][30], int));
+int cantidadValidaParametros(char**, int);
+int parametrosValidos(int, char**, int (*criterioTiposCorrectos)(char**, int));
 int esUnNumero(char* cadena);
 int esUnTipoDeConsistenciaValida(char*);
+int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
 
 int main(int argc, char *argv[]) {
 	while (1) {
@@ -54,65 +58,33 @@ int main(int argc, char *argv[]) {
 		do {
 			fgets(mensaje, 1000, stdin);
 		} while (!strcmp(mensaje, "\n"));
-		verificarPeticion(mensaje);
+		tomarPeticion(mensaje);
 		free(mensaje);
 	}
 	//iniciarConexion();
 	return 0;
 }
 
-void verificarPeticion(char* mensaje) {
-	char* peticion = malloc(strlen(mensaje)+1);
-	char* parametros = malloc(strlen(mensaje)+1);
-	int seInsertaronParametros = separarPalabra(mensaje, &peticion, &parametros);
-	if (seInsertaronParametros) {
-		realizarPeticion(peticion, parametros);
-	} else {
-		printf("No se ingresaron parametros\n");
-	}
-	free(peticion);
-	free(parametros);
+void tomarPeticion(char* mensaje) {
+	//Fijarse despues cual seria la cantidad correcta de malloc
+	char** mensajeSeparado = malloc(strlen(mensaje) + 1);
+	mensajeSeparado = string_split(mensaje, " \n");
+	realizarPeticion(mensajeSeparado);
+	free(mensajeSeparado);
 }
 
-//Las cadenas son especiales, ya que cuando paso char* paso el valor de la cadena, no su referencia.
-//Para modificar cadenas se usa la doble referencia char**
-int separarPalabra(char* mensaje, char** palabra, char** restoDelMensaje) {
-	char delimitador[2] = " \n";
-	strcpy(*palabra, strtok(mensaje, delimitador));
-	//En la siguiente llamada strtok espera NULL en lugar de mensaje para saber que tiene que seguir operando con el resto
-	char* loQueSigue = strtok(NULL, "\0");
-	if (loQueSigue != NULL) {
-		strcpy(*restoDelMensaje, loQueSigue);
-	} else {
-		return 0;
+//Mejor forma de hacer esto?
+int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero) {
+	int i = 0;
+	while (puntero[i] != NULL) {
+		i++;
 	}
-	return 1;
+	//Uno mas porque tambien se incluye el NULL en el vector
+	return ++i;
 }
 
-//Separa los parametros e indica si la cantidad de los mismos es igual a la cantidad que se necesita
-//Hay que arreglar que en lugar de que las palabras sean 30 fijo de tamaño sean dinamicos respecto a lo que dice el archivo de configuracion del LFS
-int separarEnVector(char** parametros, char parametrosSeparados[][30],
-		int cantidadDeElementos) {
-	char delimitador[2] = " \n";
-	//Para no modificar el valor de la variable "parametros" hago una copia
-	char* copiaParametros = malloc(strlen(*parametros)+1);
-	strcpy(copiaParametros, *parametros);
-	int posicion = 0;
-	//Es necesario liberar la memoria de la variable que sigue?
-	char* token = strtok(copiaParametros, delimitador);
-	while (token != NULL && posicion < cantidadDeElementos) {
-		//Los vectores de char* son de solo lectura por eso vector de vectores de char para sobreescribir
-		strcpy(parametrosSeparados[posicion], token);
-		token = strtok(NULL, delimitador);
-		posicion++;
-	}
-	free(copiaParametros);
-	//si la cantidad de parametros ingresados es igual a lo necesario
-	return (posicion == cantidadDeElementos && token == NULL);
-}
-
-//Aca no se necesita la referencia solo el valor
-void realizarPeticion(char* peticion, char* parametros) {
+void realizarPeticion(char** parametros) {
+	char *peticion = parametros[0];
 	OPERACION instruccion = tipoDePeticion(peticion);
 	switch (instruccion) {
 	case SELECT:
@@ -120,55 +92,85 @@ void realizarPeticion(char* peticion, char* parametros) {
 		//Defino de que manera van a ser validos los parametros del select y luego paso el puntero de dicha funcion.
 		//Los parametros son validos si el segundo (la key) es un numero, y la cantidadDeParametrosUsados solo se pasa para hacer
 		//polimorfica la funcion criterioTiposCorrectos.
-		int criterioSelect(char parametrosSeparados[][30], int cantidadDeParametrosUsados) {
-			return esUnNumero(parametrosSeparados[1]);
+		int criterioSelect(char** parametros, int cantidadDeParametrosUsados) {
+			char* key = parametros[2];
+			if (!esUnNumero(key)) {
+				printf("La key debe ser un numero.\n");
+			}
+			return esUnNumero(key);
 		}
 
-		if (parametrosValidos(2, parametros, (void *) criterioSelect)){
+		if (parametrosValidos(2, parametros, (void *) criterioSelect)) {
 			printf("ESTOY HACIENDO SELECT\n");
+			char* tabla = parametros[1];
+			char* key = parametros[2];
+			realizarSelect(tabla, key);
 		}
+
 		break;
+
 	case INSERT:
 		printf("Seleccionaste Insert\n");
-		int criterioInsert(char parametrosSeparados[][30],
-				int cantidadDeParametrosUsados) {
-			if (cantidadDeParametrosUsados == 4) {
-				return esUnNumero(parametrosSeparados[1])
-						&& esUnNumero(parametrosSeparados[3]);
+		int criterioInsert(char** parametros, int cantidadDeParametrosUsados) {
+			char* key = parametros[2];
+			if (!esUnNumero(key)) {
+				printf("La key debe ser un numero.\n");
 			}
-			return esUnNumero(parametrosSeparados[1]);
+
+			if (cantidadDeParametrosUsados == 4) {
+				char* timestamp = parametros[4];
+				if (!esUnNumero(timestamp)) {
+					printf("El timestamp debe ser un numero.\n");
+				}
+				return esUnNumero(key) && esUnNumero(timestamp);
+			}
+			return esUnNumero(key);
 		}
 		//puede o no estar el timestamp
-		if (parametrosValidos(4, parametros, (void *) criterioInsert)){
+		if (parametrosValidos(4, parametros, (void *) criterioInsert)) {
 			printf("ESTOY HACIENDO INSERT\n");
-			insert(parametros);
-		}
-		else if (parametrosValidos(3, parametros, (void *) criterioInsert)){
+			char *tabla = parametros[1];
+			char *key = parametros[2];
+			char *valor = parametros[3];
+			char *timestamp = parametros[4];
+
+			insert(tabla, key, valor, timestamp);
+
+		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
 			printf("ESTOY HACIENDO INSERT\n");
+			char *tabla = parametros[1];
+			char *key = parametros[2];
+			char *valor = parametros[3];
 			//¿El timestamp nesecita conversion? esto esta en segundos y no hay tipo de dato que banque los milisegundos por el tamanio
-			long int timestampActual = (long int)time(NULL);
-			char* timestamp = malloc(100);
-			char* parametrosConTimestamp = malloc(strlen(parametros)+sizeof(long int)+20);
-			strcpy(parametrosConTimestamp, parametros);
-			strcat(parametrosConTimestamp, " ");
-			sprintf(timestamp, "%li", timestampActual);
-			strcat(parametrosConTimestamp, timestamp);
-			free(timestamp);
-			insert(parametrosConTimestamp);
-			free(parametrosConTimestamp);
+			long int timestampActual = (long int) time(NULL);
+			char* timestamp = string_itoa(timestampActual);
+			insert(tabla, key, valor, timestamp);
 		}
 		break;
 	case CREATE:
 		printf("Seleccionaste Create\n");
-		int criterioCreate(char parametrosSeparados[][30], int cantidadDeParametrosUsados) {
-			return esUnNumero(parametrosSeparados[2])
-					&& esUnNumero(parametrosSeparados[3])
-					&& esUnTipoDeConsistenciaValida(parametrosSeparados[1]);
-			return 1;
+		int criterioCreate(char** parametros, int cantidadDeParametrosUsados) {
+			char* tiempoCompactacion = parametros[4];
+			char* cantidadParticiones = parametros[3];
+			char* consistencia = parametros[2];
+			if (!esUnNumero(cantidadParticiones)) {
+				printf("La cantidad de particiones debe ser un numero.\n");
+			}
+			if (!esUnNumero(tiempoCompactacion)) {
+				printf("El tiempo de compactacion debe ser un numero.\n");
+			}
+			return esUnNumero(cantidadParticiones)
+					&& esUnNumero(tiempoCompactacion)
+					&& esUnTipoDeConsistenciaValida(consistencia);
 		}
-		if (parametrosValidos(4, parametros, (void *) criterioCreate)){
+		if (parametrosValidos(4, parametros, (void *) criterioCreate)) {
+			char* tabla = parametros[1];
+			char* tiempoCompactacion = parametros[4];
+			char* cantidadParticiones = parametros[3];
+			char* consistencia = parametros[2];
 			printf("ESTOY HACIENDO CREATE\n");
-			create(parametros);
+			create(tabla, consistencia, cantidadParticiones,
+					tiempoCompactacion);
 		}
 		break;
 	default:
@@ -176,47 +178,41 @@ void realizarPeticion(char* peticion, char* parametros) {
 	}
 }
 
-int parametrosValidos(int cantidadDeParametrosNecesarios, char* parametros,
-		int (*criterioTiposCorrectos)(char[][30], int)) {
+int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
+		int (*criterioTiposCorrectos)(char**, int)) {
 	return cantidadValidaParametros(parametros, cantidadDeParametrosNecesarios)
-			&& tiposCorrectos(parametros, cantidadDeParametrosNecesarios,
-					(void *) criterioTiposCorrectos);
+			&& criterioTiposCorrectos(parametros,
+					cantidadDeParametrosNecesarios);;
 }
 
-int tiposCorrectos(char* parametros, int cantidadDeParametrosNecesarios, int (*criterioTiposCorrectos)(char[][30], int)) {
-	char parametrosSeparados[cantidadDeParametrosNecesarios][30];
-	separarEnVector(&parametros, parametrosSeparados,
-			cantidadDeParametrosNecesarios);
-	return criterioTiposCorrectos(parametrosSeparados,
-			cantidadDeParametrosNecesarios);
-}
-
-int cantidadValidaParametros(char* parametros, int cantidadDeParametrosNecesarios) {
-	char parametrosSeparados[cantidadDeParametrosNecesarios][30];
-	int cantidadParametrosValida = separarEnVector(&parametros,
-			parametrosSeparados, cantidadDeParametrosNecesarios);
-	if (!cantidadParametrosValida)
+int cantidadValidaParametros(char** parametros,
+		int cantidadDeParametrosNecesarios) {
+	//Saco de la cuenta la peticion y el NULL
+	int cantidadDeParametrosQueTengo =
+			cantidadDeElementosDePunteroDePunterosDeChar(parametros) - 2;
+	if (cantidadDeParametrosQueTengo != cantidadDeParametrosNecesarios) {
 		//hay que arreglar esto para que en el caso de insert solo lo muestre si no se cumple con 4 ni con 3
 		printf("La cantidad de parametros no es valida\n");
-	return cantidadParametrosValida;
+		return 0;
+	}
+	return 1;
 }
 
 OPERACION tipoDePeticion(char* peticion) {
-	char* peticionUpperCase = malloc(strlen(peticion)+1);
-	stringToUpperCase(peticion, &peticionUpperCase);
-	if (!strcmp(peticionUpperCase, "SELECT")) {
-		free(peticionUpperCase);
+	string_to_upper(peticion);
+	if (!strcmp(peticion, "SELECT")) {
+		free(peticion);
 		return SELECT;
 	} else {
-		if (!strcmp(peticionUpperCase, "INSERT")) {
-			free(peticionUpperCase);
+		if (!strcmp(peticion, "INSERT")) {
+			free(peticion);
 			return INSERT;
 		} else {
-			if (!strcmp(peticionUpperCase, "CREATE")) {
-				free(peticionUpperCase);
+			if (!strcmp(peticion, "CREATE")) {
+				free(peticion);
 				return CREATE;
 			} else {
-				free(peticionUpperCase);
+				free(peticion);
 				return OPERACIONINVALIDA;
 			}
 		}
@@ -242,218 +238,114 @@ int esUnTipoDeConsistenciaValida(char* cadena) {
 	return consistenciaValida;
 }
 
-void stringToUpperCase(char* palabra, char** palabraEnMayusculas) {
-	char* aux = malloc(strlen(palabra)+1);
-	strcpy(aux, palabra);
-	int i = 0;
-	while (aux[i] != '\0') {
-		aux[i] = toupper(aux[i]);
-		i++;
-	}
-	strcpy(*palabraEnMayusculas, aux);
-	free(aux);
-}
-
-void insert(char* parametros){
-	char parametrosSeparados[4][30];
-	separarEnVector(&parametros, parametrosSeparados, 4);
-	char* tablaEnMayusculas = malloc(strlen(parametrosSeparados[0])+1);
-	stringToUpperCase(parametrosSeparados[0], &tablaEnMayusculas);
-	char* key = malloc(strlen(parametrosSeparados[1])+1);
-	strcpy(key, parametrosSeparados[1]);
-	char* value = malloc(strlen(parametrosSeparados[2])+1);
-	strcpy(value, parametrosSeparados[2]);
-	char* timestamp = malloc(strlen(parametrosSeparados[3])+1);
-	strcpy(timestamp, parametrosSeparados[3]);
-	//Aca hace el insert
-	if(!existeLaTabla(tablaEnMayusculas)){
-		printf("Error: no existe una tabla con el nombre %s\n", tablaEnMayusculas);
-	}
-	else{
-		char* tipoConsistencia = malloc(3);
-		char* cantidadDeParticiones = malloc(10);
-		char* tiempoDeCompactacion = malloc(100);
-		char* path = malloc(strlen("../Tables/")+strlen("/metadata")+strlen(tablaEnMayusculas)+1);
-		strcpy(path, "../Tables/");
-		strcat(path, tablaEnMayusculas);
-		strcat(path, "/metadata");
-		FILE *metadata = fopen(path, "rb");
-		//obtenerDatosMetadata(metadata, &tipoConsistencia, &cantidadDeParticiones, &tiempoDeCompactacion);
-		printf(tipoConsistencia);
-		printf(cantidadDeParticiones);
-		printf(tiempoDeCompactacion);
-		free(tipoConsistencia);
-		free(cantidadDeParticiones);
-		free(tiempoDeCompactacion);
-		fclose(metadata);
-	}
-	free(tablaEnMayusculas);
-	free(key);
-	free(timestamp);
-	free(value);
-}
-
-void obtenerDatosMetadata(FILE* metadata, char** tipoConsistencia, char** cantidadDeParticiones, char** tiempoDeCompactacion){
-	//char* datos;
-	if(metadata==NULL){
-		printf("ERROR: La metadata de la tabla seleccionada no existe");
-		exit(-1);
-	}
-	fseek(metadata, 0, SEEK_SET);
-	//ubico el puntero en la posicion correspondiente para leer el valor
-	if(seEncuentraLaPalabra("CONSISTENCY=", metadata)){
-		//& o *?
-		guardarDato(*tipoConsistencia, metadata);
-	}
-	rewind(metadata);
-	if(seEncuentraLaPalabra("PARTITIONS=", metadata)){
-		guardarDato(*cantidadDeParticiones, metadata);
-	}
-	rewind(metadata);
-	if(seEncuentraLaPalabra("COMPACTION_TIME=", metadata)){
-		guardarDato(*tiempoDeCompactacion, metadata);
-	}
-	rewind(metadata);
-	//fread(datos, sizeof(char), 1, metadata);
-}
-
-void guardarDato(char** dondeGuardar, FILE* metadata){
-	char* aux = malloc(1000);
-	char caracterALeer = malloc(sizeof(char));
-	fread(caracterALeer, sizeof(char), 1, metadata);
-	if(caracterALeer!=NULL){
-		strcpy(aux, caracterALeer);
-		fread(caracterALeer, sizeof(char), 1, metadata);
-		while(!feof(metadata) && !strcmp(caracterALeer, '\n') && !strcmp(caracterALeer, '\0')){
-			strcat(aux, caracterALeer);
-			fread(caracterALeer, sizeof(char), 1, metadata);
-		}
-		strcpy(*dondeGuardar, aux);
-	}
-	else{
-		free(aux);
-		free(caracterALeer);
-		printf("ERROR: uno de los datos de la tabla no se encuentra bien cargado");
-		exit(-1);
-	}
-	free(aux);
-	free(caracterALeer);
-}
-
-int seEncuentraLaPalabra(char* palabra, FILE* metadata){
-	char* aux = malloc(1000);
-	char caracterALeer = malloc(sizeof(char));
-	fread(caracterALeer, sizeof(char), 1, metadata);
-	if(caracterALeer!=NULL){
-		strcpy(aux, caracterALeer);
-		while(!feof(metadata)){
-			fread(caracterALeer, sizeof(char), 1, metadata);
-			strcat(aux, caracterALeer);
-			if(strstr(aux, palabra)){
-				free(caracterALeer);
-				free(aux);
-				return 1;
-			}
+void insert(char* tabla, char* key, char* valor, char* timestamp) {
+	string_to_upper(tabla);
+	if (!existeLaTabla(tabla)) {
+		char* mensajeALogear = malloc(
+				strlen("Error: no existe una tabla con el nombre ")
+						+ strlen(tabla) + 1);
+		strcpy(mensajeALogear, "Error: no existe una tabla con el nombre ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
+		g_logger = log_create("../erroresInsert.log", "LFS", 1, LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	} else {
+		if (!existeUnaListaDeDatosADumpear()) {
+			//alocar memoria
 		}
 	}
-	free(caracterALeer);
-	free(aux);
-	return 0;
 }
 
-void create(char* parametros){
-	FILE *archivoDeErroresCreate = fopen("../erroresCreate.log", "a");
-	char parametrosSeparados[4][30];
-	separarEnVector(&parametros, parametrosSeparados, 4);
-	//Reservo memoria para el nombre de la tabla el salto de linea en caso de que lo precise y el \0
-	char* tablaEnMayusculas = malloc(strlen(parametrosSeparados[0])+2);
-	stringToUpperCase(parametrosSeparados[0], &tablaEnMayusculas);
-	if(existeLaTabla(tablaEnMayusculas)){
-		//¿Como debe retornar esto por socket?
-		printf("Error: ya existe una tabla con el nombre %s\n", tablaEnMayusculas);
-		strcat(tablaEnMayusculas,"\n");
-		fwrite(tablaEnMayusculas, sizeof(char), strlen(tablaEnMayusculas), archivoDeErroresCreate);
-	}
-	else{
-		char* path = malloc(strlen("../Tables/")+strlen(tablaEnMayusculas)+1);
+int existeUnaListaDeDatosADumpear() {
+	return 1;
+}
+
+void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
+		char* tiempoDeCompactacion) {
+	string_to_upper(tabla);
+	if (existeLaTabla(tabla)) {
+		char* mensajeALogear = malloc(
+				strlen("Error: ya existe una tabla con el nombre ")
+						+ strlen(tabla) + 1);
+		strcpy(mensajeALogear, "Error: ya existe una tabla con el nombre ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
+		g_logger = log_create("../erroresCreate.log", "LFS", 1, LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	} else {
+		char* path = malloc(strlen("../Tables/") + strlen(tabla) + 1);
+		char* metadataPath = malloc(
+				strlen("../Tables/") + strlen(tabla) + strlen("/metadata") + 1);
 		strcpy(path, "../Tables/");
-		strcat(path, tablaEnMayusculas);
+		strcat(path, tabla);
 		//El segundo parametro es una mascara que define permisos
 		mkdir(path, 0777);
 
-		char* consistencia = malloc(strlen(parametrosSeparados[1])+1);
-		strcpy(consistencia, parametrosSeparados[1]);
-		char* cantidadDeParticiones = malloc(strlen(parametrosSeparados[2])+1);
-		strcpy(cantidadDeParticiones, parametrosSeparados[2]);
-		char* tiempoDeCompactacion = malloc(strlen(parametrosSeparados[3])+1);
-		strcpy(tiempoDeCompactacion, parametrosSeparados[3]);
-
+		strcpy(metadataPath, path);
+		strcat(metadataPath, "/metadata");
 		//Si en algun momento quiero convertir string a int existe la funcion atoi
-		crearMetadata(path, consistencia, cantidadDeParticiones, tiempoDeCompactacion);
+		crearMetadata(metadataPath, consistencia, cantidadDeParticiones,
+				tiempoDeCompactacion);
 		crearBinarios(path, atoi(cantidadDeParticiones));
-		free(consistencia);
-		free(cantidadDeParticiones);
-		free(tiempoDeCompactacion);
+		free(metadataPath);
 		free(path);
 	}
-	free(tablaEnMayusculas);
-	fclose(archivoDeErroresCreate);
 }
 
-void crearBinarios(char* path, int cantidadDeParticiones){
-	for(int i = 0; i<cantidadDeParticiones; i++){
+void crearBinarios(char* path, int cantidadDeParticiones) {
+	for (int i = 0; i < cantidadDeParticiones; i++) {
 		//10 para dejar cierto margen a la cantidad de particiones
-		char* directorioBinario = malloc(strlen(path)+10);
-		char* numeroDeParticion = malloc(10);
-		sprintf(numeroDeParticion, "%d", i);
+		char* directorioBinario = malloc(strlen(path) + 10);
+		char* numeroDeParticion = string_itoa(i);
 		strcpy(directorioBinario, path);
 		strcat(directorioBinario, "/");
 		strcat(directorioBinario, numeroDeParticion);
 		strcat(directorioBinario, ".bin");
-		FILE *binario = fopen(directorioBinario, "w");
-		asignarBloque(binario);
+		asignarBloque(directorioBinario);
 		free(directorioBinario);
 		free(numeroDeParticion);
-		fclose(binario);
 	}
 }
 
 //No se como funciona esta parte
-void asignarBloque(FILE *binario){
-	/*char* datos = malloc(500);
-	strcpy(datos, "SIZE=");
-	strcat(datos, tamanioDelArchivo);
-	strcat(datos, "\n");
-	strcpy(datos, "BLOCKS=");
-	strcat(datos, ordenDeLosArchivos);*/
+void asignarBloque(char* directorioBinario) {
+	//resolver lo mismo del save y el create que paso con el crearMetadata y ver como asignar los bloques
+	FILE *archivoBinario = fopen(directorioBinario, "w");
+	t_config *binario = config_create(directorioBinario);
+	//config_set_value(directorioBinario, "SIZE", size);
+	//config_set_value(directorioBinario, "BLOCKS", bloques);
+	//config_save_in_file(binario, directorioBinario);
+	fclose(archivoBinario);
+	config_destroy(binario);
 }
 
-void crearMetadata(char* path, char* consistencia, char* cantidadDeParticiones, char* tiempoDeCompactacion){
-	char* directorioMetadata = malloc(strlen(path)+strlen("/metadata")+1);
-	char* datos = malloc(500);
-	strcpy(directorioMetadata, path);
-	strcat(directorioMetadata, "/metadata");
-	FILE *metadata = fopen(directorioMetadata,"w");
-	strcpy(datos, "CONSISTENCY=");
-	strcat(datos, consistencia);
-	strcat(datos, "\n");
-	strcat(datos, "PARTITIONS=");
-	strcat(datos, cantidadDeParticiones);
-	strcat(datos, "\n");
-	strcat(datos, "COMPACTION_TIME=");
-	strcat(datos, tiempoDeCompactacion);
-	fwrite(datos, sizeof(char), strlen(datos), metadata) ;
-	fclose(metadata);
-	free(datos);
-	free(directorioMetadata);
+void crearMetadata(char* metadataPath, char* consistencia,
+		char* cantidadDeParticiones, char* tiempoDeCompactacion) {
+	FILE *archivoMetadata = fopen(metadataPath, "w");
+	t_config *metadata = config_create(metadataPath);
+	config_set_value(metadata, "CONSISTENCY", consistencia);
+	config_set_value(metadata, "PARTITIONS", cantidadDeParticiones);
+	config_set_value(metadata, "COMPACTION_TIME", tiempoDeCompactacion);
+	//config_save_in_file necesita el t_config creado que a su vez el config_create
+	//necesita el archivo que se crea en el save por eso lo creo yo no se si esta bien
+	config_save_in_file(metadata, metadataPath);
+	fclose(archivoMetadata);
+	config_destroy(metadata);
 }
 
-int existeLaTabla(char* nombreDeTabla){
+int existeLaTabla(char* nombreDeTabla) {
 	DIR *directorio = opendir("../Tables");
 	struct dirent *directorioALeer;
-	while((directorioALeer=readdir(directorio))!=NULL){
+	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Evaluo si de todas las carpetas dentro de TABAS existe alguna que tenga el mismo nombre
-		if((directorioALeer->d_type) == DT_DIR && !strcmp((directorioALeer->d_name), nombreDeTabla)){
+		if ((directorioALeer->d_type) == DT_DIR
+				&& !strcmp((directorioALeer->d_name), nombreDeTabla)) {
 			closedir(directorio);
 			return 1;
 		}
@@ -461,10 +353,37 @@ int existeLaTabla(char* nombreDeTabla){
 	closedir(directorio);
 	return 0;
 }
-/*
- void select(){
 
- }*/
+//No le pongo "select" porque ya esta la funcion de socket y rompe
+void realizarSelect(char* tabla, char* key) {
+	string_to_upper(tabla);
+	if (existeLaTabla(tabla)) {
+		char* pathMetadata = malloc(strlen("../Tables/") + strlen(tabla) + strlen("/metadata") + 1);
+		strcpy(pathMetadata, "../Tables/");
+		strcat(pathMetadata, tabla);
+		strcat(pathMetadata, "/metadata");
+		t_config *metadata = config_create(pathMetadata);
+		char *consistencia = config_get_string_value(metadata, "CONSISTENCY");
+		int cantidadDeParticiones = config_get_int_value(metadata, "PARTITIONS");
+		int tiempoDeCompactacion = config_get_long_value(metadata, "COMPACTION_TIME");
+		//printf("%i - %i\n",atoi(key), cantidadDeParticiones);
+		int particionQueContieneLaKey = (atoi(key))%cantidadDeParticiones;
+		printf("La key esta en la particion %i\n", particionQueContieneLaKey);
+		config_destroy(metadata);
+	} else {
+		char* mensajeALogear = malloc(
+				strlen("Error: no existe una tabla con el nombre ")
+						+ strlen(tabla) + 1);
+		strcpy(mensajeALogear, "Error: no existe una tabla con el nombre ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
+		g_logger = log_create("../erroresSelect.log", "LFS", 1, LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+}
 
 /*
  void iniciarConexion(){

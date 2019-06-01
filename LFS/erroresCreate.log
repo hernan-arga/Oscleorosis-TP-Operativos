@@ -1,1 +1,11 @@
-TABLA1
+[INFO] 10:10:01:908 LFS/(7713:7713): Error: ya existe una tabla con el nombre TABLA1
+[INFO] 10:10:48:563 LFS/(7713:7713): Error: ya existe una tabla con el nombre TABLA1
+[INFO] 10:18:11:749 LFS/(7906:7906): Error: ya existe una tabla con el nombre TABLA1
+[INFO] 13:02:50:893 LFS/(7833:7833): Error: ya existe una tabla con el nombre TABLA1
+[INFO] 13:03:37:383 LFS/(7833:7833): Error: ya existe una tabla con el nombre TABLA1
+[INFO] 13:03:50:989 LFS/(7833:7833): Error: ya existe una tabla con el nombre TABLA1
+[INFO] 13:26:27:308 LFS/(8766:8766): Error: ya existe una tabla con el nombre TABLA1
+[INFO] 14:03:34:812 LFS/(3906:3906): Error: ya existe una tabla con el nombre TABLA2
+[INFO] 14:34:47:25 LFS/(4871:4871): Error: ya existe una tabla con el nombre TABLA1
+[INFO] 16:44:23:57 LFS/(8163:8163): Error: ya existe una tabla con el nombre TABLA1
+[INFO] 16:47:26:529 LFS/(8216:8216): Error: ya existe una tabla con el nombre TABLA1
