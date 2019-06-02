@@ -52,6 +52,12 @@ int esUnNumero(char* cadena);
 int esUnTipoDeConsistenciaValida(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
 
+struct{
+	int timestamp;
+	int key;
+	char* value;
+}t_registro;
+
 
 int main(int argc, char *argv[]) {
 	while (1) {
@@ -382,22 +388,25 @@ void realizarSelect(char* tabla, char* key) {
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
 		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS
 		for(int i=0; i<((sizeof(vectorBloques))-1); i++){
-			vectorBloques[i] = atoi(vectorBloques[i]);
+			vectorBloques[i] = atoi(vectorBloques[i]); //TODO
 			// por cada bloque, tengo que entrar a este bloque
 			char* pathBloque = malloc(strlen("../Bloques/") + strlen((vectorBloques[i])) + strlen(".bin") +1);
 			strcpy(pathBloque, "../Bloques/");
 			strcat(pathBloque, (vectorBloques[i]));
 			strcat(pathBloque, ".bin");
 			FILE *archivoBloque = fopen(pathBloque, "r");
+			if(archivoBloque == NULL){
+				printf("no se pudo abrir archivo de bloques");
+				exit(1);
+			}
+			t_registro* vectorDatosParaKeyDeseada = obtenerDatosParaKeyDeseada(archivoBloque); //devuelve vector de structs que tienen la key deseada
 
 
+			fclose(archivoBloque);
 			free(pathBloque);
 		}
 		free(pathMetadata);
 		free(pathParticionQueContieneKey);
-
-
-
 		config_destroy(tamanioYBloques);
 	} else {
 		char* mensajeALogear = malloc(
@@ -413,6 +422,33 @@ void realizarSelect(char* tabla, char* key) {
 		free(mensajeALogear);
 	}
 }
+
+t_registro* obtenerDatosParaKeyDeseada(FILE *archivoBloque){
+	char linea[50];
+	char* vectorSeparado[3];
+	int i = 0;
+	t_registro vectorStructs[100];
+	while( fgets(linea,50,archivoBloque) != NULL ){
+		vectorSeparado = string_split(linea,";");
+		int unTimestamp = atoi(vectorSeparada[0]);
+		int unaKey = atoi(vectorSeparado[1]);
+
+		struct t_registro registro;
+		registro* p_registro = malloc(sizeof(registro));
+		registro->timestamp = unTimestamp;
+		registro->key = unaKey;
+		registro->value = malloc(sizeof(vectorSeparado[2]));
+		strcpy(registro->value, vectorSeparado[2]);
+
+		//vectorStructs = malloc(sizeof(100)); //TODO
+		vectorStructs[i] = registro;
+		i++;
+	}
+
+	return vectorStructs;
+}
+
+
 
 /*
  void iniciarConexion(){
