@@ -350,7 +350,7 @@ void crearMetadata(char* metadataPath, char* consistencia,
 }
 
 int existeLaTabla(char* nombreDeTabla) {
-	DIR *directorio = opendir("../Tables");
+	DIR *directorio = opendir("./Tables");
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Evaluo si de todas las carpetas dentro de TABAS existe alguna que tenga el mismo nombre
@@ -368,8 +368,8 @@ int existeLaTabla(char* nombreDeTabla) {
 void realizarSelect(char* tabla, char* key) {
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
-		char* pathMetadata = malloc(strlen("../Tables/") + strlen(tabla) + strlen("/Metadata") + 1);
-		strcpy(pathMetadata, "../Tables/");
+		char* pathMetadata = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/Metadata") + 1);
+		strcpy(pathMetadata, "./Tables/");
 		strcat(pathMetadata, tabla);
 		strcat(pathMetadata, "/Metadata");
 		t_config *metadata = config_create(pathMetadata);
@@ -377,22 +377,22 @@ void realizarSelect(char* tabla, char* key) {
 		//printf("%i - %i\n",atoi(key), cantidadDeParticiones);
 		int particionQueContieneLaKey = (atoi(key))%cantidadDeParticiones;
 		printf("La key esta en la particion %i\n", particionQueContieneLaKey);
+		char* stringParticion = malloc(4);
+		stringParticion = string_itoa(particionQueContieneLaKey);
 
-		char* pathParticionQueContieneKey = malloc(strlen("../Tables/") + strlen(tabla) + strlen("/") + strlen(particionQueContieneLaKey) + strlen(".bin") + 1);
-		strcpy(pathParticionQueContieneKey, "../Tables/");
+		char* pathParticionQueContieneKey = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/") + strlen(stringParticion) + strlen(".bin") + 1);
+		strcpy(pathParticionQueContieneKey, "./Tables/");
 		strcat(pathParticionQueContieneKey, tabla);
 		strcat(pathParticionQueContieneKey, "/");
-		strcat(pathParticionQueContieneKey, particionQueContieneLaKey);
+		strcat(pathParticionQueContieneKey, stringParticion);
 		strcat(pathParticionQueContieneKey, ".bin");
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
 		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS
-		char** vectorBloquesAux;
-		for(int i=0; i<((sizeof(vectorBloques))-1); i++){
-			vectorBloquesAux[i] = atoi(vectorBloques[i]);
+		for(int i=0; i<((sizeof(vectorBloques) / sizeof(vectorBloques[0]))); i++){
 			// por cada bloque, tengo que entrar a este bloque
-			char* pathBloque = malloc(strlen("../Bloques/") + strlen((vectorBloquesAux[i])) + strlen(".bin") +1);
-			strcpy(pathBloque, "../Bloques/");
-			strcat(pathBloque, (vectorBloquesAux[i]));
+			char* pathBloque = malloc(strlen("./Bloques/") + strlen((vectorBloques[i])) + strlen(".bin") +1);
+			strcpy(pathBloque, "./Bloques/");
+			strcat(pathBloque, vectorBloques[i]);
 			strcat(pathBloque, ".bin");
 			FILE *archivoBloque = fopen(pathBloque, "r");
 			if(archivoBloque == NULL){
@@ -417,7 +417,7 @@ void realizarSelect(char* tabla, char* key) {
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
 		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
-		g_logger = log_create("../erroresSelect.log", "LFS", 1, LOG_LEVEL_INFO);
+		g_logger = log_create("./erroresSelect.log", "LFS", 1, LOG_LEVEL_INFO);
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
