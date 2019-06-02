@@ -28,6 +28,11 @@ typedef enum {
 	SELECT, INSERT, CREATE, DESCRIBE, DROP, OPERACIONINVALIDA
 } OPERACION;
 
+typedef struct {
+	int timestamp;
+	int key;
+	char* value;
+}t_registro ;
 
 //void iniciarConexion();
 
@@ -51,12 +56,7 @@ int parametrosValidos(int, char**, int (*criterioTiposCorrectos)(char**, int));
 int esUnNumero(char* cadena);
 int esUnTipoDeConsistenciaValida(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
-
-struct{
-	int timestamp;
-	int key;
-	char* value;
-}t_registro;
+t_registro* obtenerDatosParaKeyDeseada(FILE *);
 
 
 int main(int argc, char *argv[]) {
@@ -107,7 +107,7 @@ void realizarPeticion(char** parametros) {
 			return esUnNumero(key);
 		}
 
-		if (parametrosValidos(2, parametros, (void *) criterioSelect)) {
+		if( parametrosValidos(2,parametros,(void*)criterioSelect) ){
 			printf("ESTOY HACIENDO SELECT\n");
 			char* tabla = parametros[1];
 			char* key = parametros[2];
@@ -378,7 +378,6 @@ void realizarSelect(char* tabla, char* key) {
 		int particionQueContieneLaKey = (atoi(key))%cantidadDeParticiones;
 		printf("La key esta en la particion %i\n", particionQueContieneLaKey);
 
-		//
 		char* pathParticionQueContieneKey = malloc(strlen("../Tables/") + strlen(tabla) + strlen("/") + strlen(particionQueContieneLaKey) + strlen(".bin") + 1);
 		strcpy(pathParticionQueContieneKey, "../Tables/");
 		strcat(pathParticionQueContieneKey, tabla);
@@ -387,12 +386,13 @@ void realizarSelect(char* tabla, char* key) {
 		strcat(pathParticionQueContieneKey, ".bin");
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
 		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS
+		char** vectorBloquesAux;
 		for(int i=0; i<((sizeof(vectorBloques))-1); i++){
-			vectorBloques[i] = atoi(vectorBloques[i]); //TODO
+			vectorBloquesAux[i] = atoi(vectorBloques[i]);
 			// por cada bloque, tengo que entrar a este bloque
-			char* pathBloque = malloc(strlen("../Bloques/") + strlen((vectorBloques[i])) + strlen(".bin") +1);
+			char* pathBloque = malloc(strlen("../Bloques/") + strlen((vectorBloquesAux[i])) + strlen(".bin") +1);
 			strcpy(pathBloque, "../Bloques/");
-			strcat(pathBloque, (vectorBloques[i]));
+			strcat(pathBloque, (vectorBloquesAux[i]));
 			strcat(pathBloque, ".bin");
 			FILE *archivoBloque = fopen(pathBloque, "r");
 			if(archivoBloque == NULL){
@@ -408,6 +408,7 @@ void realizarSelect(char* tabla, char* key) {
 		free(pathMetadata);
 		free(pathParticionQueContieneKey);
 		config_destroy(tamanioYBloques);
+		config_destroy(metadata);
 	} else {
 		char* mensajeALogear = malloc(
 				strlen("Error: no existe una tabla con el nombre ")
@@ -429,8 +430,10 @@ t_registro* obtenerDatosParaKeyDeseada(FILE *archivoBloque){
 	int i = 0;
 	t_registro vectorStructs[100];
 	while( fgets(linea,50,archivoBloque) != NULL ){
-		vectorSeparado = string_split(linea,";");
-		int unTimestamp = atoi(vectorSeparada[0]);
+		vectorSeparado[0] = (string_split(linea,";"))[0];
+		vectorSeparado[1] = (string_split(linea,";"))[1];
+		vectorSeparado[2] = (string_split(linea,";"))[2];
+		int unTimestamp = atoi(vectorSeparado[0]);
 		int unaKey = atoi(vectorSeparado[1]);
 
 		struct t_registro registro;
