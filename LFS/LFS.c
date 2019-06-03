@@ -284,15 +284,15 @@ void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
 		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
-		g_logger = log_create("../erroresCreate.log", "LFS", 1, LOG_LEVEL_INFO);
+		g_logger = log_create("./erroresCreate.log", "LFS", 1, LOG_LEVEL_INFO);
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	} else {
-		char* path = malloc(strlen("../Tables/") + strlen(tabla) + 1);
+		char* path = malloc(strlen("./Tables/") + strlen(tabla) + 1);
 		char* metadataPath = malloc(
-				strlen("../Tables/") + strlen(tabla) + strlen("/metadata") + 1);
-		strcpy(path, "../Tables/");
+				strlen("./Tables/") + strlen(tabla) + strlen("/metadata") + 1);
+		strcpy(path, "./Tables/");
 		strcat(path, tabla);
 		//El segundo parametro es una mascara que define permisos
 		mkdir(path, 0777);
@@ -441,7 +441,7 @@ t_registro** obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key){
 			p_registro->key = key;
 			p_registro->value = malloc(strlen(arrayLinea[2]));
 			strcpy(p_registro->value,arrayLinea[2]);
-
+			printf("%s", p_registro->value);
 			vectorStructs[i] = &p_registro;
 
 			i++;
