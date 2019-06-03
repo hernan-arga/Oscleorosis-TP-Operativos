@@ -1,5 +1,4 @@
 // KERNEL
-
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -11,6 +10,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <readline/readline.h>
+#include <commons/collections/queue.h>
+#include <commons/string.h>
+#include <commons/collections/list.h>
 
 struct Kernel_config{
 	char ip[20];
@@ -21,29 +23,31 @@ struct Kernel_config{
 	int retardo_ciclo_ejecucion;
 };
 
-struct LQL{
-	FILE*archivo = NULL;
-};
-
-struct Nodo_Script{
-	struct LQL peticiones;
-	struct Nodo_Script*sig;
-};
-
-struct Cola_Ready{
-
-};
-
-struct Script{
-	struct LQL peticion;
-	struct Script*sig;
-	struct Script*ant;
-};
+typedef struct {
+	FILE* peticiones;
+	int PID;
+	int PC; //program counter
+} script;
 
 typedef enum {
 	SELECT, INSERT, CREATE, DESCRIBE, DROP, OPERACIONINVALIDA
 } OPERACION;
 
+void configurar_kernel();
+void planificador();
+void newbie(FILE*,t_list *,t_queue*);
+int get_PID(t_list *);
+int PID_usada(int,t_list *);
+void pasar_a_listo(t_queue*,t_queue*);
+
+int main(){
+	printf("\tKERNEL OPERATIVO Y A LA ESPERA DE ORDENES. pero es la version alpha, asi que primero...\n");
+	configurar_kernel();
+	planificador();
+	return 0;
+}
+
+/*
 int main()
 {
 	printf("Soy Kernel \n");
@@ -123,48 +127,103 @@ void menu(){
 			break;
 	}
 }
-
+*/
 //Crear un planificador de RR con quantum configurable y que sea capaz de parsear los archivos LQL
+void configurar_kernel(){
+	FILE* configuracion = fopen("Kernel_config.bin","wb");
+	printf("\tQue bien! Parece que hoy van a configurarme\n");
+	struct Kernel_config datos;
+	printf("\tNecesito una direccion IP, asi podre comunicarme con mis preciosas memorias.\n Por favor ingresa mi IP\n");
+	fgets(datos.ip, 20, stdin);
+	printf("\tGracias, ahora me dieron ganas de hablar con las memorias... Por un canal privado. Podrias conseguirme un puerto?\n Por favor, ingresa el puerto para comunicarme con las memorias\n");
+	scanf("%d",&datos.puerto_memoria);
+	printf("\tExcelente! Pero hay otro problema: Esos request no se van a ejecutar en un FIFO arcaico, no. Tenemos un RoundRobin!\n Por favor, ingrese el numero de quantum: \n");
+	scanf("%d",&datos.quantum);
+	printf("\tLo siento, se que es engorroso... Pero para empezar, fuiste vos el que inicio mi ejecucion.\n Ahora necesito que me digas cuantos procesos van a estar ejecutandose a la vez en las memorias\n Ingresa el numero de procesamiento: \n");
+	scanf("%d",&datos.multiprocesamiento);
+	printf("\tTodavia no se ni que es eso, pero por las dudas pone algun numerito...\n Ingresa el numero de Fresh Metadata: \n");
+	scanf("%d",&datos.refresh_metadata);
+	printf("\tMuy bien, por ultimo necesito otro numero que se mide en milisegundos, que rapido!\n Ingresa el retardo del ciclo de ejecucion: \n");
+	scanf("%d",&datos.retardo_ciclo_ejecucion);
+	printf("\tBueno, eso es todo. Esperame que guardo estos datos en mi archivo de configuracion\n");
+
+	fwrite(&datos,sizeof(&datos),1,configuracion);
+	fclose(configuracion);
+	}
+
 void planificador(){
+	t_list * PIDs = list_create();
+	t_queue* new = queue_create();
+	t_queue* ready = queue_create();
 	FILE *kernel_config= fopen("Kernel_config.bin","rb");
 	if (kernel_config==NULL) {
 		printf("ERROR en el archivo de configuracion\n");
-		fclose(kernel_config);
 	}
 	else{
 		struct Kernel_config configuracion;
-		char* nombre_del_archivo = malloc(1000);
-		fread(&configuracion,sizeof(struct Kernel_config),1,kernel_config);
+		char *nombre_del_archivo = string_new();
+		char nombre[100];
+		fread(&configuracion,sizeof(configuracion),1,kernel_config);
 		fclose(kernel_config);
-		do {
-			printf("\t\nNecesito que ingreses el nombre del archivo a leer, con .LQL al final: ");
-			fgets(nombre_del_archivo, 1000, stdin);
-		} while (!strcmp(nombre_del_archivo, "\n"));
+		printf("\t\nNecesito que ingreses el nombre del archivo a leer: ");
+		fgets(nombre, 100, stdin);
+		string_append(&nombre_del_archivo,nombre);
+		string_append(&nombre_del_archivo,".lql");
 		FILE* archivo = fopen(nombre_del_archivo,"rb");
 		free(nombre_del_archivo);
 		if(archivo==NULL){
-			printf("El archivo a ejecutar no contiene peticiones\n");
+			printf("El archivo no existe\n");
 		}
 		else{
-				encolar_en_ready(archivo);
-
+				newbie(archivo,PIDs,new);
+				pasar_a_listo(new,ready);
 		}
 	}
 }
 
-void encolar_en_ready(FILE* archivo){
+void newbie(FILE* archivo, t_list * PIDs,t_queue* new){ //Prepara las estructuras necesarias y pushea el request a la cola de new
 
-
+	 script* proceso = malloc(sizeof(script));
+	 proceso->PID = get_PID(PIDs);
+	 proceso->PC = 0;
+	 proceso->peticiones = archivo;
+	 queue_push(new,proceso);
 }
 
+int get_PID(t_list * PIDs){
+	int PID = 1;
+	int flag = 0;
+	do{
+		if(PID_usada(PID,PIDs)){
+			PID++;
+		}
+		else{
+			flag = 1;
+		}
+	}while(flag == 0);
+	list_add(PIDs, &PID);
+	return PID;
+}
 
+int PID_usada(int numPID,t_list * PIDs){
+	int _buscarPID(int PID){
+		return PID == numPID;
+	}
+	return (list_find(PIDs,(void*)_buscarPID) != NULL);
+}
+
+void pasar_a_listo(t_queue* new,t_queue* ready){
+	queue_push(ready,queue_pop(new));
+}
+
+/*
 while(!feof(archivo)){
 	char tipo_de_peticion[2];
 	for(int contador=0;contador<configuracion.quantum;contador++){
 		fread(&tipo_de_peticion,sizeof(tipo_de_peticion),1,archivo);
 
 	}
-}
+}*/
 /*
 void verificarPeticion(char* mensaje) {
 	char* peticion = malloc(strlen(mensaje)+1);
