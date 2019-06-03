@@ -436,7 +436,9 @@ t_registro* obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key){
 		int unTimestamp = atoi(vectorSeparado[0]);
 		int unaKey = atoi(vectorSeparado[1]);
 		if(unaKey == key){
-			t_registro* p_registro;
+			t_registro *p_registro;
+			//t_registro a;
+			//p_registro = &a;
 			p_registro->timestamp = unTimestamp;
 			p_registro->key = unaKey;
 			p_registro->value = malloc(sizeof(vectorSeparado[2]));
