@@ -56,7 +56,7 @@ int parametrosValidos(int, char**, int (*criterioTiposCorrectos)(char**, int));
 int esUnNumero(char* cadena);
 int esUnTipoDeConsistenciaValida(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
-t_registro* obtenerDatosParaKeyDeseada(FILE *, int);
+t_registro** obtenerDatosParaKeyDeseada(FILE *, int);
 
 
 int main(int argc, char *argv[]) {
@@ -399,7 +399,7 @@ void realizarSelect(char* tabla, char* key) {
 				printf("no se pudo abrir archivo de bloques");
 				exit(1);
 			}
-			t_registro* vectorDatosParaKeyDeseada = obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key))); //devuelve vector de structs que tienen la key deseada
+			t_registro** vectorDatosParaKeyDeseada = obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key))); //devuelve vector de structs que tienen la key deseada
 
 
 			fclose(archivoBloque);
@@ -424,28 +424,30 @@ void realizarSelect(char* tabla, char* key) {
 	}
 }
 
-t_registro* obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key){
+
+t_registro** obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key){
 	char linea[50];
-	char* vectorSeparado[3];
 	int i = 0;
-	t_registro* vectorStructs[100];
+	t_registro** vectorStructs[100];
+
 	while( fgets(linea,50,archivoBloque) != NULL ){
-		vectorSeparado[0] = (string_split(linea,";"))[0];
-		vectorSeparado[1] = (string_split(linea,";"))[1];
-		vectorSeparado[2] = (string_split(linea,";"))[2];
-		int unTimestamp = atoi(vectorSeparado[0]);
-		int unaKey = atoi(vectorSeparado[1]);
-		if(unaKey == key){
-			t_registro* p_registro;
-			p_registro->timestamp = unTimestamp;
-			p_registro->key = unaKey;
-			p_registro->value = malloc(sizeof(vectorSeparado[2]));
-			strcpy(p_registro->value, vectorSeparado[2]);
-			vectorStructs[i] = p_registro;
+
+		if(atoi(string_split(linea,";")[1]) == key){
+			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+			char** arrayLinea = malloc(strlen(linea) + 1);
+			arrayLinea = string_split(linea,";");
+			int timestamp = atoi(arrayLinea[0]);
+			int key = atoi(arrayLinea[1]);
+			p_registro->timestamp = timestamp;
+			p_registro->key = key;
+			p_registro->value = malloc(strlen(arrayLinea[2]));
+			strcpy(p_registro->value,arrayLinea[2]);
+
+			vectorStructs[i] = &p_registro;
+
 			i++;
 		}
 	}
-
 	return vectorStructs;
 }
 
