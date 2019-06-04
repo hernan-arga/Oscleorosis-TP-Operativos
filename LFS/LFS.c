@@ -56,8 +56,8 @@ int parametrosValidos(int, char**, int (*criterioTiposCorrectos)(char**, int));
 int esUnNumero(char* cadena);
 int esUnTipoDeConsistenciaValida(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
-t_registro** obtenerDatosParaKeyDeseada(FILE *, int);
-
+//t_registro** obtenerDatosParaKeyDeseada(FILE *, int);
+void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro*vectorStructs[]);
 
 int main(int argc, char *argv[]) {
 	while (1) {
@@ -113,7 +113,6 @@ void realizarPeticion(char** parametros) {
 			char* key = parametros[2];
 			realizarSelect(tabla, key);
 		}
-
 
 		break;
 
@@ -364,6 +363,7 @@ int existeLaTabla(char* nombreDeTabla) {
 	return 0;
 }
 
+
 //No le pongo "select" porque ya esta la funcion de socket y rompe
 void realizarSelect(char* tabla, char* key) {
 	string_to_upper(tabla);
@@ -388,6 +388,10 @@ void realizarSelect(char* tabla, char* key) {
 		strcat(pathParticionQueContieneKey, ".bin");
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
 		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS
+
+		int timestampActualMayor = -1;
+		char* valueDeTimestampActualMayor;
+
 		for(int i=0; i<((sizeof(vectorBloques) / sizeof(vectorBloques[0]))); i++){
 			// por cada bloque, tengo que entrar a este bloque
 			char* pathBloque = malloc(strlen("./Bloques/") + strlen((vectorBloques[i])) + strlen(".bin") +1);
@@ -399,16 +403,43 @@ void realizarSelect(char* tabla, char* key) {
 				printf("no se pudo abrir archivo de bloques");
 				exit(1);
 			}
-			t_registro** vectorDatosParaKeyDeseada = obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key))); //devuelve vector de structs que tienen la key deseada
 
-
+			t_registro* vectorStructs[100];
+			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)), vectorStructs);
+			printf("%i",vectorStructs[0]->timestamp);
+			//cual de estos tiene el timestamp mas grande? guardar timestamp y value
+	/*		int tamano = 20; //cantidad de elementos que tiene vectorDatosParaKeyDeseada
+			int temp = 0;
+			for (int k = 0; k < (tamano - 1); k++){
+				for (int j = k + 1; j < tamano; j++){
+						if (vectorDatosParaKeyDeseada[j]->timestamp > vectorDatosParaKeyDeseada[k]->timestamp){
+							temp = vectorDatosParaKeyDeseada[j]->timestamp;
+							vectorDatosParaKeyDeseada[j]->timestamp = vectorDatosParaKeyDeseada[k]->timestamp;
+							vectorDatosParaKeyDeseada[k]->timestamp = temp;
+					}
+			    }
+			 }
+			if(vectorDatosParaKeyDeseada[0]->timestamp > timestampActualMayor){
+				timestampActualMayor = vectorDatosParaKeyDeseada[0]->timestamp;
+				valueDeTimestampActualMayor = malloc(sizeof(vectorDatosParaKeyDeseada[0]->value));
+				strcpy(valueDeTimestampActualMayor, vectorDatosParaKeyDeseada[0]->value);
+			} */
 			fclose(archivoBloque);
 			free(pathBloque);
+			//free(vectorDatosParaKeyDeseada);
+		} //cierra el for
+
+		if(timestampActualMayor>0){
+					printf("%s",valueDeTimestampActualMayor);
+		}
+		else{
+			printf("error timestamp"); //tecnicamente nunca llegaria a este caso pero lo hice por las dudas
 		}
 		free(pathMetadata);
 		free(pathParticionQueContieneKey);
 		config_destroy(tamanioYBloques);
 		config_destroy(metadata);
+
 	} else {
 		char* mensajeALogear = malloc(
 				strlen("Error: no existe una tabla con el nombre ")
@@ -424,14 +455,13 @@ void realizarSelect(char* tabla, char* key) {
 	}
 }
 
-
-t_registro** obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key){
+void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vectorStructs){
 	char linea[50];
 	int i = 0;
-	t_registro** vectorStructs[100];
 
 	while( fgets(linea,50,archivoBloque) != NULL ){
-		if(atoi(string_split(linea,";")[1]) == key){
+		int keyLeida = atoi(string_split(linea,";")[1]);
+		if(keyLeida == key){
 			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 			char** arrayLinea = malloc(strlen(linea) + 1);
 			arrayLinea = string_split(linea,";");
@@ -441,16 +471,42 @@ t_registro** obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key){
 			p_registro->key = key;
 			p_registro->value = malloc(strlen(arrayLinea[2]));
 			strcpy(p_registro->value,arrayLinea[2]);
-			printf("%s", p_registro->value);
-			vectorStructs[i] = &p_registro;
+			vectorStructs[i] = p_registro;
+			i++;
+		}
+	}
+	//return vectorStructs;
+}
 
+
+
+
+/*
+
+t_registro** obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vectorStructs){
+	char linea[50];
+	int i = 0;
+
+	while( fgets(linea,50,archivoBloque) != NULL ){
+		if(atoi(string_split(linea,";")[1]) == key){
+			t_registro* p_registro = malloc(12); // 2 int = 2* 4    +    un puntero a char = 4
+			char** arrayLinea = malloc(strlen(linea) + 1);
+			arrayLinea = string_split(linea,";");
+			int timestamp = atoi(arrayLinea[0]);
+			int key = atoi(arrayLinea[1]);
+			p_registro->timestamp = timestamp;
+			p_registro->key = key;
+			p_registro->value = malloc(strlen(arrayLinea[2]));
+			strcpy(p_registro->value,arrayLinea[2]);
+			printf("%s", p_registro->value);
+			vectorStructs[i] = p_registro;
 			i++;
 		}
 	}
 	return vectorStructs;
 }
 
-
+*/
 
 /*
  void iniciarConexion(){
