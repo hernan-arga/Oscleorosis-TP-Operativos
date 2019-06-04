@@ -57,7 +57,7 @@ int esUnNumero(char* cadena);
 int esUnTipoDeConsistenciaValida(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
 //t_registro** obtenerDatosParaKeyDeseada(FILE *, int);
-void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro*vectorStructs[]);
+void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro*vectorStructs[], int *cant);
 
 int main(int argc, char *argv[]) {
 	while (1) {
@@ -404,29 +404,37 @@ void realizarSelect(char* tabla, char* key) {
 				exit(1);
 			}
 
+			int cantidadIgualDeKeysEnBloque = 0;
 			t_registro* vectorStructs[100];
-			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)), vectorStructs);
+			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)), vectorStructs, &cantidadIgualDeKeysEnBloque);
 			printf("%i",vectorStructs[0]->timestamp);
+
 			//cual de estos tiene el timestamp mas grande? guardar timestamp y value
-	/*		int tamano = 20; //cantidad de elementos que tiene vectorDatosParaKeyDeseada
 			int temp = 0;
-			for (int k = 0; k < (tamano - 1); k++){
-				for (int j = k + 1; j < tamano; j++){
-						if (vectorDatosParaKeyDeseada[j]->timestamp > vectorDatosParaKeyDeseada[k]->timestamp){
-							temp = vectorDatosParaKeyDeseada[j]->timestamp;
-							vectorDatosParaKeyDeseada[j]->timestamp = vectorDatosParaKeyDeseada[k]->timestamp;
-							vectorDatosParaKeyDeseada[k]->timestamp = temp;
+			char* valor;
+			for (int k = 1; k < cantidadIgualDeKeysEnBloque; k++){
+				for (int j = 0; j < (cantidadIgualDeKeysEnBloque-k); j++){
+						if (vectorStructs[j]->timestamp < vectorStructs[j+1]->timestamp){
+							temp = vectorStructs[j+1]->timestamp;
+							valor = malloc(strlen(vectorStructs[j+1]->value));
+							strcpy(valor,vectorStructs[j+1]->value);
+
+							vectorStructs[j+1]->timestamp = vectorStructs[j]->timestamp;
+							vectorStructs[j+1]->value = vectorStructs[j]->value;
+
+							vectorStructs[j]->timestamp = temp;
+							vectorStructs[j]->value = valor;
 					}
 			    }
 			 }
-			if(vectorDatosParaKeyDeseada[0]->timestamp > timestampActualMayor){
-				timestampActualMayor = vectorDatosParaKeyDeseada[0]->timestamp;
-				valueDeTimestampActualMayor = malloc(sizeof(vectorDatosParaKeyDeseada[0]->value));
-				strcpy(valueDeTimestampActualMayor, vectorDatosParaKeyDeseada[0]->value);
-			} */
+			if(vectorStructs[0]->timestamp > timestampActualMayor){
+				timestampActualMayor = vectorStructs[0]->timestamp;
+				valueDeTimestampActualMayor = malloc(strlen(vectorStructs[0]->value));
+				strcpy(valueDeTimestampActualMayor, vectorStructs[0]->value);
+			}
 			fclose(archivoBloque);
 			free(pathBloque);
-			//free(vectorDatosParaKeyDeseada);
+			//free(vectorStructs);
 		} //cierra el for
 
 		if(timestampActualMayor>0){
@@ -455,7 +463,7 @@ void realizarSelect(char* tabla, char* key) {
 	}
 }
 
-void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vectorStructs){
+void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vectorStructs, int *cant){
 	char linea[50];
 	int i = 0;
 
@@ -473,40 +481,13 @@ void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vecto
 			strcpy(p_registro->value,arrayLinea[2]);
 			vectorStructs[i] = p_registro;
 			i++;
+			(*cant)++;
 		}
 	}
-	//return vectorStructs;
 }
 
 
 
-
-/*
-
-t_registro** obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vectorStructs){
-	char linea[50];
-	int i = 0;
-
-	while( fgets(linea,50,archivoBloque) != NULL ){
-		if(atoi(string_split(linea,";")[1]) == key){
-			t_registro* p_registro = malloc(12); // 2 int = 2* 4    +    un puntero a char = 4
-			char** arrayLinea = malloc(strlen(linea) + 1);
-			arrayLinea = string_split(linea,";");
-			int timestamp = atoi(arrayLinea[0]);
-			int key = atoi(arrayLinea[1]);
-			p_registro->timestamp = timestamp;
-			p_registro->key = key;
-			p_registro->value = malloc(strlen(arrayLinea[2]));
-			strcpy(p_registro->value,arrayLinea[2]);
-			printf("%s", p_registro->value);
-			vectorStructs[i] = p_registro;
-			i++;
-		}
-	}
-	return vectorStructs;
-}
-
-*/
 
 /*
  void iniciarConexion(){
