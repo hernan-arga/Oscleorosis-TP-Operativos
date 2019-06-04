@@ -387,12 +387,16 @@ void realizarSelect(char* tabla, char* key) {
 		strcat(pathParticionQueContieneKey, stringParticion);
 		strcat(pathParticionQueContieneKey, ".bin");
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
-		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS
+		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS //TODO
+// me esta leyendo mal el vectorBloques
+		printf("%s", vectorBloques[0]);
+		printf("%s", vectorBloques[1]);
 
 		int timestampActualMayor = -1;
 		char* valueDeTimestampActualMayor;
 
-		for(int i=0; i<((sizeof(vectorBloques) / sizeof(vectorBloques[0]))); i++){
+		int division = (sizeof(vectorBloques) / sizeof(vectorBloques[0])); //esto esta bien?? //TODO
+		for(int i=0; i< 3; i++){
 			// por cada bloque, tengo que entrar a este bloque
 			char* pathBloque = malloc(strlen("./Bloques/") + strlen((vectorBloques[i])) + strlen(".bin") +1);
 			strcpy(pathBloque, "./Bloques/");
@@ -438,7 +442,7 @@ void realizarSelect(char* tabla, char* key) {
 		} //cierra el for
 
 		if(timestampActualMayor>0){
-					printf("%s",valueDeTimestampActualMayor);
+					printf("%s\n",valueDeTimestampActualMayor);
 		}
 		else{
 			printf("error timestamp"); //tecnicamente nunca llegaria a este caso pero lo hice por las dudas
