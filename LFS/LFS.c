@@ -19,6 +19,7 @@
 #include <commons/config.h>
 #include <commons/log.h>
 #include <commons/string.h>
+#include <commons/bitarray.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -32,7 +33,7 @@ typedef struct {
 	int timestamp;
 	int key;
 	char* value;
-}t_registro ;
+} t_registro;
 
 //void iniciarConexion();
 
@@ -57,9 +58,16 @@ int esUnNumero(char* cadena);
 int esUnTipoDeConsistenciaValida(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
 t_registro** obtenerDatosParaKeyDeseada(FILE *, int);
+void crearMetadataBloques();
+int tamanioEnBytesDelBitarray();
+void inicializarBitArray();
+void actualizarBitArray();
+void verBitArray();
 
+t_bitarray* bitarrayBloques;
 
 int main(int argc, char *argv[]) {
+	inicializarBitArray();
 	while (1) {
 		char* mensaje = malloc(1000);
 		do {
@@ -67,8 +75,12 @@ int main(int argc, char *argv[]) {
 		} while (!strcmp(mensaje, "\n"));
 		tomarPeticion(mensaje);
 		free(mensaje);
+		verBitArray();
 	}
 	//iniciarConexion();
+
+	//Aca se destruye el bitarray?
+	bitarray_destroy(bitarrayBloques);
 	return 0;
 }
 
@@ -107,13 +119,12 @@ void realizarPeticion(char** parametros) {
 			return esUnNumero(key);
 		}
 
-		if( parametrosValidos(2,parametros,(void*)criterioSelect) ){
+		if (parametrosValidos(2, parametros, (void*) criterioSelect)) {
 			printf("ESTOY HACIENDO SELECT\n");
 			char* tabla = parametros[1];
 			char* key = parametros[2];
 			realizarSelect(tabla, key);
 		}
-
 
 		break;
 
@@ -185,7 +196,6 @@ void realizarPeticion(char** parametros) {
 		printf("Error operacion invalida\n");
 	}
 }
-
 
 int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
 		int (*criterioTiposCorrectos)(char**, int)) {
@@ -272,7 +282,6 @@ int existeUnaListaDeDatosADumpear() {
 	return 1;
 }
 
-
 void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 		char* tiempoDeCompactacion) {
 	string_to_upper(tabla);
@@ -310,7 +319,7 @@ void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 
 void crearBinarios(char* path, int cantidadDeParticiones) {
 	for (int i = 0; i < cantidadDeParticiones; i++) {
-		//10 para dejar cierto margen a la cantidad de particiones
+		//10 para dejar cierto margen a la cantidad de digitos de las particiones
 		char* directorioBinario = malloc(strlen(path) + 10);
 		char* numeroDeParticion = string_itoa(i);
 		strcpy(directorioBinario, path);
@@ -325,14 +334,115 @@ void crearBinarios(char* path, int cantidadDeParticiones) {
 
 //No se como funciona esta parte
 void asignarBloque(char* directorioBinario) {
-	//resolver lo mismo del save y el create que paso con el crearMetadata y ver como asignar los bloques
+	//resolver lo mismo del save y el create que paso con el crearMetadata
 	FILE *archivoBinario = fopen(directorioBinario, "w");
 	t_config *binario = config_create(directorioBinario);
-	//config_set_value(directorioBinario, "SIZE", size);
-	//config_set_value(directorioBinario, "BLOCKS", bloques);
-	//config_save_in_file(binario, directorioBinario);
+	int encontroUnBloque = 0;
+	int bloqueEncontrado = 0;
+	//Reemplazar para que vaya hasta la cantidad de bloques del archivo de config
+	for (int i = 0; i < bitarray_get_max_bit(bitarrayBloques); i++) {
+		if (bitarray_test_bit(bitarrayBloques, i) == 0) {
+			bitarray_set_bit(bitarrayBloques, i);
+			encontroUnBloque = 1;
+			bloqueEncontrado = i;
+			break;
+		}
+	}
+
+	if (encontroUnBloque) {
+		char *stringdelArrayDeBloques = string_new();
+		string_append(&stringdelArrayDeBloques, "[");
+		string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
+		string_append(&stringdelArrayDeBloques, "]");
+		//64 lo tengo que reemplazar por el tamanio de un bloque supongo
+		config_set_value(binario, "SIZE", "64");
+		//los bloques despues se levantan con config_get_array_value
+		config_set_value(binario, "BLOCKS", stringdelArrayDeBloques);
+		config_save_in_file(binario, directorioBinario);
+		actualizarBitArray();
+		//creo el archivo .bin del bloque
+		char* pathBloque = string_new();
+		string_append(&pathBloque, "./Bloques/");
+		string_append(&pathBloque, string_itoa(bloqueEncontrado));
+		string_append(&pathBloque, ".bin");
+		FILE *bloqueCreado = fopen(pathBloque, "w");
+		fclose(bloqueCreado);
+	}
+
+	else {
+		//¿Que deberia hacer en este caso?
+		printf("No se encontro bloque disponible\n");
+	}
+
 	fclose(archivoBinario);
 	config_destroy(binario);
+}
+
+//Guardo el estado actual del bitarray en el archivo
+void actualizarBitArray() {
+	FILE* bitmap_f = fopen("Metadata/bitmap.bin", "w");
+	//1 = block_quantity / 8; bitarrayBloques tiene adentro el char* bitarray que es el bitarray literal que necesito
+	char *bitarrayString = string_new();
+	string_append(&bitarrayString, bitarrayBloques->bitarray);
+	fputs(bitarrayString, bitmap_f);
+	fclose(bitmap_f);
+}
+
+void inicializarBitArray() {
+	FILE* bitmap_f = fopen("Metadata/bitmap.bin", "r");
+	int size;
+	char* buffer;
+
+	//calcula el tamanio del bitmap.bin
+	fseek(bitmap_f, 0L, SEEK_END);
+	size = ftell(bitmap_f);
+	fseek(bitmap_f, 0L, SEEK_SET);
+
+	buffer = malloc(size);
+	fread(buffer, size, 1, bitmap_f);
+	//buffer = string_substring_until(buffer, size);
+	bitarrayBloques = bitarray_create(buffer, tamanioEnBytesDelBitarray());
+}
+
+void verBitArray() {
+	FILE* bitmap_f = fopen("./Metadata/bitmap.bin", "r");
+	for (int j = 0; j < bitarray_get_max_bit(bitarrayBloques); j++) {
+
+		bool bit = bitarray_test_bit(bitarrayBloques, j);
+		printf("%i", bit);
+	}
+	printf("\n");
+	fclose(bitmap_f);
+}
+
+//la cantidad de bloques dividido por 8 bits = cantidad de bytes necesarios
+//¿Cuantos bloques genero con 649 bytes? como cada bloque es un bit, 649 bytes * 8 bits = 5192 bloques
+int tamanioEnBytesDelBitarray() {
+	char *metadataPath = "./Metadata/metadata.bin";
+	//levanto el crearMetadataLFS aca para testear. Cuando este listo todo hay que llamarla al iniciar el lfs
+	crearMetadataBloques();
+	t_config *metadata = config_create(metadataPath);
+	//int tamanioPorBloque = config_get_int_value(metadata, "BLOCK_SIZE");
+	int cantidadDeBloques = config_get_int_value(metadata, "BLOCKS");
+	config_destroy(metadata);
+	//¿Que pasa si la cantidad de bloques no es divisible por 8?
+	return cantidadDeBloques / 8;
+}
+
+void crearMetadataBloques() {
+	char *metadataPath = "./Metadata/metadata.bin";
+	FILE *archivoMetadata = fopen(metadataPath, "w");
+	char *bitmapPath = "./Metadata/bitmap.bin";
+	FILE *archivoBitmap = fopen(bitmapPath, "w");
+	t_config *metadata = config_create(metadataPath);
+	//Estos datos harcodeados despues tienen que modificarse. ¿Tienen que tener algun valor especial por defecto?
+	config_set_value(metadata, "BLOCK_SIZE", "64");
+	config_set_value(metadata, "BLOCKS", "16");
+	config_set_value(metadata, "MAGIC_NUMBER", "LISSANDRA");
+	config_save_in_file(metadata, metadataPath);
+	fclose(archivoMetadata);
+	fclose(archivoBitmap);
+	config_destroy(metadata);
 }
 
 void crearMetadata(char* metadataPath, char* consistencia,
@@ -368,19 +478,23 @@ int existeLaTabla(char* nombreDeTabla) {
 void realizarSelect(char* tabla, char* key) {
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
-		char* pathMetadata = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/Metadata") + 1);
+		char* pathMetadata = malloc(
+				strlen("./Tables/") + strlen(tabla) + strlen("/Metadata") + 1);
 		strcpy(pathMetadata, "./Tables/");
 		strcat(pathMetadata, tabla);
 		strcat(pathMetadata, "/Metadata");
 		t_config *metadata = config_create(pathMetadata);
-		int cantidadDeParticiones = config_get_int_value(metadata, "PARTITIONS");
+		int cantidadDeParticiones = config_get_int_value(metadata,
+				"PARTITIONS");
 		//printf("%i - %i\n",atoi(key), cantidadDeParticiones);
-		int particionQueContieneLaKey = (atoi(key))%cantidadDeParticiones;
+		int particionQueContieneLaKey = (atoi(key)) % cantidadDeParticiones;
 		printf("La key esta en la particion %i\n", particionQueContieneLaKey);
 		char* stringParticion = malloc(4);
 		stringParticion = string_itoa(particionQueContieneLaKey);
 
-		char* pathParticionQueContieneKey = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/") + strlen(stringParticion) + strlen(".bin") + 1);
+		char* pathParticionQueContieneKey = malloc(
+				strlen("./Tables/") + strlen(tabla) + strlen("/")
+						+ strlen(stringParticion) + strlen(".bin") + 1);
 		strcpy(pathParticionQueContieneKey, "./Tables/");
 		strcat(pathParticionQueContieneKey, tabla);
 		strcat(pathParticionQueContieneKey, "/");
@@ -388,19 +502,23 @@ void realizarSelect(char* tabla, char* key) {
 		strcat(pathParticionQueContieneKey, ".bin");
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
 		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS
-		for(int i=0; i<((sizeof(vectorBloques) / sizeof(vectorBloques[0]))); i++){
+		for (int i = 0;
+				i < ((sizeof(vectorBloques) / sizeof(vectorBloques[0]))); i++) {
 			// por cada bloque, tengo que entrar a este bloque
-			char* pathBloque = malloc(strlen("./Bloques/") + strlen((vectorBloques[i])) + strlen(".bin") +1);
+			char* pathBloque = malloc(
+					strlen("./Bloques/") + strlen((vectorBloques[i]))
+							+ strlen(".bin") + 1);
 			strcpy(pathBloque, "./Bloques/");
 			strcat(pathBloque, vectorBloques[i]);
 			strcat(pathBloque, ".bin");
 			FILE *archivoBloque = fopen(pathBloque, "r");
-			if(archivoBloque == NULL){
+			if (archivoBloque == NULL) {
 				printf("no se pudo abrir archivo de bloques");
 				exit(1);
 			}
-			t_registro** vectorDatosParaKeyDeseada = obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key))); //devuelve vector de structs que tienen la key deseada
-
+			t_registro** vectorDatosParaKeyDeseada = obtenerDatosParaKeyDeseada(
+					archivoBloque, (atoi(key))); //devuelve vector de structs que tienen la key deseada
+			printf("Hola");
 
 			fclose(archivoBloque);
 			free(pathBloque);
@@ -424,23 +542,24 @@ void realizarSelect(char* tabla, char* key) {
 	}
 }
 
-
-t_registro** obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key){
+t_registro** obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key) {
 	char linea[50];
 	int i = 0;
-	t_registro** vectorStructs[100];
+	t_registro** vectorStructs;
 
-	while( fgets(linea,50,archivoBloque) != NULL ){
-		if(atoi(string_split(linea,";")[1]) == key){
+	while (fgets(linea, 50, archivoBloque) != NULL) {
+		if (atoi(string_split(linea, ";")[1]) == key) {
 			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+			t_registro p_registro2;
+			p_registro = &p_registro2;
 			char** arrayLinea = malloc(strlen(linea) + 1);
-			arrayLinea = string_split(linea,";");
+			arrayLinea = string_split(linea, ";");
 			int timestamp = atoi(arrayLinea[0]);
 			int key = atoi(arrayLinea[1]);
 			p_registro->timestamp = timestamp;
 			p_registro->key = key;
 			p_registro->value = malloc(strlen(arrayLinea[2]));
-			strcpy(p_registro->value,arrayLinea[2]);
+			strcpy(p_registro->value, arrayLinea[2]);
 			printf("%s", p_registro->value);
 			vectorStructs[i] = &p_registro;
 
@@ -449,8 +568,6 @@ t_registro** obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key){
 	}
 	return vectorStructs;
 }
-
-
 
 /*
  void iniciarConexion(){
