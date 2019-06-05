@@ -503,7 +503,6 @@ void realizarSelect(char* tabla, char* key) {
 		strcat(pathParticionQueContieneKey, stringParticion);
 		strcat(pathParticionQueContieneKey, ".bin");
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
-
 		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS //TODO
 // me esta leyendo mal el vectorBloques
 		printf("%s", vectorBloques[0]);
@@ -514,7 +513,6 @@ void realizarSelect(char* tabla, char* key) {
 
 		int division = (sizeof(vectorBloques) / sizeof(vectorBloques[0])); //esto esta bien?? //TODO
 		for(int i=0; i< 3; i++){
-
 			// por cada bloque, tengo que entrar a este bloque
 			char* pathBloque = malloc(
 					strlen("./Bloques/") + strlen((vectorBloques[i]))
@@ -587,7 +585,6 @@ void realizarSelect(char* tabla, char* key) {
 	}
 }
 
-
 void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vectorStructs, int *cant){
 	char linea[50];
 	int i = 0;
@@ -595,7 +592,6 @@ void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vecto
 	while( fgets(linea,50,archivoBloque) != NULL ){
 		int keyLeida = atoi(string_split(linea,";")[1]);
 		if(keyLeida == key){
-
 			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 			t_registro p_registro2;
 			p_registro = &p_registro2;
@@ -609,7 +605,6 @@ void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vecto
 
 			strcpy(p_registro->value,arrayLinea[2]);
 			vectorStructs[i] = p_registro;
-
 			i++;
 			(*cant)++;
 		}
