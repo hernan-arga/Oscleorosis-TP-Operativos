@@ -57,7 +57,8 @@ int parametrosValidos(int, char**, int (*criterioTiposCorrectos)(char**, int));
 int esUnNumero(char* cadena);
 int esUnTipoDeConsistenciaValida(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
-t_registro** obtenerDatosParaKeyDeseada(FILE *, int);
+//t_registro** obtenerDatosParaKeyDeseada(FILE *, int);
+void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro*vectorStructs[], int *cant);
 void crearMetadataBloques();
 int tamanioEnBytesDelBitarray();
 void inicializarBitArray();
@@ -474,6 +475,7 @@ int existeLaTabla(char* nombreDeTabla) {
 	return 0;
 }
 
+
 //No le pongo "select" porque ya esta la funcion de socket y rompe
 void realizarSelect(char* tabla, char* key) {
 	string_to_upper(tabla);
@@ -501,9 +503,18 @@ void realizarSelect(char* tabla, char* key) {
 		strcat(pathParticionQueContieneKey, stringParticion);
 		strcat(pathParticionQueContieneKey, ".bin");
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
-		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS
-		for (int i = 0;
-				i < ((sizeof(vectorBloques) / sizeof(vectorBloques[0]))); i++) {
+
+		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS //TODO
+// me esta leyendo mal el vectorBloques
+		printf("%s", vectorBloques[0]);
+		printf("%s", vectorBloques[1]);
+
+		int timestampActualMayor = -1;
+		char* valueDeTimestampActualMayor;
+
+		int division = (sizeof(vectorBloques) / sizeof(vectorBloques[0])); //esto esta bien?? //TODO
+		for(int i=0; i< 3; i++){
+
 			// por cada bloque, tengo que entrar a este bloque
 			char* pathBloque = malloc(
 					strlen("./Bloques/") + strlen((vectorBloques[i]))
@@ -516,17 +527,51 @@ void realizarSelect(char* tabla, char* key) {
 				printf("no se pudo abrir archivo de bloques");
 				exit(1);
 			}
-			t_registro** vectorDatosParaKeyDeseada = obtenerDatosParaKeyDeseada(
-					archivoBloque, (atoi(key))); //devuelve vector de structs que tienen la key deseada
-			printf("Hola");
 
+			int cantidadIgualDeKeysEnBloque = 0;
+			t_registro* vectorStructs[100];
+			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)), vectorStructs, &cantidadIgualDeKeysEnBloque);
+			printf("%i",vectorStructs[0]->timestamp);
+
+			//cual de estos tiene el timestamp mas grande? guardar timestamp y value
+			int temp = 0;
+			char* valor;
+			for (int k = 1; k < cantidadIgualDeKeysEnBloque; k++){
+				for (int j = 0; j < (cantidadIgualDeKeysEnBloque-k); j++){
+						if (vectorStructs[j]->timestamp < vectorStructs[j+1]->timestamp){
+							temp = vectorStructs[j+1]->timestamp;
+							valor = malloc(strlen(vectorStructs[j+1]->value));
+							strcpy(valor,vectorStructs[j+1]->value);
+
+							vectorStructs[j+1]->timestamp = vectorStructs[j]->timestamp;
+							vectorStructs[j+1]->value = vectorStructs[j]->value;
+
+							vectorStructs[j]->timestamp = temp;
+							vectorStructs[j]->value = valor;
+					}
+			    }
+			 }
+			if(vectorStructs[0]->timestamp > timestampActualMayor){
+				timestampActualMayor = vectorStructs[0]->timestamp;
+				valueDeTimestampActualMayor = malloc(strlen(vectorStructs[0]->value));
+				strcpy(valueDeTimestampActualMayor, vectorStructs[0]->value);
+			}
 			fclose(archivoBloque);
 			free(pathBloque);
+			//free(vectorStructs);
+		} //cierra el for
+
+		if(timestampActualMayor>0){
+					printf("%s\n",valueDeTimestampActualMayor);
+		}
+		else{
+			printf("error timestamp"); //tecnicamente nunca llegaria a este caso pero lo hice por las dudas
 		}
 		free(pathMetadata);
 		free(pathParticionQueContieneKey);
 		config_destroy(tamanioYBloques);
 		config_destroy(metadata);
+
 	} else {
 		char* mensajeALogear = malloc(
 				strlen("Error: no existe una tabla con el nombre ")
@@ -542,13 +587,15 @@ void realizarSelect(char* tabla, char* key) {
 	}
 }
 
-t_registro** obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key) {
+
+void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vectorStructs, int *cant){
 	char linea[50];
 	int i = 0;
-	t_registro** vectorStructs;
 
-	while (fgets(linea, 50, archivoBloque) != NULL) {
-		if (atoi(string_split(linea, ";")[1]) == key) {
+	while( fgets(linea,50,archivoBloque) != NULL ){
+		int keyLeida = atoi(string_split(linea,";")[1]);
+		if(keyLeida == key){
+
 			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 			t_registro p_registro2;
 			p_registro = &p_registro2;
@@ -559,14 +606,14 @@ t_registro** obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key) {
 			p_registro->timestamp = timestamp;
 			p_registro->key = key;
 			p_registro->value = malloc(strlen(arrayLinea[2]));
-			strcpy(p_registro->value, arrayLinea[2]);
-			printf("%s", p_registro->value);
-			vectorStructs[i] = &p_registro;
+
+			strcpy(p_registro->value,arrayLinea[2]);
+			vectorStructs[i] = p_registro;
 
 			i++;
+			(*cant)++;
 		}
 	}
-	return vectorStructs;
 }
 
 /*
