@@ -68,7 +68,7 @@ void verBitArray();
 t_bitarray* bitarrayBloques;
 
 int main(int argc, char *argv[]) {
-	inicializarBitArray();
+	//inicializarBitArray();
 	while (1) {
 		char* mensaje = malloc(1000);
 		do {
@@ -486,37 +486,33 @@ void realizarSelect(char* tabla, char* key) {
 		strcat(pathMetadata, tabla);
 		strcat(pathMetadata, "/Metadata");
 		t_config *metadata = config_create(pathMetadata);
-		int cantidadDeParticiones = config_get_int_value(metadata,
-				"PARTITIONS");
-		//printf("%i - %i\n",atoi(key), cantidadDeParticiones);
+		int cantidadDeParticiones = config_get_int_value(metadata,"PARTITIONS");
+
 		int particionQueContieneLaKey = (atoi(key)) % cantidadDeParticiones;
 		printf("La key esta en la particion %i\n", particionQueContieneLaKey);
 		char* stringParticion = malloc(4);
 		stringParticion = string_itoa(particionQueContieneLaKey);
 
-		char* pathParticionQueContieneKey = malloc(
-				strlen("./Tables/") + strlen(tabla) + strlen("/")
-						+ strlen(stringParticion) + strlen(".bin") + 1);
+		char* pathParticionQueContieneKey = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/") + strlen(stringParticion) + strlen(".bin") + 1);
 		strcpy(pathParticionQueContieneKey, "./Tables/");
 		strcat(pathParticionQueContieneKey, tabla);
 		strcat(pathParticionQueContieneKey, "/");
 		strcat(pathParticionQueContieneKey, stringParticion);
 		strcat(pathParticionQueContieneKey, ".bin");
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
-		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS //TODO
-// me esta leyendo mal el vectorBloques
-		printf("%s", vectorBloques[0]);
-		printf("%s", vectorBloques[1]);
+		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS
+
+		int m = 0;
+		while(vectorBloques[m] != NULL){
+			m ++;
+		}
 
 		int timestampActualMayor = -1;
 		char* valueDeTimestampActualMayor;
 
-		int division = (sizeof(vectorBloques) / sizeof(vectorBloques[0])); //esto esta bien?? //TODO
-		for(int i=0; i< 3; i++){
+		for(int i=0; i< m; i++){
 			// por cada bloque, tengo que entrar a este bloque
-			char* pathBloque = malloc(
-					strlen("./Bloques/") + strlen((vectorBloques[i]))
-							+ strlen(".bin") + 1);
+			char* pathBloque = malloc(strlen("./Bloques/") + strlen((vectorBloques[i])) + strlen(".bin") + 1);
 			strcpy(pathBloque, "./Bloques/");
 			strcat(pathBloque, vectorBloques[i]);
 			strcat(pathBloque, ".bin");
@@ -552,7 +548,8 @@ void realizarSelect(char* tabla, char* key) {
 			if(vectorStructs[0]->timestamp > timestampActualMayor){
 				timestampActualMayor = vectorStructs[0]->timestamp;
 				valueDeTimestampActualMayor = malloc(strlen(vectorStructs[0]->value));
-				strcpy(valueDeTimestampActualMayor, vectorStructs[0]->value);
+				//strcpy(valueDeTimestampActualMayor, vectorStructs[0]->value);
+				valueDeTimestampActualMayor = vectorStructs[0]->value; // ESTO NO DEBERIA SER ASI, Y DEBERIA FUNCIONAR LA LINEA DE ARRIBA
 			}
 			fclose(archivoBloque);
 			free(pathBloque);
