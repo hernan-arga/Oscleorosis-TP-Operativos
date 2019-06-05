@@ -480,8 +480,7 @@ int existeLaTabla(char* nombreDeTabla) {
 void realizarSelect(char* tabla, char* key) {
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
-		char* pathMetadata = malloc(
-				strlen("./Tables/") + strlen(tabla) + strlen("/Metadata") + 1);
+		char* pathMetadata = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/Metadata") + 1);
 		strcpy(pathMetadata, "./Tables/");
 		strcat(pathMetadata, tabla);
 		strcat(pathMetadata, "/Metadata");
@@ -507,11 +506,11 @@ void realizarSelect(char* tabla, char* key) {
 			m ++;
 		}
 
-		int timestampActualMayor = -1;
-		char* valueDeTimestampActualMayor;
+		int timestampActualMayorBloques = -1;
+		char* valueDeTimestampActualMayorBloques;
 
+		// POR CADA BLOQUE, TENGO QUE ENTRAR A ESTE BLOQUE
 		for(int i=0; i< m; i++){
-			// por cada bloque, tengo que entrar a este bloque
 			char* pathBloque = malloc(strlen("./Bloques/") + strlen((vectorBloques[i])) + strlen(".bin") + 1);
 			strcpy(pathBloque, "./Bloques/");
 			strcat(pathBloque, vectorBloques[i]);
@@ -525,7 +524,6 @@ void realizarSelect(char* tabla, char* key) {
 			int cantidadIgualDeKeysEnBloque = 0;
 			t_registro* vectorStructs[100];
 			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)), vectorStructs, &cantidadIgualDeKeysEnBloque);
-			printf("%i",vectorStructs[0]->timestamp);
 
 			//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 			int temp = 0;
@@ -545,28 +543,113 @@ void realizarSelect(char* tabla, char* key) {
 					}
 			    }
 			 }
-			if(vectorStructs[0]->timestamp > timestampActualMayor){
-				timestampActualMayor = vectorStructs[0]->timestamp;
-				valueDeTimestampActualMayor = malloc(strlen(vectorStructs[0]->value));
-				//strcpy(valueDeTimestampActualMayor, vectorStructs[0]->value);
-				valueDeTimestampActualMayor = vectorStructs[0]->value; // ESTO NO DEBERIA SER ASI, Y DEBERIA FUNCIONAR LA LINEA DE ARRIBA
+			if(vectorStructs[0]->timestamp > timestampActualMayorBloques){
+				timestampActualMayorBloques = vectorStructs[0]->timestamp;
+				valueDeTimestampActualMayorBloques = malloc(strlen(vectorStructs[0]->value));
+				//strcpy(valueDeTimestampActualMayorBloques, vectorStructs[0]->value);
+				valueDeTimestampActualMayorBloques = vectorStructs[0]->value; // ESTO NO DEBERIA SER ASI, Y DEBERIA FUNCIONAR LA LINEA DE ARRIBA
 			}
 			fclose(archivoBloque);
 			free(pathBloque);
 			//free(vectorStructs);
-		} //cierra el for
+		} 	//cierra el for
 
-		if(timestampActualMayor>0){
-					printf("%s\n",valueDeTimestampActualMayor);
-		}
-		else{
-			printf("error timestamp"); //tecnicamente nunca llegaria a este caso pero lo hice por las dudas
-		}
+		// si encontro alguno, me guarda el timestamp mayor en timestampActualMayorBloques
+		// y guarda el valor en valueDeTimestampActualMayorBloques
+		// si no hay ninguno en vectorBloques (porque por ej, esta en los temporales)
+		// entonces timestampActualMayorBloques = -1 y
+		// valueDeTimestampActualMayorBloques = NULL
+
+		//-------------------------------------------------
+
+		// AHORA ABRO ARCHIVOS TEMPORALES. EL PROCEDIMIENTO ES MUY PARECIDO AL ANTERIOR
+/*
+		char* pathTemporales = malloc(strlen("./Tables/") + strlen(tabla) + 1);
+		strcpy(pathTemporales, "./Tables/");
+		strcat(pathTemporales, tabla);
+
+		DIR *directorioTemporal = opendir(pathTemporales);
+		struct dirent *directorioTemporalALeer;
+
+		int timestampActualMayorTemporales = -1;
+		char* valueDeTimestampActualMayorTemporales;
+
+		while((directorioTemporalALeer = readdir(directorioTemporal)) != NULL) { //PARA CADA .TMP
+			if( directorioTemporalALeer termina en .tmp  ){
+
+				//obtengo el nombre de ese archivo .tmp . Ejemplo obtengo A1.tmp siendo A1 el nombre (tipo char*)
+
+				char* pathTemporal = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/") + strlen( nombreArchivoTemporal ) + strlen(".tmp") + 1);
+				strcpy(pathTemporal, "./Tables/");
+				strcat(pathTemporal, tabla);
+				strcat(pathTemporal, "/");
+				strcat(pathTemporal, nombreArchivoTemporal );
+				strcat(pathTemporal, ".tmp");
+				FILE *archivoTemporal = fopen(pathTemporal, "r");
+				if (archivoTemporal == NULL) {
+					printf("no se pudo abrir archivo de temporales");
+					exit(1);
+				}
+
+				int cantidadIgualDeKeysEnTemporal = 0;
+				t_registro* vectorStructsTemporal[100];
+				obtenerDatosParaKeyDeseada(archivoTemporal, (atoi(key)), vectorStructsTemporal, &cantidadIgualDeKeysEnTemporal);
+
+				//cual de estos tiene el timestamp mas grande? guardar timestamp y value
+				int tempo = 0;
+				char* valorTemp;
+				for (int k = 1; k < cantidadIgualDeKeysEnTemporal; k++){
+					for (int j = 0; j < (cantidadIgualDeKeysEnTemporal-k); j++){
+						if (vectorStructsTemporal[j]->timestamp < vectorStructsTemporal[j+1]->timestamp){
+							tempo = vectorStructsTemporal[j+1]->timestamp;
+							valorTemp = malloc(strlen(vectorStructsTemporal[j+1]->value));
+							strcpy(valorTemp,vectorStructsTemporal[j+1]->value);
+
+							vectorStructsTemporal[j+1]->timestamp = vectorStructsTemporal[j]->timestamp;
+							vectorStructsTemporal[j+1]->value = vectorStructsTemporal[j]->value;
+
+							vectorStructsTemporal[j]->timestamp = tempo;
+							vectorStructsTemporal[j]->value = valorTemp;
+						}
+					}
+				}
+
+				if(vectorStructsTemporal[0]->timestamp > timestampActualMayorBloques){
+					timestampActualMayorTemporales = vectorStructsTemporal[0]->timestamp;
+					valueDeTimestampActualMayorTemporales = malloc(strlen(vectorStructsTemporal[0]->value));
+					//strcpy(valueDeTimestampActualMayorTemporales, vectorStructsTemporal[0]->value);
+					valueDeTimestampActualMayorTemporales = vectorStructsTemporal[0]->value; // ESTO NO DEBERIA SER ASI, Y DEBERIA FUNCIONAR LA LINEA DE ARRIBA
+				}
+				fclose(archivoTemporal);
+				free(pathTemporal);
+				//free(vectorStructsTemporal)
+			}
+		} //cierra el while
+
+		// si encontro alguno, me guarda el timestamp mayor en timestampActualMayorTemporales
+		// y guarda el valor en valueDeTimestampActualMayorTemporales
+		// si no hay ninguno en vectorStructsTemporal
+		// entonces timestampActualMayorTemporales = -1 y
+		// valueDeTimestampActualMayorTemporales = NULL
+
+		closedir(directorioTemporal);
+
+		// ----------------------------------------------------
+
+
+		// aca iria verificar los datos tamb de la memoria de la tabla
+
+		//-----------------------------------------------------
+
+*/
+
 		free(pathMetadata);
 		free(pathParticionQueContieneKey);
 		config_destroy(tamanioYBloques);
 		config_destroy(metadata);
 
+
+	// SI NO ENCUENTRA LA TABLA (lo de abajo)
 	} else {
 		char* mensajeALogear = malloc(
 				strlen("Error: no existe una tabla con el nombre ")
