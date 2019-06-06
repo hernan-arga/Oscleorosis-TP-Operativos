@@ -525,6 +525,9 @@ void realizarSelect(char* tabla, char* key) {
 			t_registro* vectorStructs[100];
 			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)), vectorStructs, &cantidadIgualDeKeysEnBloque);
 
+			printf("%i", vectorStructs[0]->timestamp);
+			printf("%i", vectorStructs[1]->timestamp);
+
 			//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 			int temp = 0;
 			char* valor;
@@ -542,16 +545,11 @@ void realizarSelect(char* tabla, char* key) {
 							vectorStructs[j]->value = valor;
 					}
 			    }
-			 }
+			 } // aca quedaria el vector ordenado por timestamp mayor
 			if(vectorStructs[0]->timestamp > timestampActualMayorBloques){
-
 				timestampActualMayorBloques = vectorStructs[0]->timestamp;
 				strcpy(valueDeTimestampActualMayorBloques, "");
 				string_append(&valueDeTimestampActualMayorBloques, vectorStructs[0]->value);
-
-				//valueDeTimestampActualMayorBloques = malloc(strlen(vectorStructs[0]->value)  +1);
-				//strcpy(valueDeTimestampActualMayorBloques, vectorStructs[0]->value);
-				//valueDeTimestampActualMayorBloques = vectorStructs[0]->value; // ESTO NO DEBERIA SER ASI, Y DEBERIA FUNCIONAR LA LINEA DE ARRIBA
 			}
 			fclose(archivoBloque);
 			free(pathBloque);
@@ -582,11 +580,7 @@ void realizarSelect(char* tabla, char* key) {
 			if( string_ends_with(archivoALeer->d_name, ".tmp") ){
 
 				//obtengo el nombre de ese archivo .tmp . Ejemplo obtengo A1.tmp siendo A1 el nombre (tipo char*)
-
 				char* nombreArchivoTemporal = string_split( archivoALeer->d_name, ".")[0];
-
-				//char* nombreArchivoTemporal = malloc( strlen( string_split(archivoALeer->d_name, ".")[0] ));
-				//strcpy(nombreArchivoTemporal, string_split( archivoALeer->d_name, ".")[0]);
 				// ahora ya tengo el nombre del archivo .tmp
 
 				char* pathTemporal = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/") + strlen( nombreArchivoTemporal ) + strlen(".tmp") + 1);
@@ -648,9 +642,6 @@ void realizarSelect(char* tabla, char* key) {
 						timestampActualMayorTemporales = vectorStructsTemporal[0]->timestamp;
 						strcpy(valueDeTimestampActualMayorTemporales, "");
 						string_append(&valueDeTimestampActualMayorTemporales, vectorStructsTemporal[0]->value);
-						//valueDeTimestampActualMayorTemporales = malloc(strlen(vectorStructsTemporal[0]->value));
-						//strcpy(valueDeTimestampActualMayorTemporales, vectorStructsTemporal[0]->value);
-						//valueDeTimestampActualMayorTemporales = vectorStructsTemporal[0]->value; // ESTO NO DEBERIA SER ASI, Y DEBERIA FUNCIONAR LA LINEA DE ARRIBA
 					}
 					fclose(archivoBloqueTmp);
 					free(pathBloqueTmp);
@@ -705,9 +696,46 @@ void realizarSelect(char* tabla, char* key) {
 	}
 }
 
-void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vectorStructs, int *cant){
+void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant){
 	char linea[50];
 	int i = 0;
+
+	    char * line = NULL;
+	    size_t len = 0;
+	    ssize_t read;
+
+	    while ((read = getline(&line, &len, fp)) != -1) {
+			int keyLeida = atoi(string_split(line,";")[1]);
+			if(keyLeida == key){
+				t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+				t_registro p_registro2;
+				p_registro = &p_registro2;
+				char** arrayLinea = malloc(strlen(line) + 1);
+				arrayLinea = string_split(line, ";");
+				int timestamp = atoi(arrayLinea[0]);
+				int key = atoi(arrayLinea[1]);
+				p_registro->timestamp = timestamp;
+				p_registro->key = key;
+				p_registro->value = malloc(strlen(arrayLinea[2]));
+
+				strcpy(p_registro->value,arrayLinea[2]);
+				vectorStructs[i] = p_registro;
+				//vectorStructs[i]->key = p_registro->key;
+				//vectorStructs[i]->timestamp = p_registro->timestamp;
+
+				i++;
+				(*cant)++;
+
+				//int untime = vectorStructs[0]->timestamp;
+
+	    }
+	    }
+
+	    printf("%i", vectorStructs[0]->timestamp);
+	    printf("%i", vectorStructs[1]->timestamp);
+
+
+	/*
 
 	while( fgets(linea,50,archivoBloque) != NULL ){
 		int keyLeida = atoi(string_split(linea,";")[1]);
@@ -728,7 +756,7 @@ void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vecto
 			i++;
 			(*cant)++;
 		}
-	}
+	}  				*/
 }
 
 /*
