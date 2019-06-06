@@ -92,15 +92,16 @@ int main(int argc, char *argv[]) {
 	levantarFileSystem();
 	iniciarMmap();
 	bitarrayBloques = bitarray_create(mmapDeBitmap, tamanioEnBytesDelBitarray());
-	verBitArray();
+	//verBitArray();
 	while (1) {
+		printf("SELECT | INSERT | CREATE | tenemos lo que quieras pa \n");
 		char* mensaje = malloc(1000);
 		do {
 			fgets(mensaje, 1000, stdin);
 		} while (!strcmp(mensaje, "\n"));
 		tomarPeticion(mensaje);
 		free(mensaje);
-		verBitArray();
+		//verBitArray();
 	}
 	//iniciarConexion();
 
@@ -183,7 +184,6 @@ void realizarPeticion(char** parametros) {
 		}
 
 		if (parametrosValidos(2, parametros, (void*) criterioSelect)) {
-			printf("ESTOY HACIENDO SELECT\n");
 			char* tabla = parametros[1];
 			char* key = parametros[2];
 			realizarSelect(tabla, key);
@@ -210,7 +210,6 @@ void realizarPeticion(char** parametros) {
 		}
 		//puede o no estar el timestamp
 		if (parametrosValidos(4, parametros, (void *) criterioInsert)) {
-			printf("ESTOY HACIENDO INSERT\n");
 			char *tabla = parametros[1];
 			char *key = parametros[2];
 			char *valor = parametros[3];
@@ -219,7 +218,6 @@ void realizarPeticion(char** parametros) {
 			insert(tabla, key, valor, timestamp);
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
-			printf("ESTOY HACIENDO INSERT\n");
 			char *tabla = parametros[1];
 			char *key = parametros[2];
 			char *valor = parametros[3];
@@ -250,7 +248,6 @@ void realizarPeticion(char** parametros) {
 			char* tiempoCompactacion = parametros[4];
 			char* cantidadParticiones = parametros[3];
 			char* consistencia = parametros[2];
-			printf("ESTOY HACIENDO CREATE\n");
 			create(tabla, consistencia, cantidadParticiones,
 					tiempoCompactacion);
 		}
@@ -550,14 +547,11 @@ void crearMetadata(char* metadataPath, char* consistencia,
 
 //Las 2 funciones de abajo repiten logica, si hay tiempo hacer una funcion sola
 int existeLaTabla(char* nombreDeTabla) {
-	DIR *directorio = opendir(
-			string_from_format("%sTables",
-					structConfiguracionLFS.PUNTO_MONTAJE));
+	DIR *directorio = opendir(string_from_format("%sTables",structConfiguracionLFS.PUNTO_MONTAJE));
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Evaluo si de todas las carpetas dentro de TABAS existe alguna que tenga el mismo nombre
-		if ((directorioALeer->d_type) == DT_DIR
-				&& !strcmp((directorioALeer->d_name), nombreDeTabla)) {
+		if ((directorioALeer->d_type) == DT_DIR && !strcmp((directorioALeer->d_name), nombreDeTabla)) {
 			closedir(directorio);
 			return 1;
 		}
@@ -589,34 +583,20 @@ int existeCarpeta(char *nombreCarpeta) {
 void realizarSelect(char* tabla, char* key) {
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
-		char* pathMetadata = malloc(
-				strlen(
-						string_from_format("%sTables/",
-								structConfiguracionLFS.PUNTO_MONTAJE))
-						+ strlen(tabla) + strlen("/Metadata") + 1);
-		strcpy(pathMetadata,
-				string_from_format("%sTables/",
-						structConfiguracionLFS.PUNTO_MONTAJE));
+		char* pathMetadata = malloc(strlen(string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE)) + strlen(tabla) + strlen("/Metadata") + 1);
+		strcpy(pathMetadata,string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE));
 		strcat(pathMetadata, tabla);
 		strcat(pathMetadata, "/Metadata");
 		t_config *metadata = config_create(pathMetadata);
-		int cantidadDeParticiones = config_get_int_value(metadata,
-				"PARTITIONS");
+		int cantidadDeParticiones = config_get_int_value(metadata,"PARTITIONS");
 
 		int particionQueContieneLaKey = (atoi(key)) % cantidadDeParticiones;
 		printf("La key esta en la particion %i\n", particionQueContieneLaKey);
 		char* stringParticion = malloc(4);
 		stringParticion = string_itoa(particionQueContieneLaKey);
 
-		char* pathParticionQueContieneKey = malloc(
-				strlen(
-						string_from_format("%sTables/",
-								structConfiguracionLFS.PUNTO_MONTAJE))
-						+ strlen(tabla) + strlen("/") + strlen(stringParticion)
-						+ strlen(".bin") + 1);
-		strcpy(pathParticionQueContieneKey,
-				string_from_format("%sTables/",
-						structConfiguracionLFS.PUNTO_MONTAJE));
+		char* pathParticionQueContieneKey = malloc(strlen(string_from_format("%sTables/",structConfiguracionLFS.PUNTO_MONTAJE)) + strlen(tabla) + strlen("/") + strlen(stringParticion)+ strlen(".bin") + 1);
+		strcpy(pathParticionQueContieneKey,	string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE));
 		strcat(pathParticionQueContieneKey, tabla);
 		strcat(pathParticionQueContieneKey, "/");
 		strcat(pathParticionQueContieneKey, stringParticion);
@@ -635,10 +615,7 @@ void realizarSelect(char* tabla, char* key) {
 		// POR CADA BLOQUE, TENGO QUE ENTRAR A ESTE BLOQUE
 		for (int i = 0; i < m; i++) {
 			char* pathBloque = malloc(
-					strlen(
-							string_from_format("%sBloques/",
-									structConfiguracionLFS.PUNTO_MONTAJE))
-							+ strlen((vectorBloques[i])) + strlen(".bin") + 1);
+					strlen(string_from_format("%sBloques/",structConfiguracionLFS.PUNTO_MONTAJE))+ strlen((vectorBloques[i])) + strlen(".bin") + 1);
 			strcpy(pathBloque, "./Bloques/");
 			strcat(pathBloque, vectorBloques[i]);
 			strcat(pathBloque, ".bin");
@@ -653,22 +630,20 @@ void realizarSelect(char* tabla, char* key) {
 			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)),
 					vectorStructs, &cantidadIgualDeKeysEnBloque);
 
-			printf("%i", vectorStructs[0]->timestamp);
-			printf("%i", vectorStructs[1]->timestamp);
+			//printf("%i", vectorStructs[0]->timestamp);
+			//printf("%i", vectorStructs[1]->timestamp);
 
 			//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 			int temp = 0;
 			char* valor;
 			for (int k = 1; k < cantidadIgualDeKeysEnBloque; k++) {
 				for (int j = 0; j < (cantidadIgualDeKeysEnBloque - k); j++) {
-					if (vectorStructs[j]->timestamp
-							< vectorStructs[j + 1]->timestamp) {
+					if (vectorStructs[j]->timestamp < vectorStructs[j + 1]->timestamp) {
 						temp = vectorStructs[j + 1]->timestamp;
 						valor = malloc(strlen(vectorStructs[j + 1]->value));
 						strcpy(valor, vectorStructs[j + 1]->value);
 
-						vectorStructs[j + 1]->timestamp =
-								vectorStructs[j]->timestamp;
+						vectorStructs[j + 1]->timestamp = vectorStructs[j]->timestamp;
 						vectorStructs[j + 1]->value = vectorStructs[j]->value;
 
 						vectorStructs[j]->timestamp = temp;
@@ -775,7 +750,7 @@ void realizarSelect(char* tabla, char* key) {
 					fclose(archivoBloqueTmp);
 					free(pathBloqueTmp);
 					//free(vectorStructsTemporal);
-				} // cierra el for      */
+				} // cierra el for
 			} // cierra el if
 		} //cierra el while
 
@@ -858,8 +833,8 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, i
 	    }
 	    }
 
-	    printf("%i", vectorStructs[0]->timestamp);
-	    printf("%i", vectorStructs[1]->timestamp);
+	   // printf("%i", vectorStructs[0]->timestamp);
+	   // printf("%i", vectorStructs[1]->timestamp);
 
 
 	/*
