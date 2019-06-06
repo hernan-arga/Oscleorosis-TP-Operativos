@@ -20,6 +20,10 @@
 #include <commons/log.h>
 #include <commons/string.h>
 #include <commons/bitarray.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+
+
 
 #define TRUE 1
 #define FALSE 0
@@ -35,6 +39,14 @@ typedef struct {
 	char* value;
 } t_registro;
 
+typedef struct {
+	char *PUNTO_MONTAJE;
+	int PUERTO_ESCUCHA;
+	int RETARDO;
+	int TAMANIO_VALUE;
+	int TIEMPO_DUMP;
+} configuracionLFS;
+
 //void iniciarConexion();
 
 void insert(char*, char*, char*, char*);
@@ -48,6 +60,7 @@ void crearBinarios(char*, int);
 void asignarBloque(char*);
 
 //Funciones Auxiliares
+int existeCarpeta(char*);
 int existeLaTabla(char*);
 void tomarPeticion(char*);
 void realizarPeticion(char**);
@@ -58,17 +71,28 @@ int esUnNumero(char* cadena);
 int esUnTipoDeConsistenciaValida(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
 //t_registro** obtenerDatosParaKeyDeseada(FILE *, int);
-void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro*vectorStructs[], int *cant);
+void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key,
+		t_registro*vectorStructs[], int *cant);
 void crearMetadataBloques();
 int tamanioEnBytesDelBitarray();
-void inicializarBitArray();
-void actualizarBitArray();
+//void actualizarBitArray();
 void verBitArray();
+void levantarFileSystem();
+void levantarConfiguracionLFS();
+void crearArchivoBitmap();
+void iniciarMmap();
 
+t_config* configLFS;
+configuracionLFS structConfiguracionLFS;
 t_bitarray* bitarrayBloques;
+char *mmapDeBitmap;
 
 int main(int argc, char *argv[]) {
-	//inicializarBitArray();
+	levantarConfiguracionLFS();
+	levantarFileSystem();
+	iniciarMmap();
+	bitarrayBloques = bitarray_create(mmapDeBitmap, tamanioEnBytesDelBitarray());
+	verBitArray();
 	while (1) {
 		char* mensaje = malloc(1000);
 		do {
@@ -81,8 +105,46 @@ int main(int argc, char *argv[]) {
 	//iniciarConexion();
 
 	//Aca se destruye el bitarray?
-	bitarray_destroy(bitarrayBloques);
+	//bitarray_destroy(bitarrayBloques);
 	return 0;
+}
+void levantarFileSystem() {
+	if(!existeCarpeta("Tables")){
+		mkdir(string_from_format("%sTables/",structConfiguracionLFS.PUNTO_MONTAJE), 0777);
+	}
+	if(!existeCarpeta("Bloques")){
+		mkdir(string_from_format("%sBloques/",structConfiguracionLFS.PUNTO_MONTAJE), 0777);
+	}
+	if(!existeCarpeta("Metadata")){
+		mkdir(string_from_format("%sMetadata/",structConfiguracionLFS.PUNTO_MONTAJE), 0777);
+		//La metadata de bloques le defini algunos valores por defecto
+		crearMetadataBloques();
+		crearArchivoBitmap();
+	}
+}
+
+void levantarConfiguracionLFS() {
+	char *pathConfiguracion = string_new();
+	//¿Cuando dice una ubicacion conocida se refiere a que esta hardcodeada asi?
+	string_append(&pathConfiguracion, "configLFS.config");
+	configLFS = config_create(pathConfiguracion);
+	structConfiguracionLFS.PUERTO_ESCUCHA = config_get_int_value(configLFS, "PUERTO_ESCUCHA");
+	//Lo que sigue abajo lo hago porque el punto de montaje ya tiene comillas, entonces se las tengo que sacar por
+	//que sino queda ""home/carpeta""
+	char *puntoMontaje = string_new();
+	char *puntoMontajeSinComillas = string_new();
+	string_append(&puntoMontaje, config_get_string_value(configLFS, "PUNTO_MONTAJE"));
+	//saco la doble comilla del principio y la del final
+	string_append(&puntoMontajeSinComillas, string_substring(puntoMontaje, 1, strlen(puntoMontaje)-2));
+
+	structConfiguracionLFS.PUNTO_MONTAJE = puntoMontajeSinComillas;
+	structConfiguracionLFS.TAMANIO_VALUE = config_get_int_value(configLFS, "TAMANIO_VALUE");
+	//Los 2 valores que siguen tienen que poder modificarse en tiempo de ejecucion
+	//asi que tendria que volver a tomar su valor cuando los vaya a usar
+	structConfiguracionLFS.RETARDO = config_get_int_value(configLFS, "RETARDO");
+	structConfiguracionLFS.TIEMPO_DUMP = config_get_int_value(configLFS,
+			"TIEMPO_DUMP");
+	config_destroy(configLFS);
 }
 
 void tomarPeticion(char* mensaje) {
@@ -267,8 +329,9 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 		strcpy(mensajeALogear, "Error: no existe una tabla con el nombre ");
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
-		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
-		g_logger = log_create("../erroresInsert.log", "LFS", 1, LOG_LEVEL_INFO);
+		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe. ¿Esto deberia guardarlo en un .log?
+		g_logger = log_create(string_from_format("./erroresInsert.log"), "LFS",
+				1, LOG_LEVEL_INFO);
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
@@ -294,21 +357,33 @@ void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
 		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
-		g_logger = log_create("./erroresCreate.log", "LFS", 1, LOG_LEVEL_INFO);
+		g_logger = log_create(
+				string_from_format("%serroresCreate.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+				LOG_LEVEL_INFO);
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	} else {
-		char* path = malloc(strlen("./Tables/") + strlen(tabla) + 1);
+		char* path = malloc(
+				strlen(
+						string_from_format("%sTables/",
+								structConfiguracionLFS.PUNTO_MONTAJE))
+						+ strlen(tabla) + 1);
 		char* metadataPath = malloc(
-				strlen("./Tables/") + strlen(tabla) + strlen("/metadata") + 1);
-		strcpy(path, "./Tables/");
+				strlen(
+						string_from_format("%sTables/",
+								structConfiguracionLFS.PUNTO_MONTAJE))
+						+ strlen(tabla) + strlen("/Metadata") + 1);
+		strcpy(path,
+				string_from_format("%sTables/",
+						structConfiguracionLFS.PUNTO_MONTAJE));
 		strcat(path, tabla);
 		//El segundo parametro es una mascara que define permisos
 		mkdir(path, 0777);
 
 		strcpy(metadataPath, path);
-		strcat(metadataPath, "/metadata");
+		strcat(metadataPath, "/Metadata");
 		//Si en algun momento quiero convertir string a int existe la funcion atoi
 		crearMetadata(metadataPath, consistencia, cantidadDeParticiones,
 				tiempoDeCompactacion);
@@ -360,10 +435,12 @@ void asignarBloque(char* directorioBinario) {
 		//los bloques despues se levantan con config_get_array_value
 		config_set_value(binario, "BLOCKS", stringdelArrayDeBloques);
 		config_save_in_file(binario, directorioBinario);
-		actualizarBitArray();
+		//actualizarBitArray();
 		//creo el archivo .bin del bloque
 		char* pathBloque = string_new();
-		string_append(&pathBloque, "./Bloques/");
+		string_append(&pathBloque,
+				string_from_format("%sBloques/",
+						structConfiguracionLFS.PUNTO_MONTAJE));
 		string_append(&pathBloque, string_itoa(bloqueEncontrado));
 		string_append(&pathBloque, ".bin");
 		FILE *bloqueCreado = fopen(pathBloque, "w");
@@ -379,49 +456,22 @@ void asignarBloque(char* directorioBinario) {
 	config_destroy(binario);
 }
 
-//Guardo el estado actual del bitarray en el archivo
-void actualizarBitArray() {
-	FILE* bitmap_f = fopen("Metadata/bitmap.bin", "w");
-	//1 = block_quantity / 8; bitarrayBloques tiene adentro el char* bitarray que es el bitarray literal que necesito
-	char *bitarrayString = string_new();
-	string_append(&bitarrayString, bitarrayBloques->bitarray);
-	fputs(bitarrayString, bitmap_f);
-	fclose(bitmap_f);
-}
-
-void inicializarBitArray() {
-	FILE* bitmap_f = fopen("Metadata/bitmap.bin", "r");
-	int size;
-	char* buffer;
-
-	//calcula el tamanio del bitmap.bin
-	fseek(bitmap_f, 0L, SEEK_END);
-	size = ftell(bitmap_f);
-	fseek(bitmap_f, 0L, SEEK_SET);
-
-	buffer = malloc(size);
-	fread(buffer, size, 1, bitmap_f);
-	//buffer = string_substring_until(buffer, size);
-	bitarrayBloques = bitarray_create(buffer, tamanioEnBytesDelBitarray());
-}
 
 void verBitArray() {
-	FILE* bitmap_f = fopen("./Metadata/bitmap.bin", "r");
+	printf("%i -- ", bitarray_get_max_bit(bitarrayBloques));
 	for (int j = 0; j < bitarray_get_max_bit(bitarrayBloques); j++) {
 
 		bool bit = bitarray_test_bit(bitarrayBloques, j);
 		printf("%i", bit);
 	}
 	printf("\n");
-	fclose(bitmap_f);
 }
 
 //la cantidad de bloques dividido por 8 bits = cantidad de bytes necesarios
 //¿Cuantos bloques genero con 649 bytes? como cada bloque es un bit, 649 bytes * 8 bits = 5192 bloques
 int tamanioEnBytesDelBitarray() {
-	char *metadataPath = "./Metadata/metadata.bin";
-	//levanto el crearMetadataLFS aca para testear. Cuando este listo todo hay que llamarla al iniciar el lfs
-	crearMetadataBloques();
+	char *metadataPath = string_from_format("%sMetadata/Metadata.bin",
+			structConfiguracionLFS.PUNTO_MONTAJE);
 	t_config *metadata = config_create(metadataPath);
 	//int tamanioPorBloque = config_get_int_value(metadata, "BLOCK_SIZE");
 	int cantidadDeBloques = config_get_int_value(metadata, "BLOCKS");
@@ -431,20 +481,58 @@ int tamanioEnBytesDelBitarray() {
 }
 
 void crearMetadataBloques() {
-	char *metadataPath = "./Metadata/metadata.bin";
+	char *metadataPath = string_new();
+	string_append(&metadataPath, string_from_format("%sMetadata/Metadata.bin", structConfiguracionLFS.PUNTO_MONTAJE));
 	FILE *archivoMetadata = fopen(metadataPath, "w");
-	char *bitmapPath = "./Metadata/bitmap.bin";
-	FILE *archivoBitmap = fopen(bitmapPath, "w");
 	t_config *metadata = config_create(metadataPath);
 	//Estos datos harcodeados despues tienen que modificarse. ¿Tienen que tener algun valor especial por defecto?
-	config_set_value(metadata, "BLOCK_SIZE", "64");
-	config_set_value(metadata, "BLOCKS", "16");
+	config_set_value(metadata, "BLOCK_SIZE", "128");
+	//4096
+	config_set_value(metadata, "BLOCKS", "512");
 	config_set_value(metadata, "MAGIC_NUMBER", "LISSANDRA");
 	config_save_in_file(metadata, metadataPath);
 	fclose(archivoMetadata);
-	fclose(archivoBitmap);
 	config_destroy(metadata);
 }
+
+void crearArchivoBitmap() {
+	char *pathBitmap = string_new();
+	string_append(&pathBitmap, structConfiguracionLFS.PUNTO_MONTAJE);
+	string_append(&pathBitmap, "Metadata/bitmap.bin");
+	FILE *f = fopen(pathBitmap, "w");
+
+	//5192 sale de mystat.st_size (tamanio del archivo de bitmap). tengo que escribir en el archivo para mapear la memoria.
+	for (int i = 0; i < 5192; i++) {
+		fputc(0, f);
+	}
+
+	fclose(f);
+}
+
+//Preguntar sobre esto
+void iniciarMmap() {
+	char *pathBitmap = string_new();
+		string_append(&pathBitmap, structConfiguracionLFS.PUNTO_MONTAJE);
+		string_append(&pathBitmap, "Metadata/bitmap.bin");
+	//Open es igual a fopen pero el FD me lo devuelve como un int (que es lo que necesito para fstat)
+	int bitmap = open(pathBitmap, O_RDWR);
+	struct stat mystat;
+
+	//fstat rellena un struct con informacion del FD dado
+	if (fstat(bitmap, &mystat) < 0) {
+		close(bitmap);
+	}
+
+	/*	mmap mapea un archivo en memoria y devuelve la direccion de memoria donde esta ese mapeo
+	 *  MAP_SHARED Comparte este área con todos los otros  objetos  que  señalan  a  este  objeto.
+                   Almacenar  en  la  región  es equivalente a escribir en el fichero.
+	 */
+	mmapDeBitmap = mmap(NULL, mystat.st_size, PROT_WRITE | PROT_READ,
+			MAP_SHARED, bitmap, 0);
+	close(bitmap);
+
+}
+
 
 void crearMetadata(char* metadataPath, char* consistencia,
 		char* cantidadDeParticiones, char* tiempoDeCompactacion) {
@@ -460,8 +548,11 @@ void crearMetadata(char* metadataPath, char* consistencia,
 	config_destroy(metadata);
 }
 
+//Las 2 funciones de abajo repiten logica, si hay tiempo hacer una funcion sola
 int existeLaTabla(char* nombreDeTabla) {
-	DIR *directorio = opendir("./Tables");
+	DIR *directorio = opendir(
+			string_from_format("%sTables",
+					structConfiguracionLFS.PUNTO_MONTAJE));
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Evaluo si de todas las carpetas dentro de TABAS existe alguna que tenga el mismo nombre
@@ -475,203 +566,35 @@ int existeLaTabla(char* nombreDeTabla) {
 	return 0;
 }
 
-
-//No le pongo "select" porque ya esta la funcion de socket y rompe
-void realizarSelect(char* tabla, char* key) {
-	string_to_upper(tabla);
-	if (existeLaTabla(tabla)) {
-		char* pathMetadata = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/Metadata") + 1);
-		strcpy(pathMetadata, "./Tables/");
-		strcat(pathMetadata, tabla);
-		strcat(pathMetadata, "/Metadata");
-		t_config *metadata = config_create(pathMetadata);
-		int cantidadDeParticiones = config_get_int_value(metadata,"PARTITIONS");
-
-		int particionQueContieneLaKey = (atoi(key)) % cantidadDeParticiones;
-		printf("La key esta en la particion %i\n", particionQueContieneLaKey);
-		char* stringParticion = malloc(4);
-		stringParticion = string_itoa(particionQueContieneLaKey);
-
-		char* pathParticionQueContieneKey = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/") + strlen(stringParticion) + strlen(".bin") + 1);
-		strcpy(pathParticionQueContieneKey, "./Tables/");
-		strcat(pathParticionQueContieneKey, tabla);
-		strcat(pathParticionQueContieneKey, "/");
-		strcat(pathParticionQueContieneKey, stringParticion);
-		strcat(pathParticionQueContieneKey, ".bin");
-		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
-		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS
-
-		int m = 0;
-		while(vectorBloques[m] != NULL){
-			m ++;
-		}
-
-		int timestampActualMayorBloques = -1;
-		char* valueDeTimestampActualMayorBloques;
-
-		// POR CADA BLOQUE, TENGO QUE ENTRAR A ESTE BLOQUE
-		for(int i=0; i< m; i++){
-			char* pathBloque = malloc(strlen("./Bloques/") + strlen((vectorBloques[i])) + strlen(".bin") + 1);
-			strcpy(pathBloque, "./Bloques/");
-			strcat(pathBloque, vectorBloques[i]);
-			strcat(pathBloque, ".bin");
-			FILE *archivoBloque = fopen(pathBloque, "r");
-			if (archivoBloque == NULL) {
-				printf("no se pudo abrir archivo de bloques");
-				exit(1);
-			}
-
-			int cantidadIgualDeKeysEnBloque = 0;
-			t_registro* vectorStructs[100];
-			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)), vectorStructs, &cantidadIgualDeKeysEnBloque);
-
-			//cual de estos tiene el timestamp mas grande? guardar timestamp y value
-			int temp = 0;
-			char* valor;
-			for (int k = 1; k < cantidadIgualDeKeysEnBloque; k++){
-				for (int j = 0; j < (cantidadIgualDeKeysEnBloque-k); j++){
-						if (vectorStructs[j]->timestamp < vectorStructs[j+1]->timestamp){
-							temp = vectorStructs[j+1]->timestamp;
-							valor = malloc(strlen(vectorStructs[j+1]->value));
-							strcpy(valor,vectorStructs[j+1]->value);
-
-							vectorStructs[j+1]->timestamp = vectorStructs[j]->timestamp;
-							vectorStructs[j+1]->value = vectorStructs[j]->value;
-
-							vectorStructs[j]->timestamp = temp;
-							vectorStructs[j]->value = valor;
-					}
-			    }
-			 }
-			if(vectorStructs[0]->timestamp > timestampActualMayorBloques){
-				timestampActualMayorBloques = vectorStructs[0]->timestamp;
-				valueDeTimestampActualMayorBloques = malloc(strlen(vectorStructs[0]->value));
-				//strcpy(valueDeTimestampActualMayorBloques, vectorStructs[0]->value);
-				valueDeTimestampActualMayorBloques = vectorStructs[0]->value; // ESTO NO DEBERIA SER ASI, Y DEBERIA FUNCIONAR LA LINEA DE ARRIBA
-			}
-			fclose(archivoBloque);
-			free(pathBloque);
-			//free(vectorStructs);
-		} 	//cierra el for
-
-		// si encontro alguno, me guarda el timestamp mayor en timestampActualMayorBloques
-		// y guarda el valor en valueDeTimestampActualMayorBloques
-		// si no hay ninguno en vectorBloques (porque por ej, esta en los temporales)
-		// entonces timestampActualMayorBloques = -1 y
-		// valueDeTimestampActualMayorBloques = NULL
-
-		//-------------------------------------------------
-
-		// AHORA ABRO ARCHIVOS TEMPORALES. EL PROCEDIMIENTO ES MUY PARECIDO AL ANTERIOR
-/*
-		char* pathTemporales = malloc(strlen("./Tables/") + strlen(tabla) + 1);
-		strcpy(pathTemporales, "./Tables/");
-		strcat(pathTemporales, tabla);
-
-		DIR *directorioTemporal = opendir(pathTemporales);
-		struct dirent *directorioTemporalALeer;
-
-		int timestampActualMayorTemporales = -1;
-		char* valueDeTimestampActualMayorTemporales;
-
-		while((directorioTemporalALeer = readdir(directorioTemporal)) != NULL) { //PARA CADA .TMP
-			if( directorioTemporalALeer termina en .tmp  ){
-
-				//obtengo el nombre de ese archivo .tmp . Ejemplo obtengo A1.tmp siendo A1 el nombre (tipo char*)
-
-				char* pathTemporal = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/") + strlen( nombreArchivoTemporal ) + strlen(".tmp") + 1);
-				strcpy(pathTemporal, "./Tables/");
-				strcat(pathTemporal, tabla);
-				strcat(pathTemporal, "/");
-				strcat(pathTemporal, nombreArchivoTemporal );
-				strcat(pathTemporal, ".tmp");
-				FILE *archivoTemporal = fopen(pathTemporal, "r");
-				if (archivoTemporal == NULL) {
-					printf("no se pudo abrir archivo de temporales");
-					exit(1);
-				}
-
-				int cantidadIgualDeKeysEnTemporal = 0;
-				t_registro* vectorStructsTemporal[100];
-				obtenerDatosParaKeyDeseada(archivoTemporal, (atoi(key)), vectorStructsTemporal, &cantidadIgualDeKeysEnTemporal);
-
-				//cual de estos tiene el timestamp mas grande? guardar timestamp y value
-				int tempo = 0;
-				char* valorTemp;
-				for (int k = 1; k < cantidadIgualDeKeysEnTemporal; k++){
-					for (int j = 0; j < (cantidadIgualDeKeysEnTemporal-k); j++){
-						if (vectorStructsTemporal[j]->timestamp < vectorStructsTemporal[j+1]->timestamp){
-							tempo = vectorStructsTemporal[j+1]->timestamp;
-							valorTemp = malloc(strlen(vectorStructsTemporal[j+1]->value));
-							strcpy(valorTemp,vectorStructsTemporal[j+1]->value);
-
-							vectorStructsTemporal[j+1]->timestamp = vectorStructsTemporal[j]->timestamp;
-							vectorStructsTemporal[j+1]->value = vectorStructsTemporal[j]->value;
-
-							vectorStructsTemporal[j]->timestamp = tempo;
-							vectorStructsTemporal[j]->value = valorTemp;
-						}
-					}
-				}
-
-				if(vectorStructsTemporal[0]->timestamp > timestampActualMayorBloques){
-					timestampActualMayorTemporales = vectorStructsTemporal[0]->timestamp;
-					valueDeTimestampActualMayorTemporales = malloc(strlen(vectorStructsTemporal[0]->value));
-					//strcpy(valueDeTimestampActualMayorTemporales, vectorStructsTemporal[0]->value);
-					valueDeTimestampActualMayorTemporales = vectorStructsTemporal[0]->value; // ESTO NO DEBERIA SER ASI, Y DEBERIA FUNCIONAR LA LINEA DE ARRIBA
-				}
-				fclose(archivoTemporal);
-				free(pathTemporal);
-				//free(vectorStructsTemporal)
-			}
-		} //cierra el while
-
-		// si encontro alguno, me guarda el timestamp mayor en timestampActualMayorTemporales
-		// y guarda el valor en valueDeTimestampActualMayorTemporales
-		// si no hay ninguno en vectorStructsTemporal
-		// entonces timestampActualMayorTemporales = -1 y
-		// valueDeTimestampActualMayorTemporales = NULL
-
-		closedir(directorioTemporal);
-
-		// ----------------------------------------------------
-
-
-		// aca iria verificar los datos tamb de la memoria de la tabla
-
-		//-----------------------------------------------------
-
-*/
-
-		free(pathMetadata);
-		free(pathParticionQueContieneKey);
-		config_destroy(tamanioYBloques);
-		config_destroy(metadata);
-
-
-	// SI NO ENCUENTRA LA TABLA (lo de abajo)
-	} else {
-		char* mensajeALogear = malloc(
-				strlen("Error: no existe una tabla con el nombre ")
-						+ strlen(tabla) + 1);
-		strcpy(mensajeALogear, "Error: no existe una tabla con el nombre ");
-		strcat(mensajeALogear, tabla);
-		t_log* g_logger;
-		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
-		g_logger = log_create("./erroresSelect.log", "LFS", 1, LOG_LEVEL_INFO);
-		log_info(g_logger, mensajeALogear);
-		log_destroy(g_logger);
-		free(mensajeALogear);
+int existeCarpeta(char *nombreCarpeta) {
+	DIR *directorio = opendir(structConfiguracionLFS.PUNTO_MONTAJE);
+	if(directorio == NULL){
+		mkdir(structConfiguracionLFS.PUNTO_MONTAJE, 0777);
+		return 0;
 	}
+	struct dirent *directorioALeer;
+	while ((directorioALeer = readdir(directorio)) != NULL) {
+		//Evaluo si de todas las carpetas dentro de TABAS existe alguna que tenga el mismo nombre
+		if ((directorioALeer->d_type) == DT_DIR
+				&& !strcmp((directorioALeer->d_name), nombreCarpeta)) {
+			closedir(directorio);
+			return 1;
+		}
+	}
+	closedir(directorio);
+	return 0;
 }
 
-void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vectorStructs, int *cant){
+//No le pongo "select" porque ya esta la funcion de socket y rompe
+
+void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key,
+		t_registro** vectorStructs, int *cant) {
 	char linea[50];
 	int i = 0;
 
-	while( fgets(linea,50,archivoBloque) != NULL ){
-		int keyLeida = atoi(string_split(linea,";")[1]);
-		if(keyLeida == key){
+	while (fgets(linea, 50, archivoBloque) != NULL) {
+		int keyLeida = atoi(string_split(linea, ";")[1]);
+		if (keyLeida == key) {
 			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 			t_registro p_registro2;
 			p_registro = &p_registro2;
@@ -683,7 +606,7 @@ void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key, t_registro** vecto
 			p_registro->key = key;
 			p_registro->value = malloc(strlen(arrayLinea[2]));
 
-			strcpy(p_registro->value,arrayLinea[2]);
+			strcpy(p_registro->value, arrayLinea[2]);
 			vectorStructs[i] = p_registro;
 			i++;
 			(*cant)++;
