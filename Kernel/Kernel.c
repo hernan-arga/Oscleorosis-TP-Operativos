@@ -16,11 +16,6 @@
 #include <commons/collections/list.h>
 #include <commons/config.h>
 
-
-struct Cola_Ready{
-
-};
-
 struct Script{
 	struct LQL peticion;
 	struct Script*sig;
