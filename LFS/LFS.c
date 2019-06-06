@@ -580,11 +580,203 @@ int existeCarpeta(char *nombreCarpeta) {
 			closedir(directorio);
 			return 1;
 		}
+<<<<<<< HEAD
+=======
+
+		int timestampActualMayorBloques = -1;
+		char* valueDeTimestampActualMayorBloques = string_new();
+
+		// POR CADA BLOQUE, TENGO QUE ENTRAR A ESTE BLOQUE
+		for(int i=0; i< m; i++){
+			char* pathBloque = malloc(strlen("./Bloques/") + strlen((vectorBloques[i])) + strlen(".bin") + 1);
+			strcpy(pathBloque, "./Bloques/");
+			strcat(pathBloque, vectorBloques[i]);
+			strcat(pathBloque, ".bin");
+			FILE *archivoBloque = fopen(pathBloque, "r");
+			if (archivoBloque == NULL) {
+				printf("no se pudo abrir archivo de bloques");
+				exit(1);
+			}
+
+			int cantidadIgualDeKeysEnBloque = 0;
+			t_registro* vectorStructs[100];
+			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)), vectorStructs, &cantidadIgualDeKeysEnBloque);
+
+			printf("%i", vectorStructs[0]->timestamp);
+			printf("%i", vectorStructs[1]->timestamp);
+
+			//cual de estos tiene el timestamp mas grande? guardar timestamp y value
+			int temp = 0;
+			char* valor;
+			for (int k = 1; k < cantidadIgualDeKeysEnBloque; k++){
+				for (int j = 0; j < (cantidadIgualDeKeysEnBloque-k); j++){
+						if (vectorStructs[j]->timestamp < vectorStructs[j+1]->timestamp){
+							temp = vectorStructs[j+1]->timestamp;
+							valor = malloc(strlen(vectorStructs[j+1]->value));
+							strcpy(valor,vectorStructs[j+1]->value);
+
+							vectorStructs[j+1]->timestamp = vectorStructs[j]->timestamp;
+							vectorStructs[j+1]->value = vectorStructs[j]->value;
+
+							vectorStructs[j]->timestamp = temp;
+							vectorStructs[j]->value = valor;
+					}
+			    }
+			 } // aca quedaria el vector ordenado por timestamp mayor
+			if(vectorStructs[0]->timestamp > timestampActualMayorBloques){
+				timestampActualMayorBloques = vectorStructs[0]->timestamp;
+				strcpy(valueDeTimestampActualMayorBloques, "");
+				string_append(&valueDeTimestampActualMayorBloques, vectorStructs[0]->value);
+			}
+			fclose(archivoBloque);
+			free(pathBloque);
+			//free(vectorStructs);
+		} 	//cierra el for
+
+		// si encontro alguno, me guarda el timestamp mayor en timestampActualMayorBloques
+		// y guarda el valor en valueDeTimestampActualMayorBloques
+		// si no hay ninguno en vectorBloques (porque por ej, esta en los temporales)
+		// entonces timestampActualMayorBloques = -1 y
+		// valueDeTimestampActualMayorBloques = NULL
+
+		//-------------------------------------------------
+
+		// AHORA ABRO ARCHIVOS TEMPORALES. EL PROCEDIMIENTO ES MUY PARECIDO AL ANTERIOR
+
+		char* pathTemporales = malloc(strlen("./Tables/") + strlen(tabla) + 1);
+		strcpy(pathTemporales, "./Tables/");
+		strcat(pathTemporales, tabla);
+
+		DIR *directorioTemporal = opendir(pathTemporales);
+		struct dirent *archivoALeer;
+
+		int timestampActualMayorTemporales = -1;
+		char* valueDeTimestampActualMayorTemporales = string_new();
+
+		while((archivoALeer = readdir(directorioTemporal)) != NULL) { //PARA CADA ARCHIVO DE LA TABLA ESPECIFICA
+			if( string_ends_with(archivoALeer->d_name, ".tmp") ){
+
+				//obtengo el nombre de ese archivo .tmp . Ejemplo obtengo A1.tmp siendo A1 el nombre (tipo char*)
+				char* nombreArchivoTemporal = string_split( archivoALeer->d_name, ".")[0];
+				// ahora ya tengo el nombre del archivo .tmp
+
+				char* pathTemporal = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/") + strlen( nombreArchivoTemporal ) + strlen(".tmp") + 1);
+				strcpy(pathTemporal, "./Tables/");
+				strcat(pathTemporal, tabla);
+				strcat(pathTemporal, "/");
+				strcat(pathTemporal, nombreArchivoTemporal );
+				strcat(pathTemporal, ".tmp");
+				FILE *fileTemporal = fopen(pathTemporal, "r");
+				if (fileTemporal == NULL) {
+					printf("no se pudo abrir archivo de temporales");
+					exit(1);
+				}
+
+				t_config *tamanioYBloquesTmp = config_create(pathTemporal);
+				char** vectorBloquesTmp = config_get_array_value(tamanioYBloquesTmp, "BLOCK"); //devuelve vector de STRINGS
+
+				int n = 0;
+				while(vectorBloquesTmp[n] != NULL){
+					n ++;
+				}
+
+				//POR CADA BLOQUE, TENGO QUE ENTRAR A ESE BLOQUE
+				for(int q=0; q< n; q++){
+					char* pathBloqueTmp = malloc(strlen("./Bloques/") + strlen((vectorBloques[q])) + strlen(".bin") + 1);
+					strcpy(pathBloqueTmp, "./Bloques/");
+					strcat(pathBloqueTmp, vectorBloquesTmp[q]);
+					strcat(pathBloqueTmp, ".bin");
+					FILE *archivoBloqueTmp = fopen(pathBloqueTmp, "r");
+					if (archivoBloqueTmp == NULL) {
+						printf("no se pudo abrir archivo de bloques");
+						exit(1);
+					}
+
+					int cantidadIgualDeKeysEnTemporal = 0;
+					t_registro* vectorStructsTemporal[100];
+					obtenerDatosParaKeyDeseada(archivoBloqueTmp, (atoi(key)), vectorStructsTemporal, &cantidadIgualDeKeysEnTemporal);
+
+					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
+					int tempo = 0;
+					char* valorTemp;
+					for (int k = 1; k < cantidadIgualDeKeysEnTemporal; k++){
+						for (int j = 0; j < (cantidadIgualDeKeysEnTemporal-k); j++){
+							if (vectorStructsTemporal[j]->timestamp < vectorStructsTemporal[j+1]->timestamp){
+								tempo = vectorStructsTemporal[j+1]->timestamp;
+								valorTemp = malloc(strlen(vectorStructsTemporal[j+1]->value));
+								strcpy(valorTemp,vectorStructsTemporal[j+1]->value);
+
+								vectorStructsTemporal[j+1]->timestamp = vectorStructsTemporal[j]->timestamp;
+								vectorStructsTemporal[j+1]->value = vectorStructsTemporal[j]->value;
+
+								vectorStructsTemporal[j]->timestamp = tempo;
+								vectorStructsTemporal[j]->value = valorTemp;
+							}
+						}
+					}
+
+					if(vectorStructsTemporal[0]->timestamp > timestampActualMayorTemporales){
+						timestampActualMayorTemporales = vectorStructsTemporal[0]->timestamp;
+						strcpy(valueDeTimestampActualMayorTemporales, "");
+						string_append(&valueDeTimestampActualMayorTemporales, vectorStructsTemporal[0]->value);
+					}
+					fclose(archivoBloqueTmp);
+					free(pathBloqueTmp);
+					//free(vectorStructsTemporal);
+				} // cierra el for      */
+			} // cierra el if
+		} //cierra el while
+
+		// si encontro alguno, me guarda el timestamp mayor en timestampActualMayorTemporales
+		// y guarda el valor en valueDeTimestampActualMayorTemporales
+		// si no hay ninguno en vectorStructsTemporal
+		// entonces timestampActualMayorTemporales = -1 y
+		// valueDeTimestampActualMayorTemporales = NULL
+
+		closedir(directorioTemporal);
+
+		// ----------------------------------------------------
+
+
+		// aca iria verificar los datos tamb de la memoria de la tabla
+
+		//-----------------------------------------------------
+
+		if(timestampActualMayorBloques >= timestampActualMayorTemporales){
+			printf("%s\n", valueDeTimestampActualMayorBloques);
+		}
+		else{
+			printf("%s\n", valueDeTimestampActualMayorTemporales);
+		}
+
+		free(pathMetadata);
+		free(pathParticionQueContieneKey);
+		free(pathTemporales);
+		//free(pathTemporal);
+		config_destroy(tamanioYBloques);
+		config_destroy(metadata);
+
+
+	// SI NO ENCUENTRA LA TABLA (lo de abajo)
+	} else {
+		char* mensajeALogear = malloc(
+				strlen("Error: no existe una tabla con el nombre ")
+						+ strlen(tabla) + 1);
+		strcpy(mensajeALogear, "Error: no existe una tabla con el nombre ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
+		g_logger = log_create("./erroresSelect.log", "LFS", 1, LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+>>>>>>> 67f1160bc210ce7b9045e4cb9b58d52f1b28ba84
 	}
 	closedir(directorio);
 	return 0;
 }
 
+<<<<<<< HEAD
 //No le pongo "select" porque ya esta la funcion de socket y rompe
 
 void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key,
@@ -595,6 +787,52 @@ void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key,
 	while (fgets(linea, 50, archivoBloque) != NULL) {
 		int keyLeida = atoi(string_split(linea, ";")[1]);
 		if (keyLeida == key) {
+=======
+void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant){
+	char linea[50];
+	int i = 0;
+
+	    char * line = NULL;
+	    size_t len = 0;
+	    ssize_t read;
+
+	    while ((read = getline(&line, &len, fp)) != -1) {
+			int keyLeida = atoi(string_split(line,";")[1]);
+			if(keyLeida == key){
+				t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+				t_registro p_registro2;
+				p_registro = &p_registro2;
+				char** arrayLinea = malloc(strlen(line) + 1);
+				arrayLinea = string_split(line, ";");
+				int timestamp = atoi(arrayLinea[0]);
+				int key = atoi(arrayLinea[1]);
+				p_registro->timestamp = timestamp;
+				p_registro->key = key;
+				p_registro->value = malloc(strlen(arrayLinea[2]));
+
+				strcpy(p_registro->value,arrayLinea[2]);
+				vectorStructs[i] = p_registro;
+				//vectorStructs[i]->key = p_registro->key;
+				//vectorStructs[i]->timestamp = p_registro->timestamp;
+
+				i++;
+				(*cant)++;
+
+				//int untime = vectorStructs[0]->timestamp;
+
+	    }
+	    }
+
+	    printf("%i", vectorStructs[0]->timestamp);
+	    printf("%i", vectorStructs[1]->timestamp);
+
+
+	/*
+
+	while( fgets(linea,50,archivoBloque) != NULL ){
+		int keyLeida = atoi(string_split(linea,";")[1]);
+		if(keyLeida == key){
+>>>>>>> 67f1160bc210ce7b9045e4cb9b58d52f1b28ba84
 			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 			t_registro p_registro2;
 			p_registro = &p_registro2;
@@ -611,7 +849,7 @@ void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key,
 			i++;
 			(*cant)++;
 		}
-	}
+	}  				*/
 }
 
 /*
