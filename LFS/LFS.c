@@ -507,7 +507,7 @@ void realizarSelect(char* tabla, char* key) {
 		}
 
 		int timestampActualMayorBloques = -1;
-		char* valueDeTimestampActualMayorBloques;
+		char* valueDeTimestampActualMayorBloques = string_new();
 
 		// POR CADA BLOQUE, TENGO QUE ENTRAR A ESTE BLOQUE
 		for(int i=0; i< m; i++){
@@ -544,10 +544,14 @@ void realizarSelect(char* tabla, char* key) {
 			    }
 			 }
 			if(vectorStructs[0]->timestamp > timestampActualMayorBloques){
+
 				timestampActualMayorBloques = vectorStructs[0]->timestamp;
-				valueDeTimestampActualMayorBloques = malloc(strlen(vectorStructs[0]->value));
+				strcpy(valueDeTimestampActualMayorBloques, "");
+				string_append(&valueDeTimestampActualMayorBloques, vectorStructs[0]->value);
+
+				//valueDeTimestampActualMayorBloques = malloc(strlen(vectorStructs[0]->value)  +1);
 				//strcpy(valueDeTimestampActualMayorBloques, vectorStructs[0]->value);
-				valueDeTimestampActualMayorBloques = vectorStructs[0]->value; // ESTO NO DEBERIA SER ASI, Y DEBERIA FUNCIONAR LA LINEA DE ARRIBA
+				//valueDeTimestampActualMayorBloques = vectorStructs[0]->value; // ESTO NO DEBERIA SER ASI, Y DEBERIA FUNCIONAR LA LINEA DE ARRIBA
 			}
 			fclose(archivoBloque);
 			free(pathBloque);
@@ -563,21 +567,27 @@ void realizarSelect(char* tabla, char* key) {
 		//-------------------------------------------------
 
 		// AHORA ABRO ARCHIVOS TEMPORALES. EL PROCEDIMIENTO ES MUY PARECIDO AL ANTERIOR
-/*
+
 		char* pathTemporales = malloc(strlen("./Tables/") + strlen(tabla) + 1);
 		strcpy(pathTemporales, "./Tables/");
 		strcat(pathTemporales, tabla);
 
 		DIR *directorioTemporal = opendir(pathTemporales);
-		struct dirent *directorioTemporalALeer;
+		struct dirent *archivoALeer;
 
 		int timestampActualMayorTemporales = -1;
-		char* valueDeTimestampActualMayorTemporales;
+		char* valueDeTimestampActualMayorTemporales = string_new();
 
-		while((directorioTemporalALeer = readdir(directorioTemporal)) != NULL) { //PARA CADA .TMP
-			if( directorioTemporalALeer termina en .tmp  ){
+		while((archivoALeer = readdir(directorioTemporal)) != NULL) { //PARA CADA ARCHIVO DE LA TABLA ESPECIFICA
+			if( string_ends_with(archivoALeer->d_name, ".tmp") ){
 
 				//obtengo el nombre de ese archivo .tmp . Ejemplo obtengo A1.tmp siendo A1 el nombre (tipo char*)
+
+				char* nombreArchivoTemporal = string_split( archivoALeer->d_name, ".")[0];
+
+				//char* nombreArchivoTemporal = malloc( strlen( string_split(archivoALeer->d_name, ".")[0] ));
+				//strcpy(nombreArchivoTemporal, string_split( archivoALeer->d_name, ".")[0]);
+				// ahora ya tengo el nombre del archivo .tmp
 
 				char* pathTemporal = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/") + strlen( nombreArchivoTemporal ) + strlen(".tmp") + 1);
 				strcpy(pathTemporal, "./Tables/");
@@ -585,45 +595,68 @@ void realizarSelect(char* tabla, char* key) {
 				strcat(pathTemporal, "/");
 				strcat(pathTemporal, nombreArchivoTemporal );
 				strcat(pathTemporal, ".tmp");
-				FILE *archivoTemporal = fopen(pathTemporal, "r");
-				if (archivoTemporal == NULL) {
+				FILE *fileTemporal = fopen(pathTemporal, "r");
+				if (fileTemporal == NULL) {
 					printf("no se pudo abrir archivo de temporales");
 					exit(1);
 				}
 
-				int cantidadIgualDeKeysEnTemporal = 0;
-				t_registro* vectorStructsTemporal[100];
-				obtenerDatosParaKeyDeseada(archivoTemporal, (atoi(key)), vectorStructsTemporal, &cantidadIgualDeKeysEnTemporal);
+				t_config *tamanioYBloquesTmp = config_create(pathTemporal);
+				char** vectorBloquesTmp = config_get_array_value(tamanioYBloquesTmp, "BLOCK"); //devuelve vector de STRINGS
 
-				//cual de estos tiene el timestamp mas grande? guardar timestamp y value
-				int tempo = 0;
-				char* valorTemp;
-				for (int k = 1; k < cantidadIgualDeKeysEnTemporal; k++){
-					for (int j = 0; j < (cantidadIgualDeKeysEnTemporal-k); j++){
-						if (vectorStructsTemporal[j]->timestamp < vectorStructsTemporal[j+1]->timestamp){
-							tempo = vectorStructsTemporal[j+1]->timestamp;
-							valorTemp = malloc(strlen(vectorStructsTemporal[j+1]->value));
-							strcpy(valorTemp,vectorStructsTemporal[j+1]->value);
+				int n = 0;
+				while(vectorBloquesTmp[n] != NULL){
+					n ++;
+				}
 
-							vectorStructsTemporal[j+1]->timestamp = vectorStructsTemporal[j]->timestamp;
-							vectorStructsTemporal[j+1]->value = vectorStructsTemporal[j]->value;
+				//POR CADA BLOQUE, TENGO QUE ENTRAR A ESE BLOQUE
+				for(int q=0; q< n; q++){
+					char* pathBloqueTmp = malloc(strlen("./Bloques/") + strlen((vectorBloques[q])) + strlen(".bin") + 1);
+					strcpy(pathBloqueTmp, "./Bloques/");
+					strcat(pathBloqueTmp, vectorBloquesTmp[q]);
+					strcat(pathBloqueTmp, ".bin");
+					FILE *archivoBloqueTmp = fopen(pathBloqueTmp, "r");
+					if (archivoBloqueTmp == NULL) {
+						printf("no se pudo abrir archivo de bloques");
+						exit(1);
+					}
 
-							vectorStructsTemporal[j]->timestamp = tempo;
-							vectorStructsTemporal[j]->value = valorTemp;
+					int cantidadIgualDeKeysEnTemporal = 0;
+					t_registro* vectorStructsTemporal[100];
+					obtenerDatosParaKeyDeseada(archivoBloqueTmp, (atoi(key)), vectorStructsTemporal, &cantidadIgualDeKeysEnTemporal);
+
+					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
+					int tempo = 0;
+					char* valorTemp;
+					for (int k = 1; k < cantidadIgualDeKeysEnTemporal; k++){
+						for (int j = 0; j < (cantidadIgualDeKeysEnTemporal-k); j++){
+							if (vectorStructsTemporal[j]->timestamp < vectorStructsTemporal[j+1]->timestamp){
+								tempo = vectorStructsTemporal[j+1]->timestamp;
+								valorTemp = malloc(strlen(vectorStructsTemporal[j+1]->value));
+								strcpy(valorTemp,vectorStructsTemporal[j+1]->value);
+
+								vectorStructsTemporal[j+1]->timestamp = vectorStructsTemporal[j]->timestamp;
+								vectorStructsTemporal[j+1]->value = vectorStructsTemporal[j]->value;
+
+								vectorStructsTemporal[j]->timestamp = tempo;
+								vectorStructsTemporal[j]->value = valorTemp;
+							}
 						}
 					}
-				}
 
-				if(vectorStructsTemporal[0]->timestamp > timestampActualMayorBloques){
-					timestampActualMayorTemporales = vectorStructsTemporal[0]->timestamp;
-					valueDeTimestampActualMayorTemporales = malloc(strlen(vectorStructsTemporal[0]->value));
-					//strcpy(valueDeTimestampActualMayorTemporales, vectorStructsTemporal[0]->value);
-					valueDeTimestampActualMayorTemporales = vectorStructsTemporal[0]->value; // ESTO NO DEBERIA SER ASI, Y DEBERIA FUNCIONAR LA LINEA DE ARRIBA
-				}
-				fclose(archivoTemporal);
-				free(pathTemporal);
-				//free(vectorStructsTemporal)
-			}
+					if(vectorStructsTemporal[0]->timestamp > timestampActualMayorTemporales){
+						timestampActualMayorTemporales = vectorStructsTemporal[0]->timestamp;
+						strcpy(valueDeTimestampActualMayorTemporales, "");
+						string_append(&valueDeTimestampActualMayorTemporales, vectorStructsTemporal[0]->value);
+						//valueDeTimestampActualMayorTemporales = malloc(strlen(vectorStructsTemporal[0]->value));
+						//strcpy(valueDeTimestampActualMayorTemporales, vectorStructsTemporal[0]->value);
+						//valueDeTimestampActualMayorTemporales = vectorStructsTemporal[0]->value; // ESTO NO DEBERIA SER ASI, Y DEBERIA FUNCIONAR LA LINEA DE ARRIBA
+					}
+					fclose(archivoBloqueTmp);
+					free(pathBloqueTmp);
+					//free(vectorStructsTemporal);
+				} // cierra el for      */
+			} // cierra el if
 		} //cierra el while
 
 		// si encontro alguno, me guarda el timestamp mayor en timestampActualMayorTemporales
@@ -641,10 +674,17 @@ void realizarSelect(char* tabla, char* key) {
 
 		//-----------------------------------------------------
 
-*/
+		if(timestampActualMayorBloques >= timestampActualMayorTemporales){
+			printf("%s\n", valueDeTimestampActualMayorBloques);
+		}
+		else{
+			printf("%s\n", valueDeTimestampActualMayorTemporales);
+		}
 
 		free(pathMetadata);
 		free(pathParticionQueContieneKey);
+		free(pathTemporales);
+		//free(pathTemporal);
 		config_destroy(tamanioYBloques);
 		config_destroy(metadata);
 
