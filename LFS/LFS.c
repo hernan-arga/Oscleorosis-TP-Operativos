@@ -668,8 +668,8 @@ void realizarSelect(char* tabla, char* key) {
 		//-------------------------------------------------
 
 		// AHORA ABRO ARCHIVOS TEMPORALES. EL PROCEDIMIENTO ES MUY PARECIDO AL ANTERIOR
-		char* pathTemporales = malloc(strlen("./Tables/") + strlen(tabla) + 1);
-		strcpy(pathTemporales, "./Tables/");
+		char* pathTemporales = malloc(strlen(string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE)) + strlen(tabla) + 1);
+		strcpy(pathTemporales, string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE));
 		strcat(pathTemporales, tabla);
 
 		DIR *directorioTemporal = opendir(pathTemporales);
@@ -685,8 +685,8 @@ void realizarSelect(char* tabla, char* key) {
 				char* nombreArchivoTemporal = string_split( archivoALeer->d_name, ".")[0];
 				// ahora ya tengo el nombre del archivo .tmp
 
-				char* pathTemporal = malloc(strlen("./Tables/") + strlen(tabla) + strlen("/") + strlen( nombreArchivoTemporal ) + strlen(".tmp") + 1);
-				strcpy(pathTemporal, "./Tables/");
+				char* pathTemporal = malloc(strlen(string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE)) + strlen(tabla) + strlen("/") + strlen( nombreArchivoTemporal ) + strlen(".tmp") + 1);
+				strcpy(pathTemporal, string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE));
 				strcat(pathTemporal, tabla);
 				strcat(pathTemporal, "/");
 				strcat(pathTemporal, nombreArchivoTemporal );
@@ -707,8 +707,8 @@ void realizarSelect(char* tabla, char* key) {
 
 				//POR CADA BLOQUE, TENGO QUE ENTRAR A ESE BLOQUE
 				for(int q=0; q< n; q++){
-					char* pathBloqueTmp = malloc(strlen("./Bloques/") + strlen((vectorBloques[q])) + strlen(".bin") + 1);
-					strcpy(pathBloqueTmp, "./Bloques/");
+					char* pathBloqueTmp = malloc(strlen(string_from_format("%sBloques/",	structConfiguracionLFS.PUNTO_MONTAJE)) + strlen((vectorBloques[q])) + strlen(".bin") + 1);
+					strcpy(pathBloqueTmp, string_from_format("%sBloques/",	structConfiguracionLFS.PUNTO_MONTAJE));
 					strcat(pathBloqueTmp, vectorBloquesTmp[q]);
 					strcat(pathBloqueTmp, ".bin");
 					FILE *archivoBloqueTmp = fopen(pathBloqueTmp, "r");
@@ -788,7 +788,7 @@ void realizarSelect(char* tabla, char* key) {
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
 		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
-		g_logger = log_create("./erroresSelect.log", "LFS", 1, LOG_LEVEL_INFO);
+		g_logger = log_create(string_from_format("%serroresSelect/",	structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
