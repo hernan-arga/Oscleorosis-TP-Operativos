@@ -325,8 +325,8 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
 		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe. ¿Esto deberia guardarlo en un .log?
-		g_logger = log_create(string_from_format("./erroresInsert.log"), "LFS", 1, LOG_LEVEL_INFO);
-		log_info(g_logger, mensajeALogear);
+		g_logger = log_create(string_from_format("%s/erroresInsert.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
+		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	} else {
@@ -355,7 +355,7 @@ void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 				string_from_format("%serroresCreate.log",
 						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
 				LOG_LEVEL_INFO);
-		log_info(g_logger, mensajeALogear);
+		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	} else {
@@ -788,8 +788,8 @@ void realizarSelect(char* tabla, char* key) {
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
 		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
-		g_logger = log_create(string_from_format("%serroresSelect/",	structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
-		log_info(g_logger, mensajeALogear);
+		g_logger = log_create(string_from_format("%serroresSelect.log",	structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
+		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	}
