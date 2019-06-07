@@ -320,26 +320,23 @@ int esUnTipoDeConsistenciaValida(char* cadena) {
 void insert(char* tabla, char* key, char* valor, char* timestamp) {
 	string_to_upper(tabla);
 	if (!existeLaTabla(tabla)) {
-		char* mensajeALogear = malloc(
-				strlen("Error: no existe una tabla con el nombre ")
-						+ strlen(tabla) + 1);
+		char* mensajeALogear = malloc(strlen("Error: no existe una tabla con el nombre ") + strlen(tabla) + 1);
 		strcpy(mensajeALogear, "Error: no existe una tabla con el nombre ");
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
 		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe. ¿Esto deberia guardarlo en un .log?
-		g_logger = log_create(string_from_format("./erroresInsert.log"), "LFS",
-				1, LOG_LEVEL_INFO);
+		g_logger = log_create(string_from_format("./erroresInsert.log"), "LFS", 1, LOG_LEVEL_INFO);
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	} else {
-		if (!existeUnaListaDeDatosADumpear()) {
-			//alocar memoria
+		if (!existeUnaListaDeDatosADumpear(tabla)) {
+			//
 		}
 	}
 }
 
-int existeUnaListaDeDatosADumpear() {
+int existeUnaListaDeDatosADumpear(tabla) {
 	return 1;
 }
 
@@ -651,6 +648,7 @@ void realizarSelect(char* tabla, char* key) {
 					}
 			    }
 			 } // aca quedaria el vector ordenado por timestamp mayor
+
 			if(vectorStructs[0]->timestamp > timestampActualMayorBloques){
 				timestampActualMayorBloques = vectorStructs[0]->timestamp;
 				strcpy(valueDeTimestampActualMayorBloques, "");
@@ -764,7 +762,6 @@ void realizarSelect(char* tabla, char* key) {
 
 		// ----------------------------------------------------
 
-
 		// aca iria verificar los datos tamb de la memoria de la tabla
 
 		//-----------------------------------------------------
@@ -799,46 +796,37 @@ void realizarSelect(char* tabla, char* key) {
 }
 
 void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant){
-	char linea[50];
+	// char linea[50];
 	int i = 0;
+	char * line = NULL;
+	size_t len = 0;
+	ssize_t read;
 
-	    char * line = NULL;
-	    size_t len = 0;
-	    ssize_t read;
-
-	    while ((read = getline(&line, &len, fp)) != -1) {
-			int keyLeida = atoi(string_split(line,";")[1]);
-			if(keyLeida == key){
-				t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
-				t_registro p_registro2;
-				p_registro = &p_registro2;
-				char** arrayLinea = malloc(strlen(line) + 1);
-				arrayLinea = string_split(line, ";");
-				int timestamp = atoi(arrayLinea[0]);
-				int key = atoi(arrayLinea[1]);
-				p_registro->timestamp = timestamp;
-				p_registro->key = key;
-				p_registro->value = malloc(strlen(arrayLinea[2]));
-
-				strcpy(p_registro->value,arrayLinea[2]);
-				vectorStructs[i] = p_registro;
-				//vectorStructs[i]->key = p_registro->key;
-				//vectorStructs[i]->timestamp = p_registro->timestamp;
-
-				i++;
-				(*cant)++;
-
-				//int untime = vectorStructs[0]->timestamp;
-
+    while ((read = getline(&line, &len, fp)) != -1) {
+		int keyLeida = atoi(string_split(line,";")[1]);
+		if(keyLeida == key){
+			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+			t_registro p_registro2;
+			p_registro = &p_registro2;
+			char** arrayLinea = malloc(strlen(line) + 1);
+			arrayLinea = string_split(line, ";");
+			int timestamp = atoi(arrayLinea[0]);
+			int key = atoi(arrayLinea[1]);
+			p_registro->timestamp = timestamp;
+			p_registro->key = key;
+			p_registro->value = malloc(strlen(arrayLinea[2]));
+			strcpy(p_registro->value,arrayLinea[2]);
+			vectorStructs[i] = malloc(12);
+			memcpy(&vectorStructs[i]->key, &p_registro->key, sizeof(p_registro->key));
+			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp, sizeof(p_registro->timestamp));
+			vectorStructs[i]->value = malloc(strlen(p_registro->value));
+			memcpy(vectorStructs[i]->value, p_registro->value, strlen(p_registro->value));
+			i++;
+			(*cant)++;
 	    }
-	    }
-
-	   // printf("%i", vectorStructs[0]->timestamp);
-	   // printf("%i", vectorStructs[1]->timestamp);
-
+    }
 
 	/*
-
 	while( fgets(linea,50,archivoBloque) != NULL ){
 		int keyLeida = atoi(string_split(linea,";")[1]);
 		if(keyLeida == key){
@@ -858,7 +846,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, i
 			i++;
 			(*cant)++;
 		}
-	}  				*/
+	}  	*/
 }
 
 /*
