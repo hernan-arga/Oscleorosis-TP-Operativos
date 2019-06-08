@@ -17,23 +17,25 @@
 #include <commons/config.h>
 
 struct Script{
-	struct LQL peticion;
-	struct Script*sig;
-	struct Script*ant;
+	int PID;
+	int PC;
+	FILE* peticiones;
 };
 
 typedef enum {
 	SELECT, INSERT, CREATE, DESCRIBE, DROP, JOURNAL, ADD, RUN, METRICS, OPERACIONINVALIDA
 } OPERACION;
 
+char*tempSinAsignar();
+int numeroSinUsar();
 void configurar_kernel();
-void dispatcher(t_list*,t_queue*,t_queue*);
-void newbie(FILE*,t_list *,t_queue*);
+void planificador(char*,t_list*,t_queue*,t_queue*);
+void newbie(FILE*,t_queue*,t_list*);
 int get_PID(t_list *);
 int PID_usada(int,t_list *);
 void pasar_a_ready(t_queue*,t_queue*);
-void tomar_peticion(char* mensaje);
-void realizar_peticion(char**);
+void tomar_peticion(char* mensaje,t_queue*,t_queue*,t_list*);
+void realizar_peticion(char** ,t_queue * ,t_queue *,t_list* );
 OPERACION tipo_de_peticion(char*);
 int cantidadValidaParametros(char**, int);
 int parametrosValidos(int, char**, int (*criterioTiposCorrectos)(char**, int));
@@ -42,34 +44,35 @@ int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
 int esUnTipoDeConsistenciaValida(char*);
 
 int main(){
+
 	t_list * PIDs = list_create();
 	t_queue* new = queue_create();
 	t_queue* ready = queue_create();
-
+	//t_queue* exec = queue_create();
 	FILE* memorias =fopen("IP_MEMORIAS","w");
 	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
+	char* mensaje = malloc(100);
 	//configurar_kernel();
 	//operacion_gossiping(memorias); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
-	while(1){
+	do{
 		printf("Mis subprocesos estan a la espera de su mensaje, usuario.\n");
-		char* mensaje = malloc(100);
 		fgets(mensaje,100,stdin);
-		tomar_peticion(mensaje);
-	}
-	dispatcher(PIDs,new,ready);
+		tomar_peticion(mensaje,new,ready,PIDs);
+	}while(strcmp(mensaje,"\n"));
 	fclose(memorias);
+
 	return 0;
 }
 
-void tomar_peticion(char* mensaje){
+void tomar_peticion(char* mensaje,t_queue *new,t_queue* ready,t_list* PIDs){
 	//Fijarse despues cual seria la cantidad correcta de malloc
 	char** mensajeSeparado = malloc(strlen(mensaje) + 1);
 	mensajeSeparado = string_split(mensaje, " \n");
-	realizar_peticion(mensajeSeparado);
+	realizar_peticion(mensajeSeparado,new,ready,PIDs);
 	free(mensajeSeparado);
 }
 
-void realizar_peticion(char** parametros) {
+void realizar_peticion(char** parametros,t_queue * new,t_queue *ready,t_list* PIDs) {
 	char *peticion = parametros[0];
 	OPERACION instruccion = tipo_de_peticion(peticion);
 	switch (instruccion) {
@@ -88,6 +91,12 @@ void realizar_peticion(char** parametros) {
 
 		if (parametrosValidos(2, parametros, (void*) criterioSelect)) {
 			printf("Enviando SELECT a memoria.\n");
+			char* nombre_archivo = tempSinAsignar();
+			FILE* temp = fopen(nombre_archivo,"w");
+			fprintf(temp,"%s %s %s" ,"SELECT",parametros[1],parametros[2]);
+			fclose(temp);
+			planificador(nombre_archivo,PIDs,new,ready);
+
 		}
 
 		break;
@@ -112,9 +121,16 @@ void realizar_peticion(char** parametros) {
 		//puede o no estar el timestamp
 		if (parametrosValidos(4, parametros, (void *) criterioInsert)) {
 			printf("Envio el comando INSERT a memoria");
+			char* nombre_archivo = tempSinAsignar();
+			FILE* temp = fopen(nombre_archivo,"w");
+			fprintf(temp,"%s %s %s %s %s" ,"INSERT",parametros[1],parametros[2],parametros[3],parametros[4]);
+
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
 			printf("Envio el comando INSERT a memoria");
+			char* nombre_archivo = tempSinAsignar();
+			FILE* temp = fopen(nombre_archivo,"w");
+			fprintf(temp,"%s %s %s %s" ,"INSERT",parametros[1],parametros[2],parametros[3]);
 		}
 		break;
 	case CREATE:
@@ -135,6 +151,35 @@ void realizar_peticion(char** parametros) {
 		}
 		if (parametrosValidos(4, parametros, (void *) criterioCreate)) {
 			printf("Enviando CREATE a memoria.\n");
+			char* nombre_archivo = tempSinAsignar();
+			FILE* temp = fopen(nombre_archivo,"w");
+			fprintf(temp,"%s %s %s %s %s" ,"CREATE",parametros[1],parametros[2],parametros[3],parametros[4]);
+			fclose(temp);
+			planificador(nombre_archivo,PIDs,new,ready);
+		}
+		break;
+	case RUN:
+		printf("Seleccionaste Run\n");
+			if(parametros[1] == NULL){
+				printf("No elegiste archivo.\n");
+			}else{
+				if(parametros[2] != NULL){
+					printf("No deberia haber mas de un parametro, pero soy groso y puedo encolar de todas formas.\n");
+				}
+				char* nombre_del_archivo = parametros[1];
+				string_trim(&nombre_del_archivo);
+				if(!string_contains(nombre_del_archivo,".lql")){
+					string_append(&nombre_del_archivo,".lql");
+				}
+				FILE* archivo = fopen(nombre_del_archivo,"r");
+				if(archivo==NULL){
+					printf("El archivo no existe\n");
+				}
+				else{
+					printf("Enviando Script a ejecutar.\n");
+					fclose(archivo);
+					planificador(nombre_del_archivo,PIDs,new,ready);
+				}
 		}
 		break;
 	default:
@@ -279,6 +324,39 @@ int main()
 }
 */
 
+/*void ejecutor(t_list * PIDs,t_queue* ready,t_queue*exec){
+	t_config* kernel_config = config_create("Kernel_config");
+	int quantum = config_get_int_value(kernel_config,"QUANTUM");
+	if(!queue_is_empty(ready)){
+		queue_push(exec,queue_pop(ready));
+		while(!queue_is_empty(exec)){
+		 struct Script ejecutando = queue_peek(exec);
+			for(int i=0;i<quantum;i++){
+				FILE * lql = fopen(ejecutando.peticiones,"r");
+			}
+		}
+	}
+}
+*/
+char* tempSinAsignar(){
+	char * nombre= string_new();
+	char * strNumero = string_new();
+	int numero = numeroSinUsar();
+
+	strNumero = string_itoa(numero);
+
+	string_append(&nombre,"temp");
+	string_append(&nombre,strNumero);
+	string_append(&nombre,".lql");
+	return nombre;
+}
+
+int n=0;
+
+int numeroSinUsar(){
+	n++;
+	return n;
+}
 
 void configurar_kernel(){
 	FILE* archivo_configuracion = fopen("Kernel_config","w");
@@ -309,36 +387,21 @@ void configurar_kernel(){
 	config_destroy(configuracion);
 	}
 
-void dispatcher(t_list* PIDs,t_queue* new,t_queue* ready){
-	char * nombre_del_archivo = malloc(100);
-	printf("\tNecesito que ingreses el nombre del archivo a leer: ");
-	fgets(nombre_del_archivo,100,stdin);
-	printf("%s",nombre_del_archivo);
-	string_trim(&nombre_del_archivo);
-	if(!string_contains(nombre_del_archivo,".lql")){
-		string_append(&nombre_del_archivo,".lql");
-	printf("%s",nombre_del_archivo);
+void planificador(char* nombre_del_archivo,t_list* PIDs,t_queue* new,t_queue* ready){
 	FILE* archivo = fopen(nombre_del_archivo,"r");
-	if(archivo==NULL){
-		printf("El archivo no existe\n");
-	}
-	else{
-			newbie(archivo,PIDs,new);
-			pasar_a_ready(new,ready);
-	}
+	newbie(archivo,new,PIDs);
+	pasar_a_ready(ready,new);
 	fclose(archivo);
-	free(nombre_del_archivo);
-	}
 }
 
 
-void newbie(FILE* archivo, t_list * PIDs,t_queue* new){ //Prepara las estructuras necesarias y pushea el request a la cola de new
+void newbie(FILE* archivo,t_queue* new,t_list* PIDs){ //Prepara las estructuras necesarias y pushea el request a la cola de new
 	 printf("\tAgregando script a cola de New\n");
-	 script* proceso = malloc(sizeof(script));
-	 proceso->PID = get_PID(PIDs);
-	 proceso->PC = 0;
-	 proceso->peticiones = archivo;
-	 queue_push(new,proceso);
+	 struct Script proceso;
+	 proceso.PID = get_PID(PIDs);
+	 proceso.PC = 0;
+	 proceso.peticiones = archivo;
+	 queue_push(new,&proceso);
 	 printf("Script agregado\n");
 }
 
@@ -366,7 +429,7 @@ int PID_usada(int numPID,t_list * PIDs){
 	return (list_find(PIDs,_PID_en_uso) != NULL);
 }
 
-void pasar_a_ready(t_queue* new,t_queue* ready){
+void pasar_a_ready(t_queue * ready,t_queue * new){
 	printf("\tTrasladando script de New a Ready\n");
 	queue_push(ready,queue_pop(new));
 	 printf("Script trasladado a Ready\n");
