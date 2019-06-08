@@ -94,6 +94,7 @@ int main(int argc, char *argv[]) {
 	bitarrayBloques = bitarray_create(mmapDeBitmap,
 			tamanioEnBytesDelBitarray());
 	//verBitArray();
+	memtable = malloc(4);
 	memtable = dictionary_create();
 	while (1) {
 		printf("SELECT | INSERT | CREATE | tenemos lo que quieras pa \n");
@@ -349,8 +350,8 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 	} else {
 		if (!existeUnaListaDeDatosADumpear(tabla)) {
 			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
-			p_registro->timestamp = timestamp;
-			p_registro->key = key;
+			p_registro->timestamp = atoi(timestamp);
+			p_registro->key = atoi(key);
 			p_registro->value = malloc(strlen(valor));
 			strcpy(p_registro->value, valor);
 			t_registro* vectorStructs[100];
@@ -364,6 +365,10 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 					strlen(p_registro->value));
 
 			dictionary_put(memtable, tabla, &vectorStructs);
+			// t_registro **existe = dictionary_get(memtable, "TABLA1");
+			// printf("%s\n",existe[0]->value);
+
+
 		}
 	}
 }
