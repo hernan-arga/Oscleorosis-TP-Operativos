@@ -14,7 +14,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <time.h>
-
+#include <pthread.h>
 #include <commons/collections/dictionary.h>
 #include <commons/config.h>
 #include <commons/log.h>
@@ -45,9 +45,15 @@ typedef struct {
 	int TIEMPO_DUMP;
 } configuracionLFS;
 
+
+void iniciarConexion();
+void tomarPeticionSelect(int sd);
+void tomarPeticionCreate(int sd);
+void tomarPeticionInsert(int sd);
+
+
 t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
 
-//void iniciarConexion();
 
 void insert(char*, char*, char*, char*);
 int existeUnaListaDeDatosADumpear();
@@ -88,16 +94,19 @@ t_bitarray* bitarrayBloques;
 char *mmapDeBitmap;
 
 int main(int argc, char *argv[]) {
+	pthread_t hiloLevantarConexion;
 	levantarConfiguracionLFS();
 	levantarFileSystem();
 	iniciarMmap();
 	bitarrayBloques = bitarray_create(mmapDeBitmap,
 			tamanioEnBytesDelBitarray());
 	//verBitArray();
+	pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
+
 	memtable = malloc(4);
 	memtable = dictionary_create();
 	while (1) {
-		printf("SELECT | INSERT | CREATE | tenemos lo que quieras pa \n");
+		printf("SELECT | INSERT | CREATE |\n");
 		char* mensaje = malloc(1000);
 		do {
 			fgets(mensaje, 1000, stdin);
@@ -106,7 +115,8 @@ int main(int argc, char *argv[]) {
 		free(mensaje);
 		//verBitArray();
 	}
-	//iniciarConexion();
+	//Se queda esperando a que termine el hilo de escuchar peticiones
+	pthread_join(hiloLevantarConexion, NULL);
 
 	//Aca se destruye el bitarray?
 	//bitarray_destroy(bitarrayBloques);
@@ -354,6 +364,11 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 		p_registro->value = malloc(strlen(valor));
 		strcpy(p_registro->value, valor);
 		if (!existeUnaListaDeDatosADumpear(tabla)) {
+			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+			p_registro->timestamp = atoi(timestamp);
+			p_registro->key = atoi(key);
+			p_registro->value = malloc(strlen(valor));
+			strcpy(p_registro->value, valor);
 			t_registro* vectorStructs[100];
 			vectorStructs[0] = malloc(12);
 			memcpy(&vectorStructs[0]->key, &p_registro->key,
@@ -367,6 +382,7 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 			dictionary_put(memtable, tabla, &vectorStructs);
 			// t_registro **existe = dictionary_get(memtable, "TABLA1");
 			// printf("%s\n",existe[0]->value);
+
 		} else {
 			t_registro **vectorStructs = dictionary_get(memtable, tabla);
 			int i;
@@ -1009,202 +1025,236 @@ void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable, t_registr
 }
 */
 
-/*
- void iniciarConexion(){
- int opt = TRUE;
- int master_socket , addrlen , new_socket , client_socket[30] ,
- max_clients = 30 , activity, i , valread , sd;
- int max_sd;
- struct sockaddr_in address;
+void iniciarConexion() {
+	int opt = TRUE;
+	int master_socket, addrlen, new_socket, client_socket[30], max_clients = 30,
+			activity, i, valread, sd;
+	int max_sd;
+	struct sockaddr_in address;
 
- char buffer[1025]; //data buffer of 1K
+	char buffer[1025]; //data buffer of 1K
 
- //set of socket descriptors
- fd_set readfds;
+	//set of socket descriptors
+	fd_set readfds;
 
- //a message
- char *message = "Este es el mensaje del server\r\n";
+	//a message
+	char *message = "Este es el mensaje del server\r\n";
 
- //initialise all client_socket[] to 0 so not checked
- for (i = 0; i < max_clients; i++)
- {
- client_socket[i] = 0;
- }
+	//initialise all client_socket[] to 0 so not checked
+	for (i = 0; i < max_clients; i++) {
+		client_socket[i] = 0;
+	}
 
- //create a master socket
- if( (master_socket = socket(AF_INET , SOCK_STREAM , 0)) == 0)
- {
- perror("socket failed");
- exit(EXIT_FAILURE);
- }
+	//create a master socket
+	if ((master_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+		perror("socket failed");
+		exit(EXIT_FAILURE);
+	}
 
- //set master socket to allow multiple connections ,
- //this is just a good habit, it will work without this
- if( setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt,
- sizeof(opt)) < 0 )
- {
- perror("setsockopt");
- exit(EXIT_FAILURE);
- }
+	//set master socket to allow multiple connections ,
+	//this is just a good habit, it will work without this
+	if (setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *) &opt,
+			sizeof(opt)) < 0) {
+		perror("setsockopt");
+		exit(EXIT_FAILURE);
+	}
 
- //type of socket created
- address.sin_family = AF_INET;
- address.sin_addr.s_addr = INADDR_ANY;
- address.sin_port = htons( PORT );
+	//type of socket created
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_port = htons( PORT);
 
- //bind the socket to localhost port 8888
- if (bind(master_socket, (struct sockaddr *)&address, sizeof(address))<0)
- {
- perror("bind failed en lfs");
- exit(EXIT_FAILURE);
- }
- printf("Listener on port %d \n", PORT);
+	//bind the socket to localhost port 8888
+	if (bind(master_socket, (struct sockaddr *) &address, sizeof(address))
+			< 0) {
+		perror("bind failed en lfs");
+		exit(EXIT_FAILURE);
+	}
+	printf("Listener on port %d \n", PORT);
 
- listen(master_socket, 100);
+	listen(master_socket, 100);
 
- //accept the incoming connection
- addrlen = sizeof(address);
- puts("Waiting for connections ...");
+	//accept the incoming connection
+	addrlen = sizeof(address);
+	puts("Waiting for connections ...");
 
- while(TRUE)
- {
- //clear the socket set
- FD_ZERO(&readfds);
+	while (TRUE) {
+		//clear the socket set
+		FD_ZERO(&readfds);
 
- //add master socket to set
- FD_SET(master_socket, &readfds);
- max_sd = master_socket;
+		//add master socket to set
+		FD_SET(master_socket, &readfds);
+		max_sd = master_socket;
 
- //add child sockets to set
- for ( i = 0 ; i < max_clients ; i++)
- {
- //socket descriptor
- sd = client_socket[i];
+		//add child sockets to set
+		for (i = 0; i < max_clients; i++) {
+			//socket descriptor
+			sd = client_socket[i];
 
- //if valid socket descriptor then add to read list
- if(sd > 0)
- FD_SET( sd , &readfds);
+			//if valid socket descriptor then add to read list
+			if (sd > 0)
+				FD_SET(sd, &readfds);
 
- //highest file descriptor number, need it for the select function
- if(sd > max_sd)
- max_sd = sd;
- }
+			//highest file descriptor number, need it for the select function
+			if (sd > max_sd)
+				max_sd = sd;
+		}
 
- //wait for an activity on one of the sockets , timeout is NULL ,
- //so wait indefinitely
- activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
+		//wait for an activity on one of the sockets , timeout is NULL ,
+		//so wait indefinitely
+		activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
 
- if ((activity < 0) && (errno!=EINTR))
- {
- printf("select error");
- }
+		if ((activity < 0) && (errno != EINTR)) {
+			printf("select error");
+		}
 
- //If something happened on the master socket ,
- //then its an incoming connection
- if (FD_ISSET(master_socket, &readfds))
- {
- new_socket = accept(master_socket,(struct sockaddr *)&address, (socklen_t*)&addrlen);
- if (new_socket <0)
- {
+		//If something happened on the master socket ,
+		//then its an incoming connection
+		if (FD_ISSET(master_socket, &readfds)) {
+			new_socket = accept(master_socket, (struct sockaddr *) &address,
+					(socklen_t*) &addrlen);
+			if (new_socket < 0) {
 
- perror("accept");
- exit(EXIT_FAILURE);
- }
+				perror("accept");
+				exit(EXIT_FAILURE);
+			}
 
- //inform user of socket number - used in send and receive commands
- printf("New connection , socket fd is : %d , ip is : %s , port : %d 	\n" , new_socket , inet_ntoa(address.sin_addr) , ntohs
- (address.sin_port));
+			//inform user of socket number - used in send and receive commands
+			printf(
+					"New connection , socket fd is : %d , ip is : %s , port : %d 	\n",
+					new_socket, inet_ntoa(address.sin_addr),
+					ntohs(address.sin_port));
 
- //send new connection greeting message
- if( send(new_socket, message, strlen(message), 0) != strlen(message) )
- {
- perror("send");
- }
+			//send new connection greeting message
+			if (send(new_socket, structConfiguracionLFS.TAMANIO_VALUE,
+					strlen(structConfiguracionLFS.TAMANIO_VALUE), 0)
+					!= strlen(structConfiguracionLFS.TAMANIO_VALUE)) {
+				perror("send");
+			}
 
- puts("Welcome message sent successfully");
+			puts("Welcome message sent successfully");
 
- //add new socket to array of sockets
- for (i = 0; i < max_clients; i++)
- {
- //if position is empty
- if( client_socket[i] == 0 )
- {
- client_socket[i] = new_socket;
- printf("Adding to list of sockets as %d\n" , i);
+			//add new socket to array of sockets
+			for (i = 0; i < max_clients; i++) {
+				//if position is empty
+				if (client_socket[i] == 0) {
+					client_socket[i] = new_socket;
+					printf("Adding to list of sockets as %d\n", i);
 
- break;
- }
- }
- }
+					break;
+				}
+			}
+		}
 
- //else its some IO operation on some other socket
- for (i = 0; i < max_clients; i++)
- {
- sd = client_socket[i];
+		//else its some IO operation on some other socket
+		for (i = 0; i < max_clients; i++) {
+			sd = client_socket[i];
 
- if (FD_ISSET( sd , &readfds))
- {
- //Check if it was for closing , and also read the
- //incoming message
- valread = read( sd , buffer, 1024);
- if ( valread == 0)
- {
- //Somebody disconnected , get his details and print
- getpeername(sd , (struct sockaddr*)&address , \
-							(socklen_t*)&addrlen);
- printf("Host disconnected , ip %s , port %d \n" ,
- inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
+			if (FD_ISSET(sd, &readfds)) {
+				//Check if it was for closing , and also read the
+				//incoming message
+				char *operacion = malloc(sizeof(int));
+				valread = read(sd, operacion, sizeof(int));
 
- //Close the socket and mark as 0 in list for reuse
- close( sd );
- client_socket[i] = 0;
- }
+				switch (atoi(operacion)) {
+				case 1:
+					//Select
+					tomarPeticionSelect(sd);
+					break;
 
- //Echo back the message that came in
- else
- {
- //set the string terminating NULL byte on the end
- //of the data read
- char mensaje[] = "Le llego tu mensaje al File System";
- buffer[valread] = '\0';
- printf("Memoria %d: %s\n",sd, buffer);
- send(sd , mensaje , strlen(mensaje) , 0 );
+				case 3:
+					//Create
+					tomarPeticionCreate(sd);
+					break;
 
- }
- }
- }
- }
+				case 6:
+					//Insert
+					tomarPeticionInsert(sd);
+					break;
 
- }
+				default:
+					break;
 
- void menu(){
- int opcionElegida;
+				}
 
- printf("Elija una opcion : \n");
- printf("1. SELECT \n	2. INSERT \n	3. CREATE\n		4. DESCRIBE \n		5. DROP\n");
- do{
- scanf("%i",opcionElegida);
- }while(opcionElegida<1 || opcionElegida>6);
+				if (valread == 0) {
+					//Somebody disconnected , get his details and print
+					getpeername(sd, (struct sockaddr*) &address,
+							(socklen_t*) &addrlen);
+					printf("Host disconnected , ip %s , port %d \n",
+							inet_ntoa(address.sin_addr),
+							ntohs(address.sin_port));
 
- switch(opcionElegida){
- case 1:
- printf("Elegiste SELECT\n");
- break;
- case 2:
- printf("Elegiste INSERT\n");
- break;
- case 3:
- printf("Elegiste CREATE\n");
- break;
- case 4:
- printf("Elegiste DESCRIBE\n");
- break;
- case 5:
- printf("Elegiste DROP\n");
- break;
- default:
- printf("ERROR");
- break;
- }
- }
- */
+					//Close the socket and mark as 0 in list for reuse
+					close(sd);
+					client_socket[i] = 0;
+				}
+
+				/*//Echo back the message that came in
+				 else {
+				 //set the string terminating NULL byte on the end
+				 //of the data read
+				 char mensaje[] = "Le llego tu mensaje al File System";
+				 buffer[valread] = '\0';
+				 printf("Memoria %d: %s\n", sd, buffer);
+				 send(sd, mensaje, strlen(mensaje), 0);
+
+				 }*/
+			}
+		}
+	}
+
+}
+
+void tomarPeticionSelect(int sd) {
+	char *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(atoi(tamanioTabla));
+	read(sd, tabla, tamanioTabla);
+	char *tamanioKey = malloc(sizeof(int));
+	read(sd, tamanioKey, sizeof(int));
+	char *key = malloc(atoi(tamanioKey));
+	read(sd, key, tamanioKey);
+	printf("Haciendo Select");
+	//char *value = realizarSelect(tabla, key);
+	//send(sd, value, structConfiguracionLFS.TAMANIO_VALUE, 0);
+}
+
+void tomarPeticionCreate(int sd) {
+	char *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(atoi(tamanioTabla));
+	read(sd, tabla, tamanioTabla);
+	char *tamanioConsistencia = malloc(sizeof(int));
+	read(sd, tamanioConsistencia, sizeof(int));
+	char *tipoConsistencia = malloc(atoi(tamanioConsistencia));
+	read(sd, tipoConsistencia, tamanioConsistencia);
+	char *tamanioNumeroParticiones = malloc(sizeof(int));
+	read(sd, tamanioNumeroParticiones, sizeof(int));
+	char *numeroParticiones = malloc(tamanioNumeroParticiones);
+	read(sd, numeroParticiones, tamanioNumeroParticiones);
+	char *tamanioTiempoCompactacion = malloc(sizeof(int));
+	read(sd, tamanioTiempoCompactacion, sizeof(int));
+	char *tiempoCompactacion = malloc(tamanioTiempoCompactacion);
+	read(sd, tiempoCompactacion, tamanioTiempoCompactacion);
+	create(tabla, tipoConsistencia, numeroParticiones, tiempoCompactacion);
+}
+
+void tomarPeticionInsert(int sd) {
+	char *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(atoi(tamanioTabla));
+	read(sd, tabla, tamanioTabla);
+
+	char *tamanioKey = malloc(sizeof(int));
+	read(sd, tamanioKey, sizeof(int));
+	char *key = malloc(atoi(tamanioKey));
+	read(sd, key, tamanioKey);
+	char *tamanioValue = malloc(sizeof(int));
+	read(sd, tamanioValue, sizeof(int));
+	char *value = malloc(tamanioValue);
+	read(sd, value, tamanioValue);
+
+	//insert(tabla, key, value);
+	printf("Haciendo insert");
+}
