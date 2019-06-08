@@ -52,6 +52,9 @@ void tomarPeticionCreate(int sd);
 void tomarPeticionInsert(int sd);
 
 
+t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
+
+
 void insert(char*, char*, char*, char*);
 int existeUnaListaDeDatosADumpear();
 
@@ -100,6 +103,8 @@ int main(int argc, char *argv[]) {
 	//verBitArray();
 	pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
 
+	memtable = malloc(4);
+	memtable = dictionary_create();
 	while (1) {
 		printf("SELECT | INSERT | CREATE |\n");
 		char* mensaje = malloc(1000);
@@ -353,6 +358,11 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	} else {
+		t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+		p_registro->timestamp = atoi(timestamp);
+		p_registro->key = atoi(key);
+		p_registro->value = malloc(strlen(valor));
+		strcpy(p_registro->value, valor);
 		if (!existeUnaListaDeDatosADumpear(tabla)) {
 			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 			p_registro->timestamp = atoi(timestamp);
@@ -373,14 +383,31 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 			// t_registro **existe = dictionary_get(memtable, "TABLA1");
 			// printf("%s\n",existe[0]->value);
 
+		} else {
+			t_registro **vectorStructs = dictionary_get(memtable, tabla);
+			int i;
+			for(i = 0; i < 100; i++){
+				if(vectorStructs[i] == NULL){
+					break;
+				}
+			}
+			vectorStructs[i] = malloc(12);
+			memcpy(&vectorStructs[i]->key, &p_registro->key,
+					sizeof(p_registro->key));
+			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
+					sizeof(p_registro->timestamp));
+			vectorStructs[i]->value = malloc(strlen(p_registro->value));
+			memcpy(vectorStructs[i]->value, p_registro->value,
+					strlen(p_registro->value));
+
+			dictionary_put(memtable, tabla, vectorStructs);
 
 		}
 	}
 }
 
-int existeUnaListaDeDatosADumpear( tabla) {
-	return 1;
-
+int existeUnaListaDeDatosADumpear(char* tabla) {
+	return dictionary_has_key(memtable, tabla);
 }
 
 void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
