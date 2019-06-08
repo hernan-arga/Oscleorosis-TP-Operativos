@@ -45,7 +45,7 @@ typedef struct {
 	int TIEMPO_DUMP;
 } configuracionLFS;
 
-t_dictionary * memtable;    // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
+t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
 
 //void iniciarConexion();
 
@@ -348,12 +348,12 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	} else {
+		t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+		p_registro->timestamp = atoi(timestamp);
+		p_registro->key = atoi(key);
+		p_registro->value = malloc(strlen(valor));
+		strcpy(p_registro->value, valor);
 		if (!existeUnaListaDeDatosADumpear(tabla)) {
-			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
-			p_registro->timestamp = atoi(timestamp);
-			p_registro->key = atoi(key);
-			p_registro->value = malloc(strlen(valor));
-			strcpy(p_registro->value, valor);
 			t_registro* vectorStructs[100];
 			vectorStructs[0] = malloc(12);
 			memcpy(&vectorStructs[0]->key, &p_registro->key,
@@ -367,7 +367,24 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 			dictionary_put(memtable, tabla, &vectorStructs);
 			// t_registro **existe = dictionary_get(memtable, "TABLA1");
 			// printf("%s\n",existe[0]->value);
+		} else {
+			t_registro **vectorStructs = dictionary_get(memtable, tabla);
+			int i;
+			for(i = 0; i < 100; i++){
+				if(vectorStructs[i] == NULL){
+					break;
+				}
+			}
+			vectorStructs[i] = malloc(12);
+			memcpy(&vectorStructs[i]->key, &p_registro->key,
+					sizeof(p_registro->key));
+			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
+					sizeof(p_registro->timestamp));
+			vectorStructs[i]->value = malloc(strlen(p_registro->value));
+			memcpy(vectorStructs[i]->value, p_registro->value,
+					strlen(p_registro->value));
 
+			dictionary_put(memtable, tabla, vectorStructs);
 
 		}
 	}
