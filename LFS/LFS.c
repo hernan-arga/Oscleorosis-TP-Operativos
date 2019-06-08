@@ -45,10 +45,13 @@ typedef struct {
 	int TIEMPO_DUMP;
 } configuracionLFS;
 
+
 void iniciarConexion();
 void tomarPeticionSelect(int sd);
 void tomarPeticionCreate(int sd);
 void tomarPeticionInsert(int sd);
+
+t_dictionary * memtable;    // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
 
 void insert(char*, char*, char*, char*);
 int existeUnaListaDeDatosADumpear();
@@ -97,6 +100,8 @@ int main(int argc, char *argv[]) {
 			tamanioEnBytesDelBitarray());
 	//verBitArray();
 	pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
+	memtable = malloc(4);
+	memtable = dictionary_create();
 	while (1) {
 		printf("SELECT | INSERT | CREATE |\n");
 		char* mensaje = malloc(1000);
@@ -351,13 +356,37 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 		free(mensajeALogear);
 	} else {
 		if (!existeUnaListaDeDatosADumpear(tabla)) {
-			//
+			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+			p_registro->timestamp = atoi(timestamp);
+			p_registro->key = atoi(key);
+			p_registro->value = malloc(strlen(valor));
+			strcpy(p_registro->value, valor);
+			t_registro* vectorStructs[100];
+			vectorStructs[0] = malloc(12);
+			memcpy(&vectorStructs[0]->key, &p_registro->key,
+					sizeof(p_registro->key));
+			memcpy(&vectorStructs[0]->timestamp, &p_registro->timestamp,
+					sizeof(p_registro->timestamp));
+			vectorStructs[0]->value = malloc(strlen(p_registro->value));
+			memcpy(vectorStructs[0]->value, p_registro->value,
+					strlen(p_registro->value));
+
+			dictionary_put(memtable, tabla, &vectorStructs);
+			// t_registro **existe = dictionary_get(memtable, "TABLA1");
+			// printf("%s\n",existe[0]->value);
+
+
 		}
 	}
 }
 
+<<<<<<< HEAD
 int existeUnaListaDeDatosADumpear( tabla) {
 	return 1;
+=======
+int existeUnaListaDeDatosADumpear(char* tabla) {
+	return dictionary_has_key(memtable, tabla);
+>>>>>>> f2b68e001550c1ebebe3255e93baefdfe7d5cb9a
 }
 
 void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
@@ -934,6 +963,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	 (*cant)++;
 	 }
 	 }  	*/
+<<<<<<< HEAD
 }
 
 void iniciarConexion() {
@@ -1129,6 +1159,8 @@ void tomarPeticionSelect(int sd) {
 	printf("Haciendo Select");
 	//char *value = realizarSelect(tabla, key);
 	//send(sd, value, structConfiguracionLFS.TAMANIO_VALUE, 0);
+=======
+>>>>>>> f2b68e001550c1ebebe3255e93baefdfe7d5cb9a
 }
 
 void tomarPeticionCreate(int sd) {
