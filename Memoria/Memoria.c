@@ -1,293 +1,479 @@
-// MEMORIA
-
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include<arpa/inet.h>
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<netinet/in.h>
-#include<sys/time.h>
-#include<sys/types.h>
-#include<unistd.h>
-#include<commons/log.h>
-#include<commons/string.h>
 #include<commons/config.h>
-#include<readline/readline.h>
-#include<errno.h>
+#include<unistd.h>
+#include<sys/socket.h>
+#include<sys/types.h>
+#include<netinet/in.h>
+#include<arpa/inet.h>
 #include<pthread.h>
+#include<commons/log.h>
+#include<commons/collections/list.h>
+#include<commons/temporal.h>
 
-#define TRUE 1
-#define FALSE 0
-#define PORT 4441
+typedef enum {
+	SELECT, INSERT, CREATE, DESCRIBE, DROP, OPERACIONINVALIDA
+} OPERACION;
 
+typedef struct{
+	int32_t PUERTO;
+	char* IP_FS;
+	int32_t PUERTO_FS;
+	int32_t RETARDO_MEM;
+	int32_t RETARDO_FS;
+	int32_t TAM_MEM;
+	int32_t RETARDO_JOURNAL;
+	int32_t RETARDO_GOSSIPING;
+	int32_t MEMORY_NUMBER;
+	char** IP_SEEDS;
+	char** PUERTO_SEEDS;
+}archivoConfiguracion;
+
+typedef struct{
+	uint32_t NUMERO_PAGINA;
+	uint32_t TIMESTAMP;
+	int KEY;
+	char* VALUE;
+	bool MODIFICADO;
+	uint32_t EN_USO;
+}pagina;
+
+typedef struct{
+	char* PATH;
+	char* TABLA_ASOCIADA;
+	uint32_t NUMERO_SEGMENTO;
+	//uint32_t CANTIDAD_PAGINAS;
+	pagina PAGINAS[50];
+	uint32_t EN_USO;
+}segmento;
+
+struct sockaddr_in serverAddress;
+struct sockaddr_in serverAddressFS;
+archivoConfiguracion* t_archivoConfiguracion;
+t_config *config;
+int32_t server;
+int32_t clienteKernel;
+int32_t clienteFS;
+uint32_t tamanoDireccion;
+int32_t activado = 1;
+t_log* logy;
+pthread_t threadKernel;
+pthread_t threadFS;
+uint32_t tamanoValue;
+bool sem1 = false;
+bool sem2 = true;
+segmento tablaSegmentos[50];
+segmento segmentoNulo;
+pagina paginaNulo;
+
+segmento buscarSegmentoSegunTabla(char* tabla);
+pagina buscarPagina(char* key, segmento segmentoAsociado);
+pagina encontrarPaginaLibre(pagina tablaPaginas[]);
 void serServidor();
-void serCliente();
-void menu();
+void consola();
+void controlarKernel();
+OPERACION tipoDePeticion(char* peticion);
+pagina ejecutarLRU(pagina tablaPaginas[]);
+segmento buscarSegmentoLibre();
+char* realizarSelect(char* tabla, char* key);
+void conectarseAFS();
+void conectarseAKernel();
+void analizarInstruccion(char* instruccion);
+void realizarComando(char** comando);
+void insertarEnPaginaLibre(segmento segmentoAsociado, char* key, char* value);
+void ejecutarJournaling();
+void realizarInsert(char* tabla, char* key, char* value);
+void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones, char* tiempoCompactacion);
 
-int main()
+int main(int argc, char *argv[])
 {
-	pthread_t tid[3];
-	int err;
+	printf("Hola");
+	t_archivoConfiguracion = malloc(sizeof(archivoConfiguracion));
+	config = config_create(argv[1]);
 
-	    err = pthread_create(&(tid[0]), NULL, serServidor, NULL);
-	    if (err != 0){
-	    	printf("\nHubo un problema al crear el thread", strerror(err));
-	    	return err;
-	    }
-	    printf("\nEl thread Servidor inició su ejecución\n");
+	t_archivoConfiguracion->PUERTO = config_get_int_value(config, "PUERTO");
+	t_archivoConfiguracion->PUERTO_FS = config_get_int_value(config, "PUERTO_FS");
+	t_archivoConfiguracion->IP_SEEDS= config_get_array_value(config, "IP_SEEDS");
+	t_archivoConfiguracion->PUERTO_SEEDS = config_get_array_value(config, "PUERTO_SEEDS");
+	t_archivoConfiguracion->RETARDO_MEM = config_get_int_value(config, "RETARDO_MEM");
+	t_archivoConfiguracion->RETARDO_FS = config_get_int_value(config, "RETARDO_FS");
+	t_archivoConfiguracion->TAM_MEM = config_get_int_value(config, "TAM_MEM");
+	t_archivoConfiguracion->RETARDO_JOURNAL = config_get_int_value(config, "RETARDO_JOURNAL");
+	t_archivoConfiguracion->RETARDO_GOSSIPING = config_get_int_value(config, "RETARDO_GOSSIPING");
+	t_archivoConfiguracion->MEMORY_NUMBER = config_get_int_value(config, "MEMORY_NUMBER");
 
-	    err = pthread_create(&(tid[1]), NULL, serCliente, NULL);
-	    if (err != 0){
-	    	printf("\nHubo un problema al crear el thread", strerror(err));
-	    	return err;
-	    }
-	    printf("\nEl thread Cliente inició su ejecución\n");
+	void inicializarSegmentos();
 
-	    //err = pthread_create(&(tid[1]), NULL, menu, NULL);
+	pthread_t threadSerServidor;
+	int32_t idThreadSerServidor = pthread_create(&threadSerServidor, NULL, serServidor, NULL);
 
-	    pthread_join(tid[0], NULL);
-	    pthread_join(tid[1], NULL);
-	    //pthread_join(tid[2], NULL);
+	pthread_t threadConsola;
+	int32_t idthreadConsola = pthread_create(&threadConsola, NULL, consola, NULL);
 
-	    return 0;
+	pthread_join(threadConsola, NULL);
+	pthread_join(threadSerServidor, NULL);
 }
 
-// ABAJO MEMORIA COMO CLIENTE DEL SERVER FILE SYSTEM
-
-void serCliente()
+void inicializarSegmentos()
 {
-		printf("Soy Memoria \n");
-
-		int socketClienteDelFS;
-		socketClienteDelFS = socket(AF_INET, SOCK_STREAM, 0);
-
-		struct sockaddr_in direccionServer;
-		direccionServer.sin_family = AF_INET;
-		direccionServer.sin_port = htons(4444);
-		direccionServer.sin_addr.s_addr = INADDR_ANY;
-
-		if (connect(socketClienteDelFS, (struct sockaddr *) &direccionServer,
-				sizeof(direccionServer)) == -1) {
-			perror("Hubo un error en la conexion \n");
+	for(int i = 0; i < 50; i++)
+	{
+		tablaSegmentos[i].NUMERO_SEGMENTO = i;
+		tablaSegmentos[i].EN_USO = 0;
+		for(int j = 0; j < 50 ; j++)
+		{
+			tablaSegmentos[i].PAGINAS[j].NUMERO_PAGINA = j;
+			tablaSegmentos[i].PAGINAS[j].EN_USO = 0;
 		}
-
-		char buffer[256];
-		recv(socketClienteDelFS, &buffer, sizeof(buffer), 0);
-
-		printf("RECIBI INFORMACION DEL FS: %s\n", buffer);
-
-
-		// Mandar Mensajes
-		while (1) {
-			char* mensaje = malloc(1000);
-			fgets(mensaje, 1024, stdin);
-			send(socketClienteDelFS, mensaje, strlen(mensaje), 0);
-			free(mensaje);
-		}
+	}
+	segmentoNulo.EN_USO = -1;
+	paginaNulo.EN_USO = -1;
 }
-
-//-------------------- ABAJO MEMORIA COMO SERVER DEL KERNEL CLIENTE
-
 
 void serServidor()
 {
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_addr.s_addr = INADDR_ANY;
+	serverAddress.sin_port = htons(t_archivoConfiguracion->PUERTO);
 
-	int opt = TRUE;
-	int master_socket , addrlen , new_socket , client_socket[30] ,
-		max_clients = 30 , activity, i , valread , sd;
-	int max_sd;
-	struct sockaddr_in address;
+	server = socket(AF_INET, SOCK_STREAM, 0);
 
-	char buffer3[1025]; //data buffer of 1K
+	setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &activado, sizeof(activado));
 
-	//set of socket descriptors
-	fd_set readfds;
-
-	//a message
-	char message[100] = "Este es el mensaje del server\r\n";
-
-	//initialise all client_socket[] to 0 so not checked
-	for (i = 0; i < max_clients; i++)
+	if(bind(server, (void*) &serverAddress, sizeof(serverAddress)) != 0)
 	{
-	  client_socket[i] = 0;
+		perror("Fallo el bind");
 	}
 
-	//create a master socket
-	if( (master_socket = socket(AF_INET , SOCK_STREAM , 0)) == 0)
+	log_info(logy, "Estoy escuchando\n");
+	listen(server, 100);
+
+	conectarseAKernel();
+	conectarseAFS();
+}
+
+void conectarseAKernel()
+{
+	clienteKernel = accept(server, (void*) &serverAddress, &tamanoDireccion);
+	log_info(logy, "Recibi una conexion en %d\n", clienteKernel);
+
+	pthread_create(&threadKernel, NULL, (void*) controlarKernel, NULL);
+	pthread_join(threadKernel, NULL);
+}
+
+void controlarKernel()
+{
+	while(1)
 	{
-	  perror("socket failed");
-	  exit(EXIT_FAILURE);
+
 	}
 
-	//set master socket to allow multiple connections ,
-	//this is just a good habit, it will work without this
-	if( setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt,
-		sizeof(opt)) < 0 )
+}
+
+void conectarseAFS()
+{
+	clienteFS = socket(AF_INET, SOCK_STREAM, 0);
+	serverAddressFS.sin_family = AF_INET;
+	serverAddressFS.sin_port = htons(t_archivoConfiguracion->PUERTO_FS);
+	serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion->IP_FS);
+
+	if (connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS)) == -1)
 	{
-		perror("setsockopt");
-		exit(EXIT_FAILURE);
+		perror("Hubo un error en la conexion \n");
 	}
 
-	//type of socket created
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons( PORT );
+	recv(clienteFS, &tamanoValue, sizeof(tamanoValue), 0);
 
-	//bind the socket to localhost port 8888
-	if (bind(master_socket, (struct sockaddr *)&address, sizeof(address))<0)
+	sem1 = true;
+}
+
+void consola()
+{
+	while(!sem1)
 	{
-		perror("bind failed en memoria");
-		exit(EXIT_FAILURE);
+
 	}
-	printf("Listener on port %d \n", PORT);
-
-	listen(master_socket, 100);
-
-	//accept the incoming connection
-	addrlen = sizeof(address);
-	puts("Waiting for connections ...");
-
-	while(TRUE)
+	while(1)
 	{
-		//clear the socket set
-		FD_ZERO(&readfds);
+		char* instruccion = malloc(1000);
+		do {
+			fgets(instruccion, 1000, stdin);
+		} while (!strcmp(instruccion, "\n"));
+		analizarInstruccion(instruccion);
+		free(instruccion);
+	}
+}
 
-		//add master socket to set
-		FD_SET(master_socket, &readfds);
-		max_sd = master_socket;
+void analizarInstruccion(char* instruccion)
+{
+	char** comando = malloc(strlen(instruccion) + 1 );
+	comando = string_split(instruccion, " \n");
+	realizarComando(comando);
+	free(comando);
+}
 
-		//add child sockets to set
-		for ( i = 0 ; i < max_clients ; i++)
-		{
-			//socket descriptor
-			sd = client_socket[i];
+void realizarComando(char** comando)
+{
+	while(!sem2){
 
-			//if valid socket descriptor then add to read list
-			if(sd > 0)
-				FD_SET( sd , &readfds);
+	}
+	char *peticion = comando[0];
+	OPERACION accion = tipoDePeticion(peticion);
+	char* tabla;
+	char* key;
+	char* value;
+	switch(accion)
+	{
+		case SELECT:
+			log_info(logy, "SELECT");
+			tabla = comando[1];
+			key = comando[2];
+			realizarSelect(tabla, key);
+			break;
 
-			//highest file descriptor number, need it for the select function
-			if(sd > max_sd)
-				max_sd = sd;
-		}
+		case INSERT:
+			log_info(logy, "INSERT");
+			tabla = comando[1];
+			key = comando[2];
+			value = comando[3];
+			realizarInsert(tabla, key, value);
+			break;
 
-		//wait for an activity on one of the sockets , timeout is NULL ,
-		//so wait indefinitely
-		activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
+		case CREATE:
+			log_info(logy, "CREATE");
+			char* tabla = comando[1];
+			char* tipoConsistencia = comando[2];
+			char* numeroParticiones = comando[3];
+			char* tiempoCompactacion = comando[4];
+			realizarCreate(tabla, tipoConsistencia, numeroParticiones, tiempoCompactacion);
+			break;
 
-		if ((activity < 0) && (errno!=EINTR))
-		{
-			printf("select error");
-		}
+		case OPERACIONINVALIDA:
+			log_info(logy,"OPERACION INVALIDA");
+			break;
+	}
+}
 
-		//If something happened on the master socket ,
-		//then its an incoming connection
-		if (FD_ISSET(master_socket, &readfds))
-		{
-			new_socket = accept(master_socket,(struct sockaddr *)&address, (socklen_t*)&addrlen);
-			if (new_socket <0)
-			{
-				perror("accept");
-				exit(EXIT_FAILURE);
-			}
-
-			//inform user of socket number - used in send and receive commands
-			printf("New connection , socket fd is : %d , ip is : %s , port : %d 	\n" , new_socket , inet_ntoa(address.sin_addr) , ntohs
-				(address.sin_port));
-
-			//send new connection greeting message
-			if( send(new_socket, message, strlen(message), 0) != strlen(message) )
-			{
-				perror("send");
-			}
-
-			puts("Welcome message sent successfully");
-
-			//add new socket to array of sockets
-			for (i = 0; i < max_clients; i++)
-			{
-				//if position is empty
-				if( client_socket[i] == 0 )
-				{
-					client_socket[i] = new_socket;
-					printf("Adding to list of sockets as %d\n" , i);
-
-					break;
-				}
-			}
-		}
-
-		//else its some IO operation on some other socket
-		for (i = 0; i < max_clients; i++)
-		{
-			sd = client_socket[i];
-
-			if (FD_ISSET( sd , &readfds))
-			{
-				//Check if it was for closing , and also read the
-				//incoming message
-				valread = read( sd , buffer3, 1024);
-				if ( valread == 0)
-				{
-					//Somebody disconnected , get his details and print
-					getpeername(sd , (struct sockaddr*)&address , \
-						(socklen_t*)&addrlen);
-					printf("Host disconnected , ip %s , port %d \n" ,
-						inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
-
-					//Close the socket and mark as 0 in list for reuse
-					close( sd );
-					client_socket[i] = 0;
-				}
-
-				//Echo back the message that came in
-				else
-				{
-					//set the string terminating NULL byte on the end
-					//of the data read
-					char mensaje[] = "Le llego tu mensaje a la memoria";
-					buffer3[valread] = '\0';
-					printf("Kernel: %s\n", buffer3);
-					send(sd , mensaje , strlen(mensaje) , 0 );
-				}
+OPERACION tipoDePeticion(char* peticion) {
+	if (!strcmp(peticion, "SELECT"))
+	{
+		free(peticion);
+		return SELECT;
+	} else {
+		if (!strcmp(peticion, "INSERT")) {
+			free(peticion);
+			return INSERT;
+		} else {
+			if (!strcmp(peticion, "CREATE")) {
+				free(peticion);
+				return CREATE;
+			} else {
+				free(peticion);
+				return OPERACIONINVALIDA;
 			}
 		}
 	}
 }
 
-void menu(){
-	int opcionElegida = 7;
-
-	printf("Elija una opcion : \n");
-	printf("1. SELECT \n	2. INSERT \n	3. CREATE\n		4. DESCRIBE \n		5. DROP\n		6. JOURNAL\n");
-	scanf("%d", &opcionElegida);
-	do{
-
-	switch(opcionElegida){
-		case 1:
-			printf("Elegiste SELECT\n");
-			break;
-		case 2:
-			printf("Elegiste INSERT\n");
-			break;
-		case 3:
-			printf("Elegiste CREATE\n");
-			break;
-		case 4:
-			printf("Elegiste DESCRIBE\n");
-			break;
-		case 5:
-			printf("Elegiste DROP\n");
-			break;
-		case 6:
-			printf("Elegiste JOURNAL\n");
-			break;
-		default:
-			printf("ERROR");
-			break;
+char* realizarSelect(char* tabla, char* key)
+{
+	segmento segmentoAsociado = buscarSegmentoSegunTabla(tabla);
+	if(segmentoAsociado.EN_USO != -1)
+	{
+		pagina paginaAsociada = buscarPagina(key, segmentoAsociado);
+		if(paginaAsociada.EN_USO != -1)
+		{
+			log_info(logy, paginaAsociada.KEY);
+			return paginaAsociada.KEY;
 		}
-	scanf("%d", &opcionElegida);
-	}while(opcionElegida != 0);
+		else
+		{
+			char* peticionValue;
+			send(clienteFS, peticionValue, strlen(peticionValue), 0);
+			char* value = malloc(tamanoValue);
+			recv(clienteFS, &value, sizeof(value), 0);
+			insertarEnPaginaLibre(segmentoAsociado, key, value);
+			log_info(logy, value);
+			return value;
+			free(value);
+		}
+	}
+	else
+	{
+		char* peticionValue = malloc(sizeof(int) + sizeof(int) + sizeof(int) + strlen(tabla) + strlen(key));
+		strcpy(peticionValue, 1);
+		strcat(peticionValue, strlen(tabla));
+		strcat(peticionValue, tabla);
+		strcat(peticionValue, strlen(key));
+		strcat(peticionValue, key);
+		send(clienteFS, peticionValue, strlen(peticionValue), 0);
+
+		char* value = malloc(tamanoValue);
+		recv(clienteFS, &value, sizeof(value), 0);
+
+		segmentoAsociado = buscarSegmentoLibre();
+		segmentoAsociado.PAGINAS[0].EN_USO = 1;
+		segmentoAsociado.PAGINAS[0].KEY = key;
+		segmentoAsociado.PAGINAS[0].MODIFICADO = 0;
+		segmentoAsociado.PAGINAS[0].TIMESTAMP = temporal_get_string_time();
+		segmentoAsociado.PAGINAS[0].VALUE = value;
+
+		free(value);
+
+		log_info(logy, segmentoAsociado.PAGINAS[0].VALUE);
+		return segmentoAsociado.PAGINAS[0].VALUE;
+	}
 }
+
+segmento buscarSegmentoLibre()
+{
+	for(int i = 0; i < 50; i++)
+	{
+		if(tablaSegmentos[i].EN_USO == 0)
+			return tablaSegmentos[i];
+	}
+}
+
+segmento buscarSegmentoSegunTabla(char* tabla)
+{
+	for(int i = 0; i < 50; i++)
+	{
+		segmento segmento = tablaSegmentos[i];
+		if(segmento.EN_USO)
+		{
+			if(tablaSegmentos[i].TABLA_ASOCIADA == tabla)
+				return tablaSegmentos[i];
+		}
+	}
+	return segmentoNulo;
+}
+
+pagina buscarPagina(char* key, segmento segmentoAsociado)
+{
+	for(int i = 0; i < 50; i++)
+	{
+		if(segmentoAsociado.PAGINAS[i].EN_USO)
+		{
+			if(segmentoAsociado.PAGINAS[i].KEY == atoi(key))
+			{
+				return segmentoAsociado.PAGINAS[i];
+			}
+		}
+	}
+	return paginaNulo;
+}
+
+void insertarEnPaginaLibre(segmento segmentoAsociado, char* key, char* value)
+{
+	pagina primeraLibre = encontrarPaginaLibre(segmentoAsociado.PAGINAS);
+	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].EN_USO = 1;
+	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].KEY = atoi(key);
+	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].MODIFICADO = 0;
+	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].VALUE = value;
+	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].TIMESTAMP = atoi(temporal_get_string_time());
+
+}
+
+pagina encontrarPaginaLibre(pagina tablaPaginas[])
+{
+	for(int i = 0; i < 50; i++)
+	{
+		if(tablaPaginas[i].EN_USO == 0)
+			return tablaPaginas[i];
+	}
+	return ejecutarLRU(tablaPaginas);
+}
+
+pagina ejecutarLRU(pagina tablaPaginas[])
+{
+	pagina candidataRemplazo = tablaPaginas[0];
+	uint32_t tiempoMenor = candidataRemplazo.TIMESTAMP;
+
+	for(int i = 1; i < 50; i++)
+	{
+		if(tablaPaginas[i].TIMESTAMP < tiempoMenor && !tablaPaginas[i].MODIFICADO)
+		{
+			candidataRemplazo = tablaPaginas[i];
+			tiempoMenor = candidataRemplazo.TIMESTAMP;
+		}
+	}
+	if(!candidataRemplazo.MODIFICADO)
+		return candidataRemplazo;
+
+	ejecutarJournaling();
+	return candidataRemplazo;
+	ejecutarLRU(tablaPaginas);
+}
+
+void ejecutarJournaling()
+{
+	sem2 = false;
+	for(int i = 0; i < 50; i++)
+	{
+		for(int j = 0; j < 50; j ++)
+		{
+			if(tablaSegmentos[i].PAGINAS[j].MODIFICADO)
+			{
+				char* actualizacion = malloc(sizeof(int) + sizeof(int) + sizeof(int) + sizeof(tablaSegmentos[i].PAGINAS[j].KEY
+						+ sizeof(tablaSegmentos[i].TABLA_ASOCIADA))
+						+ strlen(tablaSegmentos[i].PAGINAS[j].VALUE));
+				strcpy(actualizacion, (char*) 6);
+				strcat(actualizacion, (char*) strlen(tablaSegmentos[i].TABLA_ASOCIADA));
+				strcat(actualizacion, tablaSegmentos[i].TABLA_ASOCIADA);
+				strcat(actualizacion, (char*) strlen( (char*)tablaSegmentos[i].PAGINAS[j].KEY));
+				strcat(actualizacion, (char*) tablaSegmentos[i].PAGINAS[j].KEY);
+				strcat(actualizacion, (char*) strlen(tablaSegmentos[i].PAGINAS[j].VALUE));
+				strcat(actualizacion, tablaSegmentos[i].PAGINAS[j].VALUE);
+				send(clienteFS, actualizacion, strlen(actualizacion), 0);
+			}
+		}
+	}
+	inicializarSegmentos();
+	sem2 = true;
+}
+
+void realizarInsert(char* tabla, char* key, char* value)
+{
+	segmento segmentoAsociado = buscarSegmentoSegunTabla(tabla);
+	if(segmentoAsociado.EN_USO != -1)
+	{
+		pagina paginaAsociada = buscarPagina(key, segmentoAsociado);
+		if(paginaAsociada.EN_USO != -1)
+		{
+			paginaAsociada.MODIFICADO = 1;
+			paginaAsociada.VALUE = value;
+			paginaAsociada.TIMESTAMP = temporal_get_string_time();
+		}
+		else
+		{
+			insertarEnPaginaLibre(segmentoAsociado, key, value);
+		}
+	}
+	else
+	{
+		segmentoAsociado = buscarSegmentoLibre();
+		segmentoAsociado.PAGINAS[0].EN_USO = 1;
+		segmentoAsociado.PAGINAS[0].KEY = key;
+		segmentoAsociado.PAGINAS[0].MODIFICADO = 0;
+		segmentoAsociado.PAGINAS[0].TIMESTAMP = temporal_get_string_time();
+		segmentoAsociado.PAGINAS[0].VALUE = value;
+	}
+}
+
+void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones, char* tiempoCompactacion)
+{
+	char* mensaje = malloc(sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+strlen(tabla)+strlen(tipoConsistencia)+strlen(numeroParticiones)+strlen(tiempoCompactacion));
+	strcpy(mensaje, 3);
+	strcat(mensaje, strlen(tabla));
+	strcat(mensaje, tabla);
+	strcat(mensaje, strlen(tipoConsistencia));
+	strcat(mensaje, tipoConsistencia);
+	strcat(mensaje, strlen(numeroParticiones));
+	strcat(mensaje, numeroParticiones);
+	strcat(mensaje, strlen(tiempoCompactacion));
+	strcat(mensaje, tiempoCompactacion);
+	send(clienteFS, mensaje, strlen(mensaje), 0);
+}
+
 
