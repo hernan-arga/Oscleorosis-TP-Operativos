@@ -14,7 +14,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <time.h>
-
+#include <pthread.h>
 #include <commons/collections/dictionary.h>
 #include <commons/config.h>
 #include <commons/log.h>
@@ -22,8 +22,6 @@
 #include <commons/bitarray.h>
 #include <sys/mman.h>
 #include <fcntl.h>
-
-
 
 #define TRUE 1
 #define FALSE 0
@@ -47,7 +45,10 @@ typedef struct {
 	int TIEMPO_DUMP;
 } configuracionLFS;
 
-//void iniciarConexion();
+void iniciarConexion();
+void tomarPeticionSelect(int sd);
+void tomarPeticionCreate(int sd);
+void tomarPeticionInsert(int sd);
 
 void insert(char*, char*, char*, char*);
 int existeUnaListaDeDatosADumpear();
@@ -88,13 +89,16 @@ t_bitarray* bitarrayBloques;
 char *mmapDeBitmap;
 
 int main(int argc, char *argv[]) {
+	pthread_t hiloLevantarConexion;
 	levantarConfiguracionLFS();
 	levantarFileSystem();
 	iniciarMmap();
-	bitarrayBloques = bitarray_create(mmapDeBitmap, tamanioEnBytesDelBitarray());
+	bitarrayBloques = bitarray_create(mmapDeBitmap,
+			tamanioEnBytesDelBitarray());
 	//verBitArray();
+	pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
 	while (1) {
-		printf("SELECT | INSERT | CREATE | tenemos lo que quieras pa \n");
+		printf("SELECT | INSERT | CREATE |\n");
 		char* mensaje = malloc(1000);
 		do {
 			fgets(mensaje, 1000, stdin);
@@ -103,21 +107,28 @@ int main(int argc, char *argv[]) {
 		free(mensaje);
 		//verBitArray();
 	}
-	//iniciarConexion();
+	//Se queda esperando a que termine el hilo de escuchar peticiones
+	pthread_join(hiloLevantarConexion, NULL);
 
 	//Aca se destruye el bitarray?
 	//bitarray_destroy(bitarrayBloques);
 	return 0;
 }
 void levantarFileSystem() {
-	if(!existeCarpeta("Tables")){
-		mkdir(string_from_format("%sTables/",structConfiguracionLFS.PUNTO_MONTAJE), 0777);
+	if (!existeCarpeta("Tables")) {
+		mkdir(
+				string_from_format("%sTables/",
+						structConfiguracionLFS.PUNTO_MONTAJE), 0777);
 	}
-	if(!existeCarpeta("Bloques")){
-		mkdir(string_from_format("%sBloques/",structConfiguracionLFS.PUNTO_MONTAJE), 0777);
+	if (!existeCarpeta("Bloques")) {
+		mkdir(
+				string_from_format("%sBloques/",
+						structConfiguracionLFS.PUNTO_MONTAJE), 0777);
 	}
-	if(!existeCarpeta("Metadata")){
-		mkdir(string_from_format("%sMetadata/",structConfiguracionLFS.PUNTO_MONTAJE), 0777);
+	if (!existeCarpeta("Metadata")) {
+		mkdir(
+				string_from_format("%sMetadata/",
+						structConfiguracionLFS.PUNTO_MONTAJE), 0777);
 		//La metadata de bloques le defini algunos valores por defecto
 		crearMetadataBloques();
 		crearArchivoBitmap();
@@ -129,17 +140,21 @@ void levantarConfiguracionLFS() {
 	//¿Cuando dice una ubicacion conocida se refiere a que esta hardcodeada asi?
 	string_append(&pathConfiguracion, "configLFS.config");
 	configLFS = config_create(pathConfiguracion);
-	structConfiguracionLFS.PUERTO_ESCUCHA = config_get_int_value(configLFS, "PUERTO_ESCUCHA");
+	structConfiguracionLFS.PUERTO_ESCUCHA = config_get_int_value(configLFS,
+			"PUERTO_ESCUCHA");
 	//Lo que sigue abajo lo hago porque el punto de montaje ya tiene comillas, entonces se las tengo que sacar por
 	//que sino queda ""home/carpeta""
 	char *puntoMontaje = string_new();
 	char *puntoMontajeSinComillas = string_new();
-	string_append(&puntoMontaje, config_get_string_value(configLFS, "PUNTO_MONTAJE"));
+	string_append(&puntoMontaje,
+			config_get_string_value(configLFS, "PUNTO_MONTAJE"));
 	//saco la doble comilla del principio y la del final
-	string_append(&puntoMontajeSinComillas, string_substring(puntoMontaje, 1, strlen(puntoMontaje)-2));
+	string_append(&puntoMontajeSinComillas,
+			string_substring(puntoMontaje, 1, strlen(puntoMontaje) - 2));
 
 	structConfiguracionLFS.PUNTO_MONTAJE = puntoMontajeSinComillas;
-	structConfiguracionLFS.TAMANIO_VALUE = config_get_int_value(configLFS, "TAMANIO_VALUE");
+	structConfiguracionLFS.TAMANIO_VALUE = config_get_int_value(configLFS,
+			"TAMANIO_VALUE");
 	//Los 2 valores que siguen tienen que poder modificarse en tiempo de ejecucion
 	//asi que tendria que volver a tomar su valor cuando los vaya a usar
 	structConfiguracionLFS.RETARDO = config_get_int_value(configLFS, "RETARDO");
@@ -320,12 +335,17 @@ int esUnTipoDeConsistenciaValida(char* cadena) {
 void insert(char* tabla, char* key, char* valor, char* timestamp) {
 	string_to_upper(tabla);
 	if (!existeLaTabla(tabla)) {
-		char* mensajeALogear = malloc(strlen("Error: no existe una tabla con el nombre ") + strlen(tabla) + 1);
+		char* mensajeALogear = malloc(
+				strlen("Error: no existe una tabla con el nombre ")
+						+ strlen(tabla) + 1);
 		strcpy(mensajeALogear, "Error: no existe una tabla con el nombre ");
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
 		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe. ¿Esto deberia guardarlo en un .log?
-		g_logger = log_create(string_from_format("%s/erroresInsert.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
+		g_logger = log_create(
+				string_from_format("%s/erroresInsert.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+				LOG_LEVEL_INFO);
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
@@ -336,7 +356,7 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 	}
 }
 
-int existeUnaListaDeDatosADumpear(tabla) {
+int existeUnaListaDeDatosADumpear( tabla) {
 	return 1;
 }
 
@@ -450,7 +470,6 @@ void asignarBloque(char* directorioBinario) {
 	config_destroy(binario);
 }
 
-
 void verBitArray() {
 	printf("%i -- ", bitarray_get_max_bit(bitarrayBloques));
 	for (int j = 0; j < bitarray_get_max_bit(bitarrayBloques); j++) {
@@ -476,7 +495,9 @@ int tamanioEnBytesDelBitarray() {
 
 void crearMetadataBloques() {
 	char *metadataPath = string_new();
-	string_append(&metadataPath, string_from_format("%sMetadata/Metadata.bin", structConfiguracionLFS.PUNTO_MONTAJE));
+	string_append(&metadataPath,
+			string_from_format("%sMetadata/Metadata.bin",
+					structConfiguracionLFS.PUNTO_MONTAJE));
 	FILE *archivoMetadata = fopen(metadataPath, "w");
 	t_config *metadata = config_create(metadataPath);
 	//Estos datos harcodeados despues tienen que modificarse. ¿Tienen que tener algun valor especial por defecto?
@@ -506,8 +527,8 @@ void crearArchivoBitmap() {
 //Preguntar sobre esto
 void iniciarMmap() {
 	char *pathBitmap = string_new();
-		string_append(&pathBitmap, structConfiguracionLFS.PUNTO_MONTAJE);
-		string_append(&pathBitmap, "Metadata/bitmap.bin");
+	string_append(&pathBitmap, structConfiguracionLFS.PUNTO_MONTAJE);
+	string_append(&pathBitmap, "Metadata/bitmap.bin");
 	//Open es igual a fopen pero el FD me lo devuelve como un int (que es lo que necesito para fstat)
 	int bitmap = open(pathBitmap, O_RDWR);
 	struct stat mystat;
@@ -519,14 +540,13 @@ void iniciarMmap() {
 
 	/*	mmap mapea un archivo en memoria y devuelve la direccion de memoria donde esta ese mapeo
 	 *  MAP_SHARED Comparte este área con todos los otros  objetos  que  señalan  a  este  objeto.
-                   Almacenar  en  la  región  es equivalente a escribir en el fichero.
+	 Almacenar  en  la  región  es equivalente a escribir en el fichero.
 	 */
 	mmapDeBitmap = mmap(NULL, mystat.st_size, PROT_WRITE | PROT_READ,
-			MAP_SHARED, bitmap, 0);
+	MAP_SHARED, bitmap, 0);
 	close(bitmap);
 
 }
-
 
 void crearMetadata(char* metadataPath, char* consistencia,
 		char* cantidadDeParticiones, char* tiempoDeCompactacion) {
@@ -544,11 +564,14 @@ void crearMetadata(char* metadataPath, char* consistencia,
 
 //Las 2 funciones de abajo repiten logica, si hay tiempo hacer una funcion sola
 int existeLaTabla(char* nombreDeTabla) {
-	DIR *directorio = opendir(string_from_format("%sTables",structConfiguracionLFS.PUNTO_MONTAJE));
+	DIR *directorio = opendir(
+			string_from_format("%sTables",
+					structConfiguracionLFS.PUNTO_MONTAJE));
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Evaluo si de todas las carpetas dentro de TABAS existe alguna que tenga el mismo nombre
-		if ((directorioALeer->d_type) == DT_DIR && !strcmp((directorioALeer->d_name), nombreDeTabla)) {
+		if ((directorioALeer->d_type) == DT_DIR
+				&& !strcmp((directorioALeer->d_name), nombreDeTabla)) {
 			closedir(directorio);
 			return 1;
 		}
@@ -559,7 +582,7 @@ int existeLaTabla(char* nombreDeTabla) {
 
 int existeCarpeta(char *nombreCarpeta) {
 	DIR *directorio = opendir(structConfiguracionLFS.PUNTO_MONTAJE);
-	if(directorio == NULL){
+	if (directorio == NULL) {
 		mkdir(structConfiguracionLFS.PUNTO_MONTAJE, 0777);
 		return 0;
 	}
@@ -580,20 +603,34 @@ int existeCarpeta(char *nombreCarpeta) {
 void realizarSelect(char* tabla, char* key) {
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
-		char* pathMetadata = malloc(strlen(string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE)) + strlen(tabla) + strlen("/Metadata") + 1);
-		strcpy(pathMetadata,string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE));
+		char* pathMetadata = malloc(
+				strlen(
+						string_from_format("%sTables/",
+								structConfiguracionLFS.PUNTO_MONTAJE))
+						+ strlen(tabla) + strlen("/Metadata") + 1);
+		strcpy(pathMetadata,
+				string_from_format("%sTables/",
+						structConfiguracionLFS.PUNTO_MONTAJE));
 		strcat(pathMetadata, tabla);
 		strcat(pathMetadata, "/Metadata");
 		t_config *metadata = config_create(pathMetadata);
-		int cantidadDeParticiones = config_get_int_value(metadata,"PARTITIONS");
+		int cantidadDeParticiones = config_get_int_value(metadata,
+				"PARTITIONS");
 
 		int particionQueContieneLaKey = (atoi(key)) % cantidadDeParticiones;
 		printf("La key esta en la particion %i\n", particionQueContieneLaKey);
 		char* stringParticion = malloc(4);
 		stringParticion = string_itoa(particionQueContieneLaKey);
 
-		char* pathParticionQueContieneKey = malloc(strlen(string_from_format("%sTables/",structConfiguracionLFS.PUNTO_MONTAJE)) + strlen(tabla) + strlen("/") + strlen(stringParticion)+ strlen(".bin") + 1);
-		strcpy(pathParticionQueContieneKey,	string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE));
+		char* pathParticionQueContieneKey = malloc(
+				strlen(
+						string_from_format("%sTables/",
+								structConfiguracionLFS.PUNTO_MONTAJE))
+						+ strlen(tabla) + strlen("/") + strlen(stringParticion)
+						+ strlen(".bin") + 1);
+		strcpy(pathParticionQueContieneKey,
+				string_from_format("%sTables/",
+						structConfiguracionLFS.PUNTO_MONTAJE));
 		strcat(pathParticionQueContieneKey, tabla);
 		strcat(pathParticionQueContieneKey, "/");
 		strcat(pathParticionQueContieneKey, stringParticion);
@@ -612,7 +649,10 @@ void realizarSelect(char* tabla, char* key) {
 		// POR CADA BLOQUE, TENGO QUE ENTRAR A ESTE BLOQUE
 		for (int i = 0; i < m; i++) {
 			char* pathBloque = malloc(
-					strlen(string_from_format("%sBloques/",structConfiguracionLFS.PUNTO_MONTAJE))+ strlen((vectorBloques[i])) + strlen(".bin") + 1);
+					strlen(
+							string_from_format("%sBloques/",
+									structConfiguracionLFS.PUNTO_MONTAJE))
+							+ strlen((vectorBloques[i])) + strlen(".bin") + 1);
 			strcpy(pathBloque, "./Bloques/");
 			strcat(pathBloque, vectorBloques[i]);
 			strcat(pathBloque, ".bin");
@@ -635,24 +675,27 @@ void realizarSelect(char* tabla, char* key) {
 			char* valor;
 			for (int k = 1; k < cantidadIgualDeKeysEnBloque; k++) {
 				for (int j = 0; j < (cantidadIgualDeKeysEnBloque - k); j++) {
-					if (vectorStructs[j]->timestamp < vectorStructs[j + 1]->timestamp) {
+					if (vectorStructs[j]->timestamp
+							< vectorStructs[j + 1]->timestamp) {
 						temp = vectorStructs[j + 1]->timestamp;
 						valor = malloc(strlen(vectorStructs[j + 1]->value));
 						strcpy(valor, vectorStructs[j + 1]->value);
 
-						vectorStructs[j + 1]->timestamp = vectorStructs[j]->timestamp;
+						vectorStructs[j + 1]->timestamp =
+								vectorStructs[j]->timestamp;
 						vectorStructs[j + 1]->value = vectorStructs[j]->value;
 
 						vectorStructs[j]->timestamp = temp;
 						vectorStructs[j]->value = valor;
 					}
-			    }
-			 } // aca quedaria el vector ordenado por timestamp mayor
+				}
+			} // aca quedaria el vector ordenado por timestamp mayor
 
-			if(vectorStructs[0]->timestamp > timestampActualMayorBloques){
+			if (vectorStructs[0]->timestamp > timestampActualMayorBloques) {
 				timestampActualMayorBloques = vectorStructs[0]->timestamp;
 				strcpy(valueDeTimestampActualMayorBloques, "");
-				string_append(&valueDeTimestampActualMayorBloques, vectorStructs[0]->value);
+				string_append(&valueDeTimestampActualMayorBloques,
+						vectorStructs[0]->value);
 			}
 			fclose(archivoBloque);
 			free(pathBloque);
@@ -668,8 +711,14 @@ void realizarSelect(char* tabla, char* key) {
 		//-------------------------------------------------
 
 		// AHORA ABRO ARCHIVOS TEMPORALES. EL PROCEDIMIENTO ES MUY PARECIDO AL ANTERIOR
-		char* pathTemporales = malloc(strlen(string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE)) + strlen(tabla) + 1);
-		strcpy(pathTemporales, string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE));
+		char* pathTemporales = malloc(
+				strlen(
+						string_from_format("%sTables/",
+								structConfiguracionLFS.PUNTO_MONTAJE))
+						+ strlen(tabla) + 1);
+		strcpy(pathTemporales,
+				string_from_format("%sTables/",
+						structConfiguracionLFS.PUNTO_MONTAJE));
 		strcat(pathTemporales, tabla);
 
 		DIR *directorioTemporal = opendir(pathTemporales);
@@ -678,18 +727,27 @@ void realizarSelect(char* tabla, char* key) {
 		int timestampActualMayorTemporales = -1;
 		char* valueDeTimestampActualMayorTemporales = string_new();
 
-		while((archivoALeer = readdir(directorioTemporal)) != NULL) { //PARA CADA ARCHIVO DE LA TABLA ESPECIFICA
-			if( string_ends_with(archivoALeer->d_name, ".tmp") ){
+		while ((archivoALeer = readdir(directorioTemporal)) != NULL) { //PARA CADA ARCHIVO DE LA TABLA ESPECIFICA
+			if (string_ends_with(archivoALeer->d_name, ".tmp")) {
 
 				//obtengo el nombre de ese archivo .tmp . Ejemplo obtengo A1.tmp siendo A1 el nombre (tipo char*)
-				char* nombreArchivoTemporal = string_split( archivoALeer->d_name, ".")[0];
+				char* nombreArchivoTemporal = string_split(archivoALeer->d_name,
+						".")[0];
 				// ahora ya tengo el nombre del archivo .tmp
 
-				char* pathTemporal = malloc(strlen(string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE)) + strlen(tabla) + strlen("/") + strlen( nombreArchivoTemporal ) + strlen(".tmp") + 1);
-				strcpy(pathTemporal, string_from_format("%sTables/",	structConfiguracionLFS.PUNTO_MONTAJE));
+				char* pathTemporal = malloc(
+						strlen(
+								string_from_format("%sTables/",
+										structConfiguracionLFS.PUNTO_MONTAJE))
+								+ strlen(tabla) + strlen("/")
+								+ strlen(nombreArchivoTemporal) + strlen(".tmp")
+								+ 1);
+				strcpy(pathTemporal,
+						string_from_format("%sTables/",
+								structConfiguracionLFS.PUNTO_MONTAJE));
 				strcat(pathTemporal, tabla);
 				strcat(pathTemporal, "/");
-				strcat(pathTemporal, nombreArchivoTemporal );
+				strcat(pathTemporal, nombreArchivoTemporal);
 				strcat(pathTemporal, ".tmp");
 				FILE *fileTemporal = fopen(pathTemporal, "r");
 				if (fileTemporal == NULL) {
@@ -698,17 +756,26 @@ void realizarSelect(char* tabla, char* key) {
 				}
 
 				t_config *tamanioYBloquesTmp = config_create(pathTemporal);
-				char** vectorBloquesTmp = config_get_array_value(tamanioYBloquesTmp, "BLOCK"); //devuelve vector de STRINGS
+				char** vectorBloquesTmp = config_get_array_value(
+						tamanioYBloquesTmp, "BLOCK"); //devuelve vector de STRINGS
 
 				int n = 0;
-				while(vectorBloquesTmp[n] != NULL){
-					n ++;
+				while (vectorBloquesTmp[n] != NULL) {
+					n++;
 				}
 
 				//POR CADA BLOQUE, TENGO QUE ENTRAR A ESE BLOQUE
-				for(int q=0; q< n; q++){
-					char* pathBloqueTmp = malloc(strlen(string_from_format("%sBloques/",	structConfiguracionLFS.PUNTO_MONTAJE)) + strlen((vectorBloques[q])) + strlen(".bin") + 1);
-					strcpy(pathBloqueTmp, string_from_format("%sBloques/",	structConfiguracionLFS.PUNTO_MONTAJE));
+				for (int q = 0; q < n; q++) {
+					char* pathBloqueTmp =
+							malloc(
+									strlen(
+											string_from_format("%sBloques/",
+													structConfiguracionLFS.PUNTO_MONTAJE))
+											+ strlen((vectorBloques[q]))
+											+ strlen(".bin") + 1);
+					strcpy(pathBloqueTmp,
+							string_from_format("%sBloques/",
+									structConfiguracionLFS.PUNTO_MONTAJE));
 					strcat(pathBloqueTmp, vectorBloquesTmp[q]);
 					strcat(pathBloqueTmp, ".bin");
 					FILE *archivoBloqueTmp = fopen(pathBloqueTmp, "r");
@@ -719,20 +786,31 @@ void realizarSelect(char* tabla, char* key) {
 
 					int cantidadIgualDeKeysEnTemporal = 0;
 					t_registro* vectorStructsTemporal[100];
-					obtenerDatosParaKeyDeseada(archivoBloqueTmp, (atoi(key)), vectorStructsTemporal, &cantidadIgualDeKeysEnTemporal);
+					obtenerDatosParaKeyDeseada(archivoBloqueTmp, (atoi(key)),
+							vectorStructsTemporal,
+							&cantidadIgualDeKeysEnTemporal);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 					int tempo = 0;
 					char* valorTemp;
-					for (int k = 1; k < cantidadIgualDeKeysEnTemporal; k++){
-						for (int j = 0; j < (cantidadIgualDeKeysEnTemporal-k); j++){
-							if (vectorStructsTemporal[j]->timestamp < vectorStructsTemporal[j+1]->timestamp){
-								tempo = vectorStructsTemporal[j+1]->timestamp;
-								valorTemp = malloc(strlen(vectorStructsTemporal[j+1]->value));
-								strcpy(valorTemp,vectorStructsTemporal[j+1]->value);
+					for (int k = 1; k < cantidadIgualDeKeysEnTemporal; k++) {
+						for (int j = 0; j < (cantidadIgualDeKeysEnTemporal - k);
+								j++) {
+							if (vectorStructsTemporal[j]->timestamp
+									< vectorStructsTemporal[j + 1]->timestamp) {
+								tempo = vectorStructsTemporal[j + 1]->timestamp;
+								valorTemp =
+										malloc(
+												strlen(
+														vectorStructsTemporal[j
+																+ 1]->value));
+								strcpy(valorTemp,
+										vectorStructsTemporal[j + 1]->value);
 
-								vectorStructsTemporal[j+1]->timestamp = vectorStructsTemporal[j]->timestamp;
-								vectorStructsTemporal[j+1]->value = vectorStructsTemporal[j]->value;
+								vectorStructsTemporal[j + 1]->timestamp =
+										vectorStructsTemporal[j]->timestamp;
+								vectorStructsTemporal[j + 1]->value =
+										vectorStructsTemporal[j]->value;
 
 								vectorStructsTemporal[j]->timestamp = tempo;
 								vectorStructsTemporal[j]->value = valorTemp;
@@ -740,10 +818,13 @@ void realizarSelect(char* tabla, char* key) {
 						}
 					}
 
-					if(vectorStructsTemporal[0]->timestamp > timestampActualMayorTemporales){
-						timestampActualMayorTemporales = vectorStructsTemporal[0]->timestamp;
+					if (vectorStructsTemporal[0]->timestamp
+							> timestampActualMayorTemporales) {
+						timestampActualMayorTemporales =
+								vectorStructsTemporal[0]->timestamp;
 						strcpy(valueDeTimestampActualMayorTemporales, "");
-						string_append(&valueDeTimestampActualMayorTemporales, vectorStructsTemporal[0]->value);
+						string_append(&valueDeTimestampActualMayorTemporales,
+								vectorStructsTemporal[0]->value);
 					}
 					fclose(archivoBloqueTmp);
 					free(pathBloqueTmp);
@@ -766,10 +847,9 @@ void realizarSelect(char* tabla, char* key) {
 
 		//-----------------------------------------------------
 
-		if(timestampActualMayorBloques >= timestampActualMayorTemporales){
+		if (timestampActualMayorBloques >= timestampActualMayorTemporales) {
 			printf("%s\n", valueDeTimestampActualMayorBloques);
-		}
-		else{
+		} else {
 			printf("%s\n", valueDeTimestampActualMayorTemporales);
 		}
 		free(pathMetadata);
@@ -788,23 +868,27 @@ void realizarSelect(char* tabla, char* key) {
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
 		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
-		g_logger = log_create(string_from_format("%serroresSelect.log",	structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
+		g_logger = log_create(
+				string_from_format("%serroresSelect.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+				LOG_LEVEL_INFO);
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	}
 }
 
-void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant){
+void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
+		int *cant) {
 	// char linea[50];
 	int i = 0;
 	char * line = NULL;
 	size_t len = 0;
 	ssize_t read;
 
-    while ((read = getline(&line, &len, fp)) != -1) {
-		int keyLeida = atoi(string_split(line,";")[1]);
-		if(keyLeida == key){
+	while ((read = getline(&line, &len, fp)) != -1) {
+		int keyLeida = atoi(string_split(line, ";")[1]);
+		if (keyLeida == key) {
 			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 			t_registro p_registro2;
 			p_registro = &p_registro2;
@@ -815,236 +899,273 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, i
 			p_registro->timestamp = timestamp;
 			p_registro->key = key;
 			p_registro->value = malloc(strlen(arrayLinea[2]));
-			strcpy(p_registro->value,arrayLinea[2]);
-			vectorStructs[i] = malloc(12);
-			memcpy(&vectorStructs[i]->key, &p_registro->key, sizeof(p_registro->key));
-			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp, sizeof(p_registro->timestamp));
-			vectorStructs[i]->value = malloc(strlen(p_registro->value));
-			memcpy(vectorStructs[i]->value, p_registro->value, strlen(p_registro->value));
-			i++;
-			(*cant)++;
-	    }
-    }
-
-	/*
-	while( fgets(linea,50,archivoBloque) != NULL ){
-		int keyLeida = atoi(string_split(linea,";")[1]);
-		if(keyLeida == key){
-			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
-			t_registro p_registro2;
-			p_registro = &p_registro2;
-			char** arrayLinea = malloc(strlen(linea) + 1);
-			arrayLinea = string_split(linea, ";");
-			int timestamp = atoi(arrayLinea[0]);
-			int key = atoi(arrayLinea[1]);
-			p_registro->timestamp = timestamp;
-			p_registro->key = key;
-			p_registro->value = malloc(strlen(arrayLinea[2]));
-
 			strcpy(p_registro->value, arrayLinea[2]);
-			vectorStructs[i] = p_registro;
+			vectorStructs[i] = malloc(12);
+			memcpy(&vectorStructs[i]->key, &p_registro->key,
+					sizeof(p_registro->key));
+			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
+					sizeof(p_registro->timestamp));
+			vectorStructs[i]->value = malloc(strlen(p_registro->value));
+			memcpy(vectorStructs[i]->value, p_registro->value,
+					strlen(p_registro->value));
 			i++;
 			(*cant)++;
 		}
-	}  	*/
+	}
+
+	/*
+	 while( fgets(linea,50,archivoBloque) != NULL ){
+	 int keyLeida = atoi(string_split(linea,";")[1]);
+	 if(keyLeida == key){
+	 t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+	 t_registro p_registro2;
+	 p_registro = &p_registro2;
+	 char** arrayLinea = malloc(strlen(linea) + 1);
+	 arrayLinea = string_split(linea, ";");
+	 int timestamp = atoi(arrayLinea[0]);
+	 int key = atoi(arrayLinea[1]);
+	 p_registro->timestamp = timestamp;
+	 p_registro->key = key;
+	 p_registro->value = malloc(strlen(arrayLinea[2]));
+
+	 strcpy(p_registro->value, arrayLinea[2]);
+	 vectorStructs[i] = p_registro;
+	 i++;
+	 (*cant)++;
+	 }
+	 }  	*/
 }
 
-/*
- void iniciarConexion(){
- int opt = TRUE;
- int master_socket , addrlen , new_socket , client_socket[30] ,
- max_clients = 30 , activity, i , valread , sd;
- int max_sd;
- struct sockaddr_in address;
+void iniciarConexion() {
+	int opt = TRUE;
+	int master_socket, addrlen, new_socket, client_socket[30], max_clients = 30,
+			activity, i, valread, sd;
+	int max_sd;
+	struct sockaddr_in address;
 
- char buffer[1025]; //data buffer of 1K
+	char buffer[1025]; //data buffer of 1K
 
- //set of socket descriptors
- fd_set readfds;
+	//set of socket descriptors
+	fd_set readfds;
 
- //a message
- char *message = "Este es el mensaje del server\r\n";
+	//a message
+	char *message = "Este es el mensaje del server\r\n";
 
- //initialise all client_socket[] to 0 so not checked
- for (i = 0; i < max_clients; i++)
- {
- client_socket[i] = 0;
- }
+	//initialise all client_socket[] to 0 so not checked
+	for (i = 0; i < max_clients; i++) {
+		client_socket[i] = 0;
+	}
 
- //create a master socket
- if( (master_socket = socket(AF_INET , SOCK_STREAM , 0)) == 0)
- {
- perror("socket failed");
- exit(EXIT_FAILURE);
- }
+	//create a master socket
+	if ((master_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+		perror("socket failed");
+		exit(EXIT_FAILURE);
+	}
 
- //set master socket to allow multiple connections ,
- //this is just a good habit, it will work without this
- if( setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt,
- sizeof(opt)) < 0 )
- {
- perror("setsockopt");
- exit(EXIT_FAILURE);
- }
+	//set master socket to allow multiple connections ,
+	//this is just a good habit, it will work without this
+	if (setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *) &opt,
+			sizeof(opt)) < 0) {
+		perror("setsockopt");
+		exit(EXIT_FAILURE);
+	}
 
- //type of socket created
- address.sin_family = AF_INET;
- address.sin_addr.s_addr = INADDR_ANY;
- address.sin_port = htons( PORT );
+	//type of socket created
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_port = htons( PORT);
 
- //bind the socket to localhost port 8888
- if (bind(master_socket, (struct sockaddr *)&address, sizeof(address))<0)
- {
- perror("bind failed en lfs");
- exit(EXIT_FAILURE);
- }
- printf("Listener on port %d \n", PORT);
+	//bind the socket to localhost port 8888
+	if (bind(master_socket, (struct sockaddr *) &address, sizeof(address))
+			< 0) {
+		perror("bind failed en lfs");
+		exit(EXIT_FAILURE);
+	}
+	printf("Listener on port %d \n", PORT);
 
- listen(master_socket, 100);
+	listen(master_socket, 100);
 
- //accept the incoming connection
- addrlen = sizeof(address);
- puts("Waiting for connections ...");
+	//accept the incoming connection
+	addrlen = sizeof(address);
+	puts("Waiting for connections ...");
 
- while(TRUE)
- {
- //clear the socket set
- FD_ZERO(&readfds);
+	while (TRUE) {
+		//clear the socket set
+		FD_ZERO(&readfds);
 
- //add master socket to set
- FD_SET(master_socket, &readfds);
- max_sd = master_socket;
+		//add master socket to set
+		FD_SET(master_socket, &readfds);
+		max_sd = master_socket;
 
- //add child sockets to set
- for ( i = 0 ; i < max_clients ; i++)
- {
- //socket descriptor
- sd = client_socket[i];
+		//add child sockets to set
+		for (i = 0; i < max_clients; i++) {
+			//socket descriptor
+			sd = client_socket[i];
 
- //if valid socket descriptor then add to read list
- if(sd > 0)
- FD_SET( sd , &readfds);
+			//if valid socket descriptor then add to read list
+			if (sd > 0)
+				FD_SET(sd, &readfds);
 
- //highest file descriptor number, need it for the select function
- if(sd > max_sd)
- max_sd = sd;
- }
+			//highest file descriptor number, need it for the select function
+			if (sd > max_sd)
+				max_sd = sd;
+		}
 
- //wait for an activity on one of the sockets , timeout is NULL ,
- //so wait indefinitely
- activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
+		//wait for an activity on one of the sockets , timeout is NULL ,
+		//so wait indefinitely
+		activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
 
- if ((activity < 0) && (errno!=EINTR))
- {
- printf("select error");
- }
+		if ((activity < 0) && (errno != EINTR)) {
+			printf("select error");
+		}
 
- //If something happened on the master socket ,
- //then its an incoming connection
- if (FD_ISSET(master_socket, &readfds))
- {
- new_socket = accept(master_socket,(struct sockaddr *)&address, (socklen_t*)&addrlen);
- if (new_socket <0)
- {
+		//If something happened on the master socket ,
+		//then its an incoming connection
+		if (FD_ISSET(master_socket, &readfds)) {
+			new_socket = accept(master_socket, (struct sockaddr *) &address,
+					(socklen_t*) &addrlen);
+			if (new_socket < 0) {
 
- perror("accept");
- exit(EXIT_FAILURE);
- }
+				perror("accept");
+				exit(EXIT_FAILURE);
+			}
 
- //inform user of socket number - used in send and receive commands
- printf("New connection , socket fd is : %d , ip is : %s , port : %d 	\n" , new_socket , inet_ntoa(address.sin_addr) , ntohs
- (address.sin_port));
+			//inform user of socket number - used in send and receive commands
+			printf(
+					"New connection , socket fd is : %d , ip is : %s , port : %d 	\n",
+					new_socket, inet_ntoa(address.sin_addr),
+					ntohs(address.sin_port));
 
- //send new connection greeting message
- if( send(new_socket, message, strlen(message), 0) != strlen(message) )
- {
- perror("send");
- }
+			//send new connection greeting message
+			if (send(new_socket, structConfiguracionLFS.TAMANIO_VALUE,
+					strlen(structConfiguracionLFS.TAMANIO_VALUE), 0)
+					!= strlen(structConfiguracionLFS.TAMANIO_VALUE)) {
+				perror("send");
+			}
 
- puts("Welcome message sent successfully");
+			puts("Welcome message sent successfully");
 
- //add new socket to array of sockets
- for (i = 0; i < max_clients; i++)
- {
- //if position is empty
- if( client_socket[i] == 0 )
- {
- client_socket[i] = new_socket;
- printf("Adding to list of sockets as %d\n" , i);
+			//add new socket to array of sockets
+			for (i = 0; i < max_clients; i++) {
+				//if position is empty
+				if (client_socket[i] == 0) {
+					client_socket[i] = new_socket;
+					printf("Adding to list of sockets as %d\n", i);
 
- break;
- }
- }
- }
+					break;
+				}
+			}
+		}
 
- //else its some IO operation on some other socket
- for (i = 0; i < max_clients; i++)
- {
- sd = client_socket[i];
+		//else its some IO operation on some other socket
+		for (i = 0; i < max_clients; i++) {
+			sd = client_socket[i];
 
- if (FD_ISSET( sd , &readfds))
- {
- //Check if it was for closing , and also read the
- //incoming message
- valread = read( sd , buffer, 1024);
- if ( valread == 0)
- {
- //Somebody disconnected , get his details and print
- getpeername(sd , (struct sockaddr*)&address , \
-							(socklen_t*)&addrlen);
- printf("Host disconnected , ip %s , port %d \n" ,
- inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
+			if (FD_ISSET(sd, &readfds)) {
+				//Check if it was for closing , and also read the
+				//incoming message
+				char *operacion = malloc(sizeof(int));
+				valread = read(sd, operacion, sizeof(int));
 
- //Close the socket and mark as 0 in list for reuse
- close( sd );
- client_socket[i] = 0;
- }
+				switch (atoi(operacion)) {
+				case 1:
+					//Select
+					tomarPeticionSelect(sd);
+					break;
 
- //Echo back the message that came in
- else
- {
- //set the string terminating NULL byte on the end
- //of the data read
- char mensaje[] = "Le llego tu mensaje al File System";
- buffer[valread] = '\0';
- printf("Memoria %d: %s\n",sd, buffer);
- send(sd , mensaje , strlen(mensaje) , 0 );
+				case 3:
+					//Create
+					tomarPeticionCreate(sd);
+					break;
 
- }
- }
- }
- }
+				case 6:
+					//Insert
+					tomarPeticionInsert(sd);
+					break;
 
- }
+				default:
+					break;
 
- void menu(){
- int opcionElegida;
+				}
 
- printf("Elija una opcion : \n");
- printf("1. SELECT \n	2. INSERT \n	3. CREATE\n		4. DESCRIBE \n		5. DROP\n");
- do{
- scanf("%i",opcionElegida);
- }while(opcionElegida<1 || opcionElegida>6);
+				if (valread == 0) {
+					//Somebody disconnected , get his details and print
+					getpeername(sd, (struct sockaddr*) &address,
+							(socklen_t*) &addrlen);
+					printf("Host disconnected , ip %s , port %d \n",
+							inet_ntoa(address.sin_addr),
+							ntohs(address.sin_port));
 
- switch(opcionElegida){
- case 1:
- printf("Elegiste SELECT\n");
- break;
- case 2:
- printf("Elegiste INSERT\n");
- break;
- case 3:
- printf("Elegiste CREATE\n");
- break;
- case 4:
- printf("Elegiste DESCRIBE\n");
- break;
- case 5:
- printf("Elegiste DROP\n");
- break;
- default:
- printf("ERROR");
- break;
- }
- }
- */
+					//Close the socket and mark as 0 in list for reuse
+					close(sd);
+					client_socket[i] = 0;
+				}
+
+				/*//Echo back the message that came in
+				 else {
+				 //set the string terminating NULL byte on the end
+				 //of the data read
+				 char mensaje[] = "Le llego tu mensaje al File System";
+				 buffer[valread] = '\0';
+				 printf("Memoria %d: %s\n", sd, buffer);
+				 send(sd, mensaje, strlen(mensaje), 0);
+
+				 }*/
+			}
+		}
+	}
+
+}
+
+void tomarPeticionSelect(int sd) {
+	char *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(atoi(tamanioTabla));
+	read(sd, tabla, tamanioTabla);
+	char *tamanioKey = malloc(sizeof(int));
+	read(sd, tamanioKey, sizeof(int));
+	char *key = malloc(atoi(tamanioKey));
+	read(sd, key, tamanioKey);
+	printf("Haciendo Select");
+	//char *value = realizarSelect(tabla, key);
+	//send(sd, value, structConfiguracionLFS.TAMANIO_VALUE, 0);
+}
+
+void tomarPeticionCreate(int sd) {
+	char *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(atoi(tamanioTabla));
+	read(sd, tabla, tamanioTabla);
+	char *tamanioConsistencia = malloc(sizeof(int));
+	read(sd, tamanioConsistencia, sizeof(int));
+	char *tipoConsistencia = malloc(atoi(tamanioConsistencia));
+	read(sd, tipoConsistencia, tamanioConsistencia);
+	char *tamanioNumeroParticiones = malloc(sizeof(int));
+	read(sd, tamanioNumeroParticiones, sizeof(int));
+	char *numeroParticiones = malloc(tamanioNumeroParticiones);
+	read(sd, numeroParticiones, tamanioNumeroParticiones);
+	char *tamanioTiempoCompactacion = malloc(sizeof(int));
+	read(sd, tamanioTiempoCompactacion, sizeof(int));
+	char *tiempoCompactacion = malloc(tamanioTiempoCompactacion);
+	read(sd, tiempoCompactacion, tamanioTiempoCompactacion);
+	create(tabla, tipoConsistencia, numeroParticiones, tiempoCompactacion);
+}
+
+void tomarPeticionInsert(int sd) {
+	char *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(atoi(tamanioTabla));
+	read(sd, tabla, tamanioTabla);
+
+	char *tamanioKey = malloc(sizeof(int));
+	read(sd, tamanioKey, sizeof(int));
+	char *key = malloc(atoi(tamanioKey));
+	read(sd, key, tamanioKey);
+	char *tamanioValue = malloc(sizeof(int));
+	read(sd, tamanioValue, sizeof(int));
+	char *value = malloc(tamanioValue);
+	read(sd, value, tamanioValue);
+
+	//insert(tabla, key, value);
+	printf("Haciendo insert");
+}
