@@ -385,7 +385,6 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 					strlen(p_registro->value));
 
 			dictionary_put(memtable, tabla, vectorStructs);
-
 		}
 	}
 }
@@ -877,15 +876,63 @@ void realizarSelect(char* tabla, char* key) {
 
 		// ----------------------------------------------------
 
-		// aca iria verificar los datos tamb de la memoria de la tabla
+		// LEO MEMTABLE /*
+
+/*		t_registro **entradaTabla = dictionary_get(memtable, tabla); //me devuelve un array de t_registro's
+
+		int cantIgualDeKeyEnMemtable = 0;
+		//creo nuevo array que va a tener solo los structs de la key que me pasaron por parametro
+		t_registro ** arrayPorKeyDeseadaMemtable;
+		crearArrayPorKeyMemtable( &arrayPorKeyDeseadaMemtable, entradaTabla, key, &cantIgualDeKeyEnMemtable);
+
+		int t = 0;
+		char* unValor;
+		for (int k = 1; k < cantIgualDeKeyEnMemtable; k++) {
+			for (int j = 0; j < (cantIgualDeKeyEnMemtable - k); j++) {
+				if (arrayPorKeyDeseadaMemtable[j]->timestamp < arrayPorKeyDeseadaMemtable[j + 1]->timestamp) {
+					t = arrayPorKeyDeseadaMemtable[j + 1]->timestamp;
+					unValor = malloc(strlen(arrayPorKeyDeseadaMemtable[j + 1]->value));
+					strcpy(unValor, arrayPorKeyDeseadaMemtable[j + 1]->value);
+
+					arrayPorKeyDeseadaMemtable[j + 1]->timestamp = arrayPorKeyDeseadaMemtable[j]->timestamp;
+					arrayPorKeyDeseadaMemtable[j + 1]->value = arrayPorKeyDeseadaMemtable[j]->value;
+
+					arrayPorKeyDeseadaMemtable[j]->timestamp = t;
+					arrayPorKeyDeseadaMemtable[j]->value = unValor;
+				}
+			}
+		} // aca quedaria el array arrayPorKeyDeseadaMemtable ordenado por timestamp mayor
+
+		int timestampMayorMemtable;
+		if(cantIgualDeKeyEnMemtable == 0){
+			timestampMayorMemtable = -1;
+		}
+		else{
+			timestampMayorMemtable = arrayPorKeyDeseadaMemtable[0]->timestamp;
+		}
 
 		//-----------------------------------------------------
+
+		if (timestampActualMayorBloques >= timestampActualMayorTemporales) {
+			if(timestampActualMayorBloques >= timestampMayorMemtable){
+				printf("%s\n", valueDeTimestampActualMayorBloques);
+			} else{
+				printf("%s\n", arrayPorKeyDeseadaMemtable[0]->value);
+			}
+		} else {
+			printf("%s\n", valueDeTimestampActualMayorTemporales);
+		}
+
+*/
 
 		if (timestampActualMayorBloques >= timestampActualMayorTemporales) {
 			printf("%s\n", valueDeTimestampActualMayorBloques);
 		} else {
 			printf("%s\n", valueDeTimestampActualMayorTemporales);
 		}
+
+
+
 		free(pathMetadata);
 		free(pathParticionQueContieneKey);
 		free(pathTemporales);
@@ -912,9 +959,7 @@ void realizarSelect(char* tabla, char* key) {
 	}
 }
 
-void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
-		int *cant) {
-	// char linea[50];
+void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant) {
 	int i = 0;
 	char * line = NULL;
 	size_t len = 0;
@@ -946,29 +991,23 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			(*cant)++;
 		}
 	}
-
-	/*
-	 while( fgets(linea,50,archivoBloque) != NULL ){
-	 int keyLeida = atoi(string_split(linea,";")[1]);
-	 if(keyLeida == key){
-	 t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
-	 t_registro p_registro2;
-	 p_registro = &p_registro2;
-	 char** arrayLinea = malloc(strlen(linea) + 1);
-	 arrayLinea = string_split(linea, ";");
-	 int timestamp = atoi(arrayLinea[0]);
-	 int key = atoi(arrayLinea[1]);
-	 p_registro->timestamp = timestamp;
-	 p_registro->key = key;
-	 p_registro->value = malloc(strlen(arrayLinea[2]));
-
-	 strcpy(p_registro->value, arrayLinea[2]);
-	 vectorStructs[i] = p_registro;
-	 i++;
-	 (*cant)++;
-	 }
-	 }  	*/
 }
+/*
+void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable, t_registro **entradaTabla, int key, int *cant) {
+	for (int i = 0; i < 100; i++) {
+		if (entradaTabla[i]->key == key) {
+			arrayPorKeyDeseadaMemtable[cant] = malloc(12);
+			memcpy(&arrayPorKeyDeseadaMemtable[cant]->key, entradaTabla[i]->key, sizeof(entradaTabla[i]->key));
+			memcpy(&arrayPorKeyDeseadaMemtable[cant]->timestamp, entradaTabla[i]->timestamp, sizeof(entradaTabla[i]->timestamp));
+
+			arrayPorKeyDeseadaMemtable[cant]->value = malloc(strlen(entradaTabla[i]->key));
+			memcpy(arrayPorKeyDeseadaMemtable[cant]->value, entradaTabla[i]->key, strlen(entradaTabla[i]->key));
+
+			(*cant)++;
+		}
+	}
+}
+*/
 
 /*
  void iniciarConexion(){
