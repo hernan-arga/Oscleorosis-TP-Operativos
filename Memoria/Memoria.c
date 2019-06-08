@@ -50,14 +50,13 @@ typedef struct{
 
 struct sockaddr_in serverAddress;
 struct sockaddr_in serverAddressFS;
-archivoConfiguracion* t_archivoConfiguracion;
+archivoConfiguracion t_archivoConfiguracion;
 t_config *config;
 int32_t server;
 int32_t clienteKernel;
 int32_t clienteFS;
 uint32_t tamanoDireccion;
 int32_t activado = 1;
-t_log* logy;
 pthread_t threadKernel;
 pthread_t threadFS;
 uint32_t tamanoValue;
@@ -81,27 +80,25 @@ void conectarseAFS();
 void conectarseAKernel();
 void analizarInstruccion(char* instruccion);
 void realizarComando(char** comando);
-void insertarEnPaginaLibre(segmento segmentoAsociado, char* key, char* value);
+int insertarEnPaginaLibre(segmento segmentoAsociado, char* key, char* value);
 void ejecutarJournaling();
 void realizarInsert(char* tabla, char* key, char* value);
 void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones, char* tiempoCompactacion);
 
 int main(int argc, char *argv[])
 {
-	printf("Hola");
-	t_archivoConfiguracion = malloc(sizeof(archivoConfiguracion));
 	config = config_create(argv[1]);
 
-	t_archivoConfiguracion->PUERTO = config_get_int_value(config, "PUERTO");
-	t_archivoConfiguracion->PUERTO_FS = config_get_int_value(config, "PUERTO_FS");
-	t_archivoConfiguracion->IP_SEEDS= config_get_array_value(config, "IP_SEEDS");
-	t_archivoConfiguracion->PUERTO_SEEDS = config_get_array_value(config, "PUERTO_SEEDS");
-	t_archivoConfiguracion->RETARDO_MEM = config_get_int_value(config, "RETARDO_MEM");
-	t_archivoConfiguracion->RETARDO_FS = config_get_int_value(config, "RETARDO_FS");
-	t_archivoConfiguracion->TAM_MEM = config_get_int_value(config, "TAM_MEM");
-	t_archivoConfiguracion->RETARDO_JOURNAL = config_get_int_value(config, "RETARDO_JOURNAL");
-	t_archivoConfiguracion->RETARDO_GOSSIPING = config_get_int_value(config, "RETARDO_GOSSIPING");
-	t_archivoConfiguracion->MEMORY_NUMBER = config_get_int_value(config, "MEMORY_NUMBER");
+	t_archivoConfiguracion.PUERTO = config_get_int_value(config, "PUERTO");
+	t_archivoConfiguracion.PUERTO_FS = config_get_int_value(config, "PUERTO_FS");
+	t_archivoConfiguracion.IP_SEEDS= config_get_array_value(config, "IP_SEEDS");
+	t_archivoConfiguracion.PUERTO_SEEDS = config_get_array_value(config, "PUERTO_SEEDS");
+	t_archivoConfiguracion.RETARDO_MEM = config_get_int_value(config, "RETARDO_MEM");
+	t_archivoConfiguracion.RETARDO_FS = config_get_int_value(config, "RETARDO_FS");
+	t_archivoConfiguracion.TAM_MEM = config_get_int_value(config, "TAM_MEM");
+	t_archivoConfiguracion.RETARDO_JOURNAL = config_get_int_value(config, "RETARDO_JOURNAL");
+	t_archivoConfiguracion.RETARDO_GOSSIPING = config_get_int_value(config, "RETARDO_GOSSIPING");
+	t_archivoConfiguracion.MEMORY_NUMBER = config_get_int_value(config, "MEMORY_NUMBER");
 
 	void inicializarSegmentos();
 
@@ -135,7 +132,7 @@ void serServidor()
 {
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
-	serverAddress.sin_port = htons(t_archivoConfiguracion->PUERTO);
+	serverAddress.sin_port = htons(t_archivoConfiguracion.PUERTO);
 
 	server = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -146,7 +143,7 @@ void serServidor()
 		perror("Fallo el bind");
 	}
 
-	log_info(logy, "Estoy escuchando\n");
+	printf( "Estoy escuchando\n");
 	listen(server, 100);
 
 	conectarseAKernel();
@@ -156,7 +153,7 @@ void serServidor()
 void conectarseAKernel()
 {
 	clienteKernel = accept(server, (void*) &serverAddress, &tamanoDireccion);
-	log_info(logy, "Recibi una conexion en %d\n", clienteKernel);
+	printf( "Recibi una conexion en %d\n", clienteKernel);
 
 	pthread_create(&threadKernel, NULL, (void*) controlarKernel, NULL);
 	pthread_join(threadKernel, NULL);
@@ -175,8 +172,8 @@ void conectarseAFS()
 {
 	clienteFS = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddressFS.sin_family = AF_INET;
-	serverAddressFS.sin_port = htons(t_archivoConfiguracion->PUERTO_FS);
-	serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion->IP_FS);
+	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
+	serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
 
 	if (connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS)) == -1)
 	{
@@ -226,14 +223,14 @@ void realizarComando(char** comando)
 	switch(accion)
 	{
 		case SELECT:
-			log_info(logy, "SELECT");
+			printf( "SELECT");
 			tabla = comando[1];
 			key = comando[2];
 			realizarSelect(tabla, key);
 			break;
 
 		case INSERT:
-			log_info(logy, "INSERT");
+			printf( "INSERT");
 			tabla = comando[1];
 			key = comando[2];
 			value = comando[3];
@@ -241,7 +238,7 @@ void realizarComando(char** comando)
 			break;
 
 		case CREATE:
-			log_info(logy, "CREATE");
+			printf("CREATE");
 			char* tabla = comando[1];
 			char* tipoConsistencia = comando[2];
 			char* numeroParticiones = comando[3];
@@ -250,7 +247,7 @@ void realizarComando(char** comando)
 			break;
 
 		case OPERACIONINVALIDA:
-			log_info(logy,"OPERACION INVALIDA");
+			printf("OPERACION INVALIDA");
 			break;
 	}
 }
@@ -284,7 +281,7 @@ char* realizarSelect(char* tabla, char* key)
 		pagina paginaAsociada = buscarPagina(key, segmentoAsociado);
 		if(paginaAsociada.EN_USO != -1)
 		{
-			log_info(logy, paginaAsociada.KEY);
+			printf(paginaAsociada.KEY);
 			return paginaAsociada.KEY;
 		}
 		else
@@ -293,10 +290,11 @@ char* realizarSelect(char* tabla, char* key)
 			send(clienteFS, peticionValue, strlen(peticionValue), 0);
 			char* value = malloc(tamanoValue);
 			recv(clienteFS, &value, sizeof(value), 0);
-			insertarEnPaginaLibre(segmentoAsociado, key, value);
-			log_info(logy, value);
-			return value;
+			int num = insertarEnPaginaLibre(segmentoAsociado, key, value);
+			printf(value);
 			free(value);
+			return segmentoAsociado.PAGINAS[num].VALUE;
+
 		}
 	}
 	else
@@ -308,6 +306,7 @@ char* realizarSelect(char* tabla, char* key)
 		strcat(peticionValue, strlen(key));
 		strcat(peticionValue, key);
 		send(clienteFS, peticionValue, strlen(peticionValue), 0);
+		free(peticionValue);
 
 		char* value = malloc(tamanoValue);
 		recv(clienteFS, &value, sizeof(value), 0);
@@ -321,7 +320,7 @@ char* realizarSelect(char* tabla, char* key)
 
 		free(value);
 
-		log_info(logy, segmentoAsociado.PAGINAS[0].VALUE);
+		printf(segmentoAsociado.PAGINAS[0].VALUE);
 		return segmentoAsociado.PAGINAS[0].VALUE;
 	}
 }
@@ -364,7 +363,7 @@ pagina buscarPagina(char* key, segmento segmentoAsociado)
 	return paginaNulo;
 }
 
-void insertarEnPaginaLibre(segmento segmentoAsociado, char* key, char* value)
+int insertarEnPaginaLibre(segmento segmentoAsociado, char* key, char* value)
 {
 	pagina primeraLibre = encontrarPaginaLibre(segmentoAsociado.PAGINAS);
 	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].EN_USO = 1;
@@ -372,6 +371,7 @@ void insertarEnPaginaLibre(segmento segmentoAsociado, char* key, char* value)
 	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].MODIFICADO = 0;
 	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].VALUE = value;
 	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].TIMESTAMP = atoi(temporal_get_string_time());
+	return primeraLibre.NUMERO_PAGINA;
 
 }
 
