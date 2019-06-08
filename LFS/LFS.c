@@ -25,7 +25,7 @@
 
 #define TRUE 1
 #define FALSE 0
-#define PORT 4444
+//#define PORT 4444
 
 typedef enum {
 	SELECT, INSERT, CREATE, DESCRIBE, DROP, OPERACIONINVALIDA
@@ -58,7 +58,7 @@ t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tab
 void insert(char*, char*, char*, char*);
 int existeUnaListaDeDatosADumpear();
 
-void realizarSelect(char*, char*);
+char* realizarSelect(char*, char*);
 
 void create(char*, char*, char*, char*);
 void crearMetadata(char*, char*, char*, char*);
@@ -649,7 +649,7 @@ int existeCarpeta(char *nombreCarpeta) {
 }
 
 //No le pongo "select" porque ya esta la funcion de socket y rompe
-void realizarSelect(char* tabla, char* key) {
+char* realizarSelect(char* tabla, char* key) {
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
 		char* pathMetadata = malloc(
@@ -939,15 +939,15 @@ void realizarSelect(char* tabla, char* key) {
 			printf("%s\n", valueDeTimestampActualMayorTemporales);
 		}
 
-*/
+*/ 		char *valueFinal = string_new();
 
 		if (timestampActualMayorBloques >= timestampActualMayorTemporales) {
 			printf("%s\n", valueDeTimestampActualMayorBloques);
+			string_append(&valueFinal, &valueDeTimestampActualMayorBloques);
 		} else {
 			printf("%s\n", valueDeTimestampActualMayorTemporales);
+			string_append(&valueFinal, &valueDeTimestampActualMayorTemporales);
 		}
-
-
 
 		free(pathMetadata);
 		free(pathParticionQueContieneKey);
@@ -955,6 +955,7 @@ void realizarSelect(char* tabla, char* key) {
 		//free(pathTemporal);
 		config_destroy(tamanioYBloques);
 		config_destroy(metadata);
+		return valueFinal;
 
 		// SI NO ENCUENTRA LA TABLA (lo de abajo)
 	} else {
@@ -973,6 +974,7 @@ void realizarSelect(char* tabla, char* key) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	}
+	return NULL;
 }
 
 void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant) {
@@ -1062,7 +1064,7 @@ void iniciarConexion() {
 	//type of socket created
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons( PORT);
+	address.sin_port = htons( structConfiguracionLFS.PUERTO_ESCUCHA);
 
 	//bind the socket to localhost port 8888
 	if (bind(master_socket, (struct sockaddr *) &address, sizeof(address))
@@ -1070,13 +1072,13 @@ void iniciarConexion() {
 		perror("bind failed en lfs");
 		exit(EXIT_FAILURE);
 	}
-	printf("Listener on port %d \n", PORT);
+	printf("Escuchando en el puerto: %d \n",  structConfiguracionLFS.PUERTO_ESCUCHA);
 
 	listen(master_socket, 100);
 
 	//accept the incoming connection
 	addrlen = sizeof(address);
-	puts("Waiting for connections ...");
+	puts("Esperando conexiones ...");
 
 	while (TRUE) {
 		//clear the socket set
@@ -1121,7 +1123,7 @@ void iniciarConexion() {
 
 			//inform user of socket number - used in send and receive commands
 			printf(
-					"New connection , socket fd is : %d , ip is : %s , port : %d 	\n",
+					"Nueva Conexion , socket fd: %d , ip: %s , puerto: %d 	\n",
 					new_socket, inet_ntoa(address.sin_addr),
 					ntohs(address.sin_port));
 
@@ -1132,14 +1134,14 @@ void iniciarConexion() {
 				perror("send");
 			}
 
-			puts("Welcome message sent successfully");
+			//puts("Welcome message sent successfully");
 
 			//add new socket to array of sockets
 			for (i = 0; i < max_clients; i++) {
 				//if position is empty
 				if (client_socket[i] == 0) {
 					client_socket[i] = new_socket;
-					printf("Adding to list of sockets as %d\n", i);
+					printf("Agregado a la lista de sockets como: %d\n", i);
 
 					break;
 				}
@@ -1216,8 +1218,8 @@ void tomarPeticionSelect(int sd) {
 	char *key = malloc(atoi(tamanioKey));
 	read(sd, key, tamanioKey);
 	printf("Haciendo Select");
-	//char *value = realizarSelect(tabla, key);
-	//send(sd, value, structConfiguracionLFS.TAMANIO_VALUE, 0);
+	char *value = realizarSelect(tabla, key);
+	send(sd, value, structConfiguracionLFS.TAMANIO_VALUE, 0);
 }
 
 void tomarPeticionCreate(int sd) {
