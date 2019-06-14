@@ -87,6 +87,7 @@ void levantarFileSystem();
 void levantarConfiguracionLFS();
 void crearArchivoBitmap();
 void iniciarMmap();
+void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable, t_registro **entradaTabla, int key, int *cant);
 
 t_config* configLFS;
 configuracionLFS structConfiguracionLFS;
@@ -892,14 +893,14 @@ char* realizarSelect(char* tabla, char* key) {
 
 		// ----------------------------------------------------
 
-		// LEO MEMTABLE /*
+		// LEO MEMTABLE
 
-/*		t_registro **entradaTabla = dictionary_get(memtable, tabla); //me devuelve un array de t_registro's
+		t_registro **entradaTabla = dictionary_get(memtable, tabla); //me devuelve un array de t_registro's
 
 		int cantIgualDeKeyEnMemtable = 0;
 		//creo nuevo array que va a tener solo los structs de la key que me pasaron por parametro
 		t_registro ** arrayPorKeyDeseadaMemtable;
-		crearArrayPorKeyMemtable( &arrayPorKeyDeseadaMemtable, entradaTabla, key, &cantIgualDeKeyEnMemtable);
+		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, entradaTabla, atoi(key), &cantIgualDeKeyEnMemtable);
 
 		int t = 0;
 		char* unValor;
@@ -929,17 +930,34 @@ char* realizarSelect(char* tabla, char* key) {
 
 		//-----------------------------------------------------
 
-		if (timestampActualMayorBloques >= timestampActualMayorTemporales) {
-			if(timestampActualMayorBloques >= timestampMayorMemtable){
-				printf("%s\n", valueDeTimestampActualMayorBloques);
-			} else{
-				printf("%s\n", arrayPorKeyDeseadaMemtable[0]->value);
+		// si no existe la key, error
+		if((timestampActualMayorBloques == -1) && (timestampActualMayorTemporales == -1) && (timestampMayorMemtable == -1)){
+			char* mensajeALogear = malloc(strlen("Error: no existe la key numero ")+ strlen(key) + 1);
+			strcpy(mensajeALogear, "Error: no existe la key numero ");
+			strcat(mensajeALogear, key);
+			t_log* g_logger;
+			g_logger = log_create(string_from_format("%serroresSelect.log",	structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
+			log_error(g_logger, mensajeALogear);
+			log_destroy(g_logger);
+			free(mensajeALogear);
+		}
+		else{ // o sea, si existe la key en algun lugar
+			if (timestampActualMayorBloques >= timestampActualMayorTemporales) {
+				if(timestampActualMayorBloques >= timestampMayorMemtable){
+					printf("%s\n", valueDeTimestampActualMayorBloques);
+				}
+				else{
+					printf("%s\n", arrayPorKeyDeseadaMemtable[0]->value);
+				}
 			}
-		} else {
-			printf("%s\n", valueDeTimestampActualMayorTemporales);
+			else {
+				printf("%s\n", valueDeTimestampActualMayorTemporales);
+			}
 		}
 
-*/ 		char *valueFinal = string_new();
+/*
+
+ 		char *valueFinal = string_new();
 
 		if (timestampActualMayorBloques >= timestampActualMayorTemporales) {
 			printf("%s\n", valueDeTimestampActualMayorBloques);
@@ -948,7 +966,7 @@ char* realizarSelect(char* tabla, char* key) {
 			printf("%s\n", valueDeTimestampActualMayorTemporales);
 			string_append(&valueFinal, &valueDeTimestampActualMayorTemporales);
 		}
-
+*/
 		free(pathMetadata);
 		free(pathParticionQueContieneKey);
 		free(pathTemporales);
@@ -1010,22 +1028,23 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, i
 		}
 	}
 }
-/*
-void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable, t_registro **entradaTabla, int key, int *cant) {
-	for (int i = 0; i < 100; i++) {
-		if (entradaTabla[i]->key == key) {
-			arrayPorKeyDeseadaMemtable[cant] = malloc(12);
-			memcpy(&arrayPorKeyDeseadaMemtable[cant]->key, entradaTabla[i]->key, sizeof(entradaTabla[i]->key));
-			memcpy(&arrayPorKeyDeseadaMemtable[cant]->timestamp, entradaTabla[i]->timestamp, sizeof(entradaTabla[i]->timestamp));
 
-			arrayPorKeyDeseadaMemtable[cant]->value = malloc(strlen(entradaTabla[i]->key));
-			memcpy(arrayPorKeyDeseadaMemtable[cant]->value, entradaTabla[i]->key, strlen(entradaTabla[i]->key));
+void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable, t_registro **entradaTabla, int laKey, int *cant) {
+	for (int i = 0; i < 100; i++) {
+		if (entradaTabla[i]->key == laKey) {
+			arrayPorKeyDeseadaMemtable[*cant] = malloc(12);
+			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key, &entradaTabla[i]->key, sizeof(entradaTabla[i]->key));
+			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->timestamp, &entradaTabla[i]->timestamp, sizeof(entradaTabla[i]->timestamp));
+
+			arrayPorKeyDeseadaMemtable[*cant]->value = malloc(strlen(entradaTabla[i]->value));
+			memcpy(arrayPorKeyDeseadaMemtable[*cant]->value, entradaTabla[i]->value, strlen(entradaTabla[i]->value));
 
 			(*cant)++;
 		}
 	}
 }
-*/
+
+/*
 
 void iniciarConexion() {
 	int opt = TRUE;
@@ -1192,7 +1211,7 @@ void iniciarConexion() {
 					client_socket[i] = 0;
 				}
 
-				/*//Echo back the message that came in
+				Echo back the message that came in
 				 else {
 				 //set the string terminating NULL byte on the end
 				 //of the data read
@@ -1201,13 +1220,15 @@ void iniciarConexion() {
 				 printf("Memoria %d: %s\n", sd, buffer);
 				 send(sd, mensaje, strlen(mensaje), 0);
 
-				 }*/
+				 }
 			}
 		}
 	}
 
 }
+*/
 
+/*
 void tomarPeticionSelect(int sd) {
 	char *tamanioTabla = malloc(sizeof(int));
 	read(sd, tamanioTabla, sizeof(int));
@@ -1260,3 +1281,5 @@ void tomarPeticionInsert(int sd) {
 	//insert(tabla, key, value);
 	printf("Haciendo insert");
 }
+
+*/
