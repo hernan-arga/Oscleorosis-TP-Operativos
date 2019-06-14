@@ -1,5 +1,14 @@
 // FS
-
+/*
+ * FALTANTES:
+ * - SELECT LEA TEMPC
+ * - INSERT SOLO LEA VALUES CON COMILLAS
+ * - ARREGLO DE RETORNO EN SELECT
+ * - ARREGLO FUNCION APARTE MEMTABLE (rompe)
+ * - HECHOOOOOOOOOOOOO!! - SI NO ENCUENTRA LA KEY, ERROR
+ * - LECTURA DE BLOQUES CON MAPEADO, POR SI NO ESTA TIME;KEY;VALUE COMPLETO
+ *
+ */
 #include <stdio.h>
 #include <string.h> //strlen
 #include <stdlib.h>
@@ -45,12 +54,12 @@ typedef struct {
 	int TIEMPO_DUMP;
 } configuracionLFS;
 
-
+/*
 void iniciarConexion();
 void tomarPeticionSelect(int sd);
 void tomarPeticionCreate(int sd);
 void tomarPeticionInsert(int sd);
-
+*/
 
 t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
 
@@ -102,7 +111,7 @@ int main(int argc, char *argv[]) {
 	bitarrayBloques = bitarray_create(mmapDeBitmap,
 			tamanioEnBytesDelBitarray());
 	//verBitArray();
-	pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
+	//pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
 
 	memtable = malloc(4);
 	memtable = dictionary_create();
@@ -899,7 +908,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 		int cantIgualDeKeyEnMemtable = 0;
 		//creo nuevo array que va a tener solo los structs de la key que me pasaron por parametro
-		t_registro ** arrayPorKeyDeseadaMemtable;
+		t_registro* arrayPorKeyDeseadaMemtable[100];
 		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, entradaTabla, atoi(key), &cantIgualDeKeyEnMemtable);
 
 		int t = 0;
@@ -929,6 +938,7 @@ char* realizarSelect(char* tabla, char* key) {
 		}
 
 		//-----------------------------------------------------
+		char *valueFinal = string_new();
 
 		// si no existe la key, error
 		if((timestampActualMayorBloques == -1) && (timestampActualMayorTemporales == -1) && (timestampMayorMemtable == -1)){
@@ -945,35 +955,28 @@ char* realizarSelect(char* tabla, char* key) {
 			if (timestampActualMayorBloques >= timestampActualMayorTemporales) {
 				if(timestampActualMayorBloques >= timestampMayorMemtable){
 					printf("%s\n", valueDeTimestampActualMayorBloques);
+					string_append(&valueFinal, valueDeTimestampActualMayorBloques);
 				}
 				else{
 					printf("%s\n", arrayPorKeyDeseadaMemtable[0]->value);
+					string_append(&valueFinal, arrayPorKeyDeseadaMemtable[0]->value);
 				}
 			}
 			else {
 				printf("%s\n", valueDeTimestampActualMayorTemporales);
+				string_append(&valueFinal, valueDeTimestampActualMayorTemporales);
 			}
 		}
-
-/*
-
- 		char *valueFinal = string_new();
-
-		if (timestampActualMayorBloques >= timestampActualMayorTemporales) {
-			printf("%s\n", valueDeTimestampActualMayorBloques);
-			string_append(&valueFinal, &valueDeTimestampActualMayorBloques);
-		} else {
-			printf("%s\n", valueDeTimestampActualMayorTemporales);
-			string_append(&valueFinal, &valueDeTimestampActualMayorTemporales);
-		}
-*/
 		free(pathMetadata);
 		free(pathParticionQueContieneKey);
 		free(pathTemporales);
 		//free(pathTemporal);
 		config_destroy(tamanioYBloques);
 		config_destroy(metadata);
-		return valueFinal;
+		return valueFinal; // TENGO UNA DUDA, SI NO LLEGA A ENCONTRAR LA KEY, ESTA BIEN QUE RETORNE ACA?
+		string_append(&valueFinal, "");
+
+
 
 		// SI NO ENCUENTRA LA TABLA (lo de abajo)
 	} else {
