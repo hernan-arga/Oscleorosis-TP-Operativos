@@ -1,11 +1,13 @@
 // FS
 /*
+ * HECHO: a verificar que ande:
+ * - SELECT LEE TMPC
+ * - SI NO ENCUENTRA LA KEY, ERROR
+ *
  * FALTANTES:
- * - SELECT LEA TEMPC
  * - INSERT SOLO LEA VALUES CON COMILLAS
  * - ARREGLO DE RETORNO EN SELECT
  * - ARREGLO FUNCION APARTE MEMTABLE (rompe)
- * - HECHOOOOOOOOOOOOO!! - SI NO ENCUENTRA LA KEY, ERROR
  * - LECTURA DE BLOQUES CON MAPEADO, POR SI NO ESTA TIME;KEY;VALUE COMPLETO
  *
  */
@@ -900,7 +902,141 @@ char* realizarSelect(char* tabla, char* key) {
 
 		closedir(directorioTemporal);
 
+		//-------------------------------------------------
+
+		// AHORA ABRO ARCHIVOS TEMPC DE COMPACTACION. EL PROCEDIMIENTO ES MUY PARECIDO AL ANTERIOR
+		char* pathTemporalesC = malloc(
+				strlen(
+						string_from_format("%sTables/",
+								structConfiguracionLFS.PUNTO_MONTAJE))
+						+ strlen(tabla) + 1);
+		strcpy(pathTemporalesC,
+				string_from_format("%sTables/",
+						structConfiguracionLFS.PUNTO_MONTAJE));
+		strcat(pathTemporalesC, tabla);
+
+		DIR *directorioTemporalC = opendir(pathTemporalesC);
+		struct dirent *archivoCALeer;
+
+		int timestampActualMayorTemporalesC = -1;
+		char* valueDeTimestampActualMayorTemporalesC = string_new();
+
+		while ((archivoCALeer = readdir(directorioTemporalC)) != NULL) { //PARA CADA ARCHIVO DE LA TABLA ESPECIFICA
+			if (string_ends_with(archivoCALeer->d_name, ".tmpc")) {
+
+				//obtengo el nombre de ese archivo .tmpc . Ejemplo obtengo A1.tmp siendo A1 el nombre (tipo char*)
+				char* nombreArchivoTemporalC = string_split(archivoCALeer->d_name,
+						".")[0];
+				// ahora ya tengo el nombre del archivo .tmpc
+
+				char* pathTemporalC = malloc(
+						strlen(
+								string_from_format("%sTables/",
+										structConfiguracionLFS.PUNTO_MONTAJE))
+								+ strlen(tabla) + strlen("/")
+								+ strlen(nombreArchivoTemporalC) + strlen(".tmpc")
+								+ 1);
+				strcpy(pathTemporalC,
+						string_from_format("%sTables/",
+								structConfiguracionLFS.PUNTO_MONTAJE));
+				strcat(pathTemporalC, tabla);
+				strcat(pathTemporalC, "/");
+				strcat(pathTemporalC, nombreArchivoTemporalC);
+				strcat(pathTemporalC, ".tmpc");
+				FILE *fileTemporalC = fopen(pathTemporalC, "r");
+				if (fileTemporalC == NULL) {
+					printf("no se pudo abrir archivo de temporales");
+					exit(1);
+				}
+
+				t_config *tamanioYBloquesTmpC = config_create(pathTemporalC);
+				char** vectorBloquesTmpC = config_get_array_value(
+						tamanioYBloquesTmpC, "BLOCK"); //devuelve vector de STRINGS
+
+				int n = 0;
+				while (vectorBloquesTmpC[n] != NULL) {
+					n++;
+				}
+
+				//POR CADA BLOQUE, TENGO QUE ENTRAR A ESE BLOQUE
+				for (int q = 0; q < n; q++) {
+					char* pathBloqueTmpC =
+							malloc(
+									strlen(
+											string_from_format("%sBloques/",
+													structConfiguracionLFS.PUNTO_MONTAJE))
+											+ strlen((vectorBloques[q]))
+											+ strlen(".bin") + 1);
+					strcpy(pathBloqueTmpC,
+							string_from_format("%sBloques/",
+									structConfiguracionLFS.PUNTO_MONTAJE));
+					strcat(pathBloqueTmpC, vectorBloquesTmpC[q]);
+					strcat(pathBloqueTmpC, ".bin");
+					FILE *archivoBloqueTmpC = fopen(pathBloqueTmpC, "r");
+					if (archivoBloqueTmpC == NULL) {
+						printf("no se pudo abrir archivo de bloques");
+						exit(1);
+					}
+
+					int cantidadIgualDeKeysEnTemporal = 0;
+					t_registro* vectorStructsTemporalC[100];
+					obtenerDatosParaKeyDeseada(archivoBloqueTmpC, (atoi(key)),
+							vectorStructsTemporalC,
+							&cantidadIgualDeKeysEnTemporal);
+
+					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
+					int tempo = 0;
+					char* valorTempC;
+					for (int k = 1; k < cantidadIgualDeKeysEnTemporal; k++) {
+						for (int j = 0; j < (cantidadIgualDeKeysEnTemporal - k);
+								j++) {
+							if (vectorStructsTemporalC[j]->timestamp
+									< vectorStructsTemporalC[j + 1]->timestamp) {
+								tempo = vectorStructsTemporalC[j + 1]->timestamp;
+								valorTempC =
+										malloc(
+												strlen(
+														vectorStructsTemporalC[j
+																+ 1]->value));
+								strcpy(valorTempC,
+										vectorStructsTemporalC[j + 1]->value);
+
+								vectorStructsTemporalC[j + 1]->timestamp =
+										vectorStructsTemporalC[j]->timestamp;
+								vectorStructsTemporalC[j + 1]->value =
+										vectorStructsTemporalC[j]->value;
+
+								vectorStructsTemporalC[j]->timestamp = tempo;
+								vectorStructsTemporalC[j]->value = valorTempC;
+							}
+						}
+					}
+
+					if (vectorStructsTemporalC[0]->timestamp
+							> timestampActualMayorTemporalesC) {
+						timestampActualMayorTemporalesC =
+								vectorStructsTemporalC[0]->timestamp;
+						strcpy(valueDeTimestampActualMayorTemporalesC, "");
+						string_append(&valueDeTimestampActualMayorTemporalesC,
+								vectorStructsTemporalC[0]->value);
+					}
+					fclose(archivoBloqueTmpC);
+					free(pathBloqueTmpC);
+					//free(vectorStructsTemporalC);
+				} // cierra el for
+			} // cierra el if
+		} //cierra el while
+
+		// si encontro alguno, me guarda el timestamp mayor en timestampActualMayorTemporalesC
+		// y guarda el valor en valueDeTimestampActualMayorTemporalesC
+		// si no hay ninguno en vectorStructsTemporalC
+		// entonces timestampActualMayorTemporalesC = -1 y
+		// valueDeTimestampActualMayorTemporalesC = NULL
+
+		closedir(directorioTemporal);
+
 		// ----------------------------------------------------
+
 
 		// LEO MEMTABLE
 
@@ -941,7 +1077,7 @@ char* realizarSelect(char* tabla, char* key) {
 		char *valueFinal = string_new();
 
 		// si no existe la key, error
-		if((timestampActualMayorBloques == -1) && (timestampActualMayorTemporales == -1) && (timestampMayorMemtable == -1)){
+		if((timestampActualMayorBloques == -1) && (timestampActualMayorTemporales == -1) && (timestampMayorMemtable == -1) && (timestampActualMayorTemporalesC == -1)){
 			char* mensajeALogear = malloc(strlen("Error: no existe la key numero ")+ strlen(key) + 1);
 			strcpy(mensajeALogear, "Error: no existe la key numero ");
 			strcat(mensajeALogear, key);
@@ -950,31 +1086,46 @@ char* realizarSelect(char* tabla, char* key) {
 			log_error(g_logger, mensajeALogear);
 			log_destroy(g_logger);
 			free(mensajeALogear);
+
+			return NULL;
 		}
 		else{ // o sea, si existe la key en algun lugar
-			if (timestampActualMayorBloques >= timestampActualMayorTemporales) {
-				if(timestampActualMayorBloques >= timestampMayorMemtable){
-					printf("%s\n", valueDeTimestampActualMayorBloques);
-					string_append(&valueFinal, valueDeTimestampActualMayorBloques);
-				}
-				else{
-					printf("%s\n", arrayPorKeyDeseadaMemtable[0]->value);
-					string_append(&valueFinal, arrayPorKeyDeseadaMemtable[0]->value);
-				}
+
+			// si bloques tiene mayor timestamp que todos
+			if((timestampActualMayorBloques >= timestampActualMayorTemporales) && (timestampActualMayorBloques >= timestampActualMayorTemporalesC) && (timestampActualMayorBloques >= timestampMayorMemtable)){
+				printf("%s\n", valueDeTimestampActualMayorBloques);
+				string_append(&valueFinal, valueDeTimestampActualMayorBloques);
 			}
-			else {
+
+			// si tmp tiene mayor timestamp que todos
+			if((timestampActualMayorTemporales >= timestampActualMayorBloques) && (timestampActualMayorTemporales >= timestampActualMayorTemporalesC) && (timestampActualMayorTemporales >= timestampMayorMemtable)){
 				printf("%s\n", valueDeTimestampActualMayorTemporales);
 				string_append(&valueFinal, valueDeTimestampActualMayorTemporales);
 			}
+
+			// si tmpc tiene mayor timestamp que todos
+			if((timestampActualMayorTemporalesC >= timestampActualMayorTemporales) && (timestampActualMayorTemporalesC >= timestampActualMayorBloques) && (timestampActualMayorTemporalesC >= timestampMayorMemtable)){
+				printf("%s\n", valueDeTimestampActualMayorTemporalesC);
+				string_append(&valueFinal, valueDeTimestampActualMayorTemporalesC);
+			}
+
+			// si memtable tiene mayor timestamp que todos
+			if((timestampMayorMemtable >= timestampActualMayorBloques) && (timestampMayorMemtable >= timestampActualMayorTemporales) && (timestampMayorMemtable >= timestampActualMayorTemporalesC)){
+				printf("%s\n", arrayPorKeyDeseadaMemtable[0]->value);
+				string_append(&valueFinal, arrayPorKeyDeseadaMemtable[0]->value);
+			}
+
+			return valueFinal;
+			string_append(&valueFinal, "");
 		}
+
 		free(pathMetadata);
 		free(pathParticionQueContieneKey);
 		free(pathTemporales);
+		free(pathTemporalesC);
 		//free(pathTemporal);
 		config_destroy(tamanioYBloques);
 		config_destroy(metadata);
-		return valueFinal; // TENGO UNA DUDA, SI NO LLEGA A ENCONTRAR LA KEY, ESTA BIEN QUE RETORNE ACA?
-		string_append(&valueFinal, "");
 
 
 
@@ -997,6 +1148,8 @@ char* realizarSelect(char* tabla, char* key) {
 	}
 	return NULL;
 }
+
+
 
 void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant) {
 	int i = 0;
