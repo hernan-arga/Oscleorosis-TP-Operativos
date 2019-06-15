@@ -57,14 +57,15 @@ typedef struct {
 } configuracionLFS;
 
 /*
-void iniciarConexion();
-void tomarPeticionSelect(int sd);
-void tomarPeticionCreate(int sd);
-void tomarPeticionInsert(int sd);
-*/
+ void iniciarConexion();
+ void tomarPeticionSelect(int sd);
+ void tomarPeticionCreate(int sd);
+ void tomarPeticionInsert(int sd);
+ */
 
 t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
 
+void drop(char*);
 
 void insert(char*, char*, char*, char*);
 int existeUnaListaDeDatosADumpear();
@@ -98,7 +99,9 @@ void levantarFileSystem();
 void levantarConfiguracionLFS();
 void crearArchivoBitmap();
 void iniciarMmap();
-void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable, t_registro **entradaTabla, int key, int *cant);
+void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
+		t_registro **entradaTabla, int key, int *cant);
+int estaEntreComillas(char*);
 
 t_config* configLFS;
 configuracionLFS structConfiguracionLFS;
@@ -106,7 +109,7 @@ t_bitarray* bitarrayBloques;
 char *mmapDeBitmap;
 
 int main(int argc, char *argv[]) {
-	pthread_t hiloLevantarConexion;
+	//pthread_t hiloLevantarConexion;
 	levantarConfiguracionLFS();
 	levantarFileSystem();
 	iniciarMmap();
@@ -128,7 +131,7 @@ int main(int argc, char *argv[]) {
 		//verBitArray();
 	}
 	//Se queda esperando a que termine el hilo de escuchar peticiones
-	pthread_join(hiloLevantarConexion, NULL);
+	//pthread_join(hiloLevantarConexion, NULL);
 
 	//Aca se destruye el bitarray?
 	//bitarray_destroy(bitarrayBloques);
@@ -230,8 +233,12 @@ void realizarPeticion(char** parametros) {
 		printf("Seleccionaste Insert\n");
 		int criterioInsert(char** parametros, int cantidadDeParametrosUsados) {
 			char* key = parametros[2];
+			char* value = parametros[3];
 			if (!esUnNumero(key)) {
 				printf("La key debe ser un numero.\n");
+			}
+			if (!estaEntreComillas(value)) {
+				printf("El valor a insertar debe estar entre comillas.\n");
 			}
 
 			if (cantidadDeParametrosUsados == 4) {
@@ -239,7 +246,8 @@ void realizarPeticion(char** parametros) {
 				if (!esUnNumero(timestamp)) {
 					printf("El timestamp debe ser un numero.\n");
 				}
-				return esUnNumero(key) && esUnNumero(timestamp);
+				return esUnNumero(key) && esUnNumero(timestamp)
+						&& estaEntreComillas(value);
 			}
 			return esUnNumero(key);
 		}
@@ -247,15 +255,19 @@ void realizarPeticion(char** parametros) {
 		if (parametrosValidos(4, parametros, (void *) criterioInsert)) {
 			char *tabla = parametros[1];
 			char *key = parametros[2];
-			char *valor = parametros[3];
+			//le saco las comillas al valor
+			char *valor = string_substring(parametros[3], 1,
+					string_length(parametros[3]) - 2);
 			char *timestamp = parametros[4];
-
+			//printf("%s\n", valor);
 			insert(tabla, key, valor, timestamp);
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
 			char *tabla = parametros[1];
 			char *key = parametros[2];
-			char *valor = parametros[3];
+			//le saco las comillas al valor
+			char *valor = string_substring(parametros[3], 1,
+					string_length(parametros[3]) - 2);
 			//¿El timestamp nesecita conversion? esto esta en segundos y no hay tipo de dato que banque los milisegundos por el tamanio
 			long int timestampActual = (long int) time(NULL);
 			char* timestamp = string_itoa(timestampActual);
@@ -287,6 +299,22 @@ void realizarPeticion(char** parametros) {
 					tiempoCompactacion);
 		}
 		break;
+	case DROP:
+		printf("Seleccionaste Drop\n");
+		int criterioDrop(char** parametros, int cantidadDeParametrosUsados) {
+			char* tabla = parametros[1];
+			string_to_upper(tabla);
+			if (!existeLaTabla(tabla)) {
+				printf("La tabla a borrar no existe\n");
+			}
+			return existeLaTabla(tabla);
+		}
+		if (parametrosValidos(1, parametros, (void *) criterioDrop)) {
+			char* tabla = parametros[1];
+			string_to_upper(tabla);
+			drop(tabla);
+		}
+		break;
 	default:
 		printf("Error operacion invalida\n");
 	}
@@ -306,7 +334,7 @@ int cantidadValidaParametros(char** parametros,
 			cantidadDeElementosDePunteroDePunterosDeChar(parametros) - 2;
 	if (cantidadDeParametrosQueTengo != cantidadDeParametrosNecesarios) {
 		//hay que arreglar esto para que en el caso de insert solo lo muestre si no se cumple con 4 ni con 3
-		printf("La cantidad de parametros no es valida\n");
+		//printf("La cantidad de parametros no es valida\n");
 		return 0;
 	}
 	return 1;
@@ -326,8 +354,18 @@ OPERACION tipoDePeticion(char* peticion) {
 				free(peticion);
 				return CREATE;
 			} else {
-				free(peticion);
-				return OPERACIONINVALIDA;
+				if (!strcmp(peticion, "DROP")) {
+					free(peticion);
+					return DROP;
+				} else {
+					if (!strcmp(peticion, "DESCRIBE")) {
+						free(peticion);
+						return DESCRIBE;
+					} else {
+						free(peticion);
+						return OPERACIONINVALIDA;
+					}
+				}
 			}
 		}
 	}
@@ -398,8 +436,8 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 		} else {
 			t_registro **vectorStructs = dictionary_get(memtable, tabla);
 			int i;
-			for(i = 0; i < 100; i++){
-				if(vectorStructs[i] == NULL){
+			for (i = 0; i < 100; i++) {
+				if (vectorStructs[i] == NULL) {
 					break;
 				}
 			}
@@ -630,7 +668,7 @@ int existeLaTabla(char* nombreDeTabla) {
 					structConfiguracionLFS.PUNTO_MONTAJE));
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
-		//Evaluo si de todas las carpetas dentro de TABAS existe alguna que tenga el mismo nombre
+		//Evaluo si de todas las carpetas dentro de TABLAS existe alguna que tenga el mismo nombre
 		if ((directorioALeer->d_type) == DT_DIR
 				&& !strcmp((directorioALeer->d_name), nombreDeTabla)) {
 			closedir(directorio);
@@ -639,6 +677,28 @@ int existeLaTabla(char* nombreDeTabla) {
 	}
 	closedir(directorio);
 	return 0;
+}
+
+void drop(char* tabla) {
+	char *path = string_new();
+	string_append(&path,
+			string_from_format("%sTables/",
+					structConfiguracionLFS.PUNTO_MONTAJE));
+	string_append(&path, tabla);
+	DIR *directorio = opendir(path);
+	printf("%s\n\n", path);
+	struct dirent *directorioALeer;
+	while ((directorioALeer = readdir(directorio)) != NULL) {
+		printf("- %s\n", directorioALeer->d_name);
+		//Elimino todo lo que tiene adentro la tabla
+		if (!((directorioALeer->d_type) == DT_DIR)) {
+			printf("!!%s\n", directorioALeer->d_name);
+			//No esta borrando
+			remove(directorioALeer->d_name);
+		}
+	}
+	rmdir(path);
+	closedir(directorio);
 }
 
 int existeCarpeta(char *nombreCarpeta) {
@@ -925,8 +985,8 @@ char* realizarSelect(char* tabla, char* key) {
 			if (string_ends_with(archivoCALeer->d_name, ".tmpc")) {
 
 				//obtengo el nombre de ese archivo .tmpc . Ejemplo obtengo A1.tmp siendo A1 el nombre (tipo char*)
-				char* nombreArchivoTemporalC = string_split(archivoCALeer->d_name,
-						".")[0];
+				char* nombreArchivoTemporalC = string_split(
+						archivoCALeer->d_name, ".")[0];
 				// ahora ya tengo el nombre del archivo .tmpc
 
 				char* pathTemporalC = malloc(
@@ -934,8 +994,8 @@ char* realizarSelect(char* tabla, char* key) {
 								string_from_format("%sTables/",
 										structConfiguracionLFS.PUNTO_MONTAJE))
 								+ strlen(tabla) + strlen("/")
-								+ strlen(nombreArchivoTemporalC) + strlen(".tmpc")
-								+ 1);
+								+ strlen(nombreArchivoTemporalC)
+								+ strlen(".tmpc") + 1);
 				strcpy(pathTemporalC,
 						string_from_format("%sTables/",
 								structConfiguracionLFS.PUNTO_MONTAJE));
@@ -992,7 +1052,8 @@ char* realizarSelect(char* tabla, char* key) {
 								j++) {
 							if (vectorStructsTemporalC[j]->timestamp
 									< vectorStructsTemporalC[j + 1]->timestamp) {
-								tempo = vectorStructsTemporalC[j + 1]->timestamp;
+								tempo =
+										vectorStructsTemporalC[j + 1]->timestamp;
 								valorTempC =
 										malloc(
 												strlen(
@@ -1037,7 +1098,6 @@ char* realizarSelect(char* tabla, char* key) {
 
 		// ----------------------------------------------------
 
-
 		// LEO MEMTABLE
 
 		t_registro **entradaTabla = dictionary_get(memtable, tabla); //me devuelve un array de t_registro's
@@ -1045,19 +1105,24 @@ char* realizarSelect(char* tabla, char* key) {
 		int cantIgualDeKeyEnMemtable = 0;
 		//creo nuevo array que va a tener solo los structs de la key que me pasaron por parametro
 		t_registro* arrayPorKeyDeseadaMemtable[100];
-		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, entradaTabla, atoi(key), &cantIgualDeKeyEnMemtable);
+		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, entradaTabla,
+				atoi(key), &cantIgualDeKeyEnMemtable);
 
 		int t = 0;
 		char* unValor;
 		for (int k = 1; k < cantIgualDeKeyEnMemtable; k++) {
 			for (int j = 0; j < (cantIgualDeKeyEnMemtable - k); j++) {
-				if (arrayPorKeyDeseadaMemtable[j]->timestamp < arrayPorKeyDeseadaMemtable[j + 1]->timestamp) {
+				if (arrayPorKeyDeseadaMemtable[j]->timestamp
+						< arrayPorKeyDeseadaMemtable[j + 1]->timestamp) {
 					t = arrayPorKeyDeseadaMemtable[j + 1]->timestamp;
-					unValor = malloc(strlen(arrayPorKeyDeseadaMemtable[j + 1]->value));
+					unValor = malloc(
+							strlen(arrayPorKeyDeseadaMemtable[j + 1]->value));
 					strcpy(unValor, arrayPorKeyDeseadaMemtable[j + 1]->value);
 
-					arrayPorKeyDeseadaMemtable[j + 1]->timestamp = arrayPorKeyDeseadaMemtable[j]->timestamp;
-					arrayPorKeyDeseadaMemtable[j + 1]->value = arrayPorKeyDeseadaMemtable[j]->value;
+					arrayPorKeyDeseadaMemtable[j + 1]->timestamp =
+							arrayPorKeyDeseadaMemtable[j]->timestamp;
+					arrayPorKeyDeseadaMemtable[j + 1]->value =
+							arrayPorKeyDeseadaMemtable[j]->value;
 
 					arrayPorKeyDeseadaMemtable[j]->timestamp = t;
 					arrayPorKeyDeseadaMemtable[j]->value = unValor;
@@ -1066,10 +1131,9 @@ char* realizarSelect(char* tabla, char* key) {
 		} // aca quedaria el array arrayPorKeyDeseadaMemtable ordenado por timestamp mayor
 
 		int timestampMayorMemtable;
-		if(cantIgualDeKeyEnMemtable == 0){
+		if (cantIgualDeKeyEnMemtable == 0) {
 			timestampMayorMemtable = -1;
-		}
-		else{
+		} else {
 			timestampMayorMemtable = arrayPorKeyDeseadaMemtable[0]->timestamp;
 		}
 
@@ -1077,42 +1141,66 @@ char* realizarSelect(char* tabla, char* key) {
 		char *valueFinal = string_new();
 
 		// si no existe la key, error
-		if((timestampActualMayorBloques == -1) && (timestampActualMayorTemporales == -1) && (timestampMayorMemtable == -1) && (timestampActualMayorTemporalesC == -1)){
-			char* mensajeALogear = malloc(strlen("Error: no existe la key numero ")+ strlen(key) + 1);
+		if ((timestampActualMayorBloques == -1)
+				&& (timestampActualMayorTemporales == -1)
+				&& (timestampMayorMemtable == -1)
+				&& (timestampActualMayorTemporalesC == -1)) {
+			char* mensajeALogear = malloc(
+					strlen("Error: no existe la key numero ") + strlen(key)
+							+ 1);
 			strcpy(mensajeALogear, "Error: no existe la key numero ");
 			strcat(mensajeALogear, key);
 			t_log* g_logger;
-			g_logger = log_create(string_from_format("%serroresSelect.log",	structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
+			g_logger = log_create(
+					string_from_format("%serroresSelect.log",
+							structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+					LOG_LEVEL_INFO);
 			log_error(g_logger, mensajeALogear);
 			log_destroy(g_logger);
 			free(mensajeALogear);
 
 			return NULL;
-		}
-		else{ // o sea, si existe la key en algun lugar
+		} else { // o sea, si existe la key en algun lugar
 
 			// si bloques tiene mayor timestamp que todos
-			if((timestampActualMayorBloques >= timestampActualMayorTemporales) && (timestampActualMayorBloques >= timestampActualMayorTemporalesC) && (timestampActualMayorBloques >= timestampMayorMemtable)){
+			if ((timestampActualMayorBloques >= timestampActualMayorTemporales)
+					&& (timestampActualMayorBloques
+							>= timestampActualMayorTemporalesC)
+					&& (timestampActualMayorBloques >= timestampMayorMemtable)) {
 				printf("%s\n", valueDeTimestampActualMayorBloques);
 				string_append(&valueFinal, valueDeTimestampActualMayorBloques);
 			}
 
 			// si tmp tiene mayor timestamp que todos
-			if((timestampActualMayorTemporales >= timestampActualMayorBloques) && (timestampActualMayorTemporales >= timestampActualMayorTemporalesC) && (timestampActualMayorTemporales >= timestampMayorMemtable)){
+			if ((timestampActualMayorTemporales >= timestampActualMayorBloques)
+					&& (timestampActualMayorTemporales
+							>= timestampActualMayorTemporalesC)
+					&& (timestampActualMayorTemporales >= timestampMayorMemtable)) {
 				printf("%s\n", valueDeTimestampActualMayorTemporales);
-				string_append(&valueFinal, valueDeTimestampActualMayorTemporales);
+				string_append(&valueFinal,
+						valueDeTimestampActualMayorTemporales);
 			}
 
 			// si tmpc tiene mayor timestamp que todos
-			if((timestampActualMayorTemporalesC >= timestampActualMayorTemporales) && (timestampActualMayorTemporalesC >= timestampActualMayorBloques) && (timestampActualMayorTemporalesC >= timestampMayorMemtable)){
+			if ((timestampActualMayorTemporalesC
+					>= timestampActualMayorTemporales)
+					&& (timestampActualMayorTemporalesC
+							>= timestampActualMayorBloques)
+					&& (timestampActualMayorTemporalesC
+							>= timestampMayorMemtable)) {
 				printf("%s\n", valueDeTimestampActualMayorTemporalesC);
-				string_append(&valueFinal, valueDeTimestampActualMayorTemporalesC);
+				string_append(&valueFinal,
+						valueDeTimestampActualMayorTemporalesC);
 			}
 
 			// si memtable tiene mayor timestamp que todos
-			if((timestampMayorMemtable >= timestampActualMayorBloques) && (timestampMayorMemtable >= timestampActualMayorTemporales) && (timestampMayorMemtable >= timestampActualMayorTemporalesC)){
+			if ((timestampMayorMemtable >= timestampActualMayorBloques)
+					&& (timestampMayorMemtable >= timestampActualMayorTemporales)
+					&& (timestampMayorMemtable
+							>= timestampActualMayorTemporalesC)) {
 				printf("%s\n", arrayPorKeyDeseadaMemtable[0]->value);
-				string_append(&valueFinal, arrayPorKeyDeseadaMemtable[0]->value);
+				string_append(&valueFinal,
+						arrayPorKeyDeseadaMemtable[0]->value);
 			}
 
 			return valueFinal;
@@ -1126,8 +1214,6 @@ char* realizarSelect(char* tabla, char* key) {
 		//free(pathTemporal);
 		config_destroy(tamanioYBloques);
 		config_destroy(metadata);
-
-
 
 		// SI NO ENCUENTRA LA TABLA (lo de abajo)
 	} else {
@@ -1149,9 +1235,8 @@ char* realizarSelect(char* tabla, char* key) {
 	return NULL;
 }
 
-
-
-void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant) {
+void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
+		int *cant) {
 	int i = 0;
 	char * line = NULL;
 	size_t len = 0;
@@ -1185,257 +1270,267 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, i
 	}
 }
 
-void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable, t_registro **entradaTabla, int laKey, int *cant) {
+void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
+		t_registro **entradaTabla, int laKey, int *cant) {
 	for (int i = 0; i < 100; i++) {
 		if (entradaTabla[i]->key == laKey) {
 			arrayPorKeyDeseadaMemtable[*cant] = malloc(12);
-			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key, &entradaTabla[i]->key, sizeof(entradaTabla[i]->key));
-			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->timestamp, &entradaTabla[i]->timestamp, sizeof(entradaTabla[i]->timestamp));
+			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key,
+					&entradaTabla[i]->key, sizeof(entradaTabla[i]->key));
+			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->timestamp,
+					&entradaTabla[i]->timestamp,
+					sizeof(entradaTabla[i]->timestamp));
 
-			arrayPorKeyDeseadaMemtable[*cant]->value = malloc(strlen(entradaTabla[i]->value));
-			memcpy(arrayPorKeyDeseadaMemtable[*cant]->value, entradaTabla[i]->value, strlen(entradaTabla[i]->value));
+			arrayPorKeyDeseadaMemtable[*cant]->value = malloc(
+					strlen(entradaTabla[i]->value));
+			memcpy(arrayPorKeyDeseadaMemtable[*cant]->value,
+					entradaTabla[i]->value, strlen(entradaTabla[i]->value));
 
 			(*cant)++;
 		}
 	}
 }
 
+int estaEntreComillas(char* valor) {
+	return string_starts_with(valor, "\"") && string_ends_with(valor, "\"");
+}
+
 /*
 
-void iniciarConexion() {
-	int opt = TRUE;
-	int master_socket, addrlen, new_socket, client_socket[30], max_clients = 30,
-			activity, i, valread, sd;
-	int max_sd;
-	struct sockaddr_in address;
+ void iniciarConexion() {
+ int opt = TRUE;
+ int master_socket, addrlen, new_socket, client_socket[30], max_clients = 30,
+ activity, i, valread, sd;
+ int max_sd;
+ struct sockaddr_in address;
 
-	char buffer[1025]; //data buffer of 1K
+ char buffer[1025]; //data buffer of 1K
 
-	//set of socket descriptors
-	fd_set readfds;
+ //set of socket descriptors
+ fd_set readfds;
 
-	//a message
-	char *message = "Este es el mensaje del server\r\n";
+ //a message
+ char *message = "Este es el mensaje del server\r\n";
 
-	//initialise all client_socket[] to 0 so not checked
-	for (i = 0; i < max_clients; i++) {
-		client_socket[i] = 0;
-	}
+ //initialise all client_socket[] to 0 so not checked
+ for (i = 0; i < max_clients; i++) {
+ client_socket[i] = 0;
+ }
 
-	//create a master socket
-	if ((master_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-		perror("socket failed");
-		exit(EXIT_FAILURE);
-	}
+ //create a master socket
+ if ((master_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+ perror("socket failed");
+ exit(EXIT_FAILURE);
+ }
 
-	//set master socket to allow multiple connections ,
-	//this is just a good habit, it will work without this
-	if (setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *) &opt,
-			sizeof(opt)) < 0) {
-		perror("setsockopt");
-		exit(EXIT_FAILURE);
-	}
+ //set master socket to allow multiple connections ,
+ //this is just a good habit, it will work without this
+ if (setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *) &opt,
+ sizeof(opt)) < 0) {
+ perror("setsockopt");
+ exit(EXIT_FAILURE);
+ }
 
-	//type of socket created
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons( structConfiguracionLFS.PUERTO_ESCUCHA);
+ //type of socket created
+ address.sin_family = AF_INET;
+ address.sin_addr.s_addr = INADDR_ANY;
+ address.sin_port = htons( structConfiguracionLFS.PUERTO_ESCUCHA);
 
-	//bind the socket to localhost port 8888
-	if (bind(master_socket, (struct sockaddr *) &address, sizeof(address))
-			< 0) {
-		perror("bind failed en lfs");
-		exit(EXIT_FAILURE);
-	}
-	printf("Escuchando en el puerto: %d \n",  structConfiguracionLFS.PUERTO_ESCUCHA);
+ //bind the socket to localhost port 8888
+ if (bind(master_socket, (struct sockaddr *) &address, sizeof(address))
+ < 0) {
+ perror("bind failed en lfs");
+ exit(EXIT_FAILURE);
+ }
+ printf("Escuchando en el puerto: %d \n",  structConfiguracionLFS.PUERTO_ESCUCHA);
 
-	listen(master_socket, 100);
+ listen(master_socket, 100);
 
-	//accept the incoming connection
-	addrlen = sizeof(address);
-	puts("Esperando conexiones ...");
+ //accept the incoming connection
+ addrlen = sizeof(address);
+ puts("Esperando conexiones ...");
 
-	while (TRUE) {
-		//clear the socket set
-		FD_ZERO(&readfds);
+ while (TRUE) {
+ //clear the socket set
+ FD_ZERO(&readfds);
 
-		//add master socket to set
-		FD_SET(master_socket, &readfds);
-		max_sd = master_socket;
+ //add master socket to set
+ FD_SET(master_socket, &readfds);
+ max_sd = master_socket;
 
-		//add child sockets to set
-		for (i = 0; i < max_clients; i++) {
-			//socket descriptor
-			sd = client_socket[i];
+ //add child sockets to set
+ for (i = 0; i < max_clients; i++) {
+ //socket descriptor
+ sd = client_socket[i];
 
-			//if valid socket descriptor then add to read list
-			if (sd > 0)
-				FD_SET(sd, &readfds);
+ //if valid socket descriptor then add to read list
+ if (sd > 0)
+ FD_SET(sd, &readfds);
 
-			//highest file descriptor number, need it for the select function
-			if (sd > max_sd)
-				max_sd = sd;
-		}
+ //highest file descriptor number, need it for the select function
+ if (sd > max_sd)
+ max_sd = sd;
+ }
 
-		//wait for an activity on one of the sockets , timeout is NULL ,
-		//so wait indefinitely
-		activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
+ //wait for an activity on one of the sockets , timeout is NULL ,
+ //so wait indefinitely
+ activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
 
-		if ((activity < 0) && (errno != EINTR)) {
-			printf("select error");
-		}
+ if ((activity < 0) && (errno != EINTR)) {
+ printf("select error");
+ }
 
-		//If something happened on the master socket ,
-		//then its an incoming connection
-		if (FD_ISSET(master_socket, &readfds)) {
-			new_socket = accept(master_socket, (struct sockaddr *) &address,
-					(socklen_t*) &addrlen);
-			if (new_socket < 0) {
+ //If something happened on the master socket ,
+ //then its an incoming connection
+ if (FD_ISSET(master_socket, &readfds)) {
+ new_socket = accept(master_socket, (struct sockaddr *) &address,
+ (socklen_t*) &addrlen);
+ if (new_socket < 0) {
 
-				perror("accept");
-				exit(EXIT_FAILURE);
-			}
+ perror("accept");
+ exit(EXIT_FAILURE);
+ }
 
-			//inform user of socket number - used in send and receive commands
-			printf(
-					"Nueva Conexion , socket fd: %d , ip: %s , puerto: %d 	\n",
-					new_socket, inet_ntoa(address.sin_addr),
-					ntohs(address.sin_port));
+ //inform user of socket number - used in send and receive commands
+ printf(
+ "Nueva Conexion , socket fd: %d , ip: %s , puerto: %d 	\n",
+ new_socket, inet_ntoa(address.sin_addr),
+ ntohs(address.sin_port));
 
-			//send new connection greeting message
-			if (send(new_socket, structConfiguracionLFS.TAMANIO_VALUE,
-					strlen(structConfiguracionLFS.TAMANIO_VALUE), 0)
-					!= strlen(structConfiguracionLFS.TAMANIO_VALUE)) {
-				perror("send");
-			}
+ //send new connection greeting message
+ if (send(new_socket, structConfiguracionLFS.TAMANIO_VALUE,
+ strlen(structConfiguracionLFS.TAMANIO_VALUE), 0)
+ != strlen(structConfiguracionLFS.TAMANIO_VALUE)) {
+ perror("send");
+ }
 
-			//puts("Welcome message sent successfully");
+ //puts("Welcome message sent successfully");
 
-			//add new socket to array of sockets
-			for (i = 0; i < max_clients; i++) {
-				//if position is empty
-				if (client_socket[i] == 0) {
-					client_socket[i] = new_socket;
-					printf("Agregado a la lista de sockets como: %d\n", i);
+ //add new socket to array of sockets
+ for (i = 0; i < max_clients; i++) {
+ //if position is empty
+ if (client_socket[i] == 0) {
+ client_socket[i] = new_socket;
+ printf("Agregado a la lista de sockets como: %d\n", i);
 
-					break;
-				}
-			}
-		}
+ break;
+ }
+ }
+ }
 
-		//else its some IO operation on some other socket
-		for (i = 0; i < max_clients; i++) {
-			sd = client_socket[i];
+ //else its some IO operation on some other socket
+ for (i = 0; i < max_clients; i++) {
+ sd = client_socket[i];
 
-			if (FD_ISSET(sd, &readfds)) {
-				//Check if it was for closing , and also read the
-				//incoming message
-				char *operacion = malloc(sizeof(int));
-				valread = read(sd, operacion, sizeof(int));
+ if (FD_ISSET(sd, &readfds)) {
+ //Check if it was for closing , and also read the
+ //incoming message
+ char *operacion = malloc(sizeof(int));
+ valread = read(sd, operacion, sizeof(int));
 
-				switch (atoi(operacion)) {
-				case 1:
-					//Select
-					tomarPeticionSelect(sd);
-					break;
+ switch (atoi(operacion)) {
+ case 1:
+ //Select
+ tomarPeticionSelect(sd);
+ break;
 
-				case 3:
-					//Create
-					tomarPeticionCreate(sd);
-					break;
+ case 3:
+ //Create
+ tomarPeticionCreate(sd);
+ break;
 
-				case 6:
-					//Insert
-					tomarPeticionInsert(sd);
-					break;
+ case 6:
+ //Insert
+ tomarPeticionInsert(sd);
+ break;
 
-				default:
-					break;
+ default:
+ break;
 
-				}
+ }
 
-				if (valread == 0) {
-					//Somebody disconnected , get his details and print
-					getpeername(sd, (struct sockaddr*) &address,
-							(socklen_t*) &addrlen);
-					printf("Host disconnected , ip %s , port %d \n",
-							inet_ntoa(address.sin_addr),
-							ntohs(address.sin_port));
+ if (valread == 0) {
+ //Somebody disconnected , get his details and print
+ getpeername(sd, (struct sockaddr*) &address,
+ (socklen_t*) &addrlen);
+ printf("Host disconnected , ip %s , port %d \n",
+ inet_ntoa(address.sin_addr),
+ ntohs(address.sin_port));
 
-					//Close the socket and mark as 0 in list for reuse
-					close(sd);
-					client_socket[i] = 0;
-				}
+ //Close the socket and mark as 0 in list for reuse
+ close(sd);
+ client_socket[i] = 0;
+ }
 
-				Echo back the message that came in
-				 else {
-				 //set the string terminating NULL byte on the end
-				 //of the data read
-				 char mensaje[] = "Le llego tu mensaje al File System";
-				 buffer[valread] = '\0';
-				 printf("Memoria %d: %s\n", sd, buffer);
-				 send(sd, mensaje, strlen(mensaje), 0);
+ Echo back the message that came in
+ else {
+ //set the string terminating NULL byte on the end
+ //of the data read
+ char mensaje[] = "Le llego tu mensaje al File System";
+ buffer[valread] = '\0';
+ printf("Memoria %d: %s\n", sd, buffer);
+ send(sd, mensaje, strlen(mensaje), 0);
 
-				 }
-			}
-		}
-	}
+ }
+ }
+ }
+ }
 
-}
-*/
+ }
+ */
 
 /*
-void tomarPeticionSelect(int sd) {
-	char *tamanioTabla = malloc(sizeof(int));
-	read(sd, tamanioTabla, sizeof(int));
-	char *tabla = malloc(atoi(tamanioTabla));
-	read(sd, tabla, tamanioTabla);
-	char *tamanioKey = malloc(sizeof(int));
-	read(sd, tamanioKey, sizeof(int));
-	char *key = malloc(atoi(tamanioKey));
-	read(sd, key, tamanioKey);
-	printf("Haciendo Select");
-	char *value = realizarSelect(tabla, key);
-	send(sd, value, structConfiguracionLFS.TAMANIO_VALUE, 0);
-}
+ void tomarPeticionSelect(int sd) {
+ char *tamanioTabla = malloc(sizeof(int));
+ read(sd, tamanioTabla, sizeof(int));
+ char *tabla = malloc(atoi(tamanioTabla));
+ read(sd, tabla, tamanioTabla);
+ char *tamanioKey = malloc(sizeof(int));
+ read(sd, tamanioKey, sizeof(int));
+ char *key = malloc(atoi(tamanioKey));
+ read(sd, key, tamanioKey);
+ printf("Haciendo Select");
+ char *value = realizarSelect(tabla, key);
+ send(sd, value, structConfiguracionLFS.TAMANIO_VALUE, 0);
+ }
 
-void tomarPeticionCreate(int sd) {
-	char *tamanioTabla = malloc(sizeof(int));
-	read(sd, tamanioTabla, sizeof(int));
-	char *tabla = malloc(atoi(tamanioTabla));
-	read(sd, tabla, tamanioTabla);
-	char *tamanioConsistencia = malloc(sizeof(int));
-	read(sd, tamanioConsistencia, sizeof(int));
-	char *tipoConsistencia = malloc(atoi(tamanioConsistencia));
-	read(sd, tipoConsistencia, tamanioConsistencia);
-	char *tamanioNumeroParticiones = malloc(sizeof(int));
-	read(sd, tamanioNumeroParticiones, sizeof(int));
-	char *numeroParticiones = malloc(tamanioNumeroParticiones);
-	read(sd, numeroParticiones, tamanioNumeroParticiones);
-	char *tamanioTiempoCompactacion = malloc(sizeof(int));
-	read(sd, tamanioTiempoCompactacion, sizeof(int));
-	char *tiempoCompactacion = malloc(tamanioTiempoCompactacion);
-	read(sd, tiempoCompactacion, tamanioTiempoCompactacion);
-	create(tabla, tipoConsistencia, numeroParticiones, tiempoCompactacion);
-}
+ void tomarPeticionCreate(int sd) {
+ char *tamanioTabla = malloc(sizeof(int));
+ read(sd, tamanioTabla, sizeof(int));
+ char *tabla = malloc(atoi(tamanioTabla));
+ read(sd, tabla, tamanioTabla);
+ char *tamanioConsistencia = malloc(sizeof(int));
+ read(sd, tamanioConsistencia, sizeof(int));
+ char *tipoConsistencia = malloc(atoi(tamanioConsistencia));
+ read(sd, tipoConsistencia, tamanioConsistencia);
+ char *tamanioNumeroParticiones = malloc(sizeof(int));
+ read(sd, tamanioNumeroParticiones, sizeof(int));
+ char *numeroParticiones = malloc(tamanioNumeroParticiones);
+ read(sd, numeroParticiones, tamanioNumeroParticiones);
+ char *tamanioTiempoCompactacion = malloc(sizeof(int));
+ read(sd, tamanioTiempoCompactacion, sizeof(int));
+ char *tiempoCompactacion = malloc(tamanioTiempoCompactacion);
+ read(sd, tiempoCompactacion, tamanioTiempoCompactacion);
+ create(tabla, tipoConsistencia, numeroParticiones, tiempoCompactacion);
+ }
 
-void tomarPeticionInsert(int sd) {
-	char *tamanioTabla = malloc(sizeof(int));
-	read(sd, tamanioTabla, sizeof(int));
-	char *tabla = malloc(atoi(tamanioTabla));
-	read(sd, tabla, tamanioTabla);
+ void tomarPeticionInsert(int sd) {
+ char *tamanioTabla = malloc(sizeof(int));
+ read(sd, tamanioTabla, sizeof(int));
+ char *tabla = malloc(atoi(tamanioTabla));
+ read(sd, tabla, tamanioTabla);
 
-	char *tamanioKey = malloc(sizeof(int));
-	read(sd, tamanioKey, sizeof(int));
-	char *key = malloc(atoi(tamanioKey));
-	read(sd, key, tamanioKey);
-	char *tamanioValue = malloc(sizeof(int));
-	read(sd, tamanioValue, sizeof(int));
-	char *value = malloc(tamanioValue);
-	read(sd, value, tamanioValue);
+ char *tamanioKey = malloc(sizeof(int));
+ read(sd, tamanioKey, sizeof(int));
+ char *key = malloc(atoi(tamanioKey));
+ read(sd, key, tamanioKey);
+ char *tamanioValue = malloc(sizeof(int));
+ read(sd, tamanioValue, sizeof(int));
+ char *value = malloc(tamanioValue);
+ read(sd, value, tamanioValue);
 
-	//insert(tabla, key, value);
-	printf("Haciendo insert");
-}
+ //insert(tabla, key, value);
+ printf("Haciendo insert");
+ }
 
-*/
+ */
