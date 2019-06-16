@@ -4,8 +4,8 @@
  * - SELECT LEE TMPC
  * - SI NO ENCUENTRA LA KEY, ERROR
  *
+ *
  * FALTANTES:
- * - INSERT SOLO LEA VALUES CON COMILLAS
  * - ARREGLO DE RETORNO EN SELECT
  * - ARREGLO FUNCION APARTE MEMTABLE (rompe)
  * - LECTURA DE BLOQUES CON MAPEADO, POR SI NO ESTA TIME;KEY;VALUE COMPLETO
@@ -56,6 +56,12 @@ typedef struct {
 	int TIEMPO_DUMP;
 } configuracionLFS;
 
+typedef struct {
+	int PARTITIONS;
+	char *CONSISTENCY;
+	int COMPACTION_TIME;
+} metadataTabla;
+
 /*
  void iniciarConexion();
  void tomarPeticionSelect(int sd);
@@ -65,6 +71,8 @@ typedef struct {
 
 t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
 
+metadataTabla describeUnaTabla(char *);
+t_dictionary *describeTodasLasTablas();
 void drop(char*);
 
 void insert(char*, char*, char*, char*);
@@ -107,6 +115,7 @@ t_config* configLFS;
 configuracionLFS structConfiguracionLFS;
 t_bitarray* bitarrayBloques;
 char *mmapDeBitmap;
+t_dictionary* diccionarioDescribe;
 
 int main(int argc, char *argv[]) {
 	//pthread_t hiloLevantarConexion;
@@ -120,6 +129,9 @@ int main(int argc, char *argv[]) {
 
 	memtable = malloc(4);
 	memtable = dictionary_create();
+
+	diccionarioDescribe = malloc(4000);
+	diccionarioDescribe = dictionary_create();
 	while (1) {
 		printf("SELECT | INSERT | CREATE |\n");
 		char* mensaje = malloc(1000);
@@ -315,6 +327,36 @@ void realizarPeticion(char** parametros) {
 			drop(tabla);
 		}
 		break;
+	case DESCRIBE:
+		printf("Seleccionaste Describe\n");
+		int criterioDescribeTodasLasTablas(char** parametros,
+				int cantidadDeParametrosUsados) {
+			char* tabla = parametros[1];
+			return (tabla == NULL);
+		}
+		int criterioDescribeUnaTabla(char** parametros,
+				int cantidadDeParametrosUsados) {
+			char* tabla = parametros[1];
+			if (tabla == NULL) {
+				return 0;
+			}
+			string_to_upper(tabla);
+			if(!existeLaTabla(tabla)){
+				printf("La tabla no existe\n");
+			}
+			return existeLaTabla(tabla);
+		}
+		if (parametrosValidos(0, parametros,
+				(void *) criterioDescribeTodasLasTablas)) {
+			describeTodasLasTablas();
+		}
+		if (parametrosValidos(1, parametros,
+				(void *) criterioDescribeUnaTabla)) {
+			char* tabla = parametros[1];
+			string_to_upper(tabla);
+			describeUnaTabla(tabla);
+		}
+		break;
 	default:
 		printf("Error operacion invalida\n");
 	}
@@ -487,7 +529,7 @@ void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 				strlen(
 						string_from_format("%sTables/",
 								structConfiguracionLFS.PUNTO_MONTAJE))
-						+ strlen(tabla) + strlen("/Metadata") + 1);
+						+ strlen(tabla) + strlen("/metadata") + 1);
 		strcpy(path,
 				string_from_format("%sTables/",
 						structConfiguracionLFS.PUNTO_MONTAJE));
@@ -496,7 +538,7 @@ void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 		mkdir(path, 0777);
 
 		strcpy(metadataPath, path);
-		strcat(metadataPath, "/Metadata");
+		strcat(metadataPath, "/metadata");
 		//Si en algun momento quiero convertir string a int existe la funcion atoi
 		crearMetadata(metadataPath, consistencia, cantidadDeParticiones,
 				tiempoDeCompactacion);
@@ -582,7 +624,7 @@ void verBitArray() {
 //la cantidad de bloques dividido por 8 bits = cantidad de bytes necesarios
 //¿Cuantos bloques genero con 649 bytes? como cada bloque es un bit, 649 bytes * 8 bits = 5192 bloques
 int tamanioEnBytesDelBitarray() {
-	char *metadataPath = string_from_format("%sMetadata/Metadata.bin",
+	char *metadataPath = string_from_format("%sMetadata/metadata.bin",
 			structConfiguracionLFS.PUNTO_MONTAJE);
 	t_config *metadata = config_create(metadataPath);
 	//int tamanioPorBloque = config_get_int_value(metadata, "BLOCK_SIZE");
@@ -595,7 +637,7 @@ int tamanioEnBytesDelBitarray() {
 void crearMetadataBloques() {
 	char *metadataPath = string_new();
 	string_append(&metadataPath,
-			string_from_format("%sMetadata/Metadata.bin",
+			string_from_format("%sMetadata/metadata.bin",
 					structConfiguracionLFS.PUNTO_MONTAJE));
 	FILE *archivoMetadata = fopen(metadataPath, "w");
 	t_config *metadata = config_create(metadataPath);
@@ -661,7 +703,7 @@ void crearMetadata(char* metadataPath, char* consistencia,
 	config_destroy(metadata);
 }
 
-//Las 2 funciones de abajo repiten logica, si hay tiempo hacer una funcion sola
+//Las funciones de abajo repiten logica, si hay tiempo hacer una funcion sola
 int existeLaTabla(char* nombreDeTabla) {
 	DIR *directorio = opendir(
 			string_from_format("%sTables",
@@ -689,12 +731,15 @@ void drop(char* tabla) {
 	printf("%s\n\n", path);
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
-		printf("- %s\n", directorioALeer->d_name);
+		//printf("- %s\n", directorioALeer->d_name);
 		//Elimino todo lo que tiene adentro la tabla
 		if (!((directorioALeer->d_type) == DT_DIR)) {
-			printf("!!%s\n", directorioALeer->d_name);
-			//No esta borrando
-			remove(directorioALeer->d_name);
+			char *archivoABorrar = string_new();
+			string_append(&archivoABorrar, path);
+			string_append(&archivoABorrar, "/");
+			string_append(&archivoABorrar, directorioALeer->d_name);
+			printf("!!%s\n", archivoABorrar);
+			remove(archivoABorrar);
 		}
 	}
 	rmdir(path);
@@ -728,12 +773,12 @@ char* realizarSelect(char* tabla, char* key) {
 				strlen(
 						string_from_format("%sTables/",
 								structConfiguracionLFS.PUNTO_MONTAJE))
-						+ strlen(tabla) + strlen("/Metadata") + 1);
+						+ strlen(tabla) + strlen("/metadata") + 1);
 		strcpy(pathMetadata,
 				string_from_format("%sTables/",
 						structConfiguracionLFS.PUNTO_MONTAJE));
 		strcat(pathMetadata, tabla);
-		strcat(pathMetadata, "/Metadata");
+		strcat(pathMetadata, "/metadata");
 		t_config *metadata = config_create(pathMetadata);
 		int cantidadDeParticiones = config_get_int_value(metadata,
 				"PARTITIONS");
@@ -1294,6 +1339,75 @@ void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 int estaEntreComillas(char* valor) {
 	return string_starts_with(valor, "\"") && string_ends_with(valor, "\"");
 }
+
+metadataTabla describeUnaTabla(char *tabla) {
+	char* pathTabla = string_new();
+	string_append(&pathTabla,
+			string_from_format("%sTables",
+					structConfiguracionLFS.PUNTO_MONTAJE));
+	string_append(&pathTabla, "/");
+	string_append(&pathTabla, tabla);
+	DIR *directorio = opendir(pathTabla);
+	struct dirent *directorioALeer;
+	while ((directorioALeer = readdir(directorio)) != NULL) {
+		//Busco la metadata en la tabla
+		if (!((directorioALeer->d_type) == DT_DIR) && !strcmp((directorioALeer->d_name), "metadata")) {
+			char *pathMetadata = string_new();
+			string_append(&pathMetadata, pathTabla);
+			string_append(&pathMetadata, "/");
+			string_append(&pathMetadata, directorioALeer->d_name);
+			//Lleno el struct con los valores de la metadata
+			metadataTabla metadataTabla;
+			metadataTabla.CONSISTENCY = string_new();
+			t_config *metadata = config_create(pathMetadata);
+			string_append(&(metadataTabla.CONSISTENCY), config_get_string_value(metadata, "CONSISTENCY"));
+			metadataTabla.PARTITIONS = config_get_int_value(metadata, "PARTITIONS");
+			metadataTabla.COMPACTION_TIME = config_get_int_value(metadata, "COMPACTION_TIME");
+
+			closedir(directorio);
+			config_destroy(metadata);
+
+			//Imprimo (si me lo pide memoria lo imprimo igual?)
+			printf("%s: \n", tabla);
+			printf("Particiones: %i\n", metadataTabla.PARTITIONS);
+			printf("Consistencia: %s\n", metadataTabla.CONSISTENCY);
+			printf("Tiempo de compactacion: %i\n\n", metadataTabla.COMPACTION_TIME);
+			return metadataTabla;
+		}
+	}
+	printf("¡Error! no se encontro la metadata");
+	closedir(directorio);
+	exit(-1);
+}
+
+t_dictionary *describeTodasLasTablas() {
+	//Podria conservar la estructura en vez de borrar lo que tengo adentro pero tendria que ir fijandome que los valores que
+	//tenga adentro el diccionario todavia sean validos, entonces es mas facil borrar todo y hacer describe desde 0
+	dictionary_clean(diccionarioDescribe);
+
+	DIR *directorio = opendir(string_from_format("%sTables", structConfiguracionLFS.PUNTO_MONTAJE));
+	struct dirent *directorioALeer;
+	while ((directorioALeer = readdir(directorio)) != NULL) {
+		//Busco la metadata de todas las tablas (evaluo que no ingrese a los directorios "." y ".."
+		if ((directorioALeer->d_type) == DT_DIR && strcmp((directorioALeer->d_name), ".") && strcmp((directorioALeer->d_name), "..")) {
+			metadataTabla structMetadata;
+			structMetadata = describeUnaTabla(directorioALeer->d_name);
+			dictionary_put(diccionarioDescribe, directorioALeer->d_name, &structMetadata);
+
+			/* Para probar que funciona esta wea
+			 *
+			 * metadataTabla *metadata;
+			 * metadata = (metadataTabla *)dictionary_get(diccionarioDescribe, directorioALeer->d_name);
+			 * printf("%i", metadata->COMPACTION_TIME);
+			 *
+			*/
+		}
+	}
+	closedir(directorio);
+	return diccionarioDescribe;
+
+}
+
 
 /*
 
