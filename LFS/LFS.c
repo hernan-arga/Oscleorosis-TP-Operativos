@@ -3,12 +3,12 @@
  * HECHO: a verificar que ande:
  * - SELECT LEE TMPC
  * - SI NO ENCUENTRA LA KEY, ERROR
+ * - LECTURA DE BLOQUES CON MAPEADO, POR SI NO ESTA TIME;KEY;VALUE COMPLETO
  *
  *
  * FALTANTES:
  * - ARREGLO DE RETORNO EN SELECT
  * - ARREGLO FUNCION APARTE MEMTABLE (rompe)
- * - LECTURA DE BLOQUES CON MAPEADO, POR SI NO ESTA TIME;KEY;VALUE COMPLETO
  *
  */
 #include <stdio.h>
@@ -98,7 +98,7 @@ int esUnTipoDeConsistenciaValida(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
 //t_registro** obtenerDatosParaKeyDeseada(FILE *, int);
 void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key,
-		t_registro*vectorStructs[], int *cant);
+		t_registro*vectorStructs[], int *cant, char* charProximoBloque, char* charAnteriorBloque);
 void crearMetadataBloques();
 int tamanioEnBytesDelBitarray();
 //void actualizarBitArray();
@@ -732,7 +732,7 @@ void drop(char* tabla) {
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//printf("- %s\n", directorioALeer->d_name);
-		//Elimino todo lo que tiene adentro la tabla
+		//Elimino todito lo que tiene adentro la tabla
 		if (!((directorioALeer->d_type) == DT_DIR)) {
 			char *archivoABorrar = string_new();
 			string_append(&archivoABorrar, path);
@@ -831,7 +831,7 @@ char* realizarSelect(char* tabla, char* key) {
 			int cantidadIgualDeKeysEnBloque = 0;
 			t_registro* vectorStructs[100];
 			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)),
-					vectorStructs, &cantidadIgualDeKeysEnBloque);
+					vectorStructs, &cantidadIgualDeKeysEnBloque, vectorBloques[i+1], vectorBloques[i-1]);
 
 			//printf("%i", vectorStructs[0]->timestamp);
 			//printf("%i", vectorStructs[1]->timestamp);
@@ -954,7 +954,7 @@ char* realizarSelect(char* tabla, char* key) {
 					t_registro* vectorStructsTemporal[100];
 					obtenerDatosParaKeyDeseada(archivoBloqueTmp, (atoi(key)),
 							vectorStructsTemporal,
-							&cantidadIgualDeKeysEnTemporal);
+							&cantidadIgualDeKeysEnTemporal, vectorBloquesTmp[q+1], vectorBloquesTmp[q-1]);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 					int tempo = 0;
@@ -1087,7 +1087,7 @@ char* realizarSelect(char* tabla, char* key) {
 					t_registro* vectorStructsTemporalC[100];
 					obtenerDatosParaKeyDeseada(archivoBloqueTmpC, (atoi(key)),
 							vectorStructsTemporalC,
-							&cantidadIgualDeKeysEnTemporal);
+							&cantidadIgualDeKeysEnTemporal, vectorBloquesTmpC[q+1], vectorBloquesTmpC[q-1]);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 					int tempo = 0;
@@ -1280,8 +1280,8 @@ char* realizarSelect(char* tabla, char* key) {
 	return NULL;
 }
 
-void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
-		int *cant) {
+/*
+void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant) {
 	int i = 0;
 	char * line = NULL;
 	size_t len = 0;
@@ -1314,6 +1314,87 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 		}
 	}
 }
+*/
+
+
+void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant, char* charProximoBloque, char* charAnteriorBloque) {
+	int i = 0;
+	char * line = NULL;
+	char * line2 = NULL;
+	size_t len = 0;
+	ssize_t read;
+
+	char* pathBloque = malloc(strlen(string_from_format("%sBloques/",structConfiguracionLFS.PUNTO_MONTAJE))	+ strlen(charAnteriorBloque) + strlen(".bin") + 1);
+	strcpy(pathBloque, "./Bloques/");
+	strcat(pathBloque, charAnteriorBloque);
+	strcat(pathBloque, ".bin");
+	FILE *anteriorBloque = fopen(pathBloque, "r");
+	if (anteriorBloque == NULL) {
+		printf("no se pudo abrir archivo de bloques");
+		exit(1);
+	}
+
+	char* pathBloque2 = malloc(strlen(string_from_format("%sBloques/",structConfiguracionLFS.PUNTO_MONTAJE))	+ strlen(charProximoBloque) + strlen(".bin") + 1);
+	strcpy(pathBloque2, "./Bloques/");
+	strcat(pathBloque2, charProximoBloque);
+	strcat(pathBloque2, ".bin");
+	FILE *proximoBloque = fopen(pathBloque2, "r");
+	if (proximoBloque == NULL) {
+		printf("no se pudo abrir archivo de bloques");
+		exit(1);
+	}
+
+	// si NO es el primer bloque del array de BLOCK
+	if(anteriorBloque != NULL){
+		// si el anterior bloque no termina con \n => anterior tiene renglon incompleto => yo tengo el primer renglon al pedo
+		if( fseek(anteriorBloque, -1, SEEK_END) != '\n' ){
+			// descarto primer renglon y sigo con el sgte
+			getline(&line, &len, fp);
+		}
+	}
+	while ((read = getline(&line, &len, fp)) != -1) {
+		if(proximoBloque != NULL){
+			// si( esta linea es la ultima y no termina con \n (es decir que ademas esta incompleta))
+			size_t len2 = len;
+			if ( (getline(&line2, &len2, fp) == -1) && (line[strlen(line)-1] != '\n')){
+				char * lineProxBloque = NULL;
+				size_t lenProxBloque = 0;
+				getline(&lineProxBloque, &lenProxBloque, proximoBloque);
+				//concateno la linea que tengo con la primera linea del proximo bloque
+				strcat(line, lineProxBloque);
+			}
+		}
+		int keyLeida = atoi(string_split(line, ";")[1]);
+		if (keyLeida == key) {
+			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+			t_registro p_registro2;
+			p_registro = &p_registro2;
+			char** arrayLinea = malloc(strlen(line) + 1);
+			arrayLinea = string_split(line, ";");
+			int timestamp = atoi(arrayLinea[0]);
+			int key = atoi(arrayLinea[1]);
+			p_registro->timestamp = timestamp;
+			p_registro->key = key;
+			p_registro->value = malloc(strlen(arrayLinea[2]));
+			strcpy(p_registro->value, arrayLinea[2]);
+			vectorStructs[i] = malloc(12);
+			memcpy(&vectorStructs[i]->key, &p_registro->key,
+					sizeof(p_registro->key));
+			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
+					sizeof(p_registro->timestamp));
+			vectorStructs[i]->value = malloc(strlen(p_registro->value));
+			memcpy(vectorStructs[i]->value, p_registro->value,
+					strlen(p_registro->value));
+			i++;
+			(*cant)++;
+		}
+	} // cierra el while
+	fclose(anteriorBloque);
+	fclose(proximoBloque);
+	free(pathBloque);
+	free(pathBloque2);
+}
+
 
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 		t_registro **entradaTabla, int laKey, int *cant) {
@@ -1382,7 +1463,7 @@ metadataTabla describeUnaTabla(char *tabla) {
 
 t_dictionary *describeTodasLasTablas() {
 	//Podria conservar la estructura en vez de borrar lo que tengo adentro pero tendria que ir fijandome que los valores que
-	//tenga adentro el diccionario todavia sean validos, entonces es mas facil borrar todo y hacer describe desde 0
+	//tenga adentro el diccionario todavia sean validos, entonces es mas facil borrar tod y hacer describe desde 0
 	dictionary_clean(diccionarioDescribe);
 
 	DIR *directorio = opendir(string_from_format("%sTables", structConfiguracionLFS.PUNTO_MONTAJE));
