@@ -31,6 +31,7 @@
 #include <commons/log.h>
 #include <commons/string.h>
 #include <commons/bitarray.h>
+#include <commons/collections/queue.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 
@@ -73,6 +74,8 @@ t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tab
 
 metadataTabla describeUnaTabla(char *);
 t_dictionary *describeTodasLasTablas();
+void dump(char*);
+
 void drop(char*);
 
 void insert(char*, char*, char*, char*);
@@ -456,11 +459,12 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 		p_registro->value = malloc(strlen(valor));
 		strcpy(p_registro->value, valor);
 		if (!existeUnaListaDeDatosADumpear(tabla)) {
-			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+			//¿Esto no esta de mas?
+			/*t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 			p_registro->timestamp = atoi(timestamp);
 			p_registro->key = atoi(key);
 			p_registro->value = malloc(strlen(valor));
-			strcpy(p_registro->value, valor);
+			strcpy(p_registro->value, valor);*/
 			t_registro* vectorStructs[100];
 			vectorStructs[0] = malloc(12);
 			memcpy(&vectorStructs[0]->key, &p_registro->key,
@@ -469,8 +473,7 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 					sizeof(p_registro->timestamp));
 			vectorStructs[0]->value = malloc(strlen(p_registro->value));
 			memcpy(vectorStructs[0]->value, p_registro->value,
-					strlen(p_registro->value));
-
+					strlen(p_registro->value)+1);
 			dictionary_put(memtable, tabla, &vectorStructs);
 			// t_registro **existe = dictionary_get(memtable, "TABLA1");
 			// printf("%s\n",existe[0]->value);
@@ -491,14 +494,50 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 			vectorStructs[i]->value = malloc(strlen(p_registro->value));
 			memcpy(vectorStructs[i]->value, p_registro->value,
 					strlen(p_registro->value));
-
 			dictionary_put(memtable, tabla, vectorStructs);
 		}
+		//Testeando dump
+		dump(tabla);
 	}
 }
 
 int existeUnaListaDeDatosADumpear(char* tabla) {
 	return dictionary_has_key(memtable, tabla);
+}
+
+void dump(char* tabla){
+	//Tomo el tamanio por bloque de mi LFS
+	/*char *metadataPath = string_from_format("%sMetadata/metadata.bin",
+				structConfiguracionLFS.PUNTO_MONTAJE);
+	t_config *metadata = config_create(metadataPath);
+	int tamanioPorBloque = config_get_int_value(metadata, "BLOCK_SIZE");
+	config_destroy(metadata);
+	//t_registro* vectorStructs[100];
+	//vectorStructs[0] = malloc(12);
+	t_registro **registrosTabla = dictionary_get(memtable, tabla);
+	int i = 0;
+	int cantidadDeBytesDisponiblesEnELBloque = tamanioPorBloque;
+	t_registro *p_registro = malloc(12);
+	t_queue *registros = queue_create();
+	while(registrosTabla[i]!=NULL){
+
+		memcpy(&p_registro, &registrosTabla[0], sizeof(p_registro));
+		int cantidadDeBytesEnElRegistro = strlen(p_registro->value) +
+				contarLosDigitos(p_registro->key) +
+				contarLosDigitos(p_registro->timestamp) + 3; //2 ; y un \n
+		if(cantidadDeBytesEnElRegistro < cantidadDeBytesDisponiblesEnELBloque){
+			queue_push(registros, p_registro);
+		}
+		else{
+			asignarBloque
+			cantidadDeBytesDisponiblesEnELBloque = tamanioPorBloque;
+		}
+		cantidadDeBytesDisponiblesEnELBloque -= cantidadDeBytesEnElRegistro;
+		printf("%s\n", p_registro->value);
+		i++;
+	}
+	free(p_registro);
+	queue_destroy(registros);*/
 }
 
 void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
@@ -586,7 +625,7 @@ void asignarBloque(char* directorioBinario) {
 		string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
 		string_append(&stringdelArrayDeBloques, "]");
 		//64 lo tengo que reemplazar por el tamanio de un bloque supongo
-		config_set_value(binario, "SIZE", "64");
+		config_set_value(binario, "SIZE", "0");
 		//los bloques despues se levantan con config_get_array_value
 		config_set_value(binario, "BLOCKS", stringdelArrayDeBloques);
 		config_save_in_file(binario, directorioBinario);
