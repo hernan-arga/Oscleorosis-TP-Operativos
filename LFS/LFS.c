@@ -34,9 +34,10 @@
 #include <commons/collections/queue.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <math.h>
 
-#define TRUE 1
-#define FALSE 0
+//#define TRUE 1
+//#define FALSE 0
 //#define PORT 4444
 
 typedef enum {
@@ -75,6 +76,9 @@ t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tab
 metadataTabla describeUnaTabla(char *);
 t_dictionary *describeTodasLasTablas();
 void dump(char*);
+int contarLosDigitos(int);
+void crearArchivoDeBloquesConRegistros(int, char*);
+void crearArchivoTMP(char*, char*, int);
 
 void drop(char*);
 
@@ -86,7 +90,8 @@ char* realizarSelect(char*, char*);
 void create(char*, char*, char*, char*);
 void crearMetadata(char*, char*, char*, char*);
 void crearBinarios(char*, int);
-void asignarBloque(char*);
+int asignarBloque();
+void crearArchivoDeBloquesVacio(char*, int);
 
 //Funciones Auxiliares
 int existeCarpeta(char*);
@@ -264,7 +269,7 @@ void realizarPeticion(char** parametros) {
 				return esUnNumero(key) && esUnNumero(timestamp)
 						&& estaEntreComillas(value);
 			}
-			return esUnNumero(key);
+			return esUnNumero(key) && estaEntreComillas(value);
 		}
 		//puede o no estar el timestamp
 		if (parametrosValidos(4, parametros, (void *) criterioInsert)) {
@@ -507,7 +512,7 @@ int existeUnaListaDeDatosADumpear(char* tabla) {
 
 void dump(char* tabla){
 	//Tomo el tamanio por bloque de mi LFS
-	/*char *metadataPath = string_from_format("%sMetadata/metadata.bin",
+	char *metadataPath = string_from_format("%sMetadata/metadata.bin",
 				structConfiguracionLFS.PUNTO_MONTAJE);
 	t_config *metadata = config_create(metadataPath);
 	int tamanioPorBloque = config_get_int_value(metadata, "BLOCK_SIZE");
@@ -516,28 +521,83 @@ void dump(char* tabla){
 	//vectorStructs[0] = malloc(12);
 	t_registro **registrosTabla = dictionary_get(memtable, tabla);
 	int i = 0;
-	int cantidadDeBytesDisponiblesEnELBloque = tamanioPorBloque;
+	int cantidadDeBytesADumpear = 0;
 	t_registro *p_registro = malloc(12);
-	t_queue *registros = queue_create();
+	char *registrosADumpear = string_new();
 	while(registrosTabla[i]!=NULL){
-
-		memcpy(&p_registro, &registrosTabla[0], sizeof(p_registro));
-		int cantidadDeBytesEnElRegistro = strlen(p_registro->value) +
+		memcpy(&p_registro, &registrosTabla[i], sizeof(p_registro));
+		string_append(&registrosADumpear, string_itoa(p_registro->timestamp));
+		string_append(&registrosADumpear, ";");
+		string_append(&registrosADumpear, string_itoa(p_registro->key));
+		string_append(&registrosADumpear, ";");
+		string_append(&registrosADumpear, p_registro->value);
+		string_append(&registrosADumpear, "\n");
+		cantidadDeBytesADumpear += strlen(p_registro->value) +
 				contarLosDigitos(p_registro->key) +
 				contarLosDigitos(p_registro->timestamp) + 3; //2 ; y un \n
-		if(cantidadDeBytesEnElRegistro < cantidadDeBytesDisponiblesEnELBloque){
-			queue_push(registros, p_registro);
-		}
-		else{
-			asignarBloque
-			cantidadDeBytesDisponiblesEnELBloque = tamanioPorBloque;
-		}
-		cantidadDeBytesDisponiblesEnELBloque -= cantidadDeBytesEnElRegistro;
-		printf("%s\n", p_registro->value);
+		//printf("%s\n", registrosADumpear);
+		printf("key:%i\n", contarLosDigitos(p_registro->key));
+		printf("timestamp:%i\n", contarLosDigitos(p_registro->timestamp));
 		i++;
 	}
+	//Calcular bien la cantidad que necesito si hay un poquito mas que un bloque
+	int cantidadDeBloquesCompletosNecesarios = cantidadDeBytesADumpear/tamanioPorBloque;
+	int cantidadDeComasNecesarias = cantidadDeBloquesCompletosNecesarios-1;
+	char *stringdelArrayDeBloques = string_new();
+	//Asigno los bloques y voy creando el array de bloques asignados
+	string_append(&stringdelArrayDeBloques, "[");
+	int desdeDondeTomarLosRegistros = 0;
+	while(cantidadDeBloquesCompletosNecesarios != 0){
+		int bloqueEncontrado = asignarBloque();
+		char *stringAuxRegistros = string_new();
+		string_append(&stringAuxRegistros, string_substring(registrosADumpear, desdeDondeTomarLosRegistros,tamanioPorBloque));
+		crearArchivoDeBloquesConRegistros(bloqueEncontrado, stringAuxRegistros);
+		//Agrego al string del array el bloque nuevo
+		string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
+		if(cantidadDeComasNecesarias != 0){
+			string_append(&stringdelArrayDeBloques, ",");
+		}
+		cantidadDeBloquesCompletosNecesarios--;
+		cantidadDeComasNecesarias--;
+		desdeDondeTomarLosRegistros+=tamanioPorBloque;
+	}
+	string_append(&stringdelArrayDeBloques, "]");
+	//printf("%remanente: i - cantidad de bloques: i\n", hayRemanente, cantidadDeBloquesNecesarios);
+	//Tengo que ver como fijarme que numero de tmp corresponde dependiendo de que numero de dumpeo se hizo sobre esta tabla
+	//crearArchivoTMP(directorioTMP, stringdelArrayDeBloques, cantidadDeBytesADumpear);
 	free(p_registro);
-	queue_destroy(registros);*/
+}
+
+int contarLosDigitos(int numero){
+	int contador = 0;
+	while(numero != 0){
+		contador++;
+		numero =(numero / 10);
+	}
+	return contador;
+}
+
+void crearArchivoTMP(char* directorioTMP, char* stringdelArrayDeBloques, int tamanioDeLosBloques){
+	FILE *archivoTMP = fopen(directorioTMP, "w");
+	t_config *tmp = config_create(directorioTMP);
+	config_set_value(tmp, "SIZE", tamanioDeLosBloques);
+	//los bloques despues se levantan con config_get_array_value
+	config_set_value(tmp, "BLOCKS", stringdelArrayDeBloques);
+	config_save_in_file(tmp, archivoTMP);
+	fclose(archivoTMP);
+	config_destroy(tmp);
+}
+
+void crearArchivoDeBloquesConRegistros(int bloqueEncontrado, char* registrosAEscribir){
+	char* pathBloque = string_new();
+	string_append(&pathBloque,
+			string_from_format("%sBloques/",
+					structConfiguracionLFS.PUNTO_MONTAJE));
+	string_append(&pathBloque, string_itoa(bloqueEncontrado));
+	string_append(&pathBloque, ".bin");
+	FILE *bloqueCreado = fopen(pathBloque, "w");
+	fwrite(registrosAEscribir, sizeof(char), strlen(registrosAEscribir), pathBloque);
+	fclose(bloqueCreado);
 }
 
 void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
@@ -596,17 +656,17 @@ void crearBinarios(char* path, int cantidadDeParticiones) {
 		strcat(directorioBinario, "/");
 		strcat(directorioBinario, numeroDeParticion);
 		strcat(directorioBinario, ".bin");
-		asignarBloque(directorioBinario);
+		int numeroDeBloque = asignarBloque();
+		crearArchivoDeBloquesVacio(directorioBinario, numeroDeBloque);
 		free(directorioBinario);
 		free(numeroDeParticion);
 	}
 }
 
 //No se como funciona esta parte
-void asignarBloque(char* directorioBinario) {
+int asignarBloque() {
 	//resolver lo mismo del save y el create que paso con el crearMetadata
-	FILE *archivoBinario = fopen(directorioBinario, "w");
-	t_config *binario = config_create(directorioBinario);
+
 	int encontroUnBloque = 0;
 	int bloqueEncontrado = 0;
 	//Reemplazar para que vaya hasta la cantidad de bloques del archivo de config
@@ -620,32 +680,38 @@ void asignarBloque(char* directorioBinario) {
 	}
 
 	if (encontroUnBloque) {
-		char *stringdelArrayDeBloques = string_new();
-		string_append(&stringdelArrayDeBloques, "[");
-		string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
-		string_append(&stringdelArrayDeBloques, "]");
-		//64 lo tengo que reemplazar por el tamanio de un bloque supongo
-		config_set_value(binario, "SIZE", "0");
-		//los bloques despues se levantan con config_get_array_value
-		config_set_value(binario, "BLOCKS", stringdelArrayDeBloques);
-		config_save_in_file(binario, directorioBinario);
-		//actualizarBitArray();
-		//creo el archivo .bin del bloque
-		char* pathBloque = string_new();
-		string_append(&pathBloque,
-				string_from_format("%sBloques/",
-						structConfiguracionLFS.PUNTO_MONTAJE));
-		string_append(&pathBloque, string_itoa(bloqueEncontrado));
-		string_append(&pathBloque, ".bin");
-		FILE *bloqueCreado = fopen(pathBloque, "w");
-		fclose(bloqueCreado);
+		return bloqueEncontrado;
 	}
 
-	else {
-		//¿Que deberia hacer en este caso?
-		printf("No se encontro bloque disponible\n");
-	}
+	printf("No se encontro bloque disponible\n");
+	exit(-1);
+}
 
+void crearArchivoDeBloquesVacio(char* directorioBinario, int bloqueEncontrado){
+	FILE *archivoBinario = fopen(directorioBinario, "w");
+	t_config *binario = config_create(directorioBinario);
+	char *stringdelArrayDeBloques = string_new();
+	string_append(&stringdelArrayDeBloques, "[");
+	string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
+	string_append(&stringdelArrayDeBloques, "]");
+	//64 lo tengo que reemplazar por el tamanio de un bloque supongo
+	config_set_value(binario, "SIZE", "0");
+	//los bloques despues se levantan con config_get_array_value
+	config_set_value(binario, "BLOCKS", stringdelArrayDeBloques);
+	config_save_in_file(binario, directorioBinario);
+	//actualizarBitArray();
+	//creo el archivo .bin del bloque
+	char* pathBloque = string_new();
+	string_append(&pathBloque,
+			string_from_format("%sBloques/",
+					structConfiguracionLFS.PUNTO_MONTAJE));
+	string_append(&pathBloque, string_itoa(bloqueEncontrado));
+	string_append(&pathBloque, ".bin");
+	FILE *bloqueCreado = fopen(pathBloque, "w");
+	/*if(registrosAEscribir!=NULL){
+		fwrite(registrosAEscribir, sizeof(char), strlen(registrosAEscribir), pathBloque);
+	}*/
+	fclose(bloqueCreado);
 	fclose(archivoBinario);
 	config_destroy(binario);
 }
