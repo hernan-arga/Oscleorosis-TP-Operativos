@@ -87,6 +87,8 @@ sem_t sem2;
 pthread_t threadKernel;
 pthread_t threadFS;
 
+int hizoJ = 0;
+
 void analizarInstruccion(char* instruccion);
 void realizarComando(char** comando);
 OPERACION tipoDePeticion(char* peticion);
@@ -325,7 +327,18 @@ char* realizarSelect(char* tabla, char* key) {
 			pagp->numeroPag = list_size(tablaPag);
 			pagp->timeStamp = *timeStamp;
 
-			list_add(tablaPag, pagp);
+			if(hizoJ == 1)
+			{
+				t_list* pagis = list_create();
+				list_add(pagis, pagp);
+				dictionary_put(tablaSegmentos, tabla, pagis);
+				hizoJ = 0;
+			}
+			else
+			{
+				list_add(tablaPag, pagp);
+			}
+
 
 			char* value = malloc(tamanoValue);
 			value = pedirValue(tabla, key);
@@ -342,7 +355,7 @@ char* realizarSelect(char* tabla, char* key) {
 			*laKey = atoi(key);
 
 			memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame), laKey, sizeof(int));
-			memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(long int)), value, strlen(value)+1);
+			memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(long int)), value, strlen(value));
 			memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int)), timeStamp, sizeof(long int));
 
 			free(timeStamp);
@@ -384,38 +397,77 @@ char* realizarSelect(char* tabla, char* key) {
 		free(timeStamp);
 		//free(value);
 
+		printf("Value: %s", value);
 		return value;
 	}
 
 int realizarInsert(char* tabla, char* key, char* value) {
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
-		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
+			t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
 
-		for (int i = 0; i < list_size(tablaPag); i++) {
-			pagina* pagy = list_get(tablaPag, i);
+			for (int i = 0; i < list_size(tablaPag); i++) {
+				pagina* pagy = list_get(tablaPag, i);
+
+				int* laKey = malloc(sizeof(int));
+
+				memcpy(laKey, (memoriaPrincipal + pagy->numeroFrame * tamanoFrame),sizeof(int));
+
+				if (*laKey == atoi(key))
+				{
+					long int* timeStamp = malloc(sizeof(long int));
+
+					*timeStamp = (long int) time(NULL);
+
+					memcpy((memoriaPrincipal + (pagy->numeroFrame * tamanoFrame) + sizeof(int) + sizeof(long int)), value, strlen(value)+1);
+					memcpy(memoriaPrincipal + pagy->numeroFrame * tamanoFrame + sizeof(int), timeStamp, sizeof(long int));
+
+					*(frames + pagy->numeroFrame) = strlen(value);
+
+					pagy->timeStamp = *timeStamp;
+
+					free(laKey);
+					free(timeStamp);
+
+					return 0;
+				}
+			}
+
+			int frameNum = frameLibre();
+			*(frames + frameNum) = strlen(value);
+
+			char* timeStamp = malloc(sizeof(long int));
+			*timeStamp = (long int) time(NULL);
+
+			pagina* pagp = malloc(sizeof(pagina));
+
+			pagp->modificado = true;
+			pagp->numeroFrame = frameNum;
+			pagp->numeroPag = list_size(tablaPag);
+			pagp->timeStamp = *timeStamp;
+
+			if(hizoJ == 1)
+			{
+				t_list* pagis = list_create();
+				list_add(pagis, pagp);
+				dictionary_put(tablaSegmentos, tabla, pagis);
+				hizoJ = 0;
+			}
+			else
+			{
+				list_add(tablaPag, pagp);
+			}
+
 
 			int* laKey = malloc(sizeof(int));
+			*laKey = atoi(key);
 
-			memcpy(laKey, (memoriaPrincipal + pagy->numeroFrame * tamanoFrame),sizeof(int));
+			memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame, laKey, sizeof(int));
+			memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int), timeStamp, sizeof(long int));
+			memcpy(	memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(long int), value, strlen(value)+1);
 
-			if (*laKey == atoi(key))
-			{
-				long int* timeStamp = malloc(sizeof(long int));
+			free(timeStamp);
 
-				*timeStamp = (long int) time(NULL);
-
-				memcpy((memoriaPrincipal + (pagy->numeroFrame * tamanoFrame) + sizeof(int) + sizeof(long int)), value, strlen(value)+1);
-				memcpy(memoriaPrincipal + pagy->numeroFrame * tamanoFrame + sizeof(int), timeStamp, sizeof(long int));
-
-				*(frames + pagy->numeroFrame) = strlen(value);
-
-				pagy->timeStamp = *timeStamp;
-
-				free(laKey);
-				free(timeStamp);
-
-				return 0;
-			}
+			return 0;
 		}
 
 		int frameNum = frameLibre();
@@ -425,53 +477,26 @@ int realizarInsert(char* tabla, char* key, char* value) {
 		*timeStamp = (long int) time(NULL);
 
 		pagina* pagp = malloc(sizeof(pagina));
-
 		pagp->modificado = true;
 		pagp->numeroFrame = frameNum;
-		pagp->numeroPag = list_size(tablaPag);
+		pagp->numeroPag = 0;
 		pagp->timeStamp = *timeStamp;
 
-		list_add(tablaPag, pagp);
+		t_list* paginas = list_create();
+		list_add(paginas, pagp);
+
+		dictionary_put(tablaSegmentos, tabla, paginas);
 
 		int* laKey = malloc(sizeof(int));
 		*laKey = atoi(key);
 
 		memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame, laKey, sizeof(int));
 		memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int), timeStamp, sizeof(long int));
-		memcpy(	memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(long int), value, strlen(value)+1);
+		memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(long int), value, strlen(value)+1);
 
 		free(timeStamp);
 
 		return 0;
-	}
-
-	int frameNum = frameLibre();
-	*(frames + frameNum) = strlen(value);
-
-	char* timeStamp = malloc(sizeof(long int));
-	*timeStamp = (long int) time(NULL);
-
-	pagina* pagp = malloc(sizeof(pagina));
-	pagp->modificado = true;
-	pagp->numeroFrame = frameNum;
-	pagp->numeroPag = 0;
-	pagp->timeStamp = *timeStamp;
-
-	t_list* paginas = list_create();
-	list_add(paginas, pagp);
-
-	dictionary_put(tablaSegmentos, tabla, paginas);
-
-	int* laKey = malloc(sizeof(int));
-	*laKey = atoi(key);
-
-	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame, laKey, sizeof(int));
-	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int), timeStamp, sizeof(long int));
-	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(long int), value, strlen(value)+1);
-
-	free(timeStamp);
-
-	return 0;
 }
 
 int frameLibre() {
@@ -486,10 +511,10 @@ int frameLibre() {
 
 char* pedirValue(char* tabla, char* laKey) {
 	// Serializo peticion, tabla y key
-	int key = atoi(laKey);
+	int* key = malloc(sizeof(int));
+	*key = atoi(laKey);
 
-	void* buffer = malloc(
-			strlen(tabla) + sizeof(int) + 2 * sizeof(int) + 2 * sizeof(int));
+	char* buffer = malloc(strlen(tabla) + sizeof(int) + 2 * sizeof(int) + 2 * sizeof(int));
 	// primeros dos terminos para TABLA; anteultimo termino para KEY; ultimo para peticion
 
 	int peticion = 1;
@@ -503,7 +528,7 @@ char* pedirValue(char* tabla, char* laKey) {
 
 	int tamanioKey = sizeof(int);
 	memcpy(buffer + 3 * sizeof(int) + strlen(tabla), &tamanioKey, sizeof(int));
-	memcpy(buffer + 4 * sizeof(int) + strlen(tabla), &key, sizeof(int));
+	memcpy(buffer + 4 * sizeof(int) + strlen(tabla), key, sizeof(int));
 
 	send(clienteFS, buffer, strlen(tabla) + 5 * sizeof(int), 0);
 
@@ -511,9 +536,10 @@ char* pedirValue(char* tabla, char* laKey) {
 	int *tamanioValue = malloc(sizeof(int));
 	recv(clienteFS, tamanioValue, sizeof(int), 0);
 
+	printf("Tamanio value: %d\n", *tamanioValue);
+
 	if (*tamanioValue == 0) {
-		char* mensajeALogear = malloc(
-				strlen(" No se encontro la key : ") + sizeof(key) + 1);
+		char* mensajeALogear = malloc( strlen(" No se encontro la key : ") + sizeof(key) + 1);
 		strcpy(mensajeALogear, " No se encontro la key : ");
 		strcat(mensajeALogear, string_itoa(key));
 		t_log* g_logger;
@@ -521,14 +547,14 @@ char* pedirValue(char* tabla, char* laKey) {
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
+		perror("El value no estaba en el FS");
 		return NULL;
 	} else {
 		char *value = malloc(*tamanioValue);
 		recv(clienteFS, value, *tamanioValue, 0);
 		char *valueCortado = string_substring_until(value, *tamanioValue); //corto value
 
-		char* mensajeALogear = malloc(
-				strlen(" Llego select con VALUE : ") + strlen(valueCortado) + 1);
+		char* mensajeALogear = malloc(strlen(" Llego select con VALUE : ") + strlen(valueCortado) + 1);
 		strcpy(mensajeALogear, " Llego select con VALUE : ");
 		strcat(mensajeALogear, valueCortado);
 		t_log* g_logger;
@@ -536,140 +562,140 @@ char* pedirValue(char* tabla, char* laKey) {
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
-
+		free(value);
 		return valueCortado;
 	}
 }
 
 int ejecutarLRU() {
 	long int timeStamp = 0;
-	int numF;
-	int target;
-	t_list* objetivo;
+		int numF;
+		int target;
+		t_list* objetivo;
 
-	void elMenor(char* key, void* value) {
-		t_list* paginas = value;
-		for (int i = 0; i < list_size(paginas); i++) {
-			pagina* pag = list_get(paginas, i);
-			if (timeStamp == 0 && !pag->modificado) {
-				timeStamp = pag->timeStamp;
-				numF = pag->numeroFrame;
-				target = pag->numeroPag;
-				objetivo = paginas;
-			} else {
-				if (pag->timeStamp < timeStamp && !pag->modificado) {
+		void elMenor(char* tabla, t_list* paginas) {
+			for (int i = 0; i < list_size(paginas); i++) {
+				pagina* pag = list_get(paginas, i);
+				if (timeStamp == 0 && !pag->modificado) {
 					timeStamp = pag->timeStamp;
 					numF = pag->numeroFrame;
 					target = pag->numeroPag;
 					objetivo = paginas;
+				} else {
+					if (pag->timeStamp < timeStamp && !pag->modificado) {
+						timeStamp = pag->timeStamp;
+						numF = pag->numeroFrame;
+						target = pag->numeroPag;
+						objetivo = paginas;
+					}
 				}
 			}
 		}
-	}
-	dictionary_iterator(tablaSegmentos, elMenor);
-	if (timeStamp == 0) {
-		sem_post(&sem2);
-		ejecutarJournaling();
-		numF = 0;
-	} else {
-		list_remove_and_destroy_element(objetivo, target, NULL);
-	}
-	return numF;
+
+		dictionary_iterator(tablaSegmentos, elMenor);
+		if (timeStamp == 0) {
+			ejecutarJournaling();
+			numF = 0;
+		} else {
+			void elemento_distroyer(void* elemento)
+			{
+				free(elemento);
+			}
+			list_remove_and_destroy_element(objetivo, target, elemento_distroyer);
+		}
+
+		printf("Remplazo: %d\n", numF);
+		return numF;
 }
 
 void ejecutarJournaling() {
-	sem_wait(&sem2);
 	void journal(char* tabla, void* valor) {
-		t_list* paginas = valor;
-		for (int i = 0; i < list_size(paginas); i++) {
-			pagina* pag = list_get(paginas, i);
-			if (pag->modificado) {
-				int* unaKey = malloc(sizeof(int));
-				memcpy(unaKey,
-						(memoriaPrincipal + pag->numeroFrame * tamanoFrame),
-						sizeof(int));
+			t_list* paginas = valor;
+			for (int i = 0; i < list_size(paginas); i++) {
+				pagina* pag = list_get(paginas, i);
+				if (pag->modificado) {
+					int* unaKey = malloc(sizeof(int));
+					memcpy(unaKey,(memoriaPrincipal + pag->numeroFrame * tamanoFrame),sizeof(int));
 
-				char* value = malloc(tamanoValue);
-				memcpy(value,
-						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
-								+ sizeof(int) + sizeof(long int)),
-						*(frames + pag->numeroFrame)+1);
+					char* value = malloc(tamanoValue);
+					memcpy(value,(memoriaPrincipal + pag->numeroFrame * tamanoFrame	+ sizeof(int) + sizeof(long int)),*(frames + pag->numeroFrame)+1);
 
-				// Serializo peticion, tabla, key, value (el timestamp lo agrega el fs y siempre es el ACTUAL)
-				char* buffer = malloc(
-						6 * sizeof(int) + strlen(tabla) + strlen(value));
+					// Serializo peticion, tabla, key, value (el timestamp lo agrega el fs y siempre es el ACTUAL)
+					char* buffer = malloc(6 * sizeof(int) + strlen(tabla) + strlen(value));
 
-				int peticion = 2;
-				int tamanioPeticion = sizeof(int);
-				memcpy(buffer, &tamanioPeticion, sizeof(int));
-				memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+					int peticion = 2;
+					int tamanioPeticion = sizeof(int);
+					memcpy(buffer, &tamanioPeticion, sizeof(int));
+					memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
-				int tamanioTabla = strlen(tabla);
-				memcpy(buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
-				memcpy(buffer + 3 * sizeof(int), tabla, strlen(tabla));
+					int tamanioTabla = strlen(tabla);
+					memcpy(buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
+					memcpy(buffer + 3 * sizeof(int), tabla, strlen(tabla));
 
-				int key = atoi(unaKey);
-				int tamanioKey = sizeof(int);
-				memcpy(buffer + 3 * sizeof(int) + strlen(tabla), &tamanioKey,
-						sizeof(int));
-				memcpy(buffer + 4 * sizeof(int) + strlen(tabla), &key,
-						sizeof(int));
+					int tamanioKey = sizeof(int);
+					memcpy(buffer + 3 * sizeof(int) + strlen(tabla), &tamanioKey,
+							sizeof(int));
+					memcpy(buffer + 4 * sizeof(int) + strlen(tabla), unaKey,
+							sizeof(int));
 
-				int tamanioValue = strlen(value);
-				memcpy(buffer + 5 * sizeof(int) + strlen(tabla), &tamanioValue,
-						sizeof(int));
-				memcpy(buffer + 6 * sizeof(int) + strlen(tabla), value,
-						strlen(value));
+					int tamanioValue = strlen(value);
+					memcpy(buffer + 5 * sizeof(int) + strlen(tabla), &tamanioValue,
+							sizeof(int));
+					memcpy(buffer + 6 * sizeof(int) + strlen(tabla), value,
+							strlen(value));
 
-				send(clienteFS, buffer,
-						6 * sizeof(int) + strlen(tabla) + strlen(value), 0);
+					send(clienteFS, buffer,	6 * sizeof(int) + strlen(tabla) + strlen(value), 0);
 
-				// Deserializo respuesta
-				int* tamanioRespuesta = malloc(sizeof(int));
-				read(clienteFS, tamanioRespuesta, sizeof(int));
-				int* ok = malloc(*tamanioRespuesta);
-				read(clienteFS, ok, *tamanioRespuesta);
+					// Deserializo respuesta
+					int* tamanioRespuesta = malloc(sizeof(int));
+					read(clienteFS, tamanioRespuesta, sizeof(int));
+					int* ok = malloc(*tamanioRespuesta);
+					read(clienteFS, ok, *tamanioRespuesta);
 
-				if (*ok == 0) {
-					char* mensajeALogear = malloc(
-							strlen(" No se pudo realizar insert en FS ") + 1);
-					strcpy(mensajeALogear,
-							" No se pudo realizar insert en FS ");
-					t_log* g_logger;
-					g_logger = log_create("./logs.log", "MEMORIA", 1,
-							LOG_LEVEL_ERROR);
-					log_error(g_logger, mensajeALogear);
-					log_destroy(g_logger);
-					free(mensajeALogear);
+					if (*ok == 0) {
+						char* mensajeALogear = malloc(
+								strlen(" No se pudo realizar insert en FS ") + 1);
+						strcpy(mensajeALogear,
+								" No se pudo realizar insert en FS ");
+						t_log* g_logger;
+						g_logger = log_create("./logs.log", "MEMORIA", 1,
+								LOG_LEVEL_ERROR);
+						log_error(g_logger, mensajeALogear);
+						log_destroy(g_logger);
+						free(mensajeALogear);
+					}
+					if (*ok == 1) {
+						char* mensajeALogear = malloc(
+								strlen(" Se realizo insert en FS ") + 1);
+						strcpy(mensajeALogear, " Se realizo insert en FS ");
+						t_log* g_logger;
+						g_logger = log_create("./logs.log", "MEMORIA", 1,
+								LOG_LEVEL_INFO);
+						log_error(g_logger, mensajeALogear);
+						log_destroy(g_logger);
+						free(mensajeALogear);
+					}
+					//free(mensaje);
 				}
-				if (*ok == 1) {
-					char* mensajeALogear = malloc(
-							strlen(" Se realizo insert en FS ") + 1);
-					strcpy(mensajeALogear, " Se realizo insert en FS ");
-					t_log* g_logger;
-					g_logger = log_create("./logs.log", "MEMORIA", 1,
-							LOG_LEVEL_INFO);
-					log_error(g_logger, mensajeALogear);
-					log_destroy(g_logger);
-					free(mensajeALogear);
-				}
-				//free(mensaje);
 			}
 		}
-	}
 
-	dictionary_iterator(tablaSegmentos, journal);
+		dictionary_iterator(tablaSegmentos, journal);
 
-	for (int i = 0; i < 1000 / tamanoFrame; i++) {
-		*(frames + i) = 0;
-	}
-	dictionary_clean_and_destroy_elements(tablaSegmentos, NULL);
+		for (int i = 0; i < t_archivoConfiguracion.TAM_MEM / tamanoFrame; i++) {
+			*(frames + i) = 0;
+		}
+		void data_destroyer(void* data)
+		{
+			free(data);
+		}
+		dictionary_clean_and_destroy_elements(tablaSegmentos, data_destroyer);
 
-	free(memoriaPrincipal);
+		free(memoriaPrincipal);
 
-	memoriaPrincipal = malloc(t_archivoConfiguracion.TAM_MEM);
+		memoriaPrincipal = malloc(t_archivoConfiguracion.TAM_MEM);
 
-	sem_post(&sem2);
+		hizoJ = 1;
 }
 
 void realizarCreate(char* tabla, char* tipoConsistencia,
@@ -840,6 +866,9 @@ metadataTabla* realizarDescribe(char* tabla) {
 			strlen(tipoConsistenciaCortada));
 	memcpy(&data->tiempoCompactacion, tiempoCompactacion, sizeof(int));
 
+	printf("Particiones: %d\n", data->particiones);
+	printf("T de Comp: %d\n", data->tiempoCompactacion);
+	printf("Consistencia: %s\n", data->consistencia);
 
 	//free(metadata);
 
@@ -1205,7 +1234,7 @@ void tratarKernel(int kernel) {
 		}
 
 	}
-}}
+}
 
 void aceptar() {
 	while (1) {
