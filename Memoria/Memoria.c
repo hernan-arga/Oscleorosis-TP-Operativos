@@ -977,7 +977,7 @@ void conectarseAFS() {
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
 
 	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
-
+	
 	int *tamanioValue = malloc(sizeof(int));
 	recv(clienteFS, tamanioValue, sizeof(int), 0);
 

@@ -2651,9 +2651,7 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Busco la metadata de todas las tablas (evaluo que no ingrese a los directorios "." y ".."
-		if ((directorioALeer->d_type) == DT_DIR
-				&& strcmp((directorioALeer->d_name), ".")
-				&& strcmp((directorioALeer->d_name), "..")) {
+		if ((directorioALeer->d_type) == DT_DIR	&& strcmp((directorioALeer->d_name), ".") && strcmp((directorioALeer->d_name), "..")) {
 			metadataTabla structMetadata;
 
 			sem_t *semaforoTabla;
@@ -2663,14 +2661,12 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 			// dameSemaforo(tabla, &semaforoTabla); todo anda mal semaforo
 			// sem_wait(semaforoTabla);
 
-			structMetadata = describeUnaTabla(directorioALeer->d_name,
-					seImprimePorPantalla);
+			structMetadata = describeUnaTabla(directorioALeer->d_name, seImprimePorPantalla);
 			metadataTabla * metadata = malloc(sizeof(metadata));
 			metadata->COMPACTION_TIME = structMetadata.COMPACTION_TIME;
 			metadata->CONSISTENCY = structMetadata.CONSISTENCY;
 			metadata->PARTITIONS = structMetadata.PARTITIONS;
-			dictionary_put(diccionarioDescribe, directorioALeer->d_name,
-					metadata); // ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+			dictionary_put(diccionarioDescribe, tabla, metadata); // ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 			// sem_post(semaforoTabla);
 
@@ -2679,8 +2675,6 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 			  metadata2 = (metadataTabla *)dictionary_get(diccionarioDescribe, directorioALeer->d_name);
 			  printf("--%i", metadata2->COMPACTION_TIME);
 			  printf("--%i", metadata2->PARTITIONS);*/
-
-
 		}
 	}
 	/*metadataTabla *metadata = dictionary_get(diccionarioDescribe, "TABLA");
