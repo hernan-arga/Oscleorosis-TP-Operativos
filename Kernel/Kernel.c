@@ -684,6 +684,8 @@ void operacion_gossiping() {
 			unaM->direccionSocket = *direccion;
 			unaM->socket = *socket;
 
+			//Aca la agregas a tu lista
+
 			free(direccion);
 			free(num);
 			free(socket);
