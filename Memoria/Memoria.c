@@ -1245,7 +1245,9 @@ void aceptar() {
 	while (1) {
 		int cliente = accept(server, (void*) &serverAddress, &tamanoDireccion);
 		char* buf = malloc(2);
+
 		recv(cliente, buf, 2, 0);
+
 		if (atoi(buf) == 0) {
 			pthread_t threadTratarCliente;
 			int32_t idThreadTratarCliente = pthread_create(&threadTratarCliente,

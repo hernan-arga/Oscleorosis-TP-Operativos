@@ -4,8 +4,9 @@
  * Sincronizar con semaforos
  * Conectar el goissiping con memoria cada x tiempo para levantar las memorias
  * Describe global para pedir las tablas del FS
- * Agregar las tablas que se conectaron y las que no borrarlas
+ * Agregar las tablas que se conectaron y las que no borrarlas (hecho probar que funcione)
  *
+ *¿Esta bien que el describe se mande siempre a strongConsistency? - preguntar
  */
 #include<stdio.h>
 #include<stdlib.h>
@@ -479,8 +480,6 @@ void atenderPeticionesDeConsola() {
 		//Aca no me interesa esta variable pero la necesita
 		int huboError;
 		do {
-			printf(
-					"Mis subprocesos estan a la espera de su mensaje, usuario.\n");
 			fgets(mensaje, 100, stdin);
 		} while (!strcmp(mensaje, "\n") || !strcmp(mensaje, " \n"));
 		tomar_peticion(mensaje, 1, &huboError);
@@ -1261,14 +1260,14 @@ void mandarDrop(char *tabla, int socketMemoria){
 	void* buffer = malloc(sizeof(int) + sizeof(int) +strlen(tabla));
 	int peticion = 5;
 	int tamanioPeticion = sizeof(int);
-		memcpy(buffer, &tamanioPeticion, sizeof(int));
-		memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+	memcpy(buffer, &tamanioPeticion, sizeof(int));
+	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
-		int tamanioTabla = strlen(tabla)+1;
-		memcpy(buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
-		memcpy(buffer + 3*sizeof(int), tabla, tamanioTabla);
+	int tamanioTabla = strlen(tabla)+1;
+	memcpy(buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(buffer + 3*sizeof(int), tabla, tamanioTabla);
 
-		send(socketMemoria, buffer, 3*sizeof(int)+tamanioTabla, 0);
+	send(socketMemoria, buffer, 3*sizeof(int)+tamanioTabla, 0);
 }
 
 void mandarJournal(int socketMemoria){
@@ -1501,7 +1500,7 @@ void describeUnaTabla(char* tabla) {
 }
 
 void describeTodasLasTablas() {
-	dictionary_iterator(tablas_conocidas, (void*) describeUnaTabla);
+
 }
 
 //TODO socket para dropear la tabla en memoria y borrar la tabla de mi lista de tablas conocidas.
