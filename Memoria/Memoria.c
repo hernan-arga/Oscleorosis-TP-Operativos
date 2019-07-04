@@ -1098,8 +1098,70 @@ void tomarPeticionDescribe1Tabla(int kernel){
 }
 
 void tomarPeticionDescribeGlobal(int kernel){
-	realizarDescribeGlobal();
-	//send(kernel, unDiccionario, sizeof(unDiccionario), 0);
+	// primer paso : pedirselo al fs
+	// serializo peticion
+	void* buffer = malloc(2 * sizeof(int));
+	int peticion = 6;
+	int tamanioPeticion = sizeof(int);
+	memcpy(buffer, &tamanioPeticion, sizeof(int));
+	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+	send(clienteFS, buffer, 2 * sizeof(int), 0);
+
+	// deserializo
+	int *tamanioTabla2 = malloc(sizeof(int));
+	read(clienteFS, tamanioTabla2, sizeof(int));
+	while(*tamanioTabla2 != 0){
+		char *tabla = malloc(*tamanioTabla2);
+		read(clienteFS, tabla, *tamanioTabla2);
+		char *tablaCortada = string_substring_until(tabla, *tamanioTabla2);
+
+		int *tamanioConsistencia = malloc(sizeof(int));
+		read(clienteFS, tamanioConsistencia, sizeof(int));
+		char *tipoConsistencia = malloc(*tamanioConsistencia);
+		read(clienteFS, tipoConsistencia, *tamanioConsistencia);
+		char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia, *tamanioConsistencia);
+
+		int* tamanioNumeroParticiones = malloc(sizeof(int));
+		read(clienteFS, tamanioNumeroParticiones, sizeof(int));
+		int* numeroParticiones = malloc(*tamanioNumeroParticiones);
+		read(clienteFS, numeroParticiones, *tamanioNumeroParticiones);
+
+		int* tamanioTiempoCompactacion = malloc(sizeof(int));
+		read(clienteFS, tamanioTiempoCompactacion, sizeof(int));
+		int* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
+		read(clienteFS, tiempoCompactacion, *tamanioTiempoCompactacion);
+
+		// segundo paso : se lo envia al kernel
+		// serializo tabla y metadata
+
+		void* buffer2 = malloc( strlen(tablaCortada) + strlen(tipoConsistenciaCortada) + 6*sizeof(int) );
+
+		int tamanioTabla = strlen(tablaCortada);
+		memcpy(buffer2, &tamanioTabla, sizeof(int));
+		memcpy(buffer2 + sizeof(int), tablaCortada, strlen(tablaCortada));
+
+		int tamanioMetadataConsistency = strlen(tipoConsistenciaCortada);
+		memcpy(buffer2 + sizeof(int) + strlen(tablaCortada), &tamanioMetadataConsistency, sizeof(int));
+		memcpy(buffer2 + 2*sizeof(int) + strlen(tablaCortada), tipoConsistenciaCortada, strlen(tipoConsistenciaCortada));
+
+		int tamanioParticiones = sizeof(int);
+		memcpy(buffer2 + 2*sizeof(int) + strlen(tablaCortada) + strlen(tipoConsistenciaCortada), &tamanioParticiones, sizeof(int));
+		memcpy(buffer2 + 3*sizeof(int) + strlen(tablaCortada) + strlen(tipoConsistenciaCortada), numeroParticiones, sizeof(int));
+
+		int tamanioCompactacion = sizeof(int);
+		memcpy(buffer2 + 4*sizeof(int)+ strlen(tablaCortada) + strlen(tipoConsistenciaCortada), &tamanioCompactacion, sizeof(int));
+		memcpy(buffer2 + 5*sizeof(int)+ strlen(tablaCortada) + strlen(tipoConsistenciaCortada), tiempoCompactacion, sizeof(int));
+
+		send(kernel, buffer2, strlen(tablaCortada) + strlen(tipoConsistenciaCortada) + 6*sizeof(int), 0);
+
+		read(clienteFS, tamanioTabla2, sizeof(int));
+	}
+
+	char* buffer2 = malloc(4);
+	int respuesta = 0;
+	memcpy(buffer2, &respuesta, sizeof(int));
+	send(kernel, buffer2, sizeof(int), 0);
+
 }
 
 void tomarPeticionDrop(int kernel){
@@ -1143,7 +1205,7 @@ void tratarKernel(int kernel) {
 		}
 
 	}
-}
+}}
 
 void aceptar() {
 	while (1) {
