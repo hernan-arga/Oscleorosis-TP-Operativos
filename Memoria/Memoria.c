@@ -1311,7 +1311,7 @@ void tomarPeticionInsert(int kernel) {
 	recv(kernel, tamanioValue, sizeof(int), 0);
 	char* value = malloc(*tamanioValue);
 	recv(kernel, value, *tamanioValue, 0);
-	printf("value: %s\n", value);
+	//printf("value: %s\n", value);
 
 	realizarInsert(tabla, key, value);
 	free(value);

@@ -1945,7 +1945,7 @@ char* realizarSelect(char* tabla, char* key) {
 				"PARTITIONS");
 
 		int particionQueContieneLaKey = (atoi(key)) % cantidadDeParticiones;
-		printf("La key esta en la particion %i\n", particionQueContieneLaKey);
+		printf("Si existe, la key deberia estar en la particion %i\n", particionQueContieneLaKey);
 		char* stringParticion = malloc(4);
 		stringParticion = string_itoa(particionQueContieneLaKey);
 
@@ -2685,13 +2685,11 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			p_registro->value = malloc(strlen(arrayLinea[2]) + 1);
 			strcpy(p_registro->value, arrayLinea[2]);
 			vectorStructs[i] = malloc(8);
-			memcpy(&vectorStructs[i]->key, &p_registro->key,
-					sizeof(p_registro->key));
-			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
-					sizeof(p_registro->timestamp));
-			vectorStructs[i]->value = malloc(strlen(arrayLinea[2]));
-			memcpy(vectorStructs[i]->value, p_registro->value,
-					strlen(p_registro->value) + 1);
+
+			memcpy(&vectorStructs[i]->key, &p_registro->key, sizeof(p_registro->key));
+			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp, sizeof(p_registro->timestamp));
+			vectorStructs[i]->value = malloc(strlen(arrayLinea[2]) +1);
+			memcpy(vectorStructs[i]->value, p_registro->value, strlen(p_registro->value)+1);
 			i++;
 			(*cant)++;
 		}
@@ -3007,29 +3005,39 @@ void tomarPeticionSelect(int sd) {
 	read(sd, tabla, *tamanioTabla);
 	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
-	int *tamanioKey = malloc(sizeof(int));
-	read(sd, tamanioKey, sizeof(int));
-	int *key = malloc(*tamanioKey);
-	read(sd, key, *tamanioKey);
-	char* keyString = string_itoa(*key);
 
-	char *value = realizarSelect(tablaCortada, keyString);
-	printf("%s\n", value);
+ void tomarPeticionSelect(int sd) {
+	 // deserializo peticion de la memoria
+	 int *tamanioTabla = malloc(sizeof(int));
+	 read(sd, tamanioTabla, sizeof(int));
+	 char *tabla = malloc(*tamanioTabla);
+	 read(sd, tabla, *tamanioTabla);
+	 char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
-	// serializo paquete
-	if (value == NULL) {
-		int ok = 0;
-		void* buffer = malloc(4);
-		memcpy(buffer, &ok, 4);
-		send(sd, buffer, 4, 0);
-	} else {
-		void *buffer = malloc(strlen(value) + sizeof(int));
-		int tamanio = strlen(value);
-		memcpy(buffer, &tamanio, sizeof(int));
-		memcpy(buffer + sizeof(int), value, tamanio);
-		send(sd, buffer, strlen(value) + sizeof(int), 0);
-	}
-}
+	 int *tamanioKey = malloc(sizeof(int));
+	 read(sd, tamanioKey, sizeof(int));
+	 int *key = malloc(*tamanioKey);
+	 read(sd, key, *tamanioKey);
+	 char* keyString = string_itoa(*key);
+
+	 char *value = realizarSelect(tablaCortada, keyString);
+	 //printf("%s\n", value);
+
+	 // serializo paquete
+	 if(value == NULL){
+		 int ok = 0;
+		 void* buffer = malloc(4);
+		 memcpy(buffer, &ok, 4);
+		 send(sd, buffer,4,0);
+	 }
+	 else{
+		 void *buffer = malloc(strlen(value) + sizeof(int));
+		 int tamanio = strlen(value);
+		 memcpy(buffer, &tamanio, sizeof(int));
+		 memcpy(buffer + sizeof(int), value, tamanio);
+		 send(sd, buffer, strlen(value)+sizeof(int), 0);
+	 }
+ }
 
 void tomarPeticionCreate(int sd) {
 	// deserializo peticion de mm

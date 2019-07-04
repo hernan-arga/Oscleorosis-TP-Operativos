@@ -832,7 +832,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 	OPERACION instruccion = tipo_de_peticion(peticion);
 	switch (instruccion) {
 	case SELECT:
-		printf("Seleccionaste Select\n");
+		;
+		//printf("Seleccionaste Select\n");
 		//Defino de que manera van a ser validos los parametros del select y luego paso el puntero de dicha funcion.
 		//Los parametros son validos si el segundo (la key) es un numero, y la cantidadDeParametrosUsados solo se pasa para hacer
 		//polimorfica la funcion criterioTiposCorrectos.
@@ -845,16 +846,13 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			}
 			if (!dictionary_has_key(tablas_conocidas, tabla)) {
 				char *mensajeALogear = string_new();
-				string_append(&mensajeALogear,
-						"No se tiene conocimiento de la tabla: ");
+				string_append(&mensajeALogear, "No se tiene conocimiento de la tabla: ");
 				string_append(&mensajeALogear, tabla);
-				g_logger = log_create("./tablasNoEncontradas", "KERNEL", 1,
-						LOG_LEVEL_ERROR);
+				g_logger = log_create("./tablasNoEncontradas", "KERNEL", 1,	LOG_LEVEL_ERROR);
 				log_error(g_logger, mensajeALogear);
 				free(mensajeALogear);
 			}
-			return esUnNumero(key)
-					&& dictionary_has_key(tablas_conocidas, tabla);
+			return esUnNumero(key) && dictionary_has_key(tablas_conocidas, tabla);
 		}
 
 		if (parametrosValidos(2, parametros, (void*) criterioSelect)) {
@@ -863,8 +861,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				printf("Archivando SELECT para ir a cola de Ready.\n");
 				char* nombre_archivo = tempSinAsignar();
 				FILE* temp = fopen(nombre_archivo, "w");
-				fprintf(temp, "%s %s %s", "SELECT", parametros[1],
-						parametros[2]);
+				fprintf(temp, "%s %s %s", "SELECT", parametros[1], parametros[2]);
 				fclose(temp);
 				planificador(nombre_archivo);
 			} else {
@@ -873,14 +870,13 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 
 				char* tabla = parametros[1];
 				char *key = parametros[2];
-				struct tabla *unaTabla = dictionary_get(tablas_conocidas,
-						tabla);
+				struct tabla *unaTabla = dictionary_get(tablas_conocidas, tabla);
 				//Aca lo manda por sockets a la memoria correspondiente y en caso de error modifica la variable huboError
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
 					//strongConsistency->socket
 					char *value = pedirValue(tabla, key,
 							strongConsistency->socket);
-					printf("El value es: %s\n", value);
+					//printf("El value es: %s\n", value);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						char* key = parametros[2];
@@ -925,7 +921,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		break;
 
 	case INSERT:
-		printf("Seleccionaste Insert\n");
+		;
+		//printf("Seleccionaste Insert\n");
 		int criterioInsert(char** parametros, int cantidadDeParametrosUsados) {
 			char* key = parametros[2];
 			char *tabla = parametros[1];
@@ -1008,7 +1005,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		}
 		break;
 	case CREATE:
-		printf("Seleccionaste Create\n");
+		;
+		//printf("Seleccionaste Create\n");
 		int criterioCreate(char** parametros, int cantidadDeParametrosUsados) {
 			char* tabla = parametros[1];
 			char* tiempoCompactacion = parametros[4];
@@ -1098,7 +1096,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		}
 		break;
 	case DESCRIBE:
-		printf("Seleccionaste Describe\n");
+		;
+		//printf("Seleccionaste Describe\n");
 		int criterioDescribeTodasLasTablas(char** parametros,
 				int cantidadDeParametrosUsados) {
 			char* tabla = parametros[1];
@@ -1151,7 +1150,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		}
 		break;
 	case DROP:
-		printf("Seleccionaste Drop\n");
+		;
+		//printf("Seleccionaste Drop\n");
 		int criterioDrop(char** parametros, int cantidadDeParametrosUsados) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
@@ -1237,7 +1237,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		}
 		break;
 	case ADD:
-		printf("Seleccionaste Add\n");
+		;
+		//printf("Seleccionaste Add\n");
 		int criterioAdd(char** parametros, int cantidadDeParametrosUsados) {
 			char *consistencia = parametros[4];
 			char* to = parametros[3];
@@ -1316,7 +1317,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		}
 		break;
 	case RUN:
-		printf("Seleccionaste Run\n");
+		;
+		//printf("Seleccionaste Run\n");
 		if (parametros[1] == NULL) {
 			printf("No elegiste archivo.\n");
 		} else {
@@ -1575,8 +1577,7 @@ char* pedirValue(char* tabla, char* laKey, int socketMemoria) {
 	int* key = malloc(sizeof(int));
 	*key = atoi(laKey);
 
-	char* buffer = malloc(
-			strlen(tabla) + sizeof(int) + 2 * sizeof(int) + 2 * sizeof(int));
+	char* buffer = malloc(strlen(tabla) + sizeof(int) + 2 * sizeof(int) + 2 * sizeof(int));
 	// primeros dos terminos para TABLA; anteultimo termino para KEY; ultimo para peticion
 
 	int peticion = 1;
@@ -1601,15 +1602,14 @@ char* pedirValue(char* tabla, char* laKey, int socketMemoria) {
 	if (*tamanioValue == 0) {
 		char* mensajeALogear = malloc(
 				strlen(" No se encontro ni en MM ni en FS la key : ")
-						+ sizeof(key) + 1);
+						+ strlen(laKey) + 1);
 		strcpy(mensajeALogear, " No se encontro ni en MM ni en FS la key : ");
-		strcat(mensajeALogear, string_itoa(key));
+		strcat(mensajeALogear, laKey);
 		t_log* g_logger;
 		g_logger = log_create("./logs.log", "Kernel", 1, LOG_LEVEL_ERROR);
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
-		perror("El value no estaba en el FS");
 		return NULL;
 	} else {
 		char *value = malloc(*tamanioValue);
