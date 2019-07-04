@@ -169,7 +169,8 @@ int main() {
 	PRUEBA();
 
 	//Conecto a la memoria principal
-	memoriaPrincipal = (struct datosMemoria*)malloc(sizeof(struct datosMemoria));
+	//memoriaPrincipal = (struct datosMemoria*)malloc(sizeof(struct datosMemoria));
+	memoriaPrincipal = malloc(sizeof(struct datosMemoria));
 	char * IP_MEMORIA = config_get_string_value(configuracion, "IP_MEMORIA");
 	int PUERTO_MEMORIA = config_get_int_value(configuracion, "PUERTO_MEMORIA");
 	conectarUnaMemoria(memoriaPrincipal, IP_MEMORIA, PUERTO_MEMORIA);
@@ -901,6 +902,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						tabla);
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
 					//strongConsistency->socket
+					printf("HOLA\n");
+					printf("SC socket: %d\n", strongConsistency->socket);
 					mandarInsert(tabla, key, value, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
@@ -1398,7 +1401,7 @@ void mandarInsert(char* tabla, char* key, char* value, int socketMemoria){
 
 void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones, char *tiempoCompactacion, int socketMemoria){
 	int peticion = 2;
-	void* buffer = malloc( strlen(tabla)+1 + 6*sizeof(int) + strlen(consistencia)+1 + strlen(cantidadParticiones)+1 + strlen(tiempoCompactacion)+1);
+	void* buffer = malloc(strlen(tabla)+1 + 6*sizeof(int) + strlen(consistencia)+1 + strlen(cantidadParticiones)+1 + strlen(tiempoCompactacion)+1);
 
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
@@ -1526,7 +1529,8 @@ void drop(char* nombre_tabla) {
 
 	 unaMemoria->direccionSocket.sin_family = AF_INET;
 	 unaMemoria->direccionSocket.sin_port = htons(PUERTO_MEMORIA);
-	 unaMemoria->direccionSocket.sin_addr.s_addr = inet_addr(IP_MEMORIA);
+	 //unaMemoria->direccionSocket.sin_addr.s_addr = inet_addr(IP_MEMORIA); XXX
+	 unaMemoria->direccionSocket.sin_addr.s_addr = INADDR_ANY;
 
 	 if(connect(unaMemoria->socket, (struct sockaddr *) &unaMemoria->direccionSocket, sizeof(unaMemoria->direccionSocket)) == -1)
 	 {
@@ -1545,7 +1549,7 @@ void drop(char* nombre_tabla) {
 	 //strongConsistency->socket = socketMemoriaPrincipal;
 
 	 //Mando un numero distinto de cero a memoria para que sepa que se conecto kernel
-	 send(unaMemoria->socket, "1", 2, 0);
+	 //send(unaMemoria->socket, "1", 2, 0);
 
 
 	 /*char buffer[256];
