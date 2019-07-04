@@ -210,6 +210,12 @@ void realizarComando(char** comando) {
 		tabla = comando[1];
 		key = comando[2];
 		value = comando[3];
+		int i = 4;
+		while(comando[i] != NULL)
+		{
+			string_append_with_format(&value," %s", comando[i]);
+			i++;
+		}
 		realizarInsert(tabla, key, value);
 		break;
 
@@ -1232,7 +1238,6 @@ void tratarKernel(int kernel) {
 				break;
 
 		}
-
 	}
 }
 
