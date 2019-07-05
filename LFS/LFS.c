@@ -9,6 +9,7 @@
  * FALTANTES:
  * - ARREGLO DE RETORNO EN SELECT
  * - ARREGLO FUNCION APARTE MEMTABLE (rompe)
+ * - ARREGLAR PARA QUE AL HACER EL SPLIT DEL MENSAJE NO SEPARE EL STRING DEL VALUE DEL INSERT
  *
  */
 #include <stdio.h>
@@ -464,33 +465,37 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 		p_registro->value = malloc(strlen(valor));
 		strcpy(p_registro->value, valor);
 		if (!existeUnaListaDeDatosADumpear(tabla)) {
-			//¿Esto no esta de mas?
-			/*t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
-			p_registro->timestamp = atoi(timestamp);
-			p_registro->key = atoi(key);
-			p_registro->value = malloc(strlen(valor));
-			strcpy(p_registro->value, valor);*/
-			t_registro* vectorStructs[100];
-			vectorStructs[0] = malloc(12);
+			t_list* listaDeStructs = list_create();
+			list_add(listaDeStructs, p_registro);
+			dictionary_put(memtable, tabla, listaDeStructs);
+			//printf("%i\n", list_size(listaDeStructs));
+			//list_destroy(listaDeStructs);
+			/*vectorStructs[0] = malloc(12);
 			memcpy(&vectorStructs[0]->key, &p_registro->key,
 					sizeof(p_registro->key));
 			memcpy(&vectorStructs[0]->timestamp, &p_registro->timestamp,
 					sizeof(p_registro->timestamp));
 			vectorStructs[0]->value = malloc(strlen(p_registro->value));
 			memcpy(vectorStructs[0]->value, p_registro->value,
-					strlen(p_registro->value)+1);
-			dictionary_put(memtable, tabla, &vectorStructs);
+					strlen(p_registro->value)+1);*/
+
 			// t_registro **existe = dictionary_get(memtable, "TABLA1");
 			// printf("%s\n",existe[0]->value);
 
 		} else {
-			t_registro **vectorStructs = dictionary_get(memtable, tabla);
-			int i;
+			t_list* listaDeStructs = dictionary_get(memtable, tabla);
+			//list_add_all(listaDeStructs, );
+			list_add(listaDeStructs, p_registro);
+			dictionary_remove(memtable, tabla);
+			dictionary_put(memtable, tabla, listaDeStructs);
+			//list_destroy(listaDeStructs);
+			/*int i;
 			for (i = 0; i < 100; i++) {
 				if (vectorStructs[i] == NULL) {
 					break;
 				}
 			}
+			printf("....%i\n", i);
 			vectorStructs[i] = malloc(12);
 			memcpy(&vectorStructs[i]->key, &p_registro->key,
 					sizeof(p_registro->key));
@@ -499,7 +504,7 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 			vectorStructs[i]->value = malloc(strlen(p_registro->value));
 			memcpy(vectorStructs[i]->value, p_registro->value,
 					strlen(p_registro->value));
-			dictionary_put(memtable, tabla, vectorStructs);
+			dictionary_put(memtable, tabla, vectorStructs);*/
 		}
 		//Testeando dump
 		dump(tabla);
@@ -519,38 +524,40 @@ void dump(char* tabla){
 	config_destroy(metadata);
 	//t_registro* vectorStructs[100];
 	//vectorStructs[0] = malloc(12);
-	t_registro **registrosTabla = dictionary_get(memtable, tabla);
+	t_list *listaDeRegistros = dictionary_get(memtable, tabla);
 	int i = 0;
 	int cantidadDeBytesADumpear = 0;
-	t_registro *p_registro = malloc(12);
 	char *registrosADumpear = string_new();
-	while(registrosTabla[i]!=NULL){
-		memcpy(&p_registro, &registrosTabla[i], sizeof(p_registro));
+	while(i<list_size(listaDeRegistros)){
+		t_registro *p_registro = list_get(listaDeRegistros,i);
+		//memcpy(p_registro, list_get(listaDeRegistros, i), sizeof(p_registro));
 		string_append(&registrosADumpear, string_itoa(p_registro->timestamp));
 		string_append(&registrosADumpear, ";");
 		string_append(&registrosADumpear, string_itoa(p_registro->key));
 		string_append(&registrosADumpear, ";");
 		string_append(&registrosADumpear, p_registro->value);
 		string_append(&registrosADumpear, "\n");
-		cantidadDeBytesADumpear += strlen(p_registro->value) +
+		cantidadDeBytesADumpear += (strlen(p_registro->value) +
 				contarLosDigitos(p_registro->key) +
-				contarLosDigitos(p_registro->timestamp) + 3; //2 ; y un \n
-		//printf("%s\n", registrosADumpear);
-		printf("key:%i\n", contarLosDigitos(p_registro->key));
-		printf("timestamp:%i\n", contarLosDigitos(p_registro->timestamp));
+				contarLosDigitos(p_registro->timestamp) + 3); //2 ; y un \n
+		printf("cantidadDeBytesADumpear: %i\n", cantidadDeBytesADumpear);
 		i++;
 	}
+	//printf("\n\n");
 	//Calcular bien la cantidad que necesito si hay un poquito mas que un bloque
 	int cantidadDeBloquesCompletosNecesarios = cantidadDeBytesADumpear/tamanioPorBloque;
 	int cantidadDeComasNecesarias = cantidadDeBloquesCompletosNecesarios-1;
 	char *stringdelArrayDeBloques = string_new();
+	printf("cantidadDeBloquesCompletosNecesarios: %i\n", cantidadDeBloquesCompletosNecesarios);
 	//Asigno los bloques y voy creando el array de bloques asignados
 	string_append(&stringdelArrayDeBloques, "[");
 	int desdeDondeTomarLosRegistros = 0;
+	//Primero dump para los que ocupan 1 bloque entero sin fragmentacion interna
 	while(cantidadDeBloquesCompletosNecesarios != 0){
 		int bloqueEncontrado = asignarBloque();
 		char *stringAuxRegistros = string_new();
 		string_append(&stringAuxRegistros, string_substring(registrosADumpear, desdeDondeTomarLosRegistros,tamanioPorBloque));
+		printf("%s\n", stringAuxRegistros);
 		crearArchivoDeBloquesConRegistros(bloqueEncontrado, stringAuxRegistros);
 		//Agrego al string del array el bloque nuevo
 		string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
@@ -561,19 +568,34 @@ void dump(char* tabla){
 		cantidadDeComasNecesarias--;
 		desdeDondeTomarLosRegistros+=tamanioPorBloque;
 	}
+	//insert tabla1 2 "holapepecomoestassddddaasssssswweeqqwwttppooiikkll" 	64 bytes
+	//Ahora lo mismo para el que no completa 1 bloque
+	cantidadDeBloquesCompletosNecesarios = cantidadDeBytesADumpear/tamanioPorBloque;
+	int remanenteEnBytes = cantidadDeBytesADumpear - cantidadDeBloquesCompletosNecesarios*tamanioPorBloque;
+	//printf("Remanente: %i\n", remanenteEnBytes);
+	if(remanenteEnBytes!=0){
+		int bloqueEncontrado = asignarBloque();
+		char *stringAuxRegistros = string_new();
+		string_append(&stringAuxRegistros, string_substring(registrosADumpear, desdeDondeTomarLosRegistros, remanenteEnBytes));
+		crearArchivoDeBloquesConRegistros(bloqueEncontrado, stringAuxRegistros);
+		string_append(&stringdelArrayDeBloques, ",");
+		string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
+	}
 	string_append(&stringdelArrayDeBloques, "]");
-	//printf("%remanente: i - cantidad de bloques: i\n", hayRemanente, cantidadDeBloquesNecesarios);
+
+
 	//Tengo que ver como fijarme que numero de tmp corresponde dependiendo de que numero de dumpeo se hizo sobre esta tabla
 	//crearArchivoTMP(directorioTMP, stringdelArrayDeBloques, cantidadDeBytesADumpear);
-	free(p_registro);
+	//Limpiar la memtable
 }
 
 int contarLosDigitos(int numero){
 	int contador = 0;
-	while(numero != 0){
+	int aux = numero;
+	do{
 		contador++;
-		numero =(numero / 10);
-	}
+		aux =(aux / 10);
+	}while(aux != 0);
 	return contador;
 }
 
@@ -596,7 +618,7 @@ void crearArchivoDeBloquesConRegistros(int bloqueEncontrado, char* registrosAEsc
 	string_append(&pathBloque, string_itoa(bloqueEncontrado));
 	string_append(&pathBloque, ".bin");
 	FILE *bloqueCreado = fopen(pathBloque, "w");
-	fwrite(registrosAEscribir, sizeof(char), strlen(registrosAEscribir), pathBloque);
+	fwrite(registrosAEscribir, sizeof(char), strlen(registrosAEscribir), bloqueCreado);
 	fclose(bloqueCreado);
 }
 
