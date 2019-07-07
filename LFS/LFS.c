@@ -91,7 +91,12 @@ void crearArchivoTMP(char*, char*, int);
 int cuantosDumpeosHuboEnLaTabla(char *);
 
 void compactacion();
-void renombrarTodoLosTMPATMPC(char *, char*);
+void actualizarRegistros(char *, char *);
+void renombrarTodosLosTMPATMPC(char *, char*);
+void actualizarRegistrosCon1TMPC(char *, char *);
+char *levantarRegistros(char *);
+void levantarRegistroDe1Bloque(char *, char **);
+void tomarLosTmpc(char *, t_queue *);
 
 void drop(char*);
 
@@ -662,11 +667,76 @@ void crearArchivoDeBloquesConRegistros(int bloqueEncontrado, char* registrosAEsc
 }
 
 void compactacion(){
-	dictionary_iterator(tablasQueTienenTMPs, (void*)renombrarTodoLosTMPATMPC);
+	dictionary_iterator(tablasQueTienenTMPs, (void*)renombrarTodosLosTMPATMPC);
+	dictionary_iterator(tablasQueTienenTMPs, (void*)actualizarRegistros);
 }
 
-//El dictionary_iterator pide que la funcion que le mande tenga la key y el value
-void renombrarTodoLosTMPATMPC(char *tabla, char* tablaPath){
+//El dictionary_iterator pide que la funcion que le mande tenga la key y el value por eso pongo
+//la tabla a pesar de que no la uso
+void actualizarRegistros(char *tabla, char *tablaPath){
+	t_queue *tmpcs = queue_create();
+	tomarLosTmpc(tablaPath, tmpcs);
+	//printf("hola");
+	int i = 0;
+	int cantidadDeElementosEnLaCola = queue_size(tmpcs);
+	while(i<cantidadDeElementosEnLaCola){
+		actualizarRegistrosCon1TMPC(queue_pop(tmpcs), tablaPath);
+		//printf("%s", queue_pop(tmpcs));
+		//printf("%i - %i\n\n", queue_size(tmpcs), i);
+		i++;
+	}
+}
+
+void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath){
+	//printf("%s\n", tmpc);
+	char *registros = string_new();
+	string_append(&registros, levantarRegistros(tmpc));
+	//Una vez que tengo los registros tengo que compararlos con los binarios
+}
+
+char *levantarRegistros(char *tmpc){
+	//FILE *archivoTmpc = fopen(tmpc, "r");
+	t_config *configTmpc = config_create(tmpc);
+	char **arrayDeBloques = config_get_array_value(configTmpc, "BLOCKS");
+	int i = 0;
+	char *registros = string_new();
+	while(arrayDeBloques[i]!=NULL){
+		char *bloque = string_new();
+		char *stringAux = string_new();
+		string_append(&bloque, structConfiguracionLFS.PUNTO_MONTAJE);
+		string_append(&bloque, "Bloques/");
+		string_append(&bloque, arrayDeBloques[i]);
+		string_append(&bloque, ".bin");
+		levantarRegistroDe1Bloque(bloque, &stringAux);
+		printf("%s\n", bloque); //\n
+		i++;
+	}
+	config_destroy(configTmpc);
+	return registros;
+}
+
+void levantarRegistroDe1Bloque(char *bloque, char **stringAux){
+
+}
+
+void tomarLosTmpc(char *tablaPath, t_queue *tmpcs){
+	DIR *directorio = opendir(tablaPath);
+	struct dirent *archivoALeer;
+	while ((archivoALeer = readdir(directorio)) != NULL) {
+		if (string_ends_with(archivoALeer->d_name, ".tmpc")) {
+			char *tmpc = string_new();
+			string_append(&tmpc, tablaPath);
+			string_append(&tmpc, "/");
+			string_append(&tmpc, archivoALeer->d_name);
+			queue_push(tmpcs, tmpc);
+			//printf("--%s\n", tmpc);
+			//("%s\n", queue_pop(tmpcs));
+		}
+	}
+	closedir(directorio);
+}
+
+void renombrarTodosLosTMPATMPC(char *tabla, char* tablaPath){
 	DIR *directorio = opendir(tablaPath);
 	struct dirent *archivoALeer;
 	while ((archivoALeer = readdir(directorio)) != NULL) {
