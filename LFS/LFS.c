@@ -10,6 +10,10 @@
  * - ARREGLO DE RETORNO EN SELECT
  * - ARREGLO FUNCION APARTE MEMTABLE (rompe)
  * - ARREGLAR PARA QUE AL HACER EL SPLIT DEL MENSAJE NO SEPARE EL STRING DEL VALUE DEL INSERT
+ * - VERIFICAR QUE EL VALUE INSERTADO EN INSERT NO SOBREPASE EL MAXIMO DEFINIDO EN EL ARCHIVO DE CONFIG
+ * - SEPARAR DE TODAS LAS FUNCIONES QUE IMPRIMA POR CONSOLA SOLO CUANDO SE USE LA MISMA
+ * - CAMBIAR LOS PRINTF A LOGS PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA
+ * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
  *
  */
 #include <stdio.h>
@@ -72,14 +76,18 @@ typedef struct {
  void tomarPeticionInsert(int sd);
  */
 
+void atenderPeticionesDeConsola();
+
 t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
 
 metadataTabla describeUnaTabla(char *);
 t_dictionary *describeTodasLasTablas();
-void dump(char*);
+void dump();
+void dumpPorTabla(char*);
 int contarLosDigitos(int);
 void crearArchivoDeBloquesConRegistros(int, char*);
 void crearArchivoTMP(char*, char*, int);
+int cuantosDumpeosHuboEnLaTabla(char *);
 
 void drop(char*);
 
@@ -128,6 +136,8 @@ t_dictionary* diccionarioDescribe;
 
 int main(int argc, char *argv[]) {
 	//pthread_t hiloLevantarConexion;
+	pthread_t hiloDump;
+	pthread_t atenderPeticionesConsola;
 	levantarConfiguracionLFS();
 	levantarFileSystem();
 	iniciarMmap();
@@ -135,29 +145,36 @@ int main(int argc, char *argv[]) {
 			tamanioEnBytesDelBitarray());
 	//verBitArray();
 	//pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
-
+	pthread_create(&hiloDump, NULL, (void*)dump, NULL);
+	pthread_create(&atenderPeticionesConsola, NULL, (void*)atenderPeticionesDeConsola, NULL);
 	memtable = malloc(4);
 	memtable = dictionary_create();
 
 	diccionarioDescribe = malloc(4000);
 	diccionarioDescribe = dictionary_create();
-	while (1) {
-		printf("SELECT | INSERT | CREATE |\n");
-		char* mensaje = malloc(1000);
-		do {
-			fgets(mensaje, 1000, stdin);
-		} while (!strcmp(mensaje, "\n"));
-		tomarPeticion(mensaje);
-		free(mensaje);
-		//verBitArray();
-	}
+
 	//Se queda esperando a que termine el hilo de escuchar peticiones
 	//pthread_join(hiloLevantarConexion, NULL);
-
+	pthread_join(hiloDump, NULL);
+	pthread_join(atenderPeticionesConsola, NULL);
 	//Aca se destruye el bitarray?
 	//bitarray_destroy(bitarrayBloques);
 	return 0;
 }
+
+void atenderPeticionesDeConsola(){
+	while (1) {
+			printf("SELECT | INSERT | CREATE |\n");
+			char* mensaje = malloc(1000);
+			do {
+				fgets(mensaje, 1000, stdin);
+			} while (!strcmp(mensaje, "\n"));
+			tomarPeticion(mensaje);
+			free(mensaje);
+			//verBitArray();
+		}
+}
+
 void levantarFileSystem() {
 	if (!existeCarpeta("Tables")) {
 		mkdir(
@@ -199,11 +216,9 @@ void levantarConfiguracionLFS() {
 	structConfiguracionLFS.PUNTO_MONTAJE = puntoMontajeSinComillas;
 	structConfiguracionLFS.TAMANIO_VALUE = config_get_int_value(configLFS,
 			"TAMANIO_VALUE");
-	//Los 2 valores que siguen tienen que poder modificarse en tiempo de ejecucion
+	//El dump y el retardo tienen que poder modificarse en tiempo de ejecucion
 	//asi que tendria que volver a tomar su valor cuando los vaya a usar
 	structConfiguracionLFS.RETARDO = config_get_int_value(configLFS, "RETARDO");
-	structConfiguracionLFS.TIEMPO_DUMP = config_get_int_value(configLFS,
-			"TIEMPO_DUMP");
 	config_destroy(configLFS);
 }
 
@@ -468,46 +483,13 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 			t_list* listaDeStructs = list_create();
 			list_add(listaDeStructs, p_registro);
 			dictionary_put(memtable, tabla, listaDeStructs);
-			//printf("%i\n", list_size(listaDeStructs));
-			//list_destroy(listaDeStructs);
-			/*vectorStructs[0] = malloc(12);
-			memcpy(&vectorStructs[0]->key, &p_registro->key,
-					sizeof(p_registro->key));
-			memcpy(&vectorStructs[0]->timestamp, &p_registro->timestamp,
-					sizeof(p_registro->timestamp));
-			vectorStructs[0]->value = malloc(strlen(p_registro->value));
-			memcpy(vectorStructs[0]->value, p_registro->value,
-					strlen(p_registro->value)+1);*/
-
-			// t_registro **existe = dictionary_get(memtable, "TABLA1");
-			// printf("%s\n",existe[0]->value);
 
 		} else {
 			t_list* listaDeStructs = dictionary_get(memtable, tabla);
-			//list_add_all(listaDeStructs, );
 			list_add(listaDeStructs, p_registro);
 			dictionary_remove(memtable, tabla);
 			dictionary_put(memtable, tabla, listaDeStructs);
-			//list_destroy(listaDeStructs);
-			/*int i;
-			for (i = 0; i < 100; i++) {
-				if (vectorStructs[i] == NULL) {
-					break;
-				}
-			}
-			printf("....%i\n", i);
-			vectorStructs[i] = malloc(12);
-			memcpy(&vectorStructs[i]->key, &p_registro->key,
-					sizeof(p_registro->key));
-			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
-					sizeof(p_registro->timestamp));
-			vectorStructs[i]->value = malloc(strlen(p_registro->value));
-			memcpy(vectorStructs[i]->value, p_registro->value,
-					strlen(p_registro->value));
-			dictionary_put(memtable, tabla, vectorStructs);*/
 		}
-		//Testeando dump
-		dump(tabla);
 	}
 }
 
@@ -515,7 +497,23 @@ int existeUnaListaDeDatosADumpear(char* tabla) {
 	return dictionary_has_key(memtable, tabla);
 }
 
-void dump(char* tabla){
+void dump(){
+	while(1){
+		//Levanto el valor de tiempo de dump
+		char *pathConfiguracion = string_new();
+		string_append(&pathConfiguracion, "configLFS.config");
+		configLFS = config_create(pathConfiguracion);
+		structConfiguracionLFS.TIEMPO_DUMP = config_get_int_value(configLFS,
+					"TIEMPO_DUMP");
+		sleep(structConfiguracionLFS.TIEMPO_DUMP);
+		//Con sleep tengo que meter un \n al final de un printf porque sino no imprime
+		//printf("dump boy!\n");
+		dictionary_iterator(memtable, (void *) dumpPorTabla);
+		config_destroy(configLFS);
+	}
+}
+
+void dumpPorTabla(char* tabla){
 	//Tomo el tamanio por bloque de mi LFS
 	char *metadataPath = string_from_format("%sMetadata/metadata.bin",
 				structConfiguracionLFS.PUNTO_MONTAJE);
@@ -540,7 +538,7 @@ void dump(char* tabla){
 		cantidadDeBytesADumpear += (strlen(p_registro->value) +
 				contarLosDigitos(p_registro->key) +
 				contarLosDigitos(p_registro->timestamp) + 3); //2 ; y un \n
-		printf("cantidadDeBytesADumpear: %i\n", cantidadDeBytesADumpear);
+		//printf("cantidadDeBytesADumpear: %i\n", cantidadDeBytesADumpear);
 		i++;
 	}
 	//printf("\n\n");
@@ -548,16 +546,17 @@ void dump(char* tabla){
 	int cantidadDeBloquesCompletosNecesarios = cantidadDeBytesADumpear/tamanioPorBloque;
 	int cantidadDeComasNecesarias = cantidadDeBloquesCompletosNecesarios-1;
 	char *stringdelArrayDeBloques = string_new();
-	printf("cantidadDeBloquesCompletosNecesarios: %i\n", cantidadDeBloquesCompletosNecesarios);
+	//printf("cantidadDeBloquesCompletosNecesarios: %i\n", cantidadDeBloquesCompletosNecesarios);
 	//Asigno los bloques y voy creando el array de bloques asignados
 	string_append(&stringdelArrayDeBloques, "[");
 	int desdeDondeTomarLosRegistros = 0;
+	int hayMasDe1Bloque = 0;
 	//Primero dump para los que ocupan 1 bloque entero sin fragmentacion interna
 	while(cantidadDeBloquesCompletosNecesarios != 0){
 		int bloqueEncontrado = asignarBloque();
 		char *stringAuxRegistros = string_new();
 		string_append(&stringAuxRegistros, string_substring(registrosADumpear, desdeDondeTomarLosRegistros,tamanioPorBloque));
-		printf("%s\n", stringAuxRegistros);
+		//printf("%s\n", stringAuxRegistros);
 		crearArchivoDeBloquesConRegistros(bloqueEncontrado, stringAuxRegistros);
 		//Agrego al string del array el bloque nuevo
 		string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
@@ -567,6 +566,8 @@ void dump(char* tabla){
 		cantidadDeBloquesCompletosNecesarios--;
 		cantidadDeComasNecesarias--;
 		desdeDondeTomarLosRegistros+=tamanioPorBloque;
+		//Esta variable es para que no quede una coma de mas en caso de que no haya mas de 1 bloque
+		hayMasDe1Bloque = 1;
 	}
 	//insert tabla1 2 "holapepecomoestassddddaasssssswweeqqwwttppooiikkll" 	64 bytes
 	//Ahora lo mismo para el que no completa 1 bloque
@@ -578,15 +579,45 @@ void dump(char* tabla){
 		char *stringAuxRegistros = string_new();
 		string_append(&stringAuxRegistros, string_substring(registrosADumpear, desdeDondeTomarLosRegistros, remanenteEnBytes));
 		crearArchivoDeBloquesConRegistros(bloqueEncontrado, stringAuxRegistros);
-		string_append(&stringdelArrayDeBloques, ",");
+		if(hayMasDe1Bloque){
+			string_append(&stringdelArrayDeBloques, ",");
+		}
 		string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
 	}
 	string_append(&stringdelArrayDeBloques, "]");
 
+	char *tablaPath = string_from_format("%sTables/",
+					structConfiguracionLFS.PUNTO_MONTAJE);
+	string_append(&tablaPath, tabla);
+	//printf("%s\n", tablaPath);
+	int numeroDeDumpeoCorrespondiente = cuantosDumpeosHuboEnLaTabla(tablaPath)+1;
+	char *directorioTMP = string_new();
+	string_append(&directorioTMP, tablaPath);
+	string_append(&directorioTMP, "/");
+	string_append(&directorioTMP, string_itoa(numeroDeDumpeoCorrespondiente));
+	string_append(&directorioTMP, ".tmp");
+	//printf("%s\n", directorioTMP);
+	crearArchivoTMP(directorioTMP, stringdelArrayDeBloques, cantidadDeBytesADumpear);
+	dictionary_remove(memtable, tabla);
+}
 
-	//Tengo que ver como fijarme que numero de tmp corresponde dependiendo de que numero de dumpeo se hizo sobre esta tabla
-	//crearArchivoTMP(directorioTMP, stringdelArrayDeBloques, cantidadDeBytesADumpear);
-	//Limpiar la memtable
+int cuantosDumpeosHuboEnLaTabla(char *tablaPath){
+	int cantidadDeDumpeos = 0;
+	DIR *directorio = opendir(tablaPath);
+	struct dirent *directorioALeer;
+	while ((directorioALeer = readdir(directorio)) != NULL) {
+		//Evaluo si de todas las carpetas dentro de TABLAS existe alguna que tenga el mismo nombre
+		if (string_ends_with(directorioALeer->d_name, ".tmp")) {
+			/*closedir(directorio);
+			return 1;*/
+			//char* nombreArchivoTemporal = string_split(directorioALeer->d_name, ".")[0];
+			//El nombre es un numero (por ej. 1.tmp tiene el nombre "1" entonces...
+			cantidadDeDumpeos++;
+			//printf("%s\n", directorioALeer->d_name);
+		}
+	}
+	closedir(directorio);
+	return cantidadDeDumpeos;
 }
 
 int contarLosDigitos(int numero){
@@ -602,10 +633,10 @@ int contarLosDigitos(int numero){
 void crearArchivoTMP(char* directorioTMP, char* stringdelArrayDeBloques, int tamanioDeLosBloques){
 	FILE *archivoTMP = fopen(directorioTMP, "w");
 	t_config *tmp = config_create(directorioTMP);
-	config_set_value(tmp, "SIZE", tamanioDeLosBloques);
+	config_set_value(tmp, "SIZE", string_itoa(tamanioDeLosBloques));
 	//los bloques despues se levantan con config_get_array_value
 	config_set_value(tmp, "BLOCKS", stringdelArrayDeBloques);
-	config_save_in_file(tmp, archivoTMP);
+	config_save_in_file(tmp, directorioTMP);
 	fclose(archivoTMP);
 	config_destroy(tmp);
 }
@@ -792,7 +823,6 @@ void crearArchivoBitmap() {
 	fclose(f);
 }
 
-//Preguntar sobre esto
 void iniciarMmap() {
 	char *pathBitmap = string_new();
 	string_append(&pathBitmap, structConfiguracionLFS.PUNTO_MONTAJE);
