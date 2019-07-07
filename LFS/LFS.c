@@ -79,6 +79,7 @@ typedef struct {
 void atenderPeticionesDeConsola();
 
 t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
+t_dictionary *tablasQueTienenTMPs; //guardo las tablas que tienen tmps para que en la compactacion solo revise esas
 
 metadataTabla describeUnaTabla(char *);
 t_dictionary *describeTodasLasTablas();
@@ -88,6 +89,9 @@ int contarLosDigitos(int);
 void crearArchivoDeBloquesConRegistros(int, char*);
 void crearArchivoTMP(char*, char*, int);
 int cuantosDumpeosHuboEnLaTabla(char *);
+
+void compactacion();
+void renombrarTodoLosTMPATMPC(char *, char*);
 
 void drop(char*);
 
@@ -135,6 +139,7 @@ char *mmapDeBitmap;
 t_dictionary* diccionarioDescribe;
 
 int main(int argc, char *argv[]) {
+	tablasQueTienenTMPs = dictionary_create();
 	//pthread_t hiloLevantarConexion;
 	pthread_t hiloDump;
 	pthread_t atenderPeticionesConsola;
@@ -510,6 +515,7 @@ void dump(){
 		//printf("dump boy!\n");
 		dictionary_iterator(memtable, (void *) dumpPorTabla);
 		config_destroy(configLFS);
+		compactacion();
 	}
 }
 
@@ -598,6 +604,8 @@ void dumpPorTabla(char* tabla){
 	string_append(&directorioTMP, ".tmp");
 	//printf("%s\n", directorioTMP);
 	crearArchivoTMP(directorioTMP, stringdelArrayDeBloques, cantidadDeBytesADumpear);
+	//antes de eliminarlo de la memtable lo pongo en el diccionario de tablasQueTienenTMPs porque sino se borra el string tambien
+	dictionary_put(tablasQueTienenTMPs, tabla, tablaPath);
 	dictionary_remove(memtable, tabla);
 }
 
@@ -651,6 +659,29 @@ void crearArchivoDeBloquesConRegistros(int bloqueEncontrado, char* registrosAEsc
 	FILE *bloqueCreado = fopen(pathBloque, "w");
 	fwrite(registrosAEscribir, sizeof(char), strlen(registrosAEscribir), bloqueCreado);
 	fclose(bloqueCreado);
+}
+
+void compactacion(){
+	dictionary_iterator(tablasQueTienenTMPs, (void*)renombrarTodoLosTMPATMPC);
+}
+
+//El dictionary_iterator pide que la funcion que le mande tenga la key y el value
+void renombrarTodoLosTMPATMPC(char *tabla, char* tablaPath){
+	DIR *directorio = opendir(tablaPath);
+	struct dirent *archivoALeer;
+	while ((archivoALeer = readdir(directorio)) != NULL) {
+		if (string_ends_with(archivoALeer->d_name, ".tmp")) {
+				char *viejoNombre = string_new();
+				char *nuevoNombre = string_new();
+				string_append(&viejoNombre, tablaPath);
+				string_append(&viejoNombre, "/");
+				string_append(&viejoNombre, archivoALeer->d_name);
+				string_append(&nuevoNombre, viejoNombre);
+				string_append(&nuevoNombre, "c");
+				printf("%s\n", nuevoNombre);
+		}
+	}
+	closedir(directorio);
 }
 
 void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
