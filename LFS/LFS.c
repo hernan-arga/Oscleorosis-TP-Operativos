@@ -678,7 +678,8 @@ void renombrarTodoLosTMPATMPC(char *tabla, char* tablaPath){
 				string_append(&viejoNombre, archivoALeer->d_name);
 				string_append(&nuevoNombre, viejoNombre);
 				string_append(&nuevoNombre, "c");
-				printf("%s\n", nuevoNombre);
+				rename(viejoNombre, nuevoNombre);
+				//printf("%s\n", nuevoNombre);
 		}
 	}
 	closedir(directorio);
