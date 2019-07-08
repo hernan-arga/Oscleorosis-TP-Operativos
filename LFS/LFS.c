@@ -124,7 +124,8 @@ int esUnTipoDeConsistenciaValida(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
 //t_registro** obtenerDatosParaKeyDeseada(FILE *, int);
 void obtenerDatosParaKeyDeseada(FILE *archivoBloque, int key,
-		t_registro*vectorStructs[], int *cant, char* charProximoBloque, char* charAnteriorBloque);
+		t_registro*vectorStructs[], int *cant, char* charProximoBloque,
+		char* charAnteriorBloque);
 void crearMetadataBloques();
 int tamanioEnBytesDelBitarray();
 //void actualizarBitArray();
@@ -155,8 +156,9 @@ int main(int argc, char *argv[]) {
 			tamanioEnBytesDelBitarray());
 	//verBitArray();
 	//pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
-	pthread_create(&hiloDump, NULL, (void*)dump, NULL);
-	pthread_create(&atenderPeticionesConsola, NULL, (void*)atenderPeticionesDeConsola, NULL);
+	pthread_create(&hiloDump, NULL, (void*) dump, NULL);
+	pthread_create(&atenderPeticionesConsola, NULL,
+			(void*) atenderPeticionesDeConsola, NULL);
 	memtable = malloc(4);
 	memtable = dictionary_create();
 
@@ -172,17 +174,17 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-void atenderPeticionesDeConsola(){
+void atenderPeticionesDeConsola() {
 	while (1) {
-			printf("SELECT | INSERT | CREATE |\n");
-			char* mensaje = malloc(1000);
-			do {
-				fgets(mensaje, 1000, stdin);
-			} while (!strcmp(mensaje, "\n"));
-			tomarPeticion(mensaje);
-			free(mensaje);
-			//verBitArray();
-		}
+		printf("SELECT | INSERT | CREATE |\n");
+		char* mensaje = malloc(1000);
+		do {
+			fgets(mensaje, 1000, stdin);
+		} while (!strcmp(mensaje, "\n"));
+		tomarPeticion(mensaje);
+		free(mensaje);
+		//verBitArray();
+	}
 }
 
 void levantarFileSystem() {
@@ -375,7 +377,7 @@ void realizarPeticion(char** parametros) {
 				return 0;
 			}
 			string_to_upper(tabla);
-			if(!existeLaTabla(tabla)){
+			if (!existeLaTabla(tabla)) {
 				printf("La tabla no existe\n");
 			}
 			return existeLaTabla(tabla);
@@ -507,14 +509,14 @@ int existeUnaListaDeDatosADumpear(char* tabla) {
 	return dictionary_has_key(memtable, tabla);
 }
 
-void dump(){
-	while(1){
+void dump() {
+	while (1) {
 		//Levanto el valor de tiempo de dump
 		char *pathConfiguracion = string_new();
 		string_append(&pathConfiguracion, "configLFS.config");
 		configLFS = config_create(pathConfiguracion);
 		structConfiguracionLFS.TIEMPO_DUMP = config_get_int_value(configLFS,
-					"TIEMPO_DUMP");
+				"TIEMPO_DUMP");
 		sleep(structConfiguracionLFS.TIEMPO_DUMP);
 		//Con sleep tengo que meter un \n al final de un printf porque sino no imprime
 		//printf("dump boy!\n");
@@ -524,10 +526,10 @@ void dump(){
 	}
 }
 
-void dumpPorTabla(char* tabla){
+void dumpPorTabla(char* tabla) {
 	//Tomo el tamanio por bloque de mi LFS
 	char *metadataPath = string_from_format("%sMetadata/metadata.bin",
-				structConfiguracionLFS.PUNTO_MONTAJE);
+			structConfiguracionLFS.PUNTO_MONTAJE);
 	t_config *metadata = config_create(metadataPath);
 	int tamanioPorBloque = config_get_int_value(metadata, "BLOCK_SIZE");
 	config_destroy(metadata);
@@ -537,8 +539,8 @@ void dumpPorTabla(char* tabla){
 	int i = 0;
 	int cantidadDeBytesADumpear = 0;
 	char *registrosADumpear = string_new();
-	while(i<list_size(listaDeRegistros)){
-		t_registro *p_registro = list_get(listaDeRegistros,i);
+	while (i < list_size(listaDeRegistros)) {
+		t_registro *p_registro = list_get(listaDeRegistros, i);
 		//memcpy(p_registro, list_get(listaDeRegistros, i), sizeof(p_registro));
 		string_append(&registrosADumpear, string_itoa(p_registro->timestamp));
 		string_append(&registrosADumpear, ";");
@@ -546,16 +548,17 @@ void dumpPorTabla(char* tabla){
 		string_append(&registrosADumpear, ";");
 		string_append(&registrosADumpear, p_registro->value);
 		string_append(&registrosADumpear, "\n");
-		cantidadDeBytesADumpear += (strlen(p_registro->value) +
-				contarLosDigitos(p_registro->key) +
-				contarLosDigitos(p_registro->timestamp) + 3); //2 ; y un \n
+		cantidadDeBytesADumpear += (strlen(p_registro->value)
+				+ contarLosDigitos(p_registro->key)
+				+ contarLosDigitos(p_registro->timestamp) + 3); //2 ; y un \n
 		//printf("cantidadDeBytesADumpear: %i\n", cantidadDeBytesADumpear);
 		i++;
 	}
 	//printf("\n\n");
 	//Calcular bien la cantidad que necesito si hay un poquito mas que un bloque
-	int cantidadDeBloquesCompletosNecesarios = cantidadDeBytesADumpear/tamanioPorBloque;
-	int cantidadDeComasNecesarias = cantidadDeBloquesCompletosNecesarios-1;
+	int cantidadDeBloquesCompletosNecesarios = cantidadDeBytesADumpear
+			/ tamanioPorBloque;
+	int cantidadDeComasNecesarias = cantidadDeBloquesCompletosNecesarios - 1;
 	char *stringdelArrayDeBloques = string_new();
 	//printf("cantidadDeBloquesCompletosNecesarios: %i\n", cantidadDeBloquesCompletosNecesarios);
 	//Asigno los bloques y voy creando el array de bloques asignados
@@ -563,34 +566,40 @@ void dumpPorTabla(char* tabla){
 	int desdeDondeTomarLosRegistros = 0;
 	int hayMasDe1Bloque = 0;
 	//Primero dump para los que ocupan 1 bloque entero sin fragmentacion interna
-	while(cantidadDeBloquesCompletosNecesarios != 0){
+	while (cantidadDeBloquesCompletosNecesarios != 0) {
 		int bloqueEncontrado = asignarBloque();
 		char *stringAuxRegistros = string_new();
-		string_append(&stringAuxRegistros, string_substring(registrosADumpear, desdeDondeTomarLosRegistros,tamanioPorBloque));
+		string_append(&stringAuxRegistros,
+				string_substring(registrosADumpear, desdeDondeTomarLosRegistros,
+						tamanioPorBloque));
 		//printf("%s\n", stringAuxRegistros);
 		crearArchivoDeBloquesConRegistros(bloqueEncontrado, stringAuxRegistros);
 		//Agrego al string del array el bloque nuevo
 		string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
-		if(cantidadDeComasNecesarias != 0){
+		if (cantidadDeComasNecesarias != 0) {
 			string_append(&stringdelArrayDeBloques, ",");
 		}
 		cantidadDeBloquesCompletosNecesarios--;
 		cantidadDeComasNecesarias--;
-		desdeDondeTomarLosRegistros+=tamanioPorBloque;
+		desdeDondeTomarLosRegistros += tamanioPorBloque;
 		//Esta variable es para que no quede una coma de mas en caso de que no haya mas de 1 bloque
 		hayMasDe1Bloque = 1;
 	}
 	//insert tabla1 2 "holapepecomoestassddddaasssssswweeqqwwttppooiikkll" 	64 bytes
 	//Ahora lo mismo para el que no completa 1 bloque
-	cantidadDeBloquesCompletosNecesarios = cantidadDeBytesADumpear/tamanioPorBloque;
-	int remanenteEnBytes = cantidadDeBytesADumpear - cantidadDeBloquesCompletosNecesarios*tamanioPorBloque;
+	cantidadDeBloquesCompletosNecesarios = cantidadDeBytesADumpear
+			/ tamanioPorBloque;
+	int remanenteEnBytes = cantidadDeBytesADumpear
+			- cantidadDeBloquesCompletosNecesarios * tamanioPorBloque;
 	//printf("Remanente: %i\n", remanenteEnBytes);
-	if(remanenteEnBytes!=0){
+	if (remanenteEnBytes != 0) {
 		int bloqueEncontrado = asignarBloque();
 		char *stringAuxRegistros = string_new();
-		string_append(&stringAuxRegistros, string_substring(registrosADumpear, desdeDondeTomarLosRegistros, remanenteEnBytes));
+		string_append(&stringAuxRegistros,
+				string_substring(registrosADumpear, desdeDondeTomarLosRegistros,
+						remanenteEnBytes));
 		crearArchivoDeBloquesConRegistros(bloqueEncontrado, stringAuxRegistros);
-		if(hayMasDe1Bloque){
+		if (hayMasDe1Bloque) {
 			string_append(&stringdelArrayDeBloques, ",");
 		}
 		string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
@@ -598,23 +607,25 @@ void dumpPorTabla(char* tabla){
 	string_append(&stringdelArrayDeBloques, "]");
 
 	char *tablaPath = string_from_format("%sTables/",
-					structConfiguracionLFS.PUNTO_MONTAJE);
+			structConfiguracionLFS.PUNTO_MONTAJE);
 	string_append(&tablaPath, tabla);
 	//printf("%s\n", tablaPath);
-	int numeroDeDumpeoCorrespondiente = cuantosDumpeosHuboEnLaTabla(tablaPath)+1;
+	int numeroDeDumpeoCorrespondiente = cuantosDumpeosHuboEnLaTabla(tablaPath)
+			+ 1;
 	char *directorioTMP = string_new();
 	string_append(&directorioTMP, tablaPath);
 	string_append(&directorioTMP, "/");
 	string_append(&directorioTMP, string_itoa(numeroDeDumpeoCorrespondiente));
 	string_append(&directorioTMP, ".tmp");
 	//printf("%s\n", directorioTMP);
-	crearArchivoTMP(directorioTMP, stringdelArrayDeBloques, cantidadDeBytesADumpear);
+	crearArchivoTMP(directorioTMP, stringdelArrayDeBloques,
+			cantidadDeBytesADumpear);
 	//antes de eliminarlo de la memtable lo pongo en el diccionario de tablasQueTienenTMPs porque sino se borra el string tambien
 	dictionary_put(tablasQueTienenTMPs, tabla, tablaPath);
 	dictionary_remove(memtable, tabla);
 }
 
-int cuantosDumpeosHuboEnLaTabla(char *tablaPath){
+int cuantosDumpeosHuboEnLaTabla(char *tablaPath) {
 	int cantidadDeDumpeos = 0;
 	DIR *directorio = opendir(tablaPath);
 	struct dirent *directorioALeer;
@@ -622,7 +633,7 @@ int cuantosDumpeosHuboEnLaTabla(char *tablaPath){
 		//Evaluo si de todas las carpetas dentro de TABLAS existe alguna que tenga el mismo nombre
 		if (string_ends_with(directorioALeer->d_name, ".tmp")) {
 			/*closedir(directorio);
-			return 1;*/
+			 return 1;*/
 			//char* nombreArchivoTemporal = string_split(directorioALeer->d_name, ".")[0];
 			//El nombre es un numero (por ej. 1.tmp tiene el nombre "1" entonces...
 			cantidadDeDumpeos++;
@@ -633,17 +644,18 @@ int cuantosDumpeosHuboEnLaTabla(char *tablaPath){
 	return cantidadDeDumpeos;
 }
 
-int contarLosDigitos(int numero){
+int contarLosDigitos(int numero) {
 	int contador = 0;
 	int aux = numero;
-	do{
+	do {
 		contador++;
-		aux =(aux / 10);
-	}while(aux != 0);
+		aux = (aux / 10);
+	} while (aux != 0);
 	return contador;
 }
 
-void crearArchivoTMP(char* directorioTMP, char* stringdelArrayDeBloques, int tamanioDeLosBloques){
+void crearArchivoTMP(char* directorioTMP, char* stringdelArrayDeBloques,
+		int tamanioDeLosBloques) {
 	FILE *archivoTMP = fopen(directorioTMP, "w");
 	t_config *tmp = config_create(directorioTMP);
 	config_set_value(tmp, "SIZE", string_itoa(tamanioDeLosBloques));
@@ -654,7 +666,8 @@ void crearArchivoTMP(char* directorioTMP, char* stringdelArrayDeBloques, int tam
 	config_destroy(tmp);
 }
 
-void crearArchivoDeBloquesConRegistros(int bloqueEncontrado, char* registrosAEscribir){
+void crearArchivoDeBloquesConRegistros(int bloqueEncontrado,
+		char* registrosAEscribir) {
 	char* pathBloque = string_new();
 	string_append(&pathBloque,
 			string_from_format("%sBloques/",
@@ -662,24 +675,25 @@ void crearArchivoDeBloquesConRegistros(int bloqueEncontrado, char* registrosAEsc
 	string_append(&pathBloque, string_itoa(bloqueEncontrado));
 	string_append(&pathBloque, ".bin");
 	FILE *bloqueCreado = fopen(pathBloque, "w");
-	fwrite(registrosAEscribir, sizeof(char), strlen(registrosAEscribir), bloqueCreado);
+	fwrite(registrosAEscribir, sizeof(char), strlen(registrosAEscribir),
+			bloqueCreado);
 	fclose(bloqueCreado);
 }
 
-void compactacion(){
-	dictionary_iterator(tablasQueTienenTMPs, (void*)renombrarTodosLosTMPATMPC);
-	dictionary_iterator(tablasQueTienenTMPs, (void*)actualizarRegistros);
+void compactacion() {
+	dictionary_iterator(tablasQueTienenTMPs, (void*) renombrarTodosLosTMPATMPC);
+	dictionary_iterator(tablasQueTienenTMPs, (void*) actualizarRegistros);
 }
 
 //El dictionary_iterator pide que la funcion que le mande tenga la key y el value por eso pongo
 //la tabla a pesar de que no la uso
-void actualizarRegistros(char *tabla, char *tablaPath){
+void actualizarRegistros(char *tabla, char *tablaPath) {
 	t_queue *tmpcs = queue_create();
 	tomarLosTmpc(tablaPath, tmpcs);
 	//printf("hola");
 	int i = 0;
 	int cantidadDeElementosEnLaCola = queue_size(tmpcs);
-	while(i<cantidadDeElementosEnLaCola){
+	while (i < cantidadDeElementosEnLaCola) {
 		actualizarRegistrosCon1TMPC(queue_pop(tmpcs), tablaPath);
 		//printf("%s", queue_pop(tmpcs));
 		//printf("%i - %i\n\n", queue_size(tmpcs), i);
@@ -687,20 +701,20 @@ void actualizarRegistros(char *tabla, char *tablaPath){
 	}
 }
 
-void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath){
+void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 	//printf("%s\n", tmpc);
 	char *registros = string_new();
 	string_append(&registros, levantarRegistros(tmpc));
 	//Una vez que tengo los registros tengo que compararlos con los binarios
 }
 
-char *levantarRegistros(char *tmpc){
+char *levantarRegistros(char *tmpc) {
 	//FILE *archivoTmpc = fopen(tmpc, "r");
 	t_config *configTmpc = config_create(tmpc);
 	char **arrayDeBloques = config_get_array_value(configTmpc, "BLOCKS");
 	int i = 0;
 	char *registros = string_new();
-	while(arrayDeBloques[i]!=NULL){
+	while (arrayDeBloques[i] != NULL) {
 		char *bloque = string_new();
 		char *stringAux = string_new();
 		string_append(&bloque, structConfiguracionLFS.PUNTO_MONTAJE);
@@ -708,18 +722,35 @@ char *levantarRegistros(char *tmpc){
 		string_append(&bloque, arrayDeBloques[i]);
 		string_append(&bloque, ".bin");
 		levantarRegistroDe1Bloque(bloque, &stringAux);
-		printf("%s\n", bloque); //\n
+		//printf("%s\n", bloque); //\n
 		i++;
 	}
 	config_destroy(configTmpc);
 	return registros;
 }
 
-void levantarRegistroDe1Bloque(char *bloque, char **stringAux){
+void levantarRegistroDe1Bloque(char *bloque, char **stringAux) {
+	FILE * archivoBloque;
+	long longitudArchivo;
+	char * buffer;
 
+	archivoBloque = fopen(bloque, "rb");
+
+	fseek(archivoBloque, 0, SEEK_END);
+	longitudArchivo = ftell(archivoBloque);
+	rewind(archivoBloque);
+
+	buffer = (char*) malloc(sizeof(char) * longitudArchivo);
+
+	// copio el archivo en el buffer
+	//fread(buffer, 1, longitudArchivo, archivoBloque);
+	//string_append(&buffer, "\0");
+	//printf("%s\n", buffer);
+	fclose(archivoBloque);
+	free(buffer);
 }
 
-void tomarLosTmpc(char *tablaPath, t_queue *tmpcs){
+void tomarLosTmpc(char *tablaPath, t_queue *tmpcs) {
 	DIR *directorio = opendir(tablaPath);
 	struct dirent *archivoALeer;
 	while ((archivoALeer = readdir(directorio)) != NULL) {
@@ -736,20 +767,20 @@ void tomarLosTmpc(char *tablaPath, t_queue *tmpcs){
 	closedir(directorio);
 }
 
-void renombrarTodosLosTMPATMPC(char *tabla, char* tablaPath){
+void renombrarTodosLosTMPATMPC(char *tabla, char* tablaPath) {
 	DIR *directorio = opendir(tablaPath);
 	struct dirent *archivoALeer;
 	while ((archivoALeer = readdir(directorio)) != NULL) {
 		if (string_ends_with(archivoALeer->d_name, ".tmp")) {
-				char *viejoNombre = string_new();
-				char *nuevoNombre = string_new();
-				string_append(&viejoNombre, tablaPath);
-				string_append(&viejoNombre, "/");
-				string_append(&viejoNombre, archivoALeer->d_name);
-				string_append(&nuevoNombre, viejoNombre);
-				string_append(&nuevoNombre, "c");
-				rename(viejoNombre, nuevoNombre);
-				//printf("%s\n", nuevoNombre);
+			char *viejoNombre = string_new();
+			char *nuevoNombre = string_new();
+			string_append(&viejoNombre, tablaPath);
+			string_append(&viejoNombre, "/");
+			string_append(&viejoNombre, archivoALeer->d_name);
+			string_append(&nuevoNombre, viejoNombre);
+			string_append(&nuevoNombre, "c");
+			rename(viejoNombre, nuevoNombre);
+			//printf("%s\n", nuevoNombre);
 		}
 	}
 	closedir(directorio);
@@ -842,7 +873,7 @@ int asignarBloque() {
 	exit(-1);
 }
 
-void crearArchivoDeBloquesVacio(char* directorioBinario, int bloqueEncontrado){
+void crearArchivoDeBloquesVacio(char* directorioBinario, int bloqueEncontrado) {
 	FILE *archivoBinario = fopen(directorioBinario, "w");
 	t_config *binario = config_create(directorioBinario);
 	char *stringdelArrayDeBloques = string_new();
@@ -864,8 +895,8 @@ void crearArchivoDeBloquesVacio(char* directorioBinario, int bloqueEncontrado){
 	string_append(&pathBloque, ".bin");
 	FILE *bloqueCreado = fopen(pathBloque, "w");
 	/*if(registrosAEscribir!=NULL){
-		fwrite(registrosAEscribir, sizeof(char), strlen(registrosAEscribir), pathBloque);
-	}*/
+	 fwrite(registrosAEscribir, sizeof(char), strlen(registrosAEscribir), pathBloque);
+	 }*/
 	fclose(bloqueCreado);
 	fclose(archivoBinario);
 	config_destroy(binario);
@@ -1090,7 +1121,8 @@ char* realizarSelect(char* tabla, char* key) {
 			int cantidadIgualDeKeysEnBloque = 0;
 			t_registro* vectorStructs[100];
 			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)),
-					vectorStructs, &cantidadIgualDeKeysEnBloque, vectorBloques[i+1], vectorBloques[i-1]);
+					vectorStructs, &cantidadIgualDeKeysEnBloque,
+					vectorBloques[i + 1], vectorBloques[i - 1]);
 
 			//printf("%i", vectorStructs[0]->timestamp);
 			//printf("%i", vectorStructs[1]->timestamp);
@@ -1213,7 +1245,8 @@ char* realizarSelect(char* tabla, char* key) {
 					t_registro* vectorStructsTemporal[100];
 					obtenerDatosParaKeyDeseada(archivoBloqueTmp, (atoi(key)),
 							vectorStructsTemporal,
-							&cantidadIgualDeKeysEnTemporal, vectorBloquesTmp[q+1], vectorBloquesTmp[q-1]);
+							&cantidadIgualDeKeysEnTemporal,
+							vectorBloquesTmp[q + 1], vectorBloquesTmp[q - 1]);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 					int tempo = 0;
@@ -1346,7 +1379,8 @@ char* realizarSelect(char* tabla, char* key) {
 					t_registro* vectorStructsTemporalC[100];
 					obtenerDatosParaKeyDeseada(archivoBloqueTmpC, (atoi(key)),
 							vectorStructsTemporalC,
-							&cantidadIgualDeKeysEnTemporal, vectorBloquesTmpC[q+1], vectorBloquesTmpC[q-1]);
+							&cantidadIgualDeKeysEnTemporal,
+							vectorBloquesTmpC[q + 1], vectorBloquesTmpC[q - 1]);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 					int tempo = 0;
@@ -1540,50 +1574,54 @@ char* realizarSelect(char* tabla, char* key) {
 }
 
 /*
-void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant) {
-	int i = 0;
-	char * line = NULL;
-	size_t len = 0;
-	ssize_t read;
+ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant) {
+ int i = 0;
+ char * line = NULL;
+ size_t len = 0;
+ ssize_t read;
 
-	while ((read = getline(&line, &len, fp)) != -1) {
-		int keyLeida = atoi(string_split(line, ";")[1]);
-		if (keyLeida == key) {
-			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
-			t_registro p_registro2;
-			p_registro = &p_registro2;
-			char** arrayLinea = malloc(strlen(line) + 1);
-			arrayLinea = string_split(line, ";");
-			int timestamp = atoi(arrayLinea[0]);
-			int key = atoi(arrayLinea[1]);
-			p_registro->timestamp = timestamp;
-			p_registro->key = key;
-			p_registro->value = malloc(strlen(arrayLinea[2]));
-			strcpy(p_registro->value, arrayLinea[2]);
-			vectorStructs[i] = malloc(12);
-			memcpy(&vectorStructs[i]->key, &p_registro->key,
-					sizeof(p_registro->key));
-			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
-					sizeof(p_registro->timestamp));
-			vectorStructs[i]->value = malloc(strlen(p_registro->value));
-			memcpy(vectorStructs[i]->value, p_registro->value,
-					strlen(p_registro->value));
-			i++;
-			(*cant)++;
-		}
-	}
-}
-*/
+ while ((read = getline(&line, &len, fp)) != -1) {
+ int keyLeida = atoi(string_split(line, ";")[1]);
+ if (keyLeida == key) {
+ t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+ t_registro p_registro2;
+ p_registro = &p_registro2;
+ char** arrayLinea = malloc(strlen(line) + 1);
+ arrayLinea = string_split(line, ";");
+ int timestamp = atoi(arrayLinea[0]);
+ int key = atoi(arrayLinea[1]);
+ p_registro->timestamp = timestamp;
+ p_registro->key = key;
+ p_registro->value = malloc(strlen(arrayLinea[2]));
+ strcpy(p_registro->value, arrayLinea[2]);
+ vectorStructs[i] = malloc(12);
+ memcpy(&vectorStructs[i]->key, &p_registro->key,
+ sizeof(p_registro->key));
+ memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
+ sizeof(p_registro->timestamp));
+ vectorStructs[i]->value = malloc(strlen(p_registro->value));
+ memcpy(vectorStructs[i]->value, p_registro->value,
+ strlen(p_registro->value));
+ i++;
+ (*cant)++;
+ }
+ }
+ }
+ */
 
-
-void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant, char* charProximoBloque, char* charAnteriorBloque) {
+void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
+		int *cant, char* charProximoBloque, char* charAnteriorBloque) {
 	int i = 0;
 	char * line = NULL;
 	char * line2 = NULL;
 	size_t len = 0;
 	ssize_t read;
 
-	char* pathBloque = malloc(strlen(string_from_format("%sBloques/",structConfiguracionLFS.PUNTO_MONTAJE))	+ strlen(charAnteriorBloque) + strlen(".bin") + 1);
+	char* pathBloque = malloc(
+			strlen(
+					string_from_format("%sBloques/",
+							structConfiguracionLFS.PUNTO_MONTAJE))
+					+ strlen(charAnteriorBloque) + strlen(".bin") + 1);
 	strcpy(pathBloque, "./Bloques/");
 	strcat(pathBloque, charAnteriorBloque);
 	strcat(pathBloque, ".bin");
@@ -1593,7 +1631,11 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, i
 		exit(1);
 	}
 
-	char* pathBloque2 = malloc(strlen(string_from_format("%sBloques/",structConfiguracionLFS.PUNTO_MONTAJE))	+ strlen(charProximoBloque) + strlen(".bin") + 1);
+	char* pathBloque2 = malloc(
+			strlen(
+					string_from_format("%sBloques/",
+							structConfiguracionLFS.PUNTO_MONTAJE))
+					+ strlen(charProximoBloque) + strlen(".bin") + 1);
 	strcpy(pathBloque2, "./Bloques/");
 	strcat(pathBloque2, charProximoBloque);
 	strcat(pathBloque2, ".bin");
@@ -1604,18 +1646,19 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, i
 	}
 
 	// si NO es el primer bloque del array de BLOCK
-	if(anteriorBloque != NULL){
+	if (anteriorBloque != NULL) {
 		// si el anterior bloque no termina con \n => anterior tiene renglon incompleto => yo tengo el primer renglon al pedo
-		if( fseek(anteriorBloque, -1, SEEK_END) != '\n' ){
+		if (fseek(anteriorBloque, -1, SEEK_END) != '\n') {
 			// descarto primer renglon y sigo con el sgte
 			getline(&line, &len, fp);
 		}
 	}
 	while ((read = getline(&line, &len, fp)) != -1) {
-		if(proximoBloque != NULL){
+		if (proximoBloque != NULL) {
 			// si( esta linea es la ultima y no termina con \n (es decir que ademas esta incompleta))
 			size_t len2 = len;
-			if ( (getline(&line2, &len2, fp) == -1) && (line[strlen(line)-1] != '\n')){
+			if ((getline(&line2, &len2, fp) == -1)
+					&& (line[strlen(line) - 1] != '\n')) {
 				char * lineProxBloque = NULL;
 				size_t lenProxBloque = 0;
 				getline(&lineProxBloque, &lenProxBloque, proximoBloque);
@@ -1654,7 +1697,6 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, i
 	free(pathBloque2);
 }
 
-
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 		t_registro **entradaTabla, int laKey, int *cant) {
 	for (int i = 0; i < 100; i++) {
@@ -1691,7 +1733,8 @@ metadataTabla describeUnaTabla(char *tabla) {
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Busco la metadata en la tabla
-		if (!((directorioALeer->d_type) == DT_DIR) && !strcmp((directorioALeer->d_name), "metadata")) {
+		if (!((directorioALeer->d_type) == DT_DIR)
+				&& !strcmp((directorioALeer->d_name), "metadata")) {
 			char *pathMetadata = string_new();
 			string_append(&pathMetadata, pathTabla);
 			string_append(&pathMetadata, "/");
@@ -1700,9 +1743,12 @@ metadataTabla describeUnaTabla(char *tabla) {
 			metadataTabla metadataTabla;
 			metadataTabla.CONSISTENCY = string_new();
 			t_config *metadata = config_create(pathMetadata);
-			string_append(&(metadataTabla.CONSISTENCY), config_get_string_value(metadata, "CONSISTENCY"));
-			metadataTabla.PARTITIONS = config_get_int_value(metadata, "PARTITIONS");
-			metadataTabla.COMPACTION_TIME = config_get_int_value(metadata, "COMPACTION_TIME");
+			string_append(&(metadataTabla.CONSISTENCY),
+					config_get_string_value(metadata, "CONSISTENCY"));
+			metadataTabla.PARTITIONS = config_get_int_value(metadata,
+					"PARTITIONS");
+			metadataTabla.COMPACTION_TIME = config_get_int_value(metadata,
+					"COMPACTION_TIME");
 
 			closedir(directorio);
 			config_destroy(metadata);
@@ -1711,7 +1757,8 @@ metadataTabla describeUnaTabla(char *tabla) {
 			printf("%s: \n", tabla);
 			printf("Particiones: %i\n", metadataTabla.PARTITIONS);
 			printf("Consistencia: %s\n", metadataTabla.CONSISTENCY);
-			printf("Tiempo de compactacion: %i\n\n", metadataTabla.COMPACTION_TIME);
+			printf("Tiempo de compactacion: %i\n\n",
+					metadataTabla.COMPACTION_TIME);
 			return metadataTabla;
 		}
 	}
@@ -1725,14 +1772,19 @@ t_dictionary *describeTodasLasTablas() {
 	//tenga adentro el diccionario todavia sean validos, entonces es mas facil borrar tod y hacer describe desde 0
 	dictionary_clean(diccionarioDescribe);
 
-	DIR *directorio = opendir(string_from_format("%sTables", structConfiguracionLFS.PUNTO_MONTAJE));
+	DIR *directorio = opendir(
+			string_from_format("%sTables",
+					structConfiguracionLFS.PUNTO_MONTAJE));
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Busco la metadata de todas las tablas (evaluo que no ingrese a los directorios "." y ".."
-		if ((directorioALeer->d_type) == DT_DIR && strcmp((directorioALeer->d_name), ".") && strcmp((directorioALeer->d_name), "..")) {
+		if ((directorioALeer->d_type) == DT_DIR
+				&& strcmp((directorioALeer->d_name), ".")
+				&& strcmp((directorioALeer->d_name), "..")) {
 			metadataTabla structMetadata;
 			structMetadata = describeUnaTabla(directorioALeer->d_name);
-			dictionary_put(diccionarioDescribe, directorioALeer->d_name, &structMetadata);
+			dictionary_put(diccionarioDescribe, directorioALeer->d_name,
+					&structMetadata);
 
 			/* Para probar que funciona esta wea
 			 *
@@ -1740,14 +1792,13 @@ t_dictionary *describeTodasLasTablas() {
 			 * metadata = (metadataTabla *)dictionary_get(diccionarioDescribe, directorioALeer->d_name);
 			 * printf("%i", metadata->COMPACTION_TIME);
 			 *
-			*/
+			 */
 		}
 	}
 	closedir(directorio);
 	return diccionarioDescribe;
 
 }
-
 
 /*
 
