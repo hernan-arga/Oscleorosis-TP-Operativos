@@ -82,6 +82,7 @@ void atenderPeticionesDeConsola();
 
 t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
 t_dictionary *tablasQueTienenTMPs; //guardo las tablas que tienen tmps para que en la compactacion solo revise esas
+t_dictionary *binariosParaCompactar;
 
 metadataTabla describeUnaTabla(char *);
 t_dictionary *describeTodasLasTablas();
@@ -99,6 +100,7 @@ void actualizarRegistrosCon1TMPC(char *, char *);
 char *levantarRegistros(char *);
 void levantarRegistroDe1Bloque(char *, char **);
 void tomarLosTmpc(char *, t_queue *);
+void evaluarRegistro(char *, char *);
 
 void drop(char*);
 
@@ -148,6 +150,7 @@ t_dictionary* diccionarioDescribe;
 
 int main(int argc, char *argv[]) {
 	tablasQueTienenTMPs = dictionary_create();
+	binariosParaCompactar = dictionary_create();
 	//pthread_t hiloLevantarConexion;
 	pthread_t hiloDump;
 	pthread_t atenderPeticionesConsola;
@@ -712,12 +715,17 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 	int i = 0;
 	while(registrosSeparados[i]!=NULL){
 		evaluarRegistro(registrosSeparados[i], tablaPath);
+		//printf("%i\n", i);
 		i++;
 	}
 }
 
 void evaluarRegistro(char *registro, char *tablaPath){
-	t_config *metadata = config_create(tablaPath);
+	char* metadataPath = string_new();
+	string_append(&metadataPath, tablaPath);
+	string_append(&metadataPath, "/metadata");
+	t_config *metadata = config_create(metadataPath);
+	//printf("%s\n", tablaPath);
 	int cantidadDeParticiones = config_get_int_value(metadata,
 						"PARTITIONS");
 	//Separo el registro en timestamp, key y value
@@ -726,8 +734,26 @@ void evaluarRegistro(char *registro, char *tablaPath){
 	int key = atoi(infoSeparada[1]);
 	char *value = string_new();
 	string_append(&value, infoSeparada[2]);
-	int particionQueContieneLaKey = (atoi(key)) % cantidadDeParticiones;
+	int particionQueContieneLaKey = key % cantidadDeParticiones;
 
+	char *pathBinario = string_new();
+	string_append(&pathBinario, tablaPath);
+	string_append(&pathBinario, "/");
+	string_append(&pathBinario, string_itoa(particionQueContieneLaKey));
+	string_append(&pathBinario, ".bin");
+
+	if(!dictionary_has_key(binariosParaCompactar, pathBinario)){
+		char *registrosBinario = string_new();
+		//printf("------\n");
+		string_append(&registrosBinario, levantarRegistros(pathBinario));
+		//printf("------\n");
+		dictionary_put(binariosParaCompactar, pathBinario, registrosBinario);
+		//printf("%s\n", registrosBinario);
+		//free(registrosBinario);
+	}
+	//else
+		//printf("%s\n", dictionary_get(binariosParaCompactar, pathBinario));
+	//printf("%s\n", value);
 	/*if (!existeUnaListaDeBinarios(tabla)) {
 		t_list* listaDeStructs = list_create();
 		list_add(listaDeStructs, p_registro);
@@ -740,13 +766,9 @@ void evaluarRegistro(char *registro, char *tablaPath){
 		dictionary_put(memtable, tabla, listaDeStructs);
 	}*/
 
-	char *registrosBinario = string_new();
-	char *pathBinario = string_new();
-	string_append(&pathBinario, tablaPath);
-	string_append(&pathBinario, "/");
-	string_append(&pathBinario, particionQueContieneLaKey);
-	string_append(&pathBinario, ".bin");
-	string_append(&registrosBinario, levantarRegistros(pathBinario));
+	/*char *registrosBinario = string_new();
+
+	string_append(&registrosBinario, levantarRegistros(pathBinario));*/
 }
 
 //Dice tmpc pero tambien es para bin... cambiarlo
@@ -765,6 +787,7 @@ char *levantarRegistros(char *tmpc) {
 		string_append(&bloque, ".bin");
 		levantarRegistroDe1Bloque(bloque, &stringAux);
 		//printf("%s\n", bloque); //\n
+
 		string_append(&registros, stringAux);
 		i++;
 	}
@@ -783,16 +806,23 @@ void levantarRegistroDe1Bloque(char *bloque, char **stringAux) {
 				structConfiguracionLFS.PUNTO_MONTAJE);
 	t_config *metadata = config_create(metadataPath);
 	int tamanioPorBloque = config_get_int_value(metadata, "BLOCK_SIZE");
-	printf("%i", tamanioPorBloque);
+	//printf("%i", tamanioPorBloque);
 	config_destroy(metadata);
 	free(metadataPath);
 	archivoBloque = fopen(bloque, "rb");;
 	//buffer = string_new();
 	buffer = (char*) malloc(tamanioPorBloque);
 	//Leo todos los registros del bloque que pueden ser como maximo el tamanio del bloque
-	fgets(buffer, tamanioPorBloque, archivoBloque);
+	//fgets(buffer, tamanioPorBloque, archivoBloque);
+	/*while(fgets(buffer, 128, archivoBloque)) {
+		string_append(stringAux, buffer);
+	}*/
+	while(fgets(buffer, tamanioPorBloque, archivoBloque))
+	{
+		string_append(stringAux, buffer);
+	}
 	//char *hola = (char*) malloc((sizeof(char) * longitudArchivo)+2);
-	string_append(stringAux, buffer);
+	//printf("%s\n", *stringAux);
 	//strcat(hola, "\0");
 	//printf("%s", hola);
 	//string_append(&buffer, "\0");
