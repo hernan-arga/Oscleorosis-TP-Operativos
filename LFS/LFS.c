@@ -9,12 +9,13 @@
  * FALTANTES:
  * - ARREGLO DE RETORNO EN SELECT
  * - ARREGLO FUNCION APARTE MEMTABLE (rompe)
+ *
  * - ARREGLAR PARA QUE AL HACER EL SPLIT DEL MENSAJE NO SEPARE EL STRING DEL VALUE DEL INSERT
  * - VERIFICAR QUE EL VALUE INSERTADO EN INSERT NO SOBREPASE EL MAXIMO DEFINIDO EN EL ARCHIVO DE CONFIG
  * - SEPARAR DE TODAS LAS FUNCIONES QUE IMPRIMA POR CONSOLA SOLO CUANDO SE USE LA MISMA
  * - CAMBIAR LOS PRINTF A LOGS PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
- *
+ * - AGREGAR EL SLEEP DE RETARDO A TODAS LAS FUNCIONES
  */
 #include <stdio.h>
 #include <string.h> //strlen
@@ -703,12 +704,52 @@ void actualizarRegistros(char *tabla, char *tablaPath) {
 }
 
 void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
-	//printf("%s\n", tmpc);
+	//primero levanto los registros que tengo a nivel logico para tenerlos juntos
 	char *registros = string_new();
 	string_append(&registros, levantarRegistros(tmpc));
-	//Una vez que tengo los registros tengo que compararlos con los binarios
+	char **registrosSeparados = string_split(registros, "\n");
+	//cuando tengo todos los registros los separo y voy evaluando de a 1
+	int i = 0;
+	while(registrosSeparados[i]!=NULL){
+		evaluarRegistro(registrosSeparados[i], tablaPath);
+		i++;
+	}
 }
 
+void evaluarRegistro(char *registro, char *tablaPath){
+	t_config *metadata = config_create(tablaPath);
+	int cantidadDeParticiones = config_get_int_value(metadata,
+						"PARTITIONS");
+	//Separo el registro en timestamp, key y value
+	char **infoSeparada = string_split(registro, ";");
+	int timestamp = atoi(infoSeparada[0]);
+	int key = atoi(infoSeparada[1]);
+	char *value = string_new();
+	string_append(&value, infoSeparada[2]);
+	int particionQueContieneLaKey = (atoi(key)) % cantidadDeParticiones;
+
+	/*if (!existeUnaListaDeBinarios(tabla)) {
+		t_list* listaDeStructs = list_create();
+		list_add(listaDeStructs, p_registro);
+		dictionary_put(memtable, tabla, listaDeStructs);
+
+	} else {
+		t_list* listaDeStructs = dictionary_get(memtable, tabla);
+		list_add(listaDeStructs, p_registro);
+		dictionary_remove(memtable, tabla);
+		dictionary_put(memtable, tabla, listaDeStructs);
+	}*/
+
+	char *registrosBinario = string_new();
+	char *pathBinario = string_new();
+	string_append(&pathBinario, tablaPath);
+	string_append(&pathBinario, "/");
+	string_append(&pathBinario, particionQueContieneLaKey);
+	string_append(&pathBinario, ".bin");
+	string_append(&registrosBinario, levantarRegistros(pathBinario));
+}
+
+//Dice tmpc pero tambien es para bin... cambiarlo
 char *levantarRegistros(char *tmpc) {
 	//FILE *archivoTmpc = fopen(tmpc, "r");
 	t_config *configTmpc = config_create(tmpc);
@@ -724,9 +765,12 @@ char *levantarRegistros(char *tmpc) {
 		string_append(&bloque, ".bin");
 		levantarRegistroDe1Bloque(bloque, &stringAux);
 		//printf("%s\n", bloque); //\n
+		string_append(&registros, stringAux);
 		i++;
 	}
+	//printf("%s", registros);
 	config_destroy(configTmpc);
+	//Aca ya tendria los registros de los distintos bloques del tmp unidos
 	return registros;
 }
 
@@ -748,11 +792,11 @@ void levantarRegistroDe1Bloque(char *bloque, char **stringAux) {
 	//Leo todos los registros del bloque que pueden ser como maximo el tamanio del bloque
 	fgets(buffer, tamanioPorBloque, archivoBloque);
 	//char *hola = (char*) malloc((sizeof(char) * longitudArchivo)+2);
-	//strcpy(hola, "hjk");
+	string_append(stringAux, buffer);
 	//strcat(hola, "\0");
 	//printf("%s", hola);
 	//string_append(&buffer, "\0");
-	printf("%s", buffer);
+	//printf("%s", buffer);
 	//free(hola);
 	//char *hola = (char *)malloc(strlen(buffer)+1);
 	//strcpy(hola, buffer);
