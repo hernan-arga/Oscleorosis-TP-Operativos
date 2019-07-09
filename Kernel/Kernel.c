@@ -22,9 +22,16 @@ struct Script{
 	FILE* peticiones;
 };
 
+struct datosMemoria{
+	t_list * criteriosAsignados;
+	int ip;
+};
+
 typedef enum {
 	SELECT, INSERT, CREATE, DESCRIBE, DROP, JOURNAL, ADD, RUN, METRICS, OPERACIONINVALIDA
 } OPERACION;
+
+
 
 char*tempSinAsignar();
 int numeroSinUsar();
@@ -42,27 +49,45 @@ int parametrosValidos(int, char**, int (*criterioTiposCorrectos)(char**, int));
 int esUnNumero(char* cadena);
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
 int esUnTipoDeConsistenciaValida(char*);
+void operacion_gossiping(t_list*);
+int IP_en_lista(t_list *,struct datosMemoria);
 
 int main(){
 
 	t_list * PIDs = list_create();
 	t_queue* new = queue_create();
 	t_queue* ready = queue_create();
+	t_list * listaDeMemorias = list_create();
 	//t_queue* exec = queue_create();
-	FILE* memorias =fopen("IP_MEMORIAS","w");
 	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
 	char* mensaje = malloc(100);
-	//configurar_kernel();
-	//operacion_gossiping(memorias); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
+	configurar_kernel();
+	operacion_gossiping(listaDeMemorias); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
 	do{
 		printf("Mis subprocesos estan a la espera de su mensaje, usuario.\n");
 		fgets(mensaje,100,stdin);
 		tomar_peticion(mensaje,new,ready,PIDs);
 	}while(strcmp(mensaje,"\n"));
-	fclose(memorias);
-
 	return 0;
 }
+
+void operacion_gossiping(t_list * listaDeMemorias){
+	t_config* configuracion = config_create("Kernel_config");
+	int IP = config_get_int_value(configuracion,"IP");
+	struct datosMemoria unaMemoria;
+	//aca va algo con sockets para pedirle a la memoria principal, la IP de las demas memorias. Carga en unaMemoria la info y si no está en la lista de IPs, la coloca.
+	if(!IP_en_lista(listaDeMemorias,unaMemoria)){
+		list_add(listaDeMemorias,&unaMemoria);
+	}
+}
+
+int IP_en_lista(t_list * listaDeMemorias,struct datosMemoria unaMemoria){
+	bool _IP_presente(void* IP){
+			return (int)IP == unaMemoria.ip;
+		}
+	return (list_find(listaDeMemorias, _IP_presente) != NULL);
+}
+
 
 void tomar_peticion(char* mensaje,t_queue *new,t_queue* ready,t_list* PIDs){
 	//Fijarse despues cual seria la cantidad correcta de malloc
@@ -96,7 +121,6 @@ void realizar_peticion(char** parametros,t_queue * new,t_queue *ready,t_list* PI
 			fprintf(temp,"%s %s %s" ,"SELECT",parametros[1],parametros[2]);
 			fclose(temp);
 			planificador(nombre_archivo,PIDs,new,ready);
-
 		}
 
 		break;
@@ -158,6 +182,54 @@ void realizar_peticion(char** parametros,t_queue * new,t_queue *ready,t_list* PI
 			planificador(nombre_archivo,PIDs,new,ready);
 		}
 		break;
+	case DESCRIBE:
+			printf("Seleccionaste Describe\n");
+			int criterioDescribeTodasLasTablas(char** parametros,
+					int cantidadDeParametrosUsados) {
+				char* tabla = parametros[1];
+				return (tabla == NULL);
+			}
+			int criterioDescribeUnaTabla(char** parametros,
+					int cantidadDeParametrosUsados) {
+				char* tabla = parametros[1];
+				if (tabla == NULL) {
+					return 0;
+				}
+				string_to_upper(tabla);
+				if (!existeLaTabla(tabla)) {
+					printf("La tabla no existe\n");
+				}
+				return existeLaTabla(tabla);
+			}
+			if (parametrosValidos(0, parametros,
+					(void *) criterioDescribeTodasLasTablas)) {
+				describeTodasLasTablas();
+			}
+			if (parametrosValidos(1, parametros,
+					(void *) criterioDescribeUnaTabla)) {
+				char* tabla = parametros[1];
+				string_to_upper(tabla);
+				describeUnaTabla(tabla);
+			}
+			break;
+
+	case DROP:
+			printf("Seleccionaste Drop\n");
+			int criterioDrop(char** parametros, int cantidadDeParametrosUsados) {
+				char* tabla = parametros[1];
+				string_to_upper(tabla);
+				if (!existeLaTabla(tabla)) {
+					printf("La tabla a borrar no existe\n");
+				}
+				return existeLaTabla(tabla);
+			}
+			if (parametrosValidos(1, parametros, (void *) criterioDrop)) {
+				char* tabla = parametros[1];
+				string_to_upper(tabla);
+				drop(tabla);
+			}
+		break;
+
 	case RUN:
 		printf("Seleccionaste Run\n");
 			if(parametros[1] == NULL){
@@ -182,6 +254,7 @@ void realizar_peticion(char** parametros,t_queue * new,t_queue *ready,t_list* PI
 				}
 		}
 		break;
+
 	default:
 		printf("Error operacion invalida\n");
 	}
@@ -363,7 +436,7 @@ void configurar_kernel(){
 	t_config* configuracion = config_create("Kernel_config");
 	printf("\tQue bien! Parece que hoy van a configurarme\n");
 	char * valor = string_new();
-	printf("\tNecesito una direccion IP, asi podre comunicarme con mis preciosas memorias.\n Por favor ingresa mi IP\n");
+	printf("\tNecesito la direccion IP de la memoria principal, para poder intercambiar ceros y unos.\n Por favor ingresa su IP\n");
 	fgets(valor, 100, stdin);
 	config_set_value(configuracion,"IP",valor);
 	printf("\tGracias, ahora me dieron ganas de hablar con las memorias... Por un canal privado. Podrias conseguirme un puerto?\n Por favor, ingresa el puerto para comunicarme con las memorias\n");
