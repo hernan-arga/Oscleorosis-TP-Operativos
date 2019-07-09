@@ -40,6 +40,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <math.h>
+#include <commons/log.h>
 
 //#define TRUE 1
 //#define FALSE 0
@@ -731,21 +732,33 @@ char *levantarRegistros(char *tmpc) {
 
 void levantarRegistroDe1Bloque(char *bloque, char **stringAux) {
 	FILE * archivoBloque;
-	long longitudArchivo;
 	char * buffer;
-
-	archivoBloque = fopen(bloque, "rb");
-
-	fseek(archivoBloque, 0, SEEK_END);
-	longitudArchivo = ftell(archivoBloque);
-	rewind(archivoBloque);
-
-	buffer = (char*) malloc(sizeof(char) * longitudArchivo);
-
-	// copio el archivo en el buffer
-	//fread(buffer, 1, longitudArchivo, archivoBloque);
+	//char *metadataPath = string_new();
+	//string_append(&metadataPath, "/home/utnso/lissandra-checkpoint/Metadata/metadata.bin");
+	char *metadataPath = string_from_format("%sMetadata/metadata.bin",
+				structConfiguracionLFS.PUNTO_MONTAJE);
+	t_config *metadata = config_create(metadataPath);
+	int tamanioPorBloque = config_get_int_value(metadata, "BLOCK_SIZE");
+	printf("%i", tamanioPorBloque);
+	config_destroy(metadata);
+	free(metadataPath);
+	archivoBloque = fopen(bloque, "rb");;
+	//buffer = string_new();
+	buffer = (char*) malloc(tamanioPorBloque);
+	//Leo todos los registros del bloque que pueden ser como maximo el tamanio del bloque
+	fgets(buffer, tamanioPorBloque, archivoBloque);
+	//char *hola = (char*) malloc((sizeof(char) * longitudArchivo)+2);
+	//strcpy(hola, "hjk");
+	//strcat(hola, "\0");
+	//printf("%s", hola);
 	//string_append(&buffer, "\0");
-	//printf("%s\n", buffer);
+	printf("%s", buffer);
+	//free(hola);
+	//char *hola = (char *)malloc(strlen(buffer)+1);
+	//strcpy(hola, buffer);
+	//printf("%s", hola);
+	//printf("%i", strlen(buffer));
+	//free(hola);*/
 	fclose(archivoBloque);
 	free(buffer);
 }
