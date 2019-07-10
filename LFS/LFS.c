@@ -71,6 +71,11 @@ typedef struct {
 	int COMPACTION_TIME;
 } metadataTabla;
 
+typedef struct {
+	char *registros;
+	char *tablaALaQuePertenece;
+}binarioCompactacion;
+
 /*
  void iniciarConexion();
  void tomarPeticionSelect(int sd);
@@ -713,6 +718,7 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 	char **registrosSeparados = string_split(registros, "\n");
 	//cuando tengo todos los registros los separo y voy evaluando de a 1
 	int i = 0;
+	//printf("%s\n", registros);
 	while(registrosSeparados[i]!=NULL){
 		evaluarRegistro(registrosSeparados[i], tablaPath);
 		//printf("%i\n", i);
@@ -743,32 +749,73 @@ void evaluarRegistro(char *registro, char *tablaPath){
 	string_append(&pathBinario, ".bin");
 
 	if(!dictionary_has_key(binariosParaCompactar, pathBinario)){
-		char *registrosBinario = string_new();
-		//printf("------\n");
-		string_append(&registrosBinario, levantarRegistros(pathBinario));
-		//printf("------\n");
-		dictionary_put(binariosParaCompactar, pathBinario, registrosBinario);
+		binarioCompactacion unBinario;
+		unBinario.tablaALaQuePertenece = tablaPath;
+		unBinario.registros = levantarRegistros(pathBinario);
+		//uso el path del binario como clave para insertar en el diccionario
+		dictionary_put(binariosParaCompactar, pathBinario, unBinario);
 		//printf("%s\n", registrosBinario);
-		//free(registrosBinario);
 	}
+	binarioCompactacion unBinario = dictionary_get(binariosParaCompactar, pathBinario);
+	compararRegistros(timestamp, key, value, unBinario, pathBinario);
+	//printf("%s\n", );
 	//else
 		//printf("%s\n", dictionary_get(binariosParaCompactar, pathBinario));
 	//printf("%s\n", value);
-	/*if (!existeUnaListaDeBinarios(tabla)) {
-		t_list* listaDeStructs = list_create();
-		list_add(listaDeStructs, p_registro);
-		dictionary_put(memtable, tabla, listaDeStructs);
-
-	} else {
-		t_list* listaDeStructs = dictionary_get(memtable, tabla);
-		list_add(listaDeStructs, p_registro);
-		dictionary_remove(memtable, tabla);
-		dictionary_put(memtable, tabla, listaDeStructs);
-	}*/
 
 	/*char *registrosBinario = string_new();
 
 	string_append(&registrosBinario, levantarRegistros(pathBinario));*/
+}
+
+void compararRegistros(int timestamp, int key, char *value, binarioCompactacion unBinario, char* pathBinario){
+	char **registrosSeparados = string_split(unBinario.registros, "\n");
+	char *registrosActualizados = string_new();
+	int i = 0;
+	int existeLaKeyEnElBinario = 0;
+	while(registrosSeparados[i] != NULL){
+		int elRegistroContieneLaKey = 0;
+		comparar1RegistroBinarioCon1NuevoRegistro(timestamp, key, value, &(registrosSeparados[i]), &elRegistroContieneLaKey);
+		if(elRegistroContieneLaKey){
+			existeLaKeyEnElBinario = 1;
+		}
+		string_append(&registrosActualizados, registrosSeparados[i]);
+		string_append(&registrosActualizados, "\n");
+		i++;
+	}
+	//Si i = 0 quiere decir que el binario estaba vacio por lo que tengo que agregar solo este nuevo registro
+	if(!existeLaKeyEnElBinario || i == 0){
+		char *nuevoRegistro = string_new();
+		string_append(&nuevoRegistro, string_itoa(timestamp));
+		string_append(&nuevoRegistro, ";");
+		string_append(&nuevoRegistro, string_itoa(key));
+		string_append(&nuevoRegistro, ";");
+		string_append(&nuevoRegistro, string_itoa(value));
+		string_append(&registrosActualizados, nuevoRegistro);
+		free(nuevoRegistro);
+	}
+	unBinario.registros = registrosActualizados;
+	dictionary_put(binariosParaCompactar, pathBinario, unBinario);
+}
+
+void comparar1RegistroBinarioCon1NuevoRegistro(int timestampRegistro, int keyRegistro, char *valueRegistro, char **registroBinario, int elRegistroContieneLaKey){
+	char **infoSeparada = string_split(*registroBinario, ";");
+	int timestampBinario = atoi(infoSeparada[0]);
+	int keyBinario = atoi(infoSeparada[1]);
+	char *valueBinario = string_new();
+	string_append(&valueBinario, infoSeparada[2]);
+	if((keyBinario == keyRegistro)){
+		elRegistroContieneLaKey = 1;
+		if(timestampBinario<timestampRegistro){
+			char *nuevoRegistro = string_new();
+			string_append(&nuevoRegistro, timestampRegistro);
+			string_append(&nuevoRegistro, ";");
+			string_append(&nuevoRegistro, keyRegistro);
+			string_append(&nuevoRegistro, ";");
+			string_append(&nuevoRegistro, valueRegistro);
+			//aca borro lo que tiene registroBinario y lo cambio a nuevoRegistro
+		}
+	}
 }
 
 //Dice tmpc pero tambien es para bin... cambiarlo
