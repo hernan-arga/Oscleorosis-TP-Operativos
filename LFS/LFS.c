@@ -106,6 +106,9 @@ char *levantarRegistros(char *);
 void levantarRegistroDe1Bloque(char *, char **);
 void tomarLosTmpc(char *, t_queue *);
 void evaluarRegistro(char *, char *);
+void compararRegistros(int, int, char *, binarioCompactacion *, char*);
+void comparar1RegistroBinarioCon1NuevoRegistro(int, int, char *, char **, int *);
+
 
 void drop(char*);
 
@@ -749,14 +752,18 @@ void evaluarRegistro(char *registro, char *tablaPath){
 	string_append(&pathBinario, ".bin");
 
 	if(!dictionary_has_key(binariosParaCompactar, pathBinario)){
-		binarioCompactacion unBinario;
-		unBinario.tablaALaQuePertenece = tablaPath;
-		unBinario.registros = levantarRegistros(pathBinario);
+		binarioCompactacion *unBinario = malloc(sizeof(binarioCompactacion));
+		unBinario->tablaALaQuePertenece = malloc(strlen(tablaPath)+1);
+		strcpy(unBinario->tablaALaQuePertenece, tablaPath);
+		unBinario->registros = malloc(strlen(levantarRegistros(pathBinario))+1);
+		strcpy(unBinario->registros, levantarRegistros(pathBinario));
 		//uso el path del binario como clave para insertar en el diccionario
 		dictionary_put(binariosParaCompactar, pathBinario, unBinario);
 		//printf("%s\n", registrosBinario);
 	}
-	binarioCompactacion unBinario = dictionary_get(binariosParaCompactar, pathBinario);
+	binarioCompactacion *unBinario = dictionary_get(binariosParaCompactar, pathBinario);
+
+	//printf("%s\n", otro->registros);unBinario
 	compararRegistros(timestamp, key, value, unBinario, pathBinario);
 	//printf("%s\n", );
 	//else
@@ -768,12 +775,16 @@ void evaluarRegistro(char *registro, char *tablaPath){
 	string_append(&registrosBinario, levantarRegistros(pathBinario));*/
 }
 
-void compararRegistros(int timestamp, int key, char *value, binarioCompactacion unBinario, char* pathBinario){
-	char **registrosSeparados = string_split(unBinario.registros, "\n");
+void compararRegistros(int timestamp, int key, char *value, binarioCompactacion *unBinario, char* pathBinario){
+	char *registrosBinario = string_new();
+	string_append(&registrosBinario, unBinario->registros);
+	char **registrosSeparados = string_split(registrosBinario, "\n");
+	free(registrosBinario);
 	char *registrosActualizados = string_new();
 	int i = 0;
 	int existeLaKeyEnElBinario = 0;
 	while(registrosSeparados[i] != NULL){
+		//printf("%s\n", registrosSeparados[i]);
 		int elRegistroContieneLaKey = 0;
 		comparar1RegistroBinarioCon1NuevoRegistro(timestamp, key, value, &(registrosSeparados[i]), &elRegistroContieneLaKey);
 		if(elRegistroContieneLaKey){
@@ -783,6 +794,7 @@ void compararRegistros(int timestamp, int key, char *value, binarioCompactacion 
 		string_append(&registrosActualizados, "\n");
 		i++;
 	}
+	//printf("%i\n", existeLaKeyEnElBinario);
 	//Si i = 0 quiere decir que el binario estaba vacio por lo que tengo que agregar solo este nuevo registro
 	if(!existeLaKeyEnElBinario || i == 0){
 		char *nuevoRegistro = string_new();
@@ -790,30 +802,37 @@ void compararRegistros(int timestamp, int key, char *value, binarioCompactacion 
 		string_append(&nuevoRegistro, ";");
 		string_append(&nuevoRegistro, string_itoa(key));
 		string_append(&nuevoRegistro, ";");
-		string_append(&nuevoRegistro, string_itoa(value));
+		string_append(&nuevoRegistro, value);
 		string_append(&registrosActualizados, nuevoRegistro);
 		free(nuevoRegistro);
 	}
-	unBinario.registros = registrosActualizados;
-	dictionary_put(binariosParaCompactar, pathBinario, unBinario);
+	printf("%s\n", registrosActualizados);
+	/*unBinario.registros = registrosActualizados;
+	dictionary_put(binariosParaCompactar, pathBinario, unBinario);*/
 }
 
-void comparar1RegistroBinarioCon1NuevoRegistro(int timestampRegistro, int keyRegistro, char *valueRegistro, char **registroBinario, int elRegistroContieneLaKey){
+void comparar1RegistroBinarioCon1NuevoRegistro(int timestampRegistro, int keyRegistro, char *valueRegistro, char **registroBinario, int *elRegistroContieneLaKey){
 	char **infoSeparada = string_split(*registroBinario, ";");
 	int timestampBinario = atoi(infoSeparada[0]);
 	int keyBinario = atoi(infoSeparada[1]);
 	char *valueBinario = string_new();
 	string_append(&valueBinario, infoSeparada[2]);
+	//printf("binario: %i - registro:%i\n",timestampBinario, timestampRegistro);
+	//printf("%s\n", valueRegistro);
 	if((keyBinario == keyRegistro)){
-		elRegistroContieneLaKey = 1;
+		*elRegistroContieneLaKey = 1;
 		if(timestampBinario<timestampRegistro){
 			char *nuevoRegistro = string_new();
-			string_append(&nuevoRegistro, timestampRegistro);
+			string_append(&nuevoRegistro, string_itoa(timestampRegistro));
 			string_append(&nuevoRegistro, ";");
-			string_append(&nuevoRegistro, keyRegistro);
+			string_append(&nuevoRegistro, string_itoa(keyRegistro));
 			string_append(&nuevoRegistro, ";");
 			string_append(&nuevoRegistro, valueRegistro);
+			//printf("binario < registro\n");
 			//aca borro lo que tiene registroBinario y lo cambio a nuevoRegistro
+			free(*registroBinario);
+			*registroBinario = malloc(strlen(nuevoRegistro)+1);
+			strcpy(*registroBinario, nuevoRegistro);
 		}
 	}
 }
