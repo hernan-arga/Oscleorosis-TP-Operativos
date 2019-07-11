@@ -105,10 +105,12 @@ void actualizarRegistrosCon1TMPC(char *, char *);
 char *levantarRegistros(char *);
 void levantarRegistroDe1Bloque(char *, char **);
 void tomarLosTmpc(char *, t_queue *);
-void evaluarRegistro(char *, char *);
+void evaluarRegistro(char *, char *, t_list **);
 void compararRegistros(int, int, char *, binarioCompactacion *, char*);
 void comparar1RegistroBinarioCon1NuevoRegistro(int, int, char *, char **, int *);
-
+void actualizarBin(char *);
+void liberarBloques(char *);
+void desasignarBloqueDelBitarray(int);
 
 void drop(char*);
 
@@ -721,15 +723,94 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 	char **registrosSeparados = string_split(registros, "\n");
 	//cuando tengo todos los registros los separo y voy evaluando de a 1
 	int i = 0;
+	t_list *binariosAfectados = list_create();
 	//printf("%s\n", registros);
 	while(registrosSeparados[i]!=NULL){
-		evaluarRegistro(registrosSeparados[i], tablaPath);
+		evaluarRegistro(registrosSeparados[i], tablaPath, &binariosAfectados);
 		//printf("%i\n", i);
+		i++;
+	}
+	//Aca tendria que bloquear la tabla de alguna manera y meter un temporizador que cuente cuanto estuvo bloqueada
+	liberarBloques(tmpc);
+	remove(tmpc);
+	list_iterate(binariosAfectados, (void*)actualizarBin);
+	//Desbloquear la tabla y dejar registro de cuanto tiempo estuvo bloqueada la tabla
+}
+
+
+void actualizarBin(char *pathBin){
+	//Libero los bloques del binario
+	liberarBloques(pathBin);
+	char * registrosNuevos = malloc(strlen(dictionary_get(binariosParaCompactar, pathBin))+1);
+	strcpy(registrosNuevos, dictionary_get(binariosParaCompactar, pathBin));
+	char *bloquesAsignados = string_new();
+	//Solicitar los bloques para el nuevo bin
+	while(cantidadDeBloquesNecesarios!=0){
+		int numeroDeBloque = asignarBloque();
+		//Uso un string para guardar los bloques asignados y despues los divido con el split
+		string_append(&bloquesAsignados, string_itoa(numeroDeBloque));
+		string_append(&bloquesAsignados, " ");
+	}
+	crearArchivoDeBloquesConRegistros(pathBin, bloquesAsignados);
+
+	//Grabar los datos en el nuevo bin
+}
+
+void crearArchivoDeBloquesConRegistros(char* directorioBinario, char* bloquesAsignados) {
+	//Verificar que no me tome el \0 como un valor dentro del array de bloques
+	char **bloques = string_split(bloquesAsignados, " ");
+	int i = 0;
+	FILE *archivoBinario = fopen(directorioBinario, "w");
+	t_config *binario = config_create(directorioBinario);
+	char *stringdelArrayDeBloques = string_new();
+	string_append(&stringdelArrayDeBloques, "[");
+	while(bloques[i]!=NULL){
+		string_append(&stringdelArrayDeBloques, string_itoa(bloques[i]));
+		if(bloques[i+1]!=NULL){
+			string_append(&stringdelArrayDeBloques, ",");
+		}
+		i++;
+	}
+	string_append(&stringdelArrayDeBloques, "]");
+	/*config_set_value(binario, "SIZE", "0");
+	//los bloques despues se levantan con config_get_array_value
+	config_set_value(binario, "BLOCKS", stringdelArrayDeBloques);
+	config_save_in_file(binario, directorioBinario);
+	//actualizarBitArray();
+	//creo el archivo .bin del bloque
+	char* pathBloque = string_new();
+	string_append(&pathBloque,
+			string_from_format("%sBloques/",
+					structConfiguracionLFS.PUNTO_MONTAJE));
+	string_append(&pathBloque, string_itoa(bloqueEncontrado));
+	string_append(&pathBloque, ".bin");
+	FILE *bloqueCreado = fopen(pathBloque, "w");
+	if(registrosAEscribir!=NULL){
+	 fwrite(registrosAEscribir, sizeof(char), strlen(registrosAEscribir), pathBloque);
+	 }
+	fclose(bloqueCreado);
+	fclose(archivoBinario);
+	config_destroy(binario);*/
+}
+
+void liberarBloques(char *pathArchivo){
+	t_config *configArchivo = config_create(pathArchivo);
+	char **arrayDeBloques = config_get_array_value(configArchivo, "BLOCKS");
+	int i = 0;
+	char *registros = string_new();
+	while (arrayDeBloques[i] != NULL) {
+		desasignarBloqueDelBitarray(atoi(arrayDeBloques[i]));
 		i++;
 	}
 }
 
-void evaluarRegistro(char *registro, char *tablaPath){
+void desasignarBloqueDelBitarray(int bloque){
+
+}
+
+//En un diccionario voy a guardar los registros actualizados de determinada tabla
+//y a que tabla pertenecen para cuando tenga que bloquear la misma
+void evaluarRegistro(char *registro, char *tablaPath, t_list **binariosAfectados){
 	char* metadataPath = string_new();
 	string_append(&metadataPath, tablaPath);
 	string_append(&metadataPath, "/metadata");
@@ -750,6 +831,8 @@ void evaluarRegistro(char *registro, char *tablaPath){
 	string_append(&pathBinario, "/");
 	string_append(&pathBinario, string_itoa(particionQueContieneLaKey));
 	string_append(&pathBinario, ".bin");
+	//binariosAfectados es una lista con los binarios a los que voy a tener que liberar los bloques y actualizar los registros
+	list_add(*binariosAfectados, pathBinario);
 
 	if(!dictionary_has_key(binariosParaCompactar, pathBinario)){
 		binarioCompactacion *unBinario = malloc(sizeof(binarioCompactacion));
@@ -765,9 +848,6 @@ void evaluarRegistro(char *registro, char *tablaPath){
 
 	//printf("%s\n", otro->registros);unBinario
 	compararRegistros(timestamp, key, value, unBinario, pathBinario);
-	//printf("%s\n", );
-	//else
-		//printf("%s\n", dictionary_get(binariosParaCompactar, pathBinario));
 	//printf("%s\n", value);
 
 	/*char *registrosBinario = string_new();
@@ -1009,9 +1089,7 @@ void crearBinarios(char* path, int cantidadDeParticiones) {
 	}
 }
 
-//No se como funciona esta parte
 int asignarBloque() {
-	//resolver lo mismo del save y el create que paso con el crearMetadata
 
 	int encontroUnBloque = 0;
 	int bloqueEncontrado = 0;
@@ -1178,7 +1256,7 @@ void drop(char* tabla) {
 					structConfiguracionLFS.PUNTO_MONTAJE));
 	string_append(&path, tabla);
 	DIR *directorio = opendir(path);
-	printf("%s\n\n", path);
+	//printf("%s\n\n", path);
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//printf("- %s\n", directorioALeer->d_name);
@@ -1188,7 +1266,7 @@ void drop(char* tabla) {
 			string_append(&archivoABorrar, path);
 			string_append(&archivoABorrar, "/");
 			string_append(&archivoABorrar, directorioALeer->d_name);
-			printf("!!%s\n", archivoABorrar);
+			//printf("!!%s\n", archivoABorrar);
 			remove(archivoABorrar);
 		}
 	}
