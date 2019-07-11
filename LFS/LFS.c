@@ -806,9 +806,16 @@ void compararRegistros(int timestamp, int key, char *value, binarioCompactacion 
 		string_append(&registrosActualizados, nuevoRegistro);
 		free(nuevoRegistro);
 	}
-	printf("%s\n", registrosActualizados);
-	/*unBinario.registros = registrosActualizados;
-	dictionary_put(binariosParaCompactar, pathBinario, unBinario);*/
+	//Saco los que tenia antes y asigno los nuevos registros
+	free(unBinario->registros);
+	unBinario->registros = malloc(strlen(registrosActualizados)+1);
+	strcpy(unBinario->registros, registrosActualizados);
+	//printf("%s\n", unBinario->registros);
+	dictionary_remove(binariosParaCompactar, pathBinario);
+	dictionary_put(binariosParaCompactar, pathBinario, unBinario);
+
+	/*binarioCompactacion *otro = dictionary_get(binariosParaCompactar, pathBinario);
+	printf("%s", otro->registros);*/
 }
 
 void comparar1RegistroBinarioCon1NuevoRegistro(int timestampRegistro, int keyRegistro, char *valueRegistro, char **registroBinario, int *elRegistroContieneLaKey){
