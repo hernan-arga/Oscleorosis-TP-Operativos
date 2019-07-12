@@ -16,6 +16,7 @@
  * - CAMBIAR LOS PRINTF A LOGS PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
  * - AGREGAR EL SLEEP DE RETARDO A TODAS LAS FUNCIONES
+ * - VER SI SE PUEDEN SACAR LOS WHILE(1)
  */
 #include <stdio.h>
 #include <string.h> //strlen
@@ -698,17 +699,24 @@ void crearArchivoDeBloquesConRegistros(int bloqueEncontrado,
 }
 
 void levantarHiloCompactacion(char *pathTabla){
+	char *tabla = string_new();
+	string_append(&tabla, pathTabla);
 	pthread_t hiloCompactacion;
-	pthread_create(&hiloCompactacion, NULL, (void*) verificarCompactacion, pathTabla);
-	pthread_join(hiloCompactacion, NULL);
+	pthread_create(&hiloCompactacion, NULL, (void*) verificarCompactacion, (void *)tabla);
+	pthread_detach(hiloCompactacion);
+	//Se rompe con el free. ¿detach ya lo hace?
+	//free(tabla);
+	//printf("-%s\n", pathTabla);
 }
 
 void verificarCompactacion(char *pathTabla){
 	while (1) {
+		//printf("%s\n", pathTabla);
 		char *metadataTabla = string_new();
 		string_append(&metadataTabla, pathTabla);
 		string_append(&metadataTabla, "/metadata");
-		//printf("%s\n", metadataTabla);
+		//printf("%s\n", pathTabla);
+		//sleep(10);
 		//Levanto el valor de tiempo de compactacion de la tabla
 		t_config *configTabla = config_create(metadataTabla);
 		int tiempoCompactacion = config_get_int_value(configTabla,
