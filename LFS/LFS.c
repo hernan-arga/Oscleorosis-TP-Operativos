@@ -95,7 +95,7 @@ void dump();
 void dumpPorTabla(char*);
 int contarLosDigitos(int);
 void crearArchivoDeBloquesConRegistros(int, char*);
-void crearArchivoTMP(char*, char*, int);
+void crearArchivoConBloques(char*, char*, int);
 int cuantosDumpeosHuboEnLaTabla(char *);
 
 void compactacion();
@@ -633,7 +633,7 @@ void dumpPorTabla(char* tabla) {
 	string_append(&directorioTMP, string_itoa(numeroDeDumpeoCorrespondiente));
 	string_append(&directorioTMP, ".tmp");
 	//printf("%s\n", directorioTMP);
-	crearArchivoTMP(directorioTMP, stringdelArrayDeBloques,
+	crearArchivoConBloques(directorioTMP, stringdelArrayDeBloques,
 			cantidadDeBytesADumpear);
 	//antes de eliminarlo de la memtable lo pongo en el diccionario de tablasQueTienenTMPs porque sino se borra el string tambien
 	dictionary_put(tablasQueTienenTMPs, tabla, tablaPath);
@@ -669,16 +669,17 @@ int contarLosDigitos(int numero) {
 	return contador;
 }
 
-void crearArchivoTMP(char* directorioTMP, char* stringdelArrayDeBloques,
+//crear archivo para tmps y particiones
+void crearArchivoConBloques(char* directorioArchivo, char* stringdelArrayDeBloques,
 		int tamanioDeLosBloques) {
-	FILE *archivoTMP = fopen(directorioTMP, "w");
-	t_config *tmp = config_create(directorioTMP);
-	config_set_value(tmp, "SIZE", string_itoa(tamanioDeLosBloques));
+	FILE *archivo = fopen(directorioArchivo, "w");
+	t_config *configArchivo = config_create(directorioArchivo);
+	config_set_value(configArchivo, "SIZE", string_itoa(tamanioDeLosBloques));
 	//los bloques despues se levantan con config_get_array_value
-	config_set_value(tmp, "BLOCKS", stringdelArrayDeBloques);
-	config_save_in_file(tmp, directorioTMP);
-	fclose(archivoTMP);
-	config_destroy(tmp);
+	config_set_value(configArchivo, "BLOCKS", stringdelArrayDeBloques);
+	config_save_in_file(configArchivo, directorioArchivo);
+	fclose(archivo);
+	config_destroy(configArchivo);
 }
 
 void crearArchivoDeBloquesConRegistros(int bloqueEncontrado,
@@ -698,6 +699,7 @@ void crearArchivoDeBloquesConRegistros(int bloqueEncontrado,
 void compactacion() {
 	dictionary_iterator(tablasQueTienenTMPs, (void*) renombrarTodosLosTMPATMPC);
 	dictionary_iterator(tablasQueTienenTMPs, (void*) actualizarRegistros);
+	dictionary_clean(tablasQueTienenTMPs);
 }
 
 //El dictionary_iterator pide que la funcion que le mande tenga la key y el value por eso pongo
@@ -740,64 +742,84 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 
 void actualizarBin(char *pathBin){
 	//Libero los bloques del binario
+	binarioCompactacion *unBinario = dictionary_get(binariosParaCompactar, pathBin);
 	liberarBloques(pathBin);
-	char * registrosNuevos = malloc(strlen(dictionary_get(binariosParaCompactar, pathBin))+1);
-	strcpy(registrosNuevos, dictionary_get(binariosParaCompactar, pathBin));
-	char *bloquesAsignados = string_new();
-	//Solicitar los bloques para el nuevo bin
-	while(cantidadDeBloquesNecesarios!=0){
-		int numeroDeBloque = asignarBloque();
-		//Uso un string para guardar los bloques asignados y despues los divido con el split
-		string_append(&bloquesAsignados, string_itoa(numeroDeBloque));
-		string_append(&bloquesAsignados, " ");
-	}
-	crearArchivoDeBloquesConRegistros(pathBin, bloquesAsignados);
+	char * registrosNuevos = malloc(strlen(unBinario->registros)+1);
+	strcpy(registrosNuevos, unBinario->registros);
+	//char *bloquesAsignados = string_new();
+	//printf("%s\n", registrosNuevos);
 
-	//Grabar los datos en el nuevo bin
-}
 
-void crearArchivoDeBloquesConRegistros(char* directorioBinario, char* bloquesAsignados) {
-	//Verificar que no me tome el \0 como un valor dentro del array de bloques
-	char **bloques = string_split(bloquesAsignados, " ");
-	int i = 0;
-	FILE *archivoBinario = fopen(directorioBinario, "w");
-	t_config *binario = config_create(directorioBinario);
-	char *stringdelArrayDeBloques = string_new();
-	string_append(&stringdelArrayDeBloques, "[");
-	while(bloques[i]!=NULL){
-		string_append(&stringdelArrayDeBloques, string_itoa(bloques[i]));
-		if(bloques[i+1]!=NULL){
-			string_append(&stringdelArrayDeBloques, ",");
+	//Tomo el tamanio por bloque de mi LFS
+		char *metadataPath = string_from_format("%sMetadata/metadata.bin",
+				structConfiguracionLFS.PUNTO_MONTAJE);
+		t_config *metadata = config_create(metadataPath);
+		int tamanioPorBloque = config_get_int_value(metadata, "BLOCK_SIZE");
+		config_destroy(metadata);
+		int cantidadDeBytesAEscribir = 0;
+		cantidadDeBytesAEscribir += strlen(registrosNuevos);
+		int totalDeBytesDelBin = cantidadDeBytesAEscribir;
+
+		//Cantidad de bloques enteros
+		int cantidadDeBloquesCompletosNecesarios = cantidadDeBytesAEscribir
+				/ tamanioPorBloque;
+		int cantidadDeComasNecesarias = cantidadDeBloquesCompletosNecesarios - 1;
+		char *stringdelArrayDeBloques = string_new();
+		//printf("cantidadDeBloquesCompletosNecesarios: %i\n", cantidadDeBloquesCompletosNecesarios);
+		//Asigno los bloques y voy creando el array de bloques asignados
+		string_append(&stringdelArrayDeBloques, "[");
+		int desdeDondeTomarLosRegistros = 0;
+		int hayMasDe1Bloque = 0;
+		//Primero  para los que ocupan 1 bloque entero sin fragmentacion interna
+		while (cantidadDeBloquesCompletosNecesarios != 0) {
+			int bloqueEncontrado = asignarBloque();
+			char *stringAuxRegistros = string_new();
+			string_append(&stringAuxRegistros,
+					string_substring(registrosNuevos, desdeDondeTomarLosRegistros,
+							tamanioPorBloque));
+			//printf("%s\n", stringAuxRegistros);
+			crearArchivoDeBloquesConRegistros(bloqueEncontrado, stringAuxRegistros);
+			//Agrego al string del array el bloque nuevo
+			string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
+			if (cantidadDeComasNecesarias != 0) {
+				string_append(&stringdelArrayDeBloques, ",");
+			}
+			cantidadDeBloquesCompletosNecesarios--;
+			cantidadDeComasNecesarias--;
+			desdeDondeTomarLosRegistros += tamanioPorBloque;
+			//Esta variable es para que no quede una coma de mas en caso de que no haya mas de 1 bloque
+			hayMasDe1Bloque = 1;
 		}
-		i++;
-	}
-	string_append(&stringdelArrayDeBloques, "]");
-	/*config_set_value(binario, "SIZE", "0");
-	//los bloques despues se levantan con config_get_array_value
-	config_set_value(binario, "BLOCKS", stringdelArrayDeBloques);
-	config_save_in_file(binario, directorioBinario);
-	//actualizarBitArray();
-	//creo el archivo .bin del bloque
-	char* pathBloque = string_new();
-	string_append(&pathBloque,
-			string_from_format("%sBloques/",
-					structConfiguracionLFS.PUNTO_MONTAJE));
-	string_append(&pathBloque, string_itoa(bloqueEncontrado));
-	string_append(&pathBloque, ".bin");
-	FILE *bloqueCreado = fopen(pathBloque, "w");
-	if(registrosAEscribir!=NULL){
-	 fwrite(registrosAEscribir, sizeof(char), strlen(registrosAEscribir), pathBloque);
-	 }
-	fclose(bloqueCreado);
-	fclose(archivoBinario);
-	config_destroy(binario);*/
+		//insert tabla1 2 "holapepecomoestassddddaasssssswweeqqwwttppooiikkll" 	64 bytes
+		//Ahora lo mismo para el que no completa 1 bloque
+		cantidadDeBloquesCompletosNecesarios = cantidadDeBytesAEscribir
+				/ tamanioPorBloque;
+		int remanenteEnBytes = cantidadDeBytesAEscribir
+				- cantidadDeBloquesCompletosNecesarios * tamanioPorBloque;
+		//printf("Remanente: %i\n", remanenteEnBytes);
+		if (remanenteEnBytes != 0) {
+			int bloqueEncontrado = asignarBloque();
+			char *stringAuxRegistros = string_new();
+			string_append(&stringAuxRegistros,
+					string_substring(registrosNuevos, desdeDondeTomarLosRegistros,
+							remanenteEnBytes));
+			crearArchivoDeBloquesConRegistros(bloqueEncontrado, stringAuxRegistros);
+			if (hayMasDe1Bloque) {
+				string_append(&stringdelArrayDeBloques, ",");
+			}
+			string_append(&stringdelArrayDeBloques, string_itoa(bloqueEncontrado));
+		}
+		string_append(&stringdelArrayDeBloques, "]");
+
+	//Creo el binario con el stringdelArrayDeBloques y totalDeBytesDelBin
+	crearArchivoConBloques(pathBin, stringdelArrayDeBloques, totalDeBytesDelBin);
+
 }
 
 void liberarBloques(char *pathArchivo){
 	t_config *configArchivo = config_create(pathArchivo);
 	char **arrayDeBloques = config_get_array_value(configArchivo, "BLOCKS");
 	int i = 0;
-	char *registros = string_new();
 	while (arrayDeBloques[i] != NULL) {
 		desasignarBloqueDelBitarray(atoi(arrayDeBloques[i]));
 		i++;
@@ -805,7 +827,17 @@ void liberarBloques(char *pathArchivo){
 }
 
 void desasignarBloqueDelBitarray(int bloque){
-
+	if (bitarray_test_bit(bitarrayBloques, bloque) == 1) {
+		//verBitArray();
+		bitarray_clean_bit(bitarrayBloques, bloque);
+		//printf("Bloque %i -------\n", bloque);
+		//printf(">>>%i\n", bitarray_test_bit(bitarrayBloques, bloque));
+		//verBitArray();
+	}
+	else{
+		printf("Se esta tratando de desasignar un bloque libre\n");
+	}
+	//verBitArray();
 }
 
 //En un diccionario voy a guardar los registros actualizados de determinada tabla
@@ -835,17 +867,19 @@ void evaluarRegistro(char *registro, char *tablaPath, t_list **binariosAfectados
 	list_add(*binariosAfectados, pathBinario);
 
 	if(!dictionary_has_key(binariosParaCompactar, pathBinario)){
-		binarioCompactacion *unBinario = malloc(sizeof(binarioCompactacion));
+		binarioCompactacion *unBinario = (binarioCompactacion*)malloc(sizeof(binarioCompactacion));
 		unBinario->tablaALaQuePertenece = malloc(strlen(tablaPath)+1);
 		strcpy(unBinario->tablaALaQuePertenece, tablaPath);
 		unBinario->registros = malloc(strlen(levantarRegistros(pathBinario))+1);
 		strcpy(unBinario->registros, levantarRegistros(pathBinario));
+		//printf("pathBinario--- %s\n", unBinario->registros);
 		//uso el path del binario como clave para insertar en el diccionario
 		dictionary_put(binariosParaCompactar, pathBinario, unBinario);
-		//printf("%s\n", registrosBinario);
+		//printf("%s\n", pathBinario);
 	}
 	binarioCompactacion *unBinario = dictionary_get(binariosParaCompactar, pathBinario);
-
+	//printf("%s\n", unBinario->registros);
+	//printf("%s\n", unBinario->tablaALaQuePertenece);
 	//printf("%s\n", otro->registros);unBinario
 	compararRegistros(timestamp, key, value, unBinario, pathBinario);
 	//printf("%s\n", value);
@@ -938,13 +972,14 @@ char *levantarRegistros(char *tmpc) {
 		string_append(&bloque, "Bloques/");
 		string_append(&bloque, arrayDeBloques[i]);
 		string_append(&bloque, ".bin");
+		//printf("%s\n", bloque);
 		levantarRegistroDe1Bloque(bloque, &stringAux);
-		//printf("%s\n", bloque); //\n
+		//printf("%s\n", stringAux); //\n
 
 		string_append(&registros, stringAux);
 		i++;
 	}
-	//printf("%s", registros);
+	//printf("tmpc: %s, registros :%s\n",tmpc, registros);
 	config_destroy(configTmpc);
 	//Aca ya tendria los registros de los distintos bloques del tmp unidos
 	return registros;
@@ -979,7 +1014,7 @@ void levantarRegistroDe1Bloque(char *bloque, char **stringAux) {
 	//strcat(hola, "\0");
 	//printf("%s", hola);
 	//string_append(&buffer, "\0");
-	//printf("%s", buffer);
+	//printf("bloque: %s---%s\n", bloque, buffer);
 	//free(hola);
 	//char *hola = (char *)malloc(strlen(buffer)+1);
 	//strcpy(hola, buffer);
@@ -1163,6 +1198,7 @@ int tamanioEnBytesDelBitarray() {
 	return cantidadDeBloques / 8;
 }
 
+//Esto es para testear
 void crearMetadataBloques() {
 	char *metadataPath = string_new();
 	string_append(&metadataPath,
