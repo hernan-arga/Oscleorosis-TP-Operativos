@@ -538,7 +538,7 @@ void dump() {
 		//printf("dump boy!\n");
 		dictionary_iterator(memtable, (void *) dumpPorTabla);
 		config_destroy(configLFS);
-		compactacion("/home/utnso/lissandra-checkpoint/Tables/TABLA1");
+		//compactacion("/home/utnso/lissandra-checkpoint/Tables/TABLA1");
 	}
 }
 
@@ -698,7 +698,9 @@ void crearArchivoDeBloquesConRegistros(int bloqueEncontrado,
 }
 
 void levantarHiloCompactacion(char *pathTabla){
-
+	pthread_t hiloCompactacion;
+	pthread_create(&hiloCompactacion, NULL, (void*) verificarCompactacion, pathTabla);
+	pthread_join(hiloCompactacion, NULL);
 }
 
 void verificarCompactacion(char *pathTabla){
@@ -706,14 +708,17 @@ void verificarCompactacion(char *pathTabla){
 		char *metadataTabla = string_new();
 		string_append(&metadataTabla, pathTabla);
 		string_append(&metadataTabla, "/metadata");
+		//printf("%s\n", metadataTabla);
 		//Levanto el valor de tiempo de compactacion de la tabla
-		t_config *configTabla = config_create(pathTabla);
+		t_config *configTabla = config_create(metadataTabla);
 		int tiempoCompactacion = config_get_int_value(configTabla,
 				"COMPACTION_TIME");
+		//printf("%i\n", tiempoCompactacion);
 		sleep(tiempoCompactacion);
 		//Con sleep tengo que meter un \n al final de un printf porque sino no imprime
 		compactacion(pathTabla);
-		config_destroy(configLFS);
+		free(metadataTabla);
+		config_destroy(configTabla);
 	}
 }
 
@@ -1128,6 +1133,7 @@ void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 				tiempoDeCompactacion);
 		crearBinarios(path, atoi(cantidadDeParticiones));
 		free(metadataPath);
+		levantarHiloCompactacion(path);
 		free(path);
 	}
 }
