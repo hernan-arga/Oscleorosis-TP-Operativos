@@ -86,7 +86,7 @@ typedef struct {
 void atenderPeticionesDeConsola();
 
 t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
-t_dictionary *tablasQueTienenTMPs; //guardo las tablas que tienen tmps para que en la compactacion solo revise esas
+//t_dictionary *tablasQueTienenTMPs; //guardo las tablas que tienen tmps para que en la compactacion solo revise esas
 t_dictionary *binariosParaCompactar;
 
 metadataTabla describeUnaTabla(char *);
@@ -98,9 +98,10 @@ void crearArchivoDeBloquesConRegistros(int, char*);
 void crearArchivoConBloques(char*, char*, int);
 int cuantosDumpeosHuboEnLaTabla(char *);
 
-void compactacion();
-void actualizarRegistros(char *, char *);
-void renombrarTodosLosTMPATMPC(char *, char*);
+void compactacion(char*);
+void verificarCompactacion(char *);
+void actualizarRegistros(char *);
+void renombrarTodosLosTMPATMPC(char*);
 void actualizarRegistrosCon1TMPC(char *, char *);
 char *levantarRegistros(char *);
 void levantarRegistroDe1Bloque(char *, char **);
@@ -159,7 +160,7 @@ char *mmapDeBitmap;
 t_dictionary* diccionarioDescribe;
 
 int main(int argc, char *argv[]) {
-	tablasQueTienenTMPs = dictionary_create();
+	//tablasQueTienenTMPs = dictionary_create();
 	binariosParaCompactar = dictionary_create();
 	//pthread_t hiloLevantarConexion;
 	pthread_t hiloDump;
@@ -537,7 +538,7 @@ void dump() {
 		//printf("dump boy!\n");
 		dictionary_iterator(memtable, (void *) dumpPorTabla);
 		config_destroy(configLFS);
-		compactacion();
+		compactacion("/home/utnso/lissandra-checkpoint/Tables/TABLA1");
 	}
 }
 
@@ -636,7 +637,7 @@ void dumpPorTabla(char* tabla) {
 	crearArchivoConBloques(directorioTMP, stringdelArrayDeBloques,
 			cantidadDeBytesADumpear);
 	//antes de eliminarlo de la memtable lo pongo en el diccionario de tablasQueTienenTMPs porque sino se borra el string tambien
-	dictionary_put(tablasQueTienenTMPs, tabla, tablaPath);
+	//dictionary_put(tablasQueTienenTMPs, tabla, tablaPath);
 	dictionary_remove(memtable, tabla);
 }
 
@@ -696,15 +697,37 @@ void crearArchivoDeBloquesConRegistros(int bloqueEncontrado,
 	fclose(bloqueCreado);
 }
 
-void compactacion() {
-	dictionary_iterator(tablasQueTienenTMPs, (void*) renombrarTodosLosTMPATMPC);
-	dictionary_iterator(tablasQueTienenTMPs, (void*) actualizarRegistros);
-	dictionary_clean(tablasQueTienenTMPs);
+void levantarHiloCompactacion(char *pathTabla){
+
+}
+
+void verificarCompactacion(char *pathTabla){
+	while (1) {
+		char *metadataTabla = string_new();
+		string_append(&metadataTabla, pathTabla);
+		string_append(&metadataTabla, "/metadata");
+		//Levanto el valor de tiempo de compactacion de la tabla
+		t_config *configTabla = config_create(pathTabla);
+		int tiempoCompactacion = config_get_int_value(configTabla,
+				"COMPACTION_TIME");
+		sleep(tiempoCompactacion);
+		//Con sleep tengo que meter un \n al final de un printf porque sino no imprime
+		compactacion(pathTabla);
+		config_destroy(configLFS);
+	}
+}
+
+void compactacion(char* pathTabla) {
+	//dictionary_iterator(tablasQueTienenTMPs, (void*) renombrarTodosLosTMPATMPC);
+	renombrarTodosLosTMPATMPC(pathTabla);
+	actualizarRegistros(pathTabla);
+	//dictionary_iterator(tablasQueTienenTMPs, (void*) actualizarRegistros);
+	//dictionary_clean(tablasQueTienenTMPs);
 }
 
 //El dictionary_iterator pide que la funcion que le mande tenga la key y el value por eso pongo
 //la tabla a pesar de que no la uso
-void actualizarRegistros(char *tabla, char *tablaPath) {
+void actualizarRegistros(char *tablaPath) {
 	t_queue *tmpcs = queue_create();
 	tomarLosTmpc(tablaPath, tmpcs);
 	//printf("hola");
@@ -736,6 +759,7 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 	liberarBloques(tmpc);
 	remove(tmpc);
 	list_iterate(binariosAfectados, (void*)actualizarBin);
+	list_clean(binariosAfectados);
 	//Desbloquear la tabla y dejar registro de cuanto tiempo estuvo bloqueada la tabla
 }
 
@@ -1042,7 +1066,7 @@ void tomarLosTmpc(char *tablaPath, t_queue *tmpcs) {
 	closedir(directorio);
 }
 
-void renombrarTodosLosTMPATMPC(char *tabla, char* tablaPath) {
+void renombrarTodosLosTMPATMPC(char* tablaPath) {
 	DIR *directorio = opendir(tablaPath);
 	struct dirent *archivoALeer;
 	while ((archivoALeer = readdir(directorio)) != NULL) {
