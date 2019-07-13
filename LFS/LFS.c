@@ -319,6 +319,10 @@ void realizarPeticion(char** parametros) {
 		int criterioInsert(char** parametros, int cantidadDeParametrosUsados) {
 			char* key = parametros[2];
 			char* value = parametros[3];
+			int tamanioValueInsertado = strlen(value) - 2; //2 por las comillas
+			if(tamanioValueInsertado>structConfiguracionLFS.TAMANIO_VALUE){
+				printf("El valor a insertar es demasiado grande.\n");
+			}
 			if (!esUnNumero(key)) {
 				printf("La key debe ser un numero.\n");
 			}
@@ -331,10 +335,10 @@ void realizarPeticion(char** parametros) {
 				if (!esUnNumero(timestamp)) {
 					printf("El timestamp debe ser un numero.\n");
 				}
-				return esUnNumero(key) && esUnNumero(timestamp)
+				return (tamanioValueInsertado<=structConfiguracionLFS.TAMANIO_VALUE) && esUnNumero(key) && esUnNumero(timestamp)
 						&& estaEntreComillas(value);
 			}
-			return esUnNumero(key) && estaEntreComillas(value);
+			return (tamanioValueInsertado<=structConfiguracionLFS.TAMANIO_VALUE) && esUnNumero(key) && estaEntreComillas(value);
 		}
 		//puede o no estar el timestamp
 		if (parametrosValidos(4, parametros, (void *) criterioInsert)) {
