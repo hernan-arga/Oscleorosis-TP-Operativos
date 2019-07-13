@@ -11,9 +11,8 @@
  * - ARREGLO FUNCION APARTE MEMTABLE (rompe)
  *
  * - ARREGLAR PARA QUE AL HACER EL SPLIT DEL MENSAJE NO SEPARE EL STRING DEL VALUE DEL INSERT
- * - VERIFICAR QUE EL VALUE INSERTADO EN INSERT NO SOBREPASE EL MAXIMO DEFINIDO EN EL ARCHIVO DE CONFIG
- * - SEPARAR DE TODAS LAS FUNCIONES QUE IMPRIMA POR CONSOLA SOLO CUANDO SE USE LA MISMA
- * - CAMBIAR LOS PRINTF A LOGS PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA
+ * - AGREGAR VARIABLE EN EL SELECT PARA QUE IMPRIMA POR CONSOLA SOLO CUANDO SE USE LA MISMA
+ * - CAMBIAR LOS PRINTF A LOGS PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA (si alcanza el tiempo)
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
  * - AGREGAR EL SLEEP DE RETARDO A TODAS LAS FUNCIONES
  * - VER SI SE PUEDEN SACAR LOS WHILE(1) (ESPERA ACTIVA)
@@ -95,8 +94,8 @@ t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tab
 t_dictionary *binariosParaCompactar;
 t_dictionary *diccionarioDeSemaforos;
 
-metadataTabla describeUnaTabla(char *);
-t_dictionary *describeTodasLasTablas();
+metadataTabla describeUnaTabla(char *, int);
+t_dictionary *describeTodasLasTablas(int);
 void dump();
 void dumpPorTabla(char*);
 int contarLosDigitos(int);
@@ -475,7 +474,8 @@ void realizarPeticion(char** parametros) {
 		if (parametrosValidos(0, parametros,
 				(void *) criterioDescribeTodasLasTablas)) {
 			//Los semaforos para esta funcion estan adentro de esta cuando llama a describeUnaTabla
-			describeTodasLasTablas();
+			//el 1 es para que imprima por pantalla
+			describeTodasLasTablas(1);
 		}
 		if (parametrosValidos(1, parametros,
 				(void *) criterioDescribeUnaTabla)) {
@@ -487,7 +487,8 @@ void realizarPeticion(char** parametros) {
 			dameSemaforo(tabla, &semaforoTabla);
 			sem_wait(semaforoTabla);
 				//Seccion critica
-				describeUnaTabla(tabla);
+				//El 1 es para imprimir por pantalla
+				describeUnaTabla(tabla, 1);
 			sem_post(semaforoTabla);
 		}
 		break;
@@ -2192,7 +2193,7 @@ int estaEntreComillas(char* valor) {
 	return string_starts_with(valor, "\"") && string_ends_with(valor, "\"");
 }
 
-metadataTabla describeUnaTabla(char *tabla) {
+metadataTabla describeUnaTabla(char *tabla, int seImprimePorPantalla) {
 	char* pathTabla = string_new();
 	string_append(&pathTabla,
 			string_from_format("%sTables",
@@ -2223,12 +2224,13 @@ metadataTabla describeUnaTabla(char *tabla) {
 			closedir(directorio);
 			config_destroy(metadata);
 
-			//Imprimo (si me lo pide memoria lo imprimo igual?)
-			printf("%s: \n", tabla);
-			printf("Particiones: %i\n", metadataTabla.PARTITIONS);
-			printf("Consistencia: %s\n", metadataTabla.CONSISTENCY);
-			printf("Tiempo de compactacion: %i\n\n",
-					metadataTabla.COMPACTION_TIME);
+			if(seImprimePorPantalla){
+				printf("%s: \n", tabla);
+				printf("Particiones: %i\n", metadataTabla.PARTITIONS);
+				printf("Consistencia: %s\n", metadataTabla.CONSISTENCY);
+				printf("Tiempo de compactacion: %i\n\n",
+							metadataTabla.COMPACTION_TIME);
+			}
 			return metadataTabla;
 		}
 	}
@@ -2237,7 +2239,7 @@ metadataTabla describeUnaTabla(char *tabla) {
 	exit(-1);
 }
 
-t_dictionary *describeTodasLasTablas() {
+t_dictionary *describeTodasLasTablas(int seImprimePorPantalla) {
 	//Podria conservar la estructura en vez de borrar lo que tengo adentro pero tendria que ir fijandome que los valores que
 	//tenga adentro el diccionario todavia sean validos, entonces es mas facil borrar tod y hacer describe desde 0
 	dictionary_clean(diccionarioDescribe);
@@ -2260,7 +2262,7 @@ t_dictionary *describeTodasLasTablas() {
 			dameSemaforo(tabla, &semaforoTabla);
 			sem_wait(semaforoTabla);
 
-			structMetadata = describeUnaTabla(directorioALeer->d_name);
+			structMetadata = describeUnaTabla(directorioALeer->d_name, seImprimePorPantalla);
 			dictionary_put(diccionarioDescribe, directorioALeer->d_name,
 					&structMetadata);
 
