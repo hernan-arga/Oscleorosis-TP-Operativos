@@ -86,10 +86,14 @@ typedef struct {
  */
 
 void atenderPeticionesDeConsola();
+void dameSemaforo(char *tabla, sem_t **semaforoTabla);
+void levantarHiloCompactacion(char *);
+void levantarHilosCompactacionParaTodasLasTablas();
 
 t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
 //t_dictionary *tablasQueTienenTMPs; //guardo las tablas que tienen tmps para que en la compactacion solo revise esas
 t_dictionary *binariosParaCompactar;
+t_dictionary *diccionarioDeSemaforos;
 
 metadataTabla describeUnaTabla(char *);
 t_dictionary *describeTodasLasTablas();
@@ -164,6 +168,7 @@ t_dictionary* diccionarioDescribe;
 int main(int argc, char *argv[]) {
 	//tablasQueTienenTMPs = dictionary_create();
 	binariosParaCompactar = dictionary_create();
+	diccionarioDeSemaforos = dictionary_create();
 	//pthread_t hiloLevantarConexion;
 	pthread_t hiloDump;
 	pthread_t atenderPeticionesConsola;
@@ -177,6 +182,7 @@ int main(int argc, char *argv[]) {
 	pthread_create(&hiloDump, NULL, (void*) dump, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
+	levantarHilosCompactacionParaTodasLasTablas();
 	memtable = malloc(4);
 	memtable = dictionary_create();
 
@@ -290,7 +296,20 @@ void realizarPeticion(char** parametros) {
 		if (parametrosValidos(2, parametros, (void*) criterioSelect)) {
 			char* tabla = parametros[1];
 			char* key = parametros[2];
-			realizarSelect(tabla, key);
+
+			char* tablaMayusculas = string_new();
+			string_append(&tablaMayusculas, tabla);
+			string_to_upper(tablaMayusculas);
+			sem_t *semaforoTabla;
+			//close y unlink por si ya estaba abierto el semaforo
+			sem_close(semaforoTabla);
+			sem_unlink(tablaMayusculas);
+			//la key del diccionario esta en mayusculas para cada tabla
+			dameSemaforo(tablaMayusculas, &semaforoTabla);
+			sem_wait(semaforoTabla);
+				//Seccion critica
+				realizarSelect(tabla, key);
+			sem_post(semaforoTabla);
 		}
 
 		break;
@@ -325,8 +344,17 @@ void realizarPeticion(char** parametros) {
 			char *valor = string_substring(parametros[3], 1,
 					string_length(parametros[3]) - 2);
 			char *timestamp = parametros[4];
-			//printf("%s\n", valor);
-			insert(tabla, key, valor, timestamp);
+
+			char* tablaMayusculas = string_new();
+			string_append(&tablaMayusculas, tabla);
+			string_to_upper(tablaMayusculas);
+			sem_t *semaforoTabla;
+			//la key del diccionario esta en mayusculas para cada tabla
+			dameSemaforo(tablaMayusculas, &semaforoTabla);
+			sem_wait(semaforoTabla);
+				//Seccion critica
+				insert(tabla, key, valor, timestamp);
+			sem_post(semaforoTabla);
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
 			char *tabla = parametros[1];
@@ -337,7 +365,17 @@ void realizarPeticion(char** parametros) {
 			//¿El timestamp nesecita conversion? esto esta en segundos y no hay tipo de dato que banque los milisegundos por el tamanio
 			long int timestampActual = (long int) time(NULL);
 			char* timestamp = string_itoa(timestampActual);
-			insert(tabla, key, valor, timestamp);
+
+			char* tablaMayusculas = string_new();
+			string_append(&tablaMayusculas, tabla);
+			string_to_upper(tablaMayusculas);
+			sem_t *semaforoTabla;
+			//la key del diccionario esta en mayusculas para cada tabla
+			dameSemaforo(tablaMayusculas, &semaforoTabla);
+			sem_wait(semaforoTabla);
+				//Seccion critica
+				insert(tabla, key, valor, timestamp);
+			sem_post(semaforoTabla);
 		}
 		break;
 	case CREATE:
@@ -362,23 +400,25 @@ void realizarPeticion(char** parametros) {
 			char* cantidadParticiones = parametros[3];
 			char* consistencia = parametros[2];
 
-			//sem_open crea el semaforo para la tabla o de existir lo abre
+			char* tablaMayusculas = string_new();
+			string_append(&tablaMayusculas, tabla);
+			string_to_upper(tablaMayusculas);
 			sem_t *semaforoTabla;
-			//unlink por si ya existia otro semaforo con esa tabla
-			sem_unlink(tabla);
-			semaforoTabla = sem_open (tabla, O_CREAT, S_IWGRP, 1);
-			if (semaforoTabla == SEM_FAILED) {
-				sem_close(semaforoTabla);
-			    perror("Fallo al levantar el semaforo de la tabla");
-			    exit(-1);
-			}
-			sem_wait(semaforoTabla);
-			int value;
+			//close y unlink por si ya estaba abierto el semaforo
+			//sem_close(semaforoTabla);
+			//sem_unlink(tablaMayusculas);
+			//la key del diccionario esta en mayusculas para cada tabla
+			dameSemaforo(tablaMayusculas, &semaforoTabla);
+			/*int value;
 			sem_getvalue(semaforoTabla, &value);
-			//seccion critica
-			create(tabla, consistencia, cantidadParticiones,
-					tiempoCompactacion);
+			printf("create: %i\n", value);*/
+			sem_wait(semaforoTabla);
+				//seccion critica
+				create(tabla, consistencia, cantidadParticiones,
+						tiempoCompactacion);
 			sem_post(semaforoTabla);
+			/*sem_getvalue(semaforoTabla, &value);
+			printf("create: %i\n", value);*/
 			//sem_unlink(tabla);
 		}
 		break;
@@ -396,27 +436,16 @@ void realizarPeticion(char** parametros) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
 
-			//sem_open crea el semaforo para la tabla o de existir lo abre
 			sem_t *semaforoTabla;
-			//S_IWGRP permite al grupo asociado con el semaforo nombrado, abrirlo en modo escritura
-			semaforoTabla = sem_open (tabla, O_CREAT, S_IWGRP, 1);
-			if (semaforoTabla == SEM_FAILED) {
-				sem_close(semaforoTabla);
-			    perror("Fallo al levantar el semaforo de la tabla");
-			    exit(-1);
-			}
+			dameSemaforo(tabla, &semaforoTabla);
+
 			sem_wait(semaforoTabla);
-			int value;
-			sem_getvalue(semaforoTabla, &value);
-			//seccion critica
-			drop(tabla);
-			//sem_post(semaforoTabla);
+				//seccion critica
+				drop(tabla);
+			sem_post(semaforoTabla);
 			sem_close(semaforoTabla);
 			sem_unlink(tabla);
-
-			//semaforoTabla = sem_open (tabla, O_CREAT, S_IWGRP, 1);
-			//sem_getvalue(semaforoTabla, &value);
-			//printf("semaforo: %i\n",value);
+			dictionary_remove(diccionarioDeSemaforos, tabla);
 
 		}
 		break;
@@ -441,13 +470,21 @@ void realizarPeticion(char** parametros) {
 		}
 		if (parametrosValidos(0, parametros,
 				(void *) criterioDescribeTodasLasTablas)) {
+			//Los semaforos para esta funcion estan adentro de esta cuando llama a describeUnaTabla
 			describeTodasLasTablas();
 		}
 		if (parametrosValidos(1, parametros,
 				(void *) criterioDescribeUnaTabla)) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
-			describeUnaTabla(tabla);
+
+			sem_t *semaforoTabla;
+			//la key del diccionario esta en mayusculas para cada tabla
+			dameSemaforo(tabla, &semaforoTabla);
+			sem_wait(semaforoTabla);
+				//Seccion critica
+				describeUnaTabla(tabla);
+			sem_post(semaforoTabla);
 		}
 		break;
 	default:
@@ -755,6 +792,27 @@ void levantarHiloCompactacion(char *pathTabla){
 	//printf("-%s\n", pathTabla);
 }
 
+void levantarHilosCompactacionParaTodasLasTablas(){
+	DIR *directorio = opendir(
+				string_from_format("%sTables",
+						structConfiguracionLFS.PUNTO_MONTAJE));
+		struct dirent *directorioALeer;
+		while ((directorioALeer = readdir(directorio)) != NULL) {
+			//Busco la metadata de todas las tablas (evaluo que no ingrese a los directorios "." y ".."
+			if ((directorioALeer->d_type) == DT_DIR
+					&& strcmp((directorioALeer->d_name), ".")
+					&& strcmp((directorioALeer->d_name), "..")) {
+				char *pathTabla = string_new();
+				string_append(&pathTabla, string_from_format("%sTables/",
+						structConfiguracionLFS.PUNTO_MONTAJE));
+				string_append(&pathTabla, directorioALeer->d_name);
+				levantarHiloCompactacion(pathTabla);
+			}
+		}
+		closedir(directorio);
+
+}
+
 void verificarCompactacion(char *pathTabla){
 	char *tabla = string_new();
 		char *pathDeMontajeDeLasTablas = string_new();
@@ -828,42 +886,49 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 	}
 	//Aca tendria que bloquear la tabla de alguna manera y meter un temporizador que cuente cuanto estuvo bloqueada
 
-	//sem_open crea el semaforo para la tabla o de existir lo abre
 	sem_t *semaforoTabla;
 	char *tabla = string_new();
 	char *pathDeMontajeDeLasTablas = string_new();
 	string_append(&pathDeMontajeDeLasTablas, structConfiguracionLFS.PUNTO_MONTAJE);
 	string_append(&pathDeMontajeDeLasTablas, "Tables/");
 	string_append(&tabla, string_substring_from(tablaPath, strlen(pathDeMontajeDeLasTablas)));
-	//printf("tabla: %s\n", tabla);
-	//S_IWGRP permite al grupo asociado con el semaforo nombrado, abrirlo en modo escritura
-	semaforoTabla = sem_open (tabla, O_CREAT, S_IWGRP, 1);
+	dameSemaforo(tabla, &semaforoTabla);
+	sem_wait(semaforoTabla);
+		//Seccion critica aca
+		liberarBloques(tmpc);
+		remove(tmpc);
+		list_iterate(binariosAfectados, (void*)actualizarBin);
+		list_clean(binariosAfectados);
+	sem_post(semaforoTabla);
 
-	if (semaforoTabla == SEM_FAILED) {
-	     sem_close(semaforoTabla);
-	     perror("Fallo al levantar el semaforo de la tabla");
-	     exit(-1);
-	}
 	/*int value;
 	sem_getvalue(semaforoTabla, &value);
-	printf("1 - compactacion: %i\n", value);*/
-	sem_wait(semaforoTabla);
-	liberarBloques(tmpc);
-	remove(tmpc);
-	list_iterate(binariosAfectados, (void*)actualizarBin);
-	list_clean(binariosAfectados);
-		//Seccion critica aca
-		/*sem_getvalue(semaforoTabla, &value);
-		printf("2 - compactacion: %i\n", value);*/
-
-	sem_post(semaforoTabla);
-	/*sem_getvalue(semaforoTabla, &value);
-	printf("3 - compactacion: %i\n", value);*/
-
-	sem_unlink(tabla);
+	//printf("compactacion: %i\n", value);*/
 
 	/**/
 	//Desbloquear la tabla y dejar registro de cuanto tiempo estuvo bloqueada la tabla
+}
+
+/*void imprimir(char *key){
+	printf("key:%s\n", key);
+}*/
+
+void dameSemaforo(char *tabla, sem_t **semaforoTabla){
+	//dictionary_iterator(diccionarioDeSemaforos, (void*)imprimir);
+	if(!dictionary_has_key(diccionarioDeSemaforos, tabla)){
+		*semaforoTabla = sem_open (tabla, O_CREAT, 0777, 1);
+		if (*semaforoTabla == SEM_FAILED) {
+		     sem_close(*semaforoTabla);
+		     sem_unlink(tabla);
+		     printf("%s\n", tabla);
+		     perror("Fallo al levantar el semaforo de la tabla");
+		     exit(-1);
+		}
+		dictionary_put(diccionarioDeSemaforos, tabla, *semaforoTabla);
+		//printf("no existe\n");
+	}
+	*semaforoTabla = dictionary_get(diccionarioDeSemaforos, tabla);
+	//return semaforoTabla;
 }
 
 void actualizarBin(char *pathBin){
@@ -2183,9 +2248,19 @@ t_dictionary *describeTodasLasTablas() {
 				&& strcmp((directorioALeer->d_name), ".")
 				&& strcmp((directorioALeer->d_name), "..")) {
 			metadataTabla structMetadata;
+
+			sem_t *semaforoTabla;
+			char *tabla = string_new();
+			string_append(&tabla, directorioALeer->d_name);
+			//la key del diccionario esta en mayusculas para cada tabla
+			dameSemaforo(tabla, &semaforoTabla);
+			sem_wait(semaforoTabla);
+
 			structMetadata = describeUnaTabla(directorioALeer->d_name);
 			dictionary_put(diccionarioDescribe, directorioALeer->d_name,
 					&structMetadata);
+
+			sem_post(semaforoTabla);
 
 			/* Para probar que funciona esta wea
 			 *
