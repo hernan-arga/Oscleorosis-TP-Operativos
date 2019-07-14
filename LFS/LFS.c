@@ -13,7 +13,6 @@
  * - AGREGAR VARIABLE EN EL SELECT PARA QUE IMPRIMA POR CONSOLA SOLO CUANDO SE USE LA MISMA
  * - AGREGAR EL SLEEP DE RETARDO A SELECT
  *
- * - ARREGLAR PARA QUE AL HACER EL SPLIT DEL MENSAJE NO SEPARE EL STRING DEL VALUE DEL INSERT
  * - CAMBIAR LOS PRINTF A LOGS PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA (si alcanza el tiempo)
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
  * - VER SI SE PUEDEN SACAR LOS WHILE(1) (ESPERA ACTIVA)
@@ -137,6 +136,7 @@ void crearArchivoDeBloquesVacio(char*, int);
 int existeCarpeta(char*);
 int existeLaTabla(char*);
 void tomarPeticion(char*);
+void separarPorComillas(char*, char* *, char* *);
 void realizarPeticion(char**);
 OPERACION tipoDePeticion(char*);
 int cantidadValidaParametros(char**, int);
@@ -260,14 +260,47 @@ void levantarConfiguracionLFS() {
 }
 
 void tomarPeticion(char* mensaje) {
-	//Fijarse despues cual seria la cantidad correcta de malloc
+	char* value;
+	char* noValue = string_new();
+	separarPorComillas(mensaje, &value, &noValue);
 	char** mensajeSeparado = malloc(strlen(mensaje) + 1);
-	mensajeSeparado = string_split(mensaje, " \n");
-	realizarPeticion(mensajeSeparado);
+	char** mensajeSeparadoConValue = malloc(strlen(mensaje) + 1);;
+	mensajeSeparado = string_split(noValue, " \n");
+	int i = 0;
+	while(mensajeSeparado[i]!=NULL){
+		mensajeSeparadoConValue[i] = mensajeSeparado[i];
+		i++;
+	}
+	mensajeSeparadoConValue[i] = value;
+	if(value!=NULL){
+		mensajeSeparadoConValue[i+1] = NULL;
+	}
+
+	/*int j = 0;
+	while(mensajeSeparadoConValue[j]!=NULL){
+		printf("%s\n", mensajeSeparadoConValue[j]);
+		j++;
+	}*/
+	realizarPeticion(mensajeSeparadoConValue);
 	free(mensajeSeparado);
 }
 
-//Mejor forma de hacer esto?
+//Esta funcion esta para separar la peticion del value del insert
+void separarPorComillas(char* mensaje, char* *value, char* *noValue){
+	char** mensajeSeparado;
+	mensajeSeparado = string_split(mensaje, "\"");
+	string_append(noValue, mensajeSeparado[0]);
+	if(mensajeSeparado[1]!=NULL){
+		*value = string_new();
+		string_append(value, "\"");
+		string_append(value, mensajeSeparado[1]);
+		string_append(value, "\"");
+	}
+	else{
+		*value = NULL;
+	}
+}
+
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero) {
 	int i = 0;
 	while (puntero[i] != NULL) {
