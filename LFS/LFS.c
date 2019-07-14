@@ -1745,7 +1745,7 @@ char* realizarSelect(char* tabla, char* key) {
 									strlen(
 											string_from_format("%sBloques/",
 													structConfiguracionLFS.PUNTO_MONTAJE))
-											+ strlen((vectorBloques[q]))
+											+ strlen((vectorBloquesTmp[q]))
 											+ strlen(".bin") + 1);
 					strcpy(pathBloqueTmp,
 							string_from_format("%sBloques/",
@@ -1755,15 +1755,22 @@ char* realizarSelect(char* tabla, char* key) {
 					FILE *archivoBloqueTmp = fopen(pathBloqueTmp, "r");
 					if (archivoBloqueTmp == NULL) {
 						printf("no se pudo abrir archivo de bloques\n");
-						exit(1);
 					}
 
 					int cantidadIgualDeKeysEnTemporal = 0;
 					t_registro* vectorStructsTemporal[100];
+
+					char * bloqueAnterior;
+					if (q == 0) {
+						bloqueAnterior = NULL;
+					} else {
+						bloqueAnterior = vectorBloquesTmp[q - 1];
+					}
+
 					obtenerDatosParaKeyDeseada(archivoBloqueTmp, (atoi(key)),
 							vectorStructsTemporal,
 							&cantidadIgualDeKeysEnTemporal,
-							vectorBloquesTmp[q + 1], vectorBloquesTmp[q - 1]);
+							vectorBloquesTmp[q + 1], bloqueAnterior);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 					int tempo = 0;
@@ -1879,7 +1886,7 @@ char* realizarSelect(char* tabla, char* key) {
 									strlen(
 											string_from_format("%sBloques/",
 													structConfiguracionLFS.PUNTO_MONTAJE))
-											+ strlen((vectorBloques[q]))
+											+ strlen((vectorBloquesTmpC[q]))
 											+ strlen(".bin") + 1);
 					strcpy(pathBloqueTmpC,
 							string_from_format("%sBloques/",
@@ -1889,15 +1896,22 @@ char* realizarSelect(char* tabla, char* key) {
 					FILE *archivoBloqueTmpC = fopen(pathBloqueTmpC, "r");
 					if (archivoBloqueTmpC == NULL) {
 						printf("no se pudo abrir archivo de bloques\n");
-						exit(1);
 					}
 
 					int cantidadIgualDeKeysEnTemporal = 0;
+
+					char * bloqueAnterior;
+					if (q == 0) {
+						bloqueAnterior = NULL;
+					} else {
+						bloqueAnterior = vectorBloquesTmpC[q - 1];
+					}
+
 					t_registro* vectorStructsTemporalC[100];
 					obtenerDatosParaKeyDeseada(archivoBloqueTmpC, (atoi(key)),
 							vectorStructsTemporalC,
 							&cantidadIgualDeKeysEnTemporal,
-							vectorBloquesTmpC[q + 1], vectorBloquesTmpC[q - 1]);
+							vectorBloquesTmpC[q + 1], bloqueAnterior);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 					int tempo = 0;
