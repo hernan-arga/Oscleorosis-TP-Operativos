@@ -939,7 +939,6 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 		//printf("%i\n", i);
 		i++;
 	}
-	//Aca tendria que bloquear la tabla de alguna manera y meter un temporizador que cuente cuanto estuvo bloqueada
 
 	sem_t *semaforoTabla;
 	char *tabla = string_new();
@@ -949,12 +948,37 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 	string_append(&tabla, string_substring_from(tablaPath, strlen(pathDeMontajeDeLasTablas)));
 	dameSemaforo(tabla, &semaforoTabla);
 	sem_wait(semaforoTabla);
+		//Temporizador para ver cuanto tiempo estuvo bloqueada la tabla para compactacion
+		time_t inicio;
+	    time_t fin;
+	    time_t delta;
+	    inicio = time(NULL);
+
 		//Seccion critica aca
 		liberarBloques(tmpc);
 		remove(tmpc);
 		list_iterate(binariosAfectados, (void*)actualizarBin);
 		list_clean(binariosAfectados);
 	sem_post(semaforoTabla);
+	fin = time(NULL);
+	delta = fin - inicio;
+	//printf("delta: %i\n", (int)delta);
+	char* mensajeALogear = malloc(
+					strlen("Compactacion realizada con exito se bloqueo la tabla: , un total de  segundos")
+							+ contarLosDigitos((long int)delta)*sizeof(int) + strlen(tabla));
+			strcpy(mensajeALogear, "Compactacion realizada con exito se bloqueo la tabla: ");
+			strcat(mensajeALogear, tabla);
+			strcat(mensajeALogear, ", un total de ");
+			strcat(mensajeALogear, string_itoa((long int)delta));
+			strcat(mensajeALogear, " segundos");
+			t_log* g_logger;
+			g_logger = log_create(
+					string_from_format("%sbloqueoEntreCompactacion.log",
+							structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+					LOG_LEVEL_INFO);
+			log_info(g_logger, mensajeALogear);
+			log_destroy(g_logger);
+			free(mensajeALogear);
 
 	/*int value;
 	sem_getvalue(semaforoTabla, &value);
