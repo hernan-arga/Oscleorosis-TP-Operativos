@@ -2090,41 +2090,6 @@ char* realizarSelect(char* tabla, char* key) {
 	return NULL;
 }
 
-/*
- void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant) {
- int i = 0;
- char * line = NULL;
- size_t len = 0;
- ssize_t read;
-
- while ((read = getline(&line, &len, fp)) != -1) {
- int keyLeida = atoi(string_split(line, ";")[1]);
- if (keyLeida == key) {
- t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
- t_registro p_registro2;
- p_registro = &p_registro2;
- char** arrayLinea = malloc(strlen(line) + 1);
- arrayLinea = string_split(line, ";");
- int timestamp = atoi(arrayLinea[0]);
- int key = atoi(arrayLinea[1]);
- p_registro->timestamp = timestamp;
- p_registro->key = key;
- p_registro->value = malloc(strlen(arrayLinea[2]));
- strcpy(p_registro->value, arrayLinea[2]);
- vectorStructs[i] = malloc(12);
- memcpy(&vectorStructs[i]->key, &p_registro->key,
- sizeof(p_registro->key));
- memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
- sizeof(p_registro->timestamp));
- vectorStructs[i]->value = malloc(strlen(p_registro->value));
- memcpy(vectorStructs[i]->value, p_registro->value,
- strlen(p_registro->value));
- i++;
- (*cant)++;
- }
- }
- }
- */
 
 void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 		int *cant, char* charProximoBloque, char* charAnteriorBloque) {
@@ -2134,6 +2099,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	size_t len = 0;
 	ssize_t read;
 	FILE *anteriorBloque = NULL;
+	FILE *proximoBloque = NULL;
 
 	if (charAnteriorBloque == NULL) {
 			printf("no existe el bloque anterior \n");
@@ -2152,15 +2118,20 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	}
 	//todo tenemos que validar q el sgte existaaaaaaaaaaaaaaaaaaaaaaa forraaaaaaaaaaaaaaaaaaaaaaaa
 
-	char* pathBloque2 = malloc(
-			strlen(
-					string_from_format("%sBloques/",
-							structConfiguracionLFS.PUNTO_MONTAJE))
-					+ strlen(charProximoBloque) + strlen(".bin") + 1);
-	strcpy(pathBloque2, string_from_format("%sBloques/", structConfiguracionLFS.PUNTO_MONTAJE));
-	strcat(pathBloque2, charProximoBloque);
-	strcat(pathBloque2, ".bin");
-	FILE *proximoBloque = fopen(pathBloque2, "r");
+	if(charProximoBloque){
+		char* pathBloque2 = malloc(
+				strlen(
+						string_from_format("%sBloques/",
+								structConfiguracionLFS.PUNTO_MONTAJE))
+						+ strlen(charProximoBloque) + strlen(".bin") + 1);
+		strcpy(pathBloque2, string_from_format("%sBloques/", structConfiguracionLFS.PUNTO_MONTAJE));
+		strcat(pathBloque2, charProximoBloque);
+		strcat(pathBloque2, ".bin");
+		proximoBloque = fopen(pathBloque2, "r");
+
+		free(pathBloque2);
+	}
+
 	if (proximoBloque == NULL) {
 		printf("no existe el prox bloque \n");
 	}
@@ -2217,7 +2188,6 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	if(proximoBloque!=NULL){
 		fclose(proximoBloque);
 	}
-	free(pathBloque2);
 }
 
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
