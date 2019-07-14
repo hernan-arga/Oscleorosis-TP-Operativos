@@ -1587,7 +1587,21 @@ char* realizarSelect(char* tabla, char* key) {
 		strcat(pathParticionQueContieneKey, stringParticion);
 		strcat(pathParticionQueContieneKey, ".bin");
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
-		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS
+		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCKS"); //devuelve vector de STRINGS
+
+		char* mensajeALogear = malloc(80);
+		strcpy(mensajeALogear, "vector bloques");
+		strcat(mensajeALogear, vectorBloques[0]);
+		strcat(mensajeALogear, vectorBloques[1]);
+		t_log* g_logger;
+		g_logger = log_create(
+				string_from_format("%serroresSelect.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+				LOG_LEVEL_INFO);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+
 
 		int m = 0;
 		while (vectorBloques[m] != NULL) {
@@ -1607,17 +1621,24 @@ char* realizarSelect(char* tabla, char* key) {
 			strcpy(pathBloque, "./Bloques/");
 			strcat(pathBloque, vectorBloques[i]);
 			strcat(pathBloque, ".bin");
-			FILE *archivoBloque = fopen(pathBloque, "r");
+			FILE *archivoBloque = fopen("/home/utnso/lissandra-checkpoint/Bloques/0.bin", "r");
 			if (archivoBloque == NULL) {
 				printf("no se pudo abrir archivo de bloques\n");
 				exit(1);
 			}
 
 			int cantidadIgualDeKeysEnBloque = 0;
+			char * bloqueAnterior;
+			if (i == 0){
+				bloqueAnterior = NULL;
+			}
+			else{
+				bloqueAnterior = vectorBloques[i-1];
+			}
 			t_registro* vectorStructs[100];
 			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)),
 					vectorStructs, &cantidadIgualDeKeysEnBloque,
-					vectorBloques[i + 1], vectorBloques[i - 1]);
+					vectorBloques[i + 1], bloqueAnterior);
 
 			//printf("%i", vectorStructs[0]->timestamp);
 			//printf("%i", vectorStructs[1]->timestamp);
@@ -1709,7 +1730,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 				t_config *tamanioYBloquesTmp = config_create(pathTemporal);
 				char** vectorBloquesTmp = config_get_array_value(
-						tamanioYBloquesTmp, "BLOCK"); //devuelve vector de STRINGS
+						tamanioYBloquesTmp, "BLOCKS"); //devuelve vector de STRINGS
 
 				int n = 0;
 				while (vectorBloquesTmp[n] != NULL) {
@@ -1843,7 +1864,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 				t_config *tamanioYBloquesTmpC = config_create(pathTemporalC);
 				char** vectorBloquesTmpC = config_get_array_value(
-						tamanioYBloquesTmpC, "BLOCK"); //devuelve vector de STRINGS
+						tamanioYBloquesTmpC, "BLOCKS"); //devuelve vector de STRINGS
 
 				int n = 0;
 				while (vectorBloquesTmpC[n] != NULL) {
@@ -2111,21 +2132,24 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	char * line2 = NULL;
 	size_t len = 0;
 	ssize_t read;
+	FILE *anteriorBloque = NULL;
 
-	char* pathBloque = malloc(
-			strlen(
-					string_from_format("%sBloques/",
-							structConfiguracionLFS.PUNTO_MONTAJE))
-					+ strlen(charAnteriorBloque) + strlen(".bin") + 1);
-	strcpy(pathBloque, "./Bloques/");
-	strcat(pathBloque, charAnteriorBloque);
-	strcat(pathBloque, ".bin");
-	FILE *anteriorBloque = fopen(pathBloque, "r");
-	if (anteriorBloque == NULL) {
-		printf("no se pudo abrir archivo de bloques\n");
-		exit(1);
+	if (charAnteriorBloque == NULL) {
+			printf("no existe el bloque anterior \n");
 	}
-
+	else{
+		char* pathBloque = malloc(
+				strlen(
+						string_from_format("%sBloques/",
+								structConfiguracionLFS.PUNTO_MONTAJE))
+						+ strlen(charAnteriorBloque) + strlen(".bin") + 1);
+		strcpy(pathBloque, "./Bloques/");
+		strcat(pathBloque, charAnteriorBloque);
+		strcat(pathBloque, ".bin");
+		anteriorBloque = fopen(pathBloque, "r");
+		free(pathBloque);
+	}
+	//todo tenemos que validar q el sgte existaaaaaaaaaaaaaaaaaaaaaaa forraaaaaaaaaaaaaaaaaaaaaaaa
 	char* pathBloque2 = malloc(
 			strlen(
 					string_from_format("%sBloques/",
@@ -2134,10 +2158,9 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	strcpy(pathBloque2, "./Bloques/");
 	strcat(pathBloque2, charProximoBloque);
 	strcat(pathBloque2, ".bin");
-	FILE *proximoBloque = fopen(pathBloque2, "r");
+	FILE *proximoBloque = fopen("/home/utnso/lissandra-checkpoint/Bloques/55.bin", "r");
 	if (proximoBloque == NULL) {
-		printf("no se pudo abrir archivo de bloques\n");
-		exit(1);
+		printf("no existe el prox bloque \n");
 	}
 
 	// si NO es el primer bloque del array de BLOCK
@@ -2186,9 +2209,12 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			(*cant)++;
 		}
 	} // cierra el while
-	fclose(anteriorBloque);
-	fclose(proximoBloque);
-	free(pathBloque);
+	if(anteriorBloque!=NULL){
+		fclose(anteriorBloque);
+	}
+	if(proximoBloque!=NULL){
+		fclose(proximoBloque);
+	}
 	free(pathBloque2);
 }
 
