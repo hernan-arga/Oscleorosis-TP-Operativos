@@ -10,11 +10,12 @@
  * - ARREGLO DE RETORNO EN SELECT
  * - ARREGLO FUNCION APARTE MEMTABLE (rompe)
  *
- * - ARREGLAR PARA QUE AL HACER EL SPLIT DEL MENSAJE NO SEPARE EL STRING DEL VALUE DEL INSERT
  * - AGREGAR VARIABLE EN EL SELECT PARA QUE IMPRIMA POR CONSOLA SOLO CUANDO SE USE LA MISMA
+ * - AGREGAR EL SLEEP DE RETARDO A SELECT
+ *
+ * - ARREGLAR PARA QUE AL HACER EL SPLIT DEL MENSAJE NO SEPARE EL STRING DEL VALUE DEL INSERT
  * - CAMBIAR LOS PRINTF A LOGS PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA (si alcanza el tiempo)
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
- * - AGREGAR EL SLEEP DE RETARDO A TODAS LAS FUNCIONES
  * - VER SI SE PUEDEN SACAR LOS WHILE(1) (ESPERA ACTIVA)
  */
 #include <stdio.h>
@@ -88,6 +89,7 @@ void atenderPeticionesDeConsola();
 void dameSemaforo(char *tabla, sem_t **semaforoTabla);
 void levantarHiloCompactacion(char *);
 void levantarHilosCompactacionParaTodasLasTablas();
+void actualizarTiempoDeRetardo();
 
 t_dictionary * memtable; // creacion de memtable : diccionario que tiene las tablas como keys y su data es un array de p_registro 's.
 //t_dictionary *tablasQueTienenTMPs; //guardo las tablas que tienen tmps para que en la compactacion solo revise esas
@@ -567,7 +569,22 @@ int esUnTipoDeConsistenciaValida(char* cadena) {
 	return consistenciaValida;
 }
 
+void actualizarTiempoDeRetardo(){
+	char *pathConfiguracion = string_new();
+	string_append(&pathConfiguracion, "configLFS.config");
+	configLFS = config_create(pathConfiguracion);
+	structConfiguracionLFS.RETARDO = config_get_int_value(configLFS,
+			"RETARDO");
+	//printf("retardo: %i", structConfiguracionLFS.RETARDO);*/
+	//no se destruye el configLFS porque se levanta de todos lados
+}
+
 void insert(char* tabla, char* key, char* valor, char* timestamp) {
+	//Puedo modificar en tiempo de ejecucion el retardo
+	actualizarTiempoDeRetardo();
+	sleep(structConfiguracionLFS.RETARDO);
+
+
 	string_to_upper(tabla);
 	if (!existeLaTabla(tabla)) {
 		char* mensajeALogear = malloc(
@@ -919,7 +936,10 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 }*/
 
 void dameSemaforo(char *tabla, sem_t **semaforoTabla){
-	//dictionary_iterator(diccionarioDeSemaforos, (void*)imprimir);
+	//Si se queda trabado en una tabla en particular descomentar lo de abajo, y ejecutar algun comando con la tabla
+	//para limpiar el semaforo
+	//sem_close(*semaforoTabla);
+	//sem_unlink(tabla);
 	if(!dictionary_has_key(diccionarioDeSemaforos, tabla)){
 		*semaforoTabla = sem_open (tabla, O_CREAT, 0777, 1);
 		if (*semaforoTabla == SEM_FAILED) {
@@ -1259,6 +1279,8 @@ void renombrarTodosLosTMPATMPC(char* tablaPath) {
 
 void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 		char* tiempoDeCompactacion) {
+	actualizarTiempoDeRetardo();
+	sleep(structConfiguracionLFS.RETARDO);
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
 		char* mensajeALogear = malloc(
@@ -1483,6 +1505,8 @@ int existeLaTabla(char* nombreDeTabla) {
 }
 
 void drop(char* tabla) {
+	actualizarTiempoDeRetardo();
+	sleep(structConfiguracionLFS.RETARDO);
 	char *path = string_new();
 	string_append(&path,
 			string_from_format("%sTables/",
@@ -1585,7 +1609,7 @@ char* realizarSelect(char* tabla, char* key) {
 			strcat(pathBloque, ".bin");
 			FILE *archivoBloque = fopen(pathBloque, "r");
 			if (archivoBloque == NULL) {
-				printf("no se pudo abrir archivo de bloques");
+				printf("no se pudo abrir archivo de bloques\n");
 				exit(1);
 			}
 
@@ -1679,7 +1703,7 @@ char* realizarSelect(char* tabla, char* key) {
 				strcat(pathTemporal, ".tmp");
 				FILE *fileTemporal = fopen(pathTemporal, "r");
 				if (fileTemporal == NULL) {
-					printf("no se pudo abrir archivo de temporales");
+					printf("no se pudo abrir archivo de temporales\n");
 					exit(1);
 				}
 
@@ -1708,7 +1732,7 @@ char* realizarSelect(char* tabla, char* key) {
 					strcat(pathBloqueTmp, ".bin");
 					FILE *archivoBloqueTmp = fopen(pathBloqueTmp, "r");
 					if (archivoBloqueTmp == NULL) {
-						printf("no se pudo abrir archivo de bloques");
+						printf("no se pudo abrir archivo de bloques\n");
 						exit(1);
 					}
 
@@ -1813,7 +1837,7 @@ char* realizarSelect(char* tabla, char* key) {
 				strcat(pathTemporalC, ".tmpc");
 				FILE *fileTemporalC = fopen(pathTemporalC, "r");
 				if (fileTemporalC == NULL) {
-					printf("no se pudo abrir archivo de temporales");
+					printf("no se pudo abrir archivo de temporales\n");
 					exit(1);
 				}
 
@@ -1842,7 +1866,7 @@ char* realizarSelect(char* tabla, char* key) {
 					strcat(pathBloqueTmpC, ".bin");
 					FILE *archivoBloqueTmpC = fopen(pathBloqueTmpC, "r");
 					if (archivoBloqueTmpC == NULL) {
-						printf("no se pudo abrir archivo de bloques");
+						printf("no se pudo abrir archivo de bloques\n");
 						exit(1);
 					}
 
@@ -2098,7 +2122,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	strcat(pathBloque, ".bin");
 	FILE *anteriorBloque = fopen(pathBloque, "r");
 	if (anteriorBloque == NULL) {
-		printf("no se pudo abrir archivo de bloques");
+		printf("no se pudo abrir archivo de bloques\n");
 		exit(1);
 	}
 
@@ -2112,7 +2136,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	strcat(pathBloque2, ".bin");
 	FILE *proximoBloque = fopen(pathBloque2, "r");
 	if (proximoBloque == NULL) {
-		printf("no se pudo abrir archivo de bloques");
+		printf("no se pudo abrir archivo de bloques\n");
 		exit(1);
 	}
 
@@ -2194,6 +2218,8 @@ int estaEntreComillas(char* valor) {
 }
 
 metadataTabla describeUnaTabla(char *tabla, int seImprimePorPantalla) {
+	actualizarTiempoDeRetardo();
+	sleep(structConfiguracionLFS.RETARDO);
 	char* pathTabla = string_new();
 	string_append(&pathTabla,
 			string_from_format("%sTables",
@@ -2234,7 +2260,7 @@ metadataTabla describeUnaTabla(char *tabla, int seImprimePorPantalla) {
 			return metadataTabla;
 		}
 	}
-	printf("¡Error! no se encontro la metadata");
+	printf("¡Error! no se encontro la metadata\n");
 	closedir(directorio);
 	exit(-1);
 }
