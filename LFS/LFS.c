@@ -1,21 +1,14 @@
 // FS
 /*
- * HECHO: a verificar que ande:
- * - SELECT LEE TMPC
- * - SI NO ENCUENTRA LA KEY, ERROR
- * - LECTURA DE BLOQUES CON MAPEADO, POR SI NO ESTA TIME;KEY;VALUE COMPLETO
- *
- *
  * FALTANTES:
  * - ARREGLO DE RETORNO EN SELECT
  * - ARREGLO FUNCION APARTE MEMTABLE (rompe)
- *
  * - AGREGAR VARIABLE EN EL SELECT PARA QUE IMPRIMA POR CONSOLA SOLO CUANDO SE USE LA MISMA
- * - AGREGAR EL SLEEP DE RETARDO A SELECT
  *
  * - CAMBIAR LOS PRINTF A LOGS PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA (si alcanza el tiempo)
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
  * - VER SI SE PUEDEN SACAR LOS WHILE(1) (ESPERA ACTIVA)
+ *
  */
 #include <stdio.h>
 #include <string.h> //strlen
@@ -616,7 +609,6 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 	//Puedo modificar en tiempo de ejecucion el retardo
 	actualizarTiempoDeRetardo();
 	sleep(structConfiguracionLFS.RETARDO);
-
 
 	string_to_upper(tabla);
 	if (!existeLaTabla(tabla)) {
@@ -1609,6 +1601,9 @@ int existeCarpeta(char *nombreCarpeta) {
 
 //No le pongo "select" porque ya esta la funcion de socket y rompe
 char* realizarSelect(char* tabla, char* key) {
+	actualizarTiempoDeRetardo();
+	sleep(structConfiguracionLFS.RETARDO);
+
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
 		char* pathMetadata = malloc(
