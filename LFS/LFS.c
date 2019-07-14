@@ -1620,7 +1620,21 @@ char* realizarSelect(char* tabla, char* key) {
 		strcat(pathParticionQueContieneKey, stringParticion);
 		strcat(pathParticionQueContieneKey, ".bin");
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
-		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCK"); //devuelve vector de STRINGS
+		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCKS"); //devuelve vector de STRINGS
+
+		char* mensajeALogear = malloc(80);
+		strcpy(mensajeALogear, "vector bloques");
+		strcat(mensajeALogear, vectorBloques[0]);
+		strcat(mensajeALogear, vectorBloques[1]);
+		t_log* g_logger;
+		g_logger = log_create(
+				string_from_format("%serroresSelect.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+				LOG_LEVEL_INFO);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+
 
 		int m = 0;
 		while (vectorBloques[m] != NULL) {
@@ -1637,7 +1651,8 @@ char* realizarSelect(char* tabla, char* key) {
 							string_from_format("%sBloques/",
 									structConfiguracionLFS.PUNTO_MONTAJE))
 							+ strlen((vectorBloques[i])) + strlen(".bin") + 1);
-			strcpy(pathBloque, "./Bloques/");
+			strcpy(pathBloque, string_from_format("%sBloques/",
+					structConfiguracionLFS.PUNTO_MONTAJE));
 			strcat(pathBloque, vectorBloques[i]);
 			strcat(pathBloque, ".bin");
 			FILE *archivoBloque = fopen(pathBloque, "r");
@@ -1647,10 +1662,17 @@ char* realizarSelect(char* tabla, char* key) {
 			}
 
 			int cantidadIgualDeKeysEnBloque = 0;
+			char * bloqueAnterior;
+			if (i == 0){
+				bloqueAnterior = NULL;
+			}
+			else{
+				bloqueAnterior = vectorBloques[i-1];
+			}
 			t_registro* vectorStructs[100];
 			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)),
 					vectorStructs, &cantidadIgualDeKeysEnBloque,
-					vectorBloques[i + 1], vectorBloques[i - 1]);
+					vectorBloques[i + 1], bloqueAnterior);
 
 			//printf("%i", vectorStructs[0]->timestamp);
 			//printf("%i", vectorStructs[1]->timestamp);
@@ -1742,7 +1764,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 				t_config *tamanioYBloquesTmp = config_create(pathTemporal);
 				char** vectorBloquesTmp = config_get_array_value(
-						tamanioYBloquesTmp, "BLOCK"); //devuelve vector de STRINGS
+						tamanioYBloquesTmp, "BLOCKS"); //devuelve vector de STRINGS
 
 				int n = 0;
 				while (vectorBloquesTmp[n] != NULL) {
@@ -1756,7 +1778,7 @@ char* realizarSelect(char* tabla, char* key) {
 									strlen(
 											string_from_format("%sBloques/",
 													structConfiguracionLFS.PUNTO_MONTAJE))
-											+ strlen((vectorBloques[q]))
+											+ strlen((vectorBloquesTmp[q]))
 											+ strlen(".bin") + 1);
 					strcpy(pathBloqueTmp,
 							string_from_format("%sBloques/",
@@ -1766,15 +1788,22 @@ char* realizarSelect(char* tabla, char* key) {
 					FILE *archivoBloqueTmp = fopen(pathBloqueTmp, "r");
 					if (archivoBloqueTmp == NULL) {
 						printf("no se pudo abrir archivo de bloques\n");
-						exit(1);
 					}
 
 					int cantidadIgualDeKeysEnTemporal = 0;
 					t_registro* vectorStructsTemporal[100];
+
+					char * bloqueAnterior;
+					if (q == 0) {
+						bloqueAnterior = NULL;
+					} else {
+						bloqueAnterior = vectorBloquesTmp[q - 1];
+					}
+
 					obtenerDatosParaKeyDeseada(archivoBloqueTmp, (atoi(key)),
 							vectorStructsTemporal,
 							&cantidadIgualDeKeysEnTemporal,
-							vectorBloquesTmp[q + 1], vectorBloquesTmp[q - 1]);
+							vectorBloquesTmp[q + 1], bloqueAnterior);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 					int tempo = 0;
@@ -1876,7 +1905,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 				t_config *tamanioYBloquesTmpC = config_create(pathTemporalC);
 				char** vectorBloquesTmpC = config_get_array_value(
-						tamanioYBloquesTmpC, "BLOCK"); //devuelve vector de STRINGS
+						tamanioYBloquesTmpC, "BLOCKS"); //devuelve vector de STRINGS
 
 				int n = 0;
 				while (vectorBloquesTmpC[n] != NULL) {
@@ -1890,7 +1919,7 @@ char* realizarSelect(char* tabla, char* key) {
 									strlen(
 											string_from_format("%sBloques/",
 													structConfiguracionLFS.PUNTO_MONTAJE))
-											+ strlen((vectorBloques[q]))
+											+ strlen((vectorBloquesTmpC[q]))
 											+ strlen(".bin") + 1);
 					strcpy(pathBloqueTmpC,
 							string_from_format("%sBloques/",
@@ -1900,15 +1929,22 @@ char* realizarSelect(char* tabla, char* key) {
 					FILE *archivoBloqueTmpC = fopen(pathBloqueTmpC, "r");
 					if (archivoBloqueTmpC == NULL) {
 						printf("no se pudo abrir archivo de bloques\n");
-						exit(1);
 					}
 
 					int cantidadIgualDeKeysEnTemporal = 0;
+
+					char * bloqueAnterior;
+					if (q == 0) {
+						bloqueAnterior = NULL;
+					} else {
+						bloqueAnterior = vectorBloquesTmpC[q - 1];
+					}
+
 					t_registro* vectorStructsTemporalC[100];
 					obtenerDatosParaKeyDeseada(archivoBloqueTmpC, (atoi(key)),
 							vectorStructsTemporalC,
 							&cantidadIgualDeKeysEnTemporal,
-							vectorBloquesTmpC[q + 1], vectorBloquesTmpC[q - 1]);
+							vectorBloquesTmpC[q + 1], bloqueAnterior);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 					int tempo = 0;
@@ -2101,41 +2137,6 @@ char* realizarSelect(char* tabla, char* key) {
 	return NULL;
 }
 
-/*
- void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs, int *cant) {
- int i = 0;
- char * line = NULL;
- size_t len = 0;
- ssize_t read;
-
- while ((read = getline(&line, &len, fp)) != -1) {
- int keyLeida = atoi(string_split(line, ";")[1]);
- if (keyLeida == key) {
- t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
- t_registro p_registro2;
- p_registro = &p_registro2;
- char** arrayLinea = malloc(strlen(line) + 1);
- arrayLinea = string_split(line, ";");
- int timestamp = atoi(arrayLinea[0]);
- int key = atoi(arrayLinea[1]);
- p_registro->timestamp = timestamp;
- p_registro->key = key;
- p_registro->value = malloc(strlen(arrayLinea[2]));
- strcpy(p_registro->value, arrayLinea[2]);
- vectorStructs[i] = malloc(12);
- memcpy(&vectorStructs[i]->key, &p_registro->key,
- sizeof(p_registro->key));
- memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
- sizeof(p_registro->timestamp));
- vectorStructs[i]->value = malloc(strlen(p_registro->value));
- memcpy(vectorStructs[i]->value, p_registro->value,
- strlen(p_registro->value));
- i++;
- (*cant)++;
- }
- }
- }
- */
 
 void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 		int *cant, char* charProximoBloque, char* charAnteriorBloque) {
@@ -2144,33 +2145,42 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	char * line2 = NULL;
 	size_t len = 0;
 	ssize_t read;
+	FILE *anteriorBloque = NULL;
+	FILE *proximoBloque = NULL;
 
-	char* pathBloque = malloc(
-			strlen(
-					string_from_format("%sBloques/",
-							structConfiguracionLFS.PUNTO_MONTAJE))
-					+ strlen(charAnteriorBloque) + strlen(".bin") + 1);
-	strcpy(pathBloque, "./Bloques/");
-	strcat(pathBloque, charAnteriorBloque);
-	strcat(pathBloque, ".bin");
-	FILE *anteriorBloque = fopen(pathBloque, "r");
-	if (anteriorBloque == NULL) {
-		printf("no se pudo abrir archivo de bloques\n");
-		exit(1);
+	if (charAnteriorBloque == NULL) {
+			printf("no existe el bloque anterior \n");
+	}
+	else{
+		char* pathBloque = malloc(
+				strlen(
+						string_from_format("%sBloques/",
+								structConfiguracionLFS.PUNTO_MONTAJE))
+						+ strlen(charAnteriorBloque) + strlen(".bin") + 1);
+		strcpy(pathBloque, string_from_format("%sBloques/", structConfiguracionLFS.PUNTO_MONTAJE));
+		strcat(pathBloque, charAnteriorBloque);
+		strcat(pathBloque, ".bin");
+		anteriorBloque = fopen(pathBloque, "r");
+		free(pathBloque);
+	}
+	//todo tenemos que validar q el sgte existaaaaaaaaaaaaaaaaaaaaaaa forraaaaaaaaaaaaaaaaaaaaaaaa
+
+	if(charProximoBloque){
+		char* pathBloque2 = malloc(
+				strlen(
+						string_from_format("%sBloques/",
+								structConfiguracionLFS.PUNTO_MONTAJE))
+						+ strlen(charProximoBloque) + strlen(".bin") + 1);
+		strcpy(pathBloque2, string_from_format("%sBloques/", structConfiguracionLFS.PUNTO_MONTAJE));
+		strcat(pathBloque2, charProximoBloque);
+		strcat(pathBloque2, ".bin");
+		proximoBloque = fopen(pathBloque2, "r");
+
+		free(pathBloque2);
 	}
 
-	char* pathBloque2 = malloc(
-			strlen(
-					string_from_format("%sBloques/",
-							structConfiguracionLFS.PUNTO_MONTAJE))
-					+ strlen(charProximoBloque) + strlen(".bin") + 1);
-	strcpy(pathBloque2, "./Bloques/");
-	strcat(pathBloque2, charProximoBloque);
-	strcat(pathBloque2, ".bin");
-	FILE *proximoBloque = fopen(pathBloque2, "r");
 	if (proximoBloque == NULL) {
-		printf("no se pudo abrir archivo de bloques\n");
-		exit(1);
+		printf("no existe el prox bloque \n");
 	}
 
 	// si NO es el primer bloque del array de BLOCK
@@ -2219,10 +2229,12 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			(*cant)++;
 		}
 	} // cierra el while
-	fclose(anteriorBloque);
-	fclose(proximoBloque);
-	free(pathBloque);
-	free(pathBloque2);
+	if(anteriorBloque!=NULL){
+		fclose(anteriorBloque);
+	}
+	if(proximoBloque!=NULL){
+		fclose(proximoBloque);
+	}
 }
 
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
