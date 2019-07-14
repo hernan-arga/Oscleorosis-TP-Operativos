@@ -1618,10 +1618,11 @@ char* realizarSelect(char* tabla, char* key) {
 							string_from_format("%sBloques/",
 									structConfiguracionLFS.PUNTO_MONTAJE))
 							+ strlen((vectorBloques[i])) + strlen(".bin") + 1);
-			strcpy(pathBloque, "./Bloques/");
+			strcpy(pathBloque, string_from_format("%sBloques/",
+					structConfiguracionLFS.PUNTO_MONTAJE));
 			strcat(pathBloque, vectorBloques[i]);
 			strcat(pathBloque, ".bin");
-			FILE *archivoBloque = fopen("/home/utnso/lissandra-checkpoint/Bloques/0.bin", "r");
+			FILE *archivoBloque = fopen(pathBloque, "r");
 			if (archivoBloque == NULL) {
 				printf("no se pudo abrir archivo de bloques\n");
 				exit(1);
@@ -2143,22 +2144,23 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 						string_from_format("%sBloques/",
 								structConfiguracionLFS.PUNTO_MONTAJE))
 						+ strlen(charAnteriorBloque) + strlen(".bin") + 1);
-		strcpy(pathBloque, "./Bloques/");
+		strcpy(pathBloque, string_from_format("%sBloques/", structConfiguracionLFS.PUNTO_MONTAJE));
 		strcat(pathBloque, charAnteriorBloque);
 		strcat(pathBloque, ".bin");
 		anteriorBloque = fopen(pathBloque, "r");
 		free(pathBloque);
 	}
 	//todo tenemos que validar q el sgte existaaaaaaaaaaaaaaaaaaaaaaa forraaaaaaaaaaaaaaaaaaaaaaaa
+
 	char* pathBloque2 = malloc(
 			strlen(
 					string_from_format("%sBloques/",
 							structConfiguracionLFS.PUNTO_MONTAJE))
 					+ strlen(charProximoBloque) + strlen(".bin") + 1);
-	strcpy(pathBloque2, "./Bloques/");
+	strcpy(pathBloque2, string_from_format("%sBloques/", structConfiguracionLFS.PUNTO_MONTAJE));
 	strcat(pathBloque2, charProximoBloque);
 	strcat(pathBloque2, ".bin");
-	FILE *proximoBloque = fopen("/home/utnso/lissandra-checkpoint/Bloques/55.bin", "r");
+	FILE *proximoBloque = fopen(pathBloque2, "r");
 	if (proximoBloque == NULL) {
 		printf("no existe el prox bloque \n");
 	}
