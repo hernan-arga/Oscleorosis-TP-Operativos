@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
 	pthread_create(&hiloDump, NULL, (void*) dump, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
-	 levantarHilosCompactacionParaTodasLasTablas();
+	//levantarHilosCompactacionParaTodasLasTablas();
 	memtable = malloc(4);
 	memtable = dictionary_create();
 
@@ -2050,8 +2050,8 @@ char* realizarSelect(char* tabla, char* key) {
 		int cantIgualDeKeyEnMemtable = 0;
 		//creo nuevo array que va a tener solo los structs de la key que me pasaron por parametro
 		t_registro* arrayPorKeyDeseadaMemtable[100];
-		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, entradaTabla,
-				atoi(key), &cantIgualDeKeyEnMemtable);
+
+		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, entradaTabla, atoi(key), &cantIgualDeKeyEnMemtable);
 
 		int t = 0;
 		char* unValor;
@@ -2285,11 +2285,10 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 		t_registro **entradaTabla, int laKey, int *cant) {
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < (sizeof(entradaTabla)/sizeof(t_registro)); i++) {
 		if (entradaTabla[i]->key == laKey) {
 			arrayPorKeyDeseadaMemtable[*cant] = malloc(12);
-			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key,
-					&entradaTabla[i]->key, sizeof(entradaTabla[i]->key));
+			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key,	&entradaTabla[i]->key, sizeof(entradaTabla[i]->key));
 			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->timestamp,
 					&entradaTabla[i]->timestamp,
 					sizeof(entradaTabla[i]->timestamp));
