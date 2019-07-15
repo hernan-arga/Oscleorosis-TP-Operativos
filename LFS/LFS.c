@@ -176,7 +176,7 @@ int main(int argc, char *argv[]) {
 	pthread_create(&hiloDump, NULL, (void*) dump, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
-	levantarHilosCompactacionParaTodasLasTablas();
+	// levantarHilosCompactacionParaTodasLasTablas();
 	memtable = malloc(4);
 	memtable = dictionary_create();
 
@@ -2230,7 +2230,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 		char* ultimoCaracter = malloc(1);
 		fseek(anteriorBloque, -1, SEEK_END);
 		fread(ultimoCaracter,1,1,anteriorBloque);
-		if (strcmp(ultimoCaracter,"\n")){
+		if (strncmp(ultimoCaracter,"\n", 1)){
 			// descarto primer renglon y sigo con el sgte
 			getline(&line, &len, fp);
 		}
