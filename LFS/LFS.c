@@ -714,9 +714,7 @@ void dumpPorTabla(char* tabla) {
 		while (cantidadDeBloquesCompletosNecesarios != 0) {
 			int bloqueEncontrado = asignarBloque();
 			char *stringAuxRegistros = string_new();
-			string_append(&stringAuxRegistros,
-					string_substring(registrosADumpear, desdeDondeTomarLosRegistros,
-							tamanioPorBloque));
+			string_append(&stringAuxRegistros, string_substring(registrosADumpear, desdeDondeTomarLosRegistros,tamanioPorBloque));
 			//printf("%s\n", stringAuxRegistros);
 			crearArchivoDeBloquesConRegistros(bloqueEncontrado, stringAuxRegistros);
 			//Agrego al string del array el bloque nuevo
@@ -1602,7 +1600,7 @@ int existeCarpeta(char *nombreCarpeta) {
 //No le pongo "select" porque ya esta la funcion de socket y rompe
 char* realizarSelect(char* tabla, char* key) {
 	actualizarTiempoDeRetardo();
-	sleep(structConfiguracionLFS.RETARDO);
+	//sleep(structConfiguracionLFS.RETARDO);
 
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
@@ -1654,7 +1652,6 @@ char* realizarSelect(char* tabla, char* key) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
-
 		int m = 0;
 		while (vectorBloques[m] != NULL) {
 			m++;
@@ -1662,7 +1659,6 @@ char* realizarSelect(char* tabla, char* key) {
 
 		int timestampActualMayorBloques = -1;
 		char* valueDeTimestampActualMayorBloques = string_new();
-
 
 
 		// POR CADA BLOQUE, TENGO QUE ENTRAR A ESTE BLOQUE
@@ -2231,16 +2227,20 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	// si NO es el primer bloque del array de BLOCK
 	if (anteriorBloque != NULL) {
 		// si el anterior bloque no termina con \n => anterior tiene renglon incompleto => yo tengo el primer renglon al pedo
-		if (fseek(anteriorBloque, -1, SEEK_END) != '\n') {
+		char* ultimoCaracter = malloc(1);
+		fseek(anteriorBloque, -1, SEEK_END);
+		fread(ultimoCaracter,1,1,anteriorBloque);
+		if (strcmp(ultimoCaracter,"\n")){
 			// descarto primer renglon y sigo con el sgte
 			getline(&line, &len, fp);
 		}
 	}
 	while ((read = getline(&line, &len, fp)) != -1) {
+		FILE* fpCopia = fdopen (dup (fileno (fp)), "r");
 		if (proximoBloque != NULL) {
 			// si( esta linea es la ultima y no termina con \n (es decir que ademas esta incompleta) )
 			size_t len2 = len;
-			if ((getline(&line2, &len2, fp) == -1)
+			if ((getline(&line2, &len2, fpCopia) == -1)
 					&& (line[strlen(line) - 1] != '\n')) {
 				char * lineProxBloque = NULL;
 				size_t lenProxBloque = 0;
