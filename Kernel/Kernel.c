@@ -1,5 +1,10 @@
 // KERNEL
-
+/*TAREA xd:
+ * Sockets e Hilos
+ * Parser para Metrics, Journal, Describe, Drop
+ * Tablas
+ * Criterios
+ */
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -15,89 +20,297 @@
 #include <commons/string.h>
 #include <commons/collections/list.h>
 #include <commons/config.h>
+#include <pthread.h>
+#include <semaphore.h>
 
 struct Script{
 	int PID;
 	int PC;
-	FILE* peticiones;
+	char* peticiones;
 };
 
 struct datosMemoria{
-	t_list * criteriosAsignados;
 	int ip;
+};
+
+struct tablas{
+	char* nombre;
 };
 
 typedef enum {
 	SELECT, INSERT, CREATE, DESCRIBE, DROP, JOURNAL, ADD, RUN, METRICS, OPERACIONINVALIDA
 } OPERACION;
 
-
-
-char*tempSinAsignar();
-int numeroSinUsar();
-void configurar_kernel();
-void planificador(char*,t_list*,t_queue*,t_queue*);
-void newbie(FILE*,t_queue*,t_list*);
-int get_PID(t_list *);
-int PID_usada(int,t_list *);
-void pasar_a_ready(t_queue*,t_queue*);
-void tomar_peticion(char* mensaje,t_queue*,t_queue*,t_list*);
-void realizar_peticion(char** ,t_queue * ,t_queue *,t_list* );
 OPERACION tipo_de_peticion(char*);
+int cantidadDeElementosDePunteroDePunterosDeChar(char**);
 int cantidadValidaParametros(char**, int);
-int parametrosValidos(int, char**, int (*criterioTiposCorrectos)(char**, int));
-int esUnNumero(char* cadena);
-int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero);
+void configurar_kernel();
+void ejecutar();
+int esUnNumero(char*);
 int esUnTipoDeConsistenciaValida(char*);
-void operacion_gossiping(t_list*);
-int IP_en_lista(t_list *,struct datosMemoria);
+int get_PID();
+int IP_en_lista(int);
+int numeroSinUsar();
+void operacion_gossiping();
+int parametrosValidos(int, char**, int (*criterioTiposCorrectos)(char**, int));
+void pasar_a_new(char*);
+void pasar_a_ready(t_queue*);
+int PID_usada(int);
+void planificador(char*);
+void popear(struct Script *,t_queue*);
+void realizar_peticion(char**);
+char* tempSinAsignar();
+void tomar_peticion(char*);
+
+/*
+void funcionLoca();
+void funcionLoca2();
+*/
+t_queue* new;
+t_queue* ready;
+t_queue* exec;
+t_list * PIDs;
+t_list * listaDeMemorias;
+t_list * tablas_conocidas;
+t_config* configuracion;
 
 int main(){
+	/*
+	pthread_t hola;
+	pthread_t hola2;
+	t_list* listaDeMemorias = list_create();
+	pthread_create(&hola, NULL, (void*)funcionLoca, NULL);
+	pthread_create(&hola2, NULL, (void*)funcionLoca2, NULL);
+	pthread_join(hola,NULL);
+	pthread_join(hola2,NULL);
+	new = queue_create();
 
-	t_list * PIDs = list_create();
-	t_queue* new = queue_create();
-	t_queue* ready = queue_create();
-	t_list * listaDeMemorias = list_create();
-	//t_queue* exec = queue_create();
+	printf("hola");
+	*/
+	configuracion = config_create("Kernel_config");
+	PIDs = list_create();
+	listaDeMemorias = list_create();
+	tablas_conocidas = list_create();
+	new = queue_create();
+	ready = queue_create();
+	exec = queue_create(); //creo que no hace falta
+
 	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
 	char* mensaje = malloc(100);
 	configurar_kernel();
-	operacion_gossiping(listaDeMemorias); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
+	operacion_gossiping(); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
 	do{
 		printf("Mis subprocesos estan a la espera de su mensaje, usuario.\n");
 		fgets(mensaje,100,stdin);
-		tomar_peticion(mensaje,new,ready,PIDs);
+		tomar_peticion(mensaje);
 	}while(strcmp(mensaje,"\n"));
 	return 0;
 }
 
-void operacion_gossiping(t_list * listaDeMemorias){
-	t_config* configuracion = config_create("Kernel_config");
-	int IP = config_get_int_value(configuracion,"IP");
-	struct datosMemoria unaMemoria;
-	//aca va algo con sockets para pedirle a la memoria principal, la IP de las demas memorias. Carga en unaMemoria la info y si no está en la lista de IPs, la coloca.
-	if(!IP_en_lista(listaDeMemorias,unaMemoria)){
-		list_add(listaDeMemorias,&unaMemoria);
+OPERACION tipo_de_peticion(char* peticion) {
+	string_to_upper(peticion);
+	if (!strcmp(peticion, "SELECT")) {
+		free(peticion);
+		return SELECT;
+	} else {
+		if (!strcmp(peticion, "INSERT")) {
+			free(peticion);
+			return INSERT;
+		} else {
+			if (!strcmp(peticion, "CREATE")) {
+				free(peticion);
+				return CREATE;
+			} else{
+				if(!strcmp(peticion,"DESCRIBE")){
+					free(peticion);
+					return DESCRIBE;
+				}else{
+					if (!strcmp(peticion, "DROP")) {
+						free(peticion);
+						return DROP;
+					} else{
+						if (!strcmp(peticion, "JOURNAL")) {
+							free(peticion);
+							return JOURNAL;
+						} else{
+							if (!strcmp(peticion, "ADD")) {
+								free(peticion);
+								return ADD;
+							} else{
+								if (!strcmp(peticion, "RUN")) {
+									free(peticion);
+									return RUN;
+								} else{
+									if (!strcmp(peticion, "METRICS")) {
+										free(peticion);
+										return METRICS;
+										} else{
+											free(peticion);
+											return OPERACIONINVALIDA;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+}
+
+int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero) {
+	int i = 0;
+	while (puntero[i] != NULL) {
+		i++;
+	}
+	//Uno mas porque tambien se incluye el NULL en el vector
+	return ++i;
+}
+
+int cantidadValidaParametros(char** parametros,
+		int cantidadDeParametrosNecesarios) {
+	//Saco de la cuenta la peticion y el NULL
+	int cantidadDeParametrosQueTengo =
+			cantidadDeElementosDePunteroDePunterosDeChar(parametros) - 2;
+	if (cantidadDeParametrosQueTengo != cantidadDeParametrosNecesarios) {
+		//hay que arreglar esto para que en el caso de insert solo lo muestre si no se cumple con 4 ni con 3
+		printf("La cantidad de parametros no es valida\n");
+		return 0;
+	}
+	return 1;
+}
+
+void configurar_kernel(){
+	FILE* archivo_configuracion = fopen("Kernel_config","w");
+	printf("\tQue bien! Parece que hoy van a configurarme\n");
+	char * valor = string_new();
+	printf("\tNecesito la direccion IP de la memoria principal, para poder intercambiar ceros y unos.\n Por favor ingresa su IP\n");
+	fgets(valor, 100, stdin);
+	config_set_value(configuracion,"IP",valor);
+	printf("\tGracias, ahora me dieron ganas de hablar con las memorias... Por un canal privado. Podrias conseguirme un puerto?\n Por favor, ingresa el puerto para comunicarme con las memorias\n");
+	fgets(valor, 100, stdin);
+	config_set_value(configuracion,"PUERTO_MEMORIA",valor);
+	printf("\tExcelente! Pero hay otro problema: Esos request no se van a ejecutar en un FIFO arcaico, no. Tenemos un RoundRobin!\n Por favor, ingrese el numero de quantum: \n");
+	fgets(valor, 100, stdin);
+	config_set_value(configuracion,"QUANTUM",valor);
+	printf("\tLo siento, se que es engorroso... Pero para empezar, fuiste vos el que inicio mi ejecucion.\n Ahora necesito que me digas cuantos procesos van a estar ejecutandose a la vez en las memorias\n Ingresa el grado de multiprocesamiento: \n");
+	fgets(valor, 100, stdin);
+	config_set_value(configuracion,"MULTIPROCESAMIENTO",valor);
+	printf("\tTodavia no se ni que es eso, pero por las dudas pone algun numerito...\n Ingresa el numero de Fresh Metadata: \n");
+	fgets(valor, 100, stdin);
+	config_set_value(configuracion,"METADATA_REFRESH",valor);
+	printf("\tMuy bien, por ultimo necesito otro numero que se mide en milisegundos, que rapido!\n Ingresa el retardo del ciclo de ejecucion: \n");
+	fgets(valor, 100, stdin);
+	config_set_value(configuracion,"SLEEP_EJECUCION",valor);
+	printf("\tBueno, eso es todo. Esperame que guardo estos datos en mi archivo de configuracion\n");
+	config_save(configuracion);
+	fclose(archivo_configuracion);
+	}
+
+void ejecutar(){
+	int quantum = config_get_int_value(configuracion,"QUANTUM");
+	int contador = 0;
+	char * una_peticion = string_new();
+	int error = 0;
+	size_t tamanio_peticion = 0;
+
+	while(!queue_is_empty(ready)){
+		struct Script proceso;
+		popear(&proceso,ready);
+		char * nombre_del_archivo = proceso.peticiones;
+		FILE* peticiones = fopen(nombre_del_archivo,"r");
+		while(!feof(peticiones) && contador < quantum && error == 0 ){
+			contador++;
+			getline(&una_peticion,&tamanio_peticion,peticiones);
+			tomar_peticion(una_peticion);
+
+		}
 	}
 }
 
-int IP_en_lista(t_list * listaDeMemorias,struct datosMemoria unaMemoria){
+int esUnNumero(char* cadena) {
+	for (int i = 0; i < strlen(cadena); i++) {
+		if (!isdigit(cadena[i])) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+int esUnTipoDeConsistenciaValida(char* cadena) {
+	int consistenciaValida = !strcmp(cadena, "SC") || !strcmp(cadena, "SHC")
+			|| !strcmp(cadena, "EC");
+	if (!consistenciaValida) {
+		printf(
+				"El tipo de consistencia no es valida. Asegurese de que este en mayusculas\n");
+	}
+	return consistenciaValida;
+}
+
+int get_PID(){
+	int PID = 1;
+	int flag = 0;
+	do{
+		if(PID_usada(PID)){
+			PID++;
+		}
+		else{
+			flag = 1;
+		}
+	}while(flag == 0);
+	list_add(PIDs, &PID);
+	return PID;
+}
+
+int IP_en_lista(int ip_memoria){
 	bool _IP_presente(void* IP){
-			return (int)IP == unaMemoria.ip;
+			return (int)IP == ip_memoria;
 		}
 	return (list_find(listaDeMemorias, _IP_presente) != NULL);
 }
 
+//TODO WTF no me acordaba que estaba esto, se me hace que está mal codeado xd re negro jaja
+int numeroSinUsar(){
+	n++;
+	return n;
+}
 
-void tomar_peticion(char* mensaje,t_queue *new,t_queue* ready,t_list* PIDs){
+//TODO falta sockets acá
+void operacion_gossiping(){
+	int IP = config_get_int_value(configuracion,"IP");
+	struct datosMemoria unaMemoria;
+	//aca va algo con sockets para pedirle a la memoria principal, la IP de las demas memorias. Carga en unaMemoria la info y si no está en la lista de IPs, la coloca.
+	if(!IP_en_lista(unaMemoria.ip)){
+		list_add(listaDeMemorias,&unaMemoria);
+	}
+}
+
+/*
+void funcionLoca(){
+	while(1){
+		printf("aaaaaaaa\n");
+	}
+}
+
+void funcionLoca2(){
+	while(1){
+		printf(":O\n");
+	}
+}
+*/
+
+
+void tomar_peticion(char* mensaje){
 	//Fijarse despues cual seria la cantidad correcta de malloc
 	char** mensajeSeparado = malloc(strlen(mensaje) + 1);
 	mensajeSeparado = string_split(mensaje, " \n");
-	realizar_peticion(mensajeSeparado,new,ready,PIDs);
+	realizar_peticion(mensajeSeparado);
 	free(mensajeSeparado);
 }
 
-void realizar_peticion(char** parametros,t_queue * new,t_queue *ready,t_list* PIDs) {
+//TODO Hay que hacer que el parser reconozca algunos comandos más
+
+void realizar_peticion(char** parametros) {
 	char *peticion = parametros[0];
 	OPERACION instruccion = tipo_de_peticion(peticion);
 	switch (instruccion) {
@@ -120,7 +333,7 @@ void realizar_peticion(char** parametros,t_queue * new,t_queue *ready,t_list* PI
 			FILE* temp = fopen(nombre_archivo,"w");
 			fprintf(temp,"%s %s %s" ,"SELECT",parametros[1],parametros[2]);
 			fclose(temp);
-			planificador(nombre_archivo,PIDs,new,ready);
+			planificador(nombre_archivo);
 		}
 
 		break;
@@ -179,7 +392,7 @@ void realizar_peticion(char** parametros,t_queue * new,t_queue *ready,t_list* PI
 			FILE* temp = fopen(nombre_archivo,"w");
 			fprintf(temp,"%s %s %s %s %s" ,"CREATE",parametros[1],parametros[2],parametros[3],parametros[4]);
 			fclose(temp);
-			planificador(nombre_archivo,PIDs,new,ready);
+			planificador(nombre_archivo);
 		}
 		break;
 	case DESCRIBE:
@@ -229,6 +442,8 @@ void realizar_peticion(char** parametros,t_queue * new,t_queue *ready,t_list* PI
 				drop(tabla);
 			}
 		break;
+	case JOURNAL: //falta continuarlo
+	case ADD: //falta continuarlo
 
 	case RUN:
 		printf("Seleccionaste Run\n");
@@ -248,28 +463,21 @@ void realizar_peticion(char** parametros,t_queue * new,t_queue *ready,t_list* PI
 					printf("El archivo no existe\n");
 				}
 				else{
-					printf("Enviando Script a ejecutar.\n");
 					fclose(archivo);
-					planificador(nombre_del_archivo,PIDs,new,ready);
+					printf("Enviando Script a ejecutar.\n");
+					planificador(nombre_del_archivo);
 				}
 		}
 		break;
+
+	case METRICS: //falta continuarlo
 
 	default:
 		printf("Error operacion invalida\n");
 	}
 }
 
-int esUnTipoDeConsistenciaValida(char* cadena) {
-	int consistenciaValida = !strcmp(cadena, "SC") || !strcmp(cadena, "SHC")
-			|| !strcmp(cadena, "EC");
-	if (!consistenciaValida) {
-		printf(
-				"El tipo de consistencia no es valida. Asegurese de que este en mayusculas\n");
-	}
-	return consistenciaValida;
-}
-
+//TODO Esto tiene dos ;; se me hace raro
 int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
 		int (*criterioTiposCorrectos)(char**, int)) {
 	return cantidadValidaParametros(parametros, cantidadDeParametrosNecesarios)
@@ -277,86 +485,15 @@ int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
 					cantidadDeParametrosNecesarios);;
 }
 
-int cantidadValidaParametros(char** parametros,
-		int cantidadDeParametrosNecesarios) {
-	//Saco de la cuenta la peticion y el NULL
-	int cantidadDeParametrosQueTengo =
-			cantidadDeElementosDePunteroDePunterosDeChar(parametros) - 2;
-	if (cantidadDeParametrosQueTengo != cantidadDeParametrosNecesarios) {
-		//hay que arreglar esto para que en el caso de insert solo lo muestre si no se cumple con 4 ni con 3
-		printf("La cantidad de parametros no es valida\n");
-		return 0;
-	}
-	return 1;
+
+
+//TODO socket para dropear la tabla en memoria y borrar la tabla de mi lista de tablas conocidas.
+void drop(char* nombre_tabla){
+	borrar_tabla(nombre_tabla);
 }
 
-int esUnNumero(char* cadena) {
-	for (int i = 0; i < strlen(cadena); i++) {
-		if (!isdigit(cadena[i])) {
-			return 0;
-		}
-	}
-	return 1;
-}
+void borrar_tabla(char* nombre_tabla){
 
-int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero) {
-	int i = 0;
-	while (puntero[i] != NULL) {
-		i++;
-	}
-	//Uno mas porque tambien se incluye el NULL en el vector
-	return ++i;
-}
-
-OPERACION tipo_de_peticion(char* peticion) {
-	string_to_upper(peticion);
-	if (!strcmp(peticion, "SELECT")) {
-		free(peticion);
-		return SELECT;
-	} else {
-		if (!strcmp(peticion, "INSERT")) {
-			free(peticion);
-			return INSERT;
-		} else {
-			if (!strcmp(peticion, "CREATE")) {
-				free(peticion);
-				return CREATE;
-			} else{
-				if(!strcmp(peticion,"DESCRIBE")){
-					free(peticion);
-					return DESCRIBE;
-				}else{
-					if (!strcmp(peticion, "DROP")) {
-						free(peticion);
-						return DROP;
-					} else{
-						if (!strcmp(peticion, "JOURNAL")) {
-							free(peticion);
-							return JOURNAL;
-						} else{
-							if (!strcmp(peticion, "ADD")) {
-								free(peticion);
-								return ADD;
-							} else{
-								if (!strcmp(peticion, "RUN")) {
-									free(peticion);
-									return RUN;
-								} else{
-									if (!strcmp(peticion, "METRICS")) {
-										free(peticion);
-										return METRICS;
-										} else{
-											free(peticion);
-											return OPERACIONINVALIDA;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
 }
 
 /*
@@ -396,10 +533,9 @@ int main()
 	return 0;
 }
 */
-
-/*void ejecutor(t_list * PIDs,t_queue* ready,t_queue*exec){
-	t_config* kernel_config = config_create("Kernel_config");
-	int quantum = config_get_int_value(kernel_config,"QUANTUM");
+//TODO Inicializar queue_peek
+void ejecutor(){
+	int quantum = config_get_int_value(configuracion,"QUANTUM");
 	if(!queue_is_empty(ready)){
 		queue_push(exec,queue_pop(ready));
 		while(!queue_is_empty(exec)){
@@ -410,7 +546,7 @@ int main()
 		}
 	}
 }
-*/
+
 char* tempSinAsignar(){
 	char * nombre= string_new();
 	char * strNumero = string_new();
@@ -426,87 +562,43 @@ char* tempSinAsignar(){
 
 int n=0;
 
-int numeroSinUsar(){
-	n++;
-	return n;
+void planificador(char* nombre_del_archivo){
+	pasar_a_new(nombre_del_archivo);
+	pasar_a_ready(new);
+	ejecutar();
 }
 
-void configurar_kernel(){
-	FILE* archivo_configuracion = fopen("Kernel_config","w");
-	t_config* configuracion = config_create("Kernel_config");
-	printf("\tQue bien! Parece que hoy van a configurarme\n");
-	char * valor = string_new();
-	printf("\tNecesito la direccion IP de la memoria principal, para poder intercambiar ceros y unos.\n Por favor ingresa su IP\n");
-	fgets(valor, 100, stdin);
-	config_set_value(configuracion,"IP",valor);
-	printf("\tGracias, ahora me dieron ganas de hablar con las memorias... Por un canal privado. Podrias conseguirme un puerto?\n Por favor, ingresa el puerto para comunicarme con las memorias\n");
-	fgets(valor, 100, stdin);
-	config_set_value(configuracion,"PUERTO_MEMORIA",valor);
-	printf("\tExcelente! Pero hay otro problema: Esos request no se van a ejecutar en un FIFO arcaico, no. Tenemos un RoundRobin!\n Por favor, ingrese el numero de quantum: \n");
-	fgets(valor, 100, stdin);
-	config_set_value(configuracion,"QUANTUM",valor);
-	printf("\tLo siento, se que es engorroso... Pero para empezar, fuiste vos el que inicio mi ejecucion.\n Ahora necesito que me digas cuantos procesos van a estar ejecutandose a la vez en las memorias\n Ingresa el grado de multiprocesamiento: \n");
-	fgets(valor, 100, stdin);
-	config_set_value(configuracion,"MULTIPROCESAMIENTO",valor);
-	printf("\tTodavia no se ni que es eso, pero por las dudas pone algun numerito...\n Ingresa el numero de Fresh Metadata: \n");
-	fgets(valor, 100, stdin);
-	config_set_value(configuracion,"METADATA_REFRESH",valor);
-	printf("\tMuy bien, por ultimo necesito otro numero que se mide en milisegundos, que rapido!\n Ingresa el retardo del ciclo de ejecucion: \n");
-	fgets(valor, 100, stdin);
-	config_set_value(configuracion,"SLEEP_EJECUCION",valor);
-	printf("\tBueno, eso es todo. Esperame que guardo estos datos en mi archivo de configuracion\n");
-	config_save(configuracion);
-	fclose(archivo_configuracion);
-	config_destroy(configuracion);
-	}
-
-void planificador(char* nombre_del_archivo,t_list* PIDs,t_queue* new,t_queue* ready){
-	FILE* archivo = fopen(nombre_del_archivo,"r");
-	newbie(archivo,new,PIDs);
-	pasar_a_ready(ready,new);
-	fclose(archivo);
+void popear(struct Script * proceso,t_queue* cola){
+	proceso = queue_pop(cola);
 }
 
-
-void newbie(FILE* archivo,t_queue* new,t_list* PIDs){ //Prepara las estructuras necesarias y pushea el request a la cola de new
+void pasar_a_new(char* nombre_del_archivo){ //Prepara las estructuras necesarias y pushea el request a la cola de new
 	 printf("\tAgregando script a cola de New\n");
 	 struct Script proceso;
 	 proceso.PID = get_PID(PIDs);
 	 proceso.PC = 0;
-	 proceso.peticiones = archivo;
+	 proceso.peticiones = string_new();
+	 string_append(&proceso.peticiones,nombre_del_archivo);
 	 queue_push(new,&proceso);
 	 printf("Script agregado\n");
 }
 
-int get_PID(t_list * PIDs){
-	int PID = 1;
-	int flag = 0;
-	do{
-		if(PID_usada(PID,PIDs)){
-			PID++;
-		}
-		else{
-			flag = 1;
-		}
-	}while(flag == 0);
-	list_add(PIDs, &PID);
-	return PID;
-}
 
 
-
-int PID_usada(int numPID,t_list * PIDs){
+int PID_usada(int numPID){
 	bool _PID_en_uso(void* PID){
 		return (int)PID == numPID;
 	}
 	return (list_find(PIDs,_PID_en_uso) != NULL);
 }
 
-void pasar_a_ready(t_queue * ready,t_queue * new){
-	printf("\tTrasladando script de New a Ready\n");
-	queue_push(ready,queue_pop(new));
+void pasar_a_ready(t_queue * colaAnterior){
+	printf("\tTrasladando script a Ready\n");
+	queue_push(ready,queue_pop(colaAnterior));
 	 printf("Script trasladado a Ready\n");
 }
+
+
 
 //void gossiping()
 
