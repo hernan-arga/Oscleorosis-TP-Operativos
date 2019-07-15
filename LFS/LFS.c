@@ -1830,10 +1830,18 @@ char* realizarSelect(char* tabla, char* key) {
 						bloqueAnterior = vectorBloquesTmp[q - 1];
 					}
 
+					char* bloqueSiguiente;
+					// si es el ultimo del vector de bloques, el bloqueSiguiente es NULL
+					if ((q + 1) == n) {
+						bloqueSiguiente = NULL;
+					} else {
+						bloqueSiguiente = vectorBloquesTmp[q + 1];
+					}
+
 					obtenerDatosParaKeyDeseada(archivoBloqueTmp, (atoi(key)),
 							vectorStructsTemporal,
 							&cantidadIgualDeKeysEnTemporal,
-							vectorBloquesTmp[q + 1], bloqueAnterior);
+							bloqueSiguiente, bloqueAnterior);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 					int tempo = 0;
@@ -1970,11 +1978,19 @@ char* realizarSelect(char* tabla, char* key) {
 						bloqueAnterior = vectorBloquesTmpC[q - 1];
 					}
 
+					char* bloqueSiguiente;
+					// si es el ultimo del vector de bloques, el bloqueSiguiente es NULL
+					if ((q + 1) == n) {
+						bloqueSiguiente = NULL;
+					} else {
+						bloqueSiguiente = vectorBloquesTmpC[q + 1];
+					}
+
 					t_registro* vectorStructsTemporalC[100];
 					obtenerDatosParaKeyDeseada(archivoBloqueTmpC, (atoi(key)),
 							vectorStructsTemporalC,
 							&cantidadIgualDeKeysEnTemporal,
-							vectorBloquesTmpC[q + 1], bloqueAnterior);
+							bloqueSiguiente, bloqueAnterior);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
 					int tempo = 0;
@@ -2193,7 +2209,6 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 		anteriorBloque = fopen(pathBloque, "r");
 		free(pathBloque);
 	}
-	//todo tenemos que validar q el sgte existaaaaaaaaaaaaaaaaaaaaaaa forraaaaaaaaaaaaaaaaaaaaaaaa
 
 	if(charProximoBloque){
 		char* pathBloque2 = malloc(
