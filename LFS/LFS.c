@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
 	pthread_create(&hiloDump, NULL, (void*) dump, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
-	// levantarHilosCompactacionParaTodasLasTablas();
+	 levantarHilosCompactacionParaTodasLasTablas();
 	memtable = malloc(4);
 	memtable = dictionary_create();
 
@@ -1008,6 +1008,7 @@ void actualizarBin(char *pathBin){
 	liberarBloques(pathBin);
 	char * registrosNuevos = malloc(strlen(unBinario->registros)+1);
 	strcpy(registrosNuevos, unBinario->registros);
+	//printf("%s\n", unBinario->registros);
 	//char *bloquesAsignados = string_new();
 	//printf("%s\n", registrosNuevos);
 
@@ -1179,6 +1180,7 @@ void compararRegistros(int timestamp, int key, char *value, binarioCompactacion 
 		string_append(&nuevoRegistro, string_itoa(key));
 		string_append(&nuevoRegistro, ";");
 		string_append(&nuevoRegistro, value);
+		string_append(&nuevoRegistro, "\n");
 		string_append(&registrosActualizados, nuevoRegistro);
 		free(nuevoRegistro);
 	}
