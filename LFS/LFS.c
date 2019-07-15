@@ -1663,6 +1663,8 @@ char* realizarSelect(char* tabla, char* key) {
 		int timestampActualMayorBloques = -1;
 		char* valueDeTimestampActualMayorBloques = string_new();
 
+
+
 		// POR CADA BLOQUE, TENGO QUE ENTRAR A ESTE BLOQUE
 		for (int i = 0; i < m; i++) {
 			char* pathBloque = malloc(
@@ -1681,17 +1683,26 @@ char* realizarSelect(char* tabla, char* key) {
 			}
 
 			int cantidadIgualDeKeysEnBloque = 0;
-			char * bloqueAnterior;
+
+			char* bloqueAnterior;
 			if (i == 0){
 				bloqueAnterior = NULL;
-			}
-			else{
+			} else{
 				bloqueAnterior = vectorBloques[i-1];
 			}
+
+			char* bloqueSiguiente;
+			// si es el ultimo del vector de bloques, el bloqueSiguiente es NULL
+			if( (i+1) == m ){
+				bloqueSiguiente = NULL;
+			} else{
+				bloqueSiguiente = vectorBloques[i+1];
+			}
+
 			t_registro* vectorStructs[100];
 			obtenerDatosParaKeyDeseada(archivoBloque, (atoi(key)),
 					vectorStructs, &cantidadIgualDeKeysEnBloque,
-					vectorBloques[i + 1], bloqueAnterior);
+					bloqueSiguiente, bloqueAnterior);
 
 			//printf("%i", vectorStructs[0]->timestamp);
 			//printf("%i", vectorStructs[1]->timestamp);
@@ -2212,7 +2223,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	}
 	while ((read = getline(&line, &len, fp)) != -1) {
 		if (proximoBloque != NULL) {
-			// si( esta linea es la ultima y no termina con \n (es decir que ademas esta incompleta))
+			// si( esta linea es la ultima y no termina con \n (es decir que ademas esta incompleta) )
 			size_t len2 = len;
 			if ((getline(&line2, &len2, fp) == -1)
 					&& (line[strlen(line) - 1] != '\n')) {
