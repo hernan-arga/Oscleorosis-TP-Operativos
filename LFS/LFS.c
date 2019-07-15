@@ -157,6 +157,40 @@ configuracionLFS structConfiguracionLFS;
 t_bitarray* bitarrayBloques;
 char *mmapDeBitmap;
 t_dictionary* diccionarioDescribe;
+/*
+int main(int argc, char *argv[]) {
+	//tablasQueTienenTMPs = dictionary_create();
+	binariosParaCompactar = dictionary_create();
+	diccionarioDeSemaforos = dictionary_create();
+	//pthread_t hiloLevantarConexion;
+	//pthread_t hiloDump;
+	pthread_t atenderPeticionesConsola;
+	levantarConfiguracionLFS();
+	levantarFileSystem();
+	iniciarMmap();
+	bitarrayBloques = bitarray_create(mmapDeBitmap,
+			tamanioEnBytesDelBitarray());
+	//verBitArray();
+	//pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
+	//pthread_create(&hiloDump, NULL, (void*) dump, NULL);
+	pthread_create(&atenderPeticionesConsola, NULL,
+			(void*) atenderPeticionesDeConsola, NULL);
+	//levantarHilosCompactacionParaTodasLasTablas();
+	memtable = malloc(4);
+	memtable = dictionary_create();
+
+	diccionarioDescribe = malloc(4000);
+	diccionarioDescribe = dictionary_create();
+
+	//Se queda esperando a que termine el hilo de escuchar peticiones
+	//pthread_join(hiloLevantarConexion, NULL);
+	//pthread_join(hiloDump, NULL);
+	pthread_join(atenderPeticionesConsola, NULL);
+	//Aca se destruye el bitarray?
+	//bitarray_destroy(bitarrayBloques);
+	return 0;
+} */
+
 
 int main(int argc, char *argv[]) {
 	//tablasQueTienenTMPs = dictionary_create();
@@ -380,11 +414,11 @@ void realizarPeticion(char** parametros) {
 			string_to_upper(tablaMayusculas);
 			sem_t *semaforoTabla;
 			//la key del diccionario esta en mayusculas para cada tabla
-			dameSemaforo(tablaMayusculas, &semaforoTabla);
+			/*dameSemaforo(tablaMayusculas, &semaforoTabla);
 			sem_wait(semaforoTabla);
 				//Seccion critica
 				insert(tabla, key, valor, timestamp);
-			sem_post(semaforoTabla);
+			sem_post(semaforoTabla);*/
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
 			char *tabla = parametros[1];
@@ -606,8 +640,8 @@ void actualizarTiempoDeRetardo(){
 
 void insert(char* tabla, char* key, char* valor, char* timestamp) {
 	//Puedo modificar en tiempo de ejecucion el retardo
-	actualizarTiempoDeRetardo();
-	sleep(structConfiguracionLFS.RETARDO);
+	//actualizarTiempoDeRetardo();
+	//sleep(structConfiguracionLFS.RETARDO);
 
 	string_to_upper(tabla);
 	if (!existeLaTabla(tabla)) {
@@ -1637,21 +1671,8 @@ char* realizarSelect(char* tabla, char* key) {
 		strcat(pathParticionQueContieneKey, "/");
 		strcat(pathParticionQueContieneKey, stringParticion);
 		strcat(pathParticionQueContieneKey, ".bin");
-		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
+		t_config *tamanioYBloques = config_create("/home/utnso/lissandra-checkpoint/Tables/TABLA2/3.bin");
 		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCKS"); //devuelve vector de STRINGS
-
-		char* mensajeALogear = malloc(80);
-		strcpy(mensajeALogear, "vector bloques");
-		strcat(mensajeALogear, vectorBloques[0]);
-		strcat(mensajeALogear, vectorBloques[1]);
-		t_log* g_logger;
-		g_logger = log_create(
-				string_from_format("%serroresSelect.log",
-						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
-				LOG_LEVEL_INFO);
-		log_error(g_logger, mensajeALogear);
-		log_destroy(g_logger);
-		free(mensajeALogear);
 
 		int m = 0;
 		while (vectorBloques[m] != NULL) {
