@@ -420,6 +420,8 @@ void realizarPeticion(char** parametros) {
 			//sem_wait(semaforoTabla);
 				//Seccion critica
 			insert(tabla, key, valor, timestamp);
+
+			printf("hola");
 			//sem_post(semaforoTabla);
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
@@ -436,6 +438,8 @@ void realizarPeticion(char** parametros) {
 			string_append(&tablaMayusculas, tabla);
 			string_to_upper(tablaMayusculas);
 			sem_t *semaforoTabla;
+
+			printf("hola2");
 			//la key del diccionario esta en mayusculas para cada tabla
 			//dameSemaforo(tablaMayusculas, &semaforoTabla);
 			//sem_wait(semaforoTabla);
@@ -672,6 +676,18 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 			list_add(listaDeStructs, p_registro);
 			dictionary_put(memtable, tabla, listaDeStructs);
 
+			/*
+			t_list* entradaTabla = dictionary_get(memtable, tabla);
+			t_registro *p_registro = list_get(entradaTabla, 0);
+			char* mensajeALogear = malloc( 50 +  strlen(string_itoa(p_registro->timestamp)));
+			strcpy(mensajeALogear, "MEMTABLE : ");
+			strcat(mensajeALogear, string_itoa(p_registro->timestamp));
+			t_log* g_logger;
+			g_logger = log_create(string_from_format("%sbloqueoEntreCompactacion.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,LOG_LEVEL_INFO);
+			log_info(g_logger, mensajeALogear);
+			log_destroy(g_logger);
+			free(mensajeALogear);
+			*/
 		} else {
 			t_list* listaDeStructs = dictionary_get(memtable, tabla);
 			list_add(listaDeStructs, p_registro);
@@ -2069,6 +2085,23 @@ char* realizarSelect(char* tabla, char* key) {
 		// LEO MEMTABLE
 
 		t_registro **entradaTabla = dictionary_get(memtable, tabla); //me devuelve un array de t_registro's
+
+		t_list* entradaTabla = dictionary_get(memtable, tabla);
+		t_registro *p_registro = list_get(entradaTabla, 0);
+
+		/*
+		char* mensajeALogear = malloc( 50 +  strlen(entradaTabla[0]->timestamp));
+		strcpy(mensajeALogear, "MEMTABLE : ");
+		strcat(mensajeALogear, &entradaTabla[0]->timestamp);
+		t_log* g_logger;
+		g_logger = log_create(
+				string_from_format("%sbloqueoEntreCompactacion.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+				LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+		*/
 
 		int cantIgualDeKeyEnMemtable = 0;
 		//creo nuevo array que va a tener solo los structs de la key que me pasaron por parametro
