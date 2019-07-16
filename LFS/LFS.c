@@ -2191,8 +2191,8 @@ char* realizarSelect(char* tabla, char* key) {
 				strcat(mensajeALogear, " / Value : ");
 				strcat(mensajeALogear, valueDeTimestampActualMayorBloques);
 				t_log* g_logger;
-				g_logger = log_create( string_from_format("%select.log",structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
-				log_error(g_logger, mensajeALogear);
+				g_logger = log_create( string_from_format("%sselect.log",structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0, LOG_LEVEL_INFO);
+				log_info(g_logger, mensajeALogear);
 				log_destroy(g_logger);
 				free(mensajeALogear);
 			}
@@ -2217,10 +2217,10 @@ char* realizarSelect(char* tabla, char* key) {
 				strcat(mensajeALogear, valueDeTimestampActualMayorTemporales);
 				t_log* g_logger;
 				g_logger = log_create(
-						string_from_format("%select.log",
-								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						string_from_format("%sselect.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
 						LOG_LEVEL_INFO);
-				log_error(g_logger, mensajeALogear);
+				log_info(g_logger, mensajeALogear);
 				log_destroy(g_logger);
 				free(mensajeALogear);
 			}
@@ -2246,10 +2246,10 @@ char* realizarSelect(char* tabla, char* key) {
 				strcat(mensajeALogear, valueDeTimestampActualMayorTemporalesC);
 				t_log* g_logger;
 				g_logger = log_create(
-						string_from_format("%select.log",
-								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						string_from_format("%sselect.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
 						LOG_LEVEL_INFO);
-				log_error(g_logger, mensajeALogear);
+				log_info(g_logger, mensajeALogear);
 				log_destroy(g_logger);
 				free(mensajeALogear);
 			}
@@ -2273,10 +2273,10 @@ char* realizarSelect(char* tabla, char* key) {
 				strcat(mensajeALogear, arrayPorKeyDeseadaMemtable[0]->value);
 				t_log* g_logger;
 				g_logger = log_create(
-						string_from_format("%select.log",
-								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						string_from_format("%sselect.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
 						LOG_LEVEL_INFO);
-				log_error(g_logger, mensajeALogear);
+				log_info(g_logger, mensajeALogear);
 				log_destroy(g_logger);
 				free(mensajeALogear);
 			}
