@@ -156,6 +156,7 @@ configuracionLFS structConfiguracionLFS;
 t_bitarray* bitarrayBloques;
 char *mmapDeBitmap;
 t_dictionary* diccionarioDescribe;
+pthread_t hiloLevantarConexion;
 
 
 
@@ -163,7 +164,6 @@ int main(int argc, char *argv[]) {
 	//tablasQueTienenTMPs = dictionary_create();
 	binariosParaCompactar = dictionary_create();
 	diccionarioDeSemaforos = dictionary_create();
-	//pthread_t hiloLevantarConexion;
 	pthread_t hiloDump;
 	pthread_t atenderPeticionesConsola;
 	levantarConfiguracionLFS();
@@ -172,7 +172,7 @@ int main(int argc, char *argv[]) {
 	bitarrayBloques = bitarray_create(mmapDeBitmap,
 			tamanioEnBytesDelBitarray());
 	//verBitArray();
-	//pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
+	pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
 	//pthread_create(&hiloDump, NULL, (void*) dump, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
 	diccionarioDescribe = dictionary_create();
 
 	//Se queda esperando a que termine el hilo de escuchar peticiones
-	//pthread_join(hiloLevantarConexion, NULL);
+	pthread_join(hiloLevantarConexion, NULL);
 	//pthread_join(hiloDump, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	//Aca se destruye el bitarray?
@@ -2601,8 +2601,8 @@ t_dictionary *describeTodasLasTablas(int seImprimePorPantalla) {
 	return diccionarioDescribe;
 
 }
-/*
-void iniciarConexion() {
+
+int32_t iniciarConexion() {
 	int opt = 1;
 	int master_socket, addrlen, new_socket, client_socket[30], max_clients = 30,
 			activity, i, valread, sd;
@@ -2644,8 +2644,8 @@ void iniciarConexion() {
 	//bind the socket to localhost port 8888
 	if (bind(master_socket, (struct sockaddr *) &address, sizeof(address))
 			< 0) {
-		perror("bind failed en lfs");
-		exit(EXIT_FAILURE);
+		perror("Bind fallo en el FS");
+		return 1;
 	}
 	printf("Escuchando en el puerto: %d \n",
 			structConfiguracionLFS.PUERTO_ESCUCHA);
@@ -2704,9 +2704,7 @@ void iniciarConexion() {
 
 			char* tamanioValue = string_itoa(structConfiguracionLFS.TAMANIO_VALUE);
 			//send new connection greeting message
-			if (send(new_socket, (void*)tamanioValue,
-					strlen(tamanioValue), 0)
-					!= strlen(tamanioValue)) {
+			if ( send(new_socket, (void*)tamanioValue, strlen(tamanioValue), 0)    !=      strlen(tamanioValue)) {
 				perror("send");
 			}
 
@@ -2838,4 +2836,4 @@ void iniciarConexion() {
  //insert(tabla, key, value);
  printf("Haciendo insert");
  }
-*/
+
