@@ -27,6 +27,7 @@ struct Script{
 	int PID;
 	int PC;
 	char* peticiones;
+	int posicionActual = 0;
 };
 
 struct datosMemoria{
@@ -535,16 +536,39 @@ int main()
 */
 //TODO Inicializar queue_peek
 void ejecutor(){
+	char* caracter = malloc(sizeof(char));
 	int quantum = config_get_int_value(configuracion,"QUANTUM");
-	if(!queue_is_empty(ready)){
-		queue_push(exec,queue_pop(ready));
+	//if(!queue_is_empty(ready)){
+
+
 		while(!queue_is_empty(exec)){
-		 struct Script ejecutando = queue_peek(exec);
-			for(int i=0;i<quantum;i++){
-				FILE * lql = fopen(ejecutando.peticiones,"r");
+			struct Script ejecutando = queue_pop(ready);
+			queue_push(exec, ejecutando);
+			int i = 0;
+			FILE * lql = fopen(ejecutando.peticiones,"r");
+			while(i<quantum && !feof(lql)){
+				char* lineaDeScript = string_new();
+				fread(&caracter, 1, 1, lql);
+				//leo caracter a caracter hasta encontrar \n
+				while(!feof(lql) && caracter!='\n'){
+					string_append(&lineaDeScript, caracter);
+					fread(&caracter, 1, 1, lql);
+				}
+				//ACA MANDAR A EJECUTAR LA LINEA DEL SCRIPT LA RECALCADA CONCHA DE TU MADRE
+				free(lineaDeScript);
+				i++;
 			}
+			//Si salio por quantum
+			if(i>=quantum){
+				ejecutando.posicionActual = ftell(lql);
+				queue_push(ready, ejecutando);
+			}
+			/*for(int i=0;i<quantum;i++){
+				FILE * lql = fopen(ejecutando.peticiones,"r");
+			}*/
 		}
-	}
+
+	//}
 }
 
 char* tempSinAsignar(){
