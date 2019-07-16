@@ -87,7 +87,7 @@ void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones
 
 int main(int argc, char *argv[])
 {
-	config = config_create(argv[1]);
+	/*config = config_create(argv[1]);
 
 	t_archivoConfiguracion.PUERTO = config_get_int_value(config, "PUERTO");
 	t_archivoConfiguracion.PUERTO_FS = config_get_int_value(config, "PUERTO_FS");
@@ -100,15 +100,15 @@ int main(int argc, char *argv[])
 	t_archivoConfiguracion.RETARDO_GOSSIPING = config_get_int_value(config, "RETARDO_GOSSIPING");
 	t_archivoConfiguracion.MEMORY_NUMBER = config_get_int_value(config, "MEMORY_NUMBER");
 
-	void inicializarSegmentos();
+	void inicializarSegmentos();*/
 
 	pthread_t threadSerServidor;
 	int32_t idThreadSerServidor = pthread_create(&threadSerServidor, NULL, serServidor, NULL);
 
-	pthread_t threadConsola;
+	/*pthread_t threadConsola;
 	int32_t idthreadConsola = pthread_create(&threadConsola, NULL, consola, NULL);
 
-	pthread_join(threadConsola, NULL);
+	pthread_join(threadConsola, NULL);*/
 	pthread_join(threadSerServidor, NULL);
 }
 
@@ -132,7 +132,7 @@ void serServidor()
 {
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
-	serverAddress.sin_port = htons(t_archivoConfiguracion.PUERTO);
+	serverAddress.sin_port = htons(5000);
 
 	server = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -146,7 +146,7 @@ void serServidor()
 	printf( "Estoy escuchando\n");
 	listen(server, 100);
 
-	conectarseAKernel();
+	//conectarseAKernel();
 	conectarseAFS();
 }
 
@@ -172,15 +172,16 @@ void conectarseAFS()
 {
 	clienteFS = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddressFS.sin_family = AF_INET;
-	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
-	serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
+	serverAddressFS.sin_port = htons(5005);
+	serverAddressFS.sin_addr.s_addr = INADDR_ANY;
 
 	if (connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS)) == -1)
 	{
 		perror("Hubo un error en la conexion \n");
 	}
 
-	recv(clienteFS, &tamanoValue, sizeof(tamanoValue), 0);
+	//recv(clienteFS, &tamanoValue, sizeof(tamanoValue), 0);
+	send(clienteFS, "f", sizeof(char), 0);
 
 	sem1 = true;
 }
