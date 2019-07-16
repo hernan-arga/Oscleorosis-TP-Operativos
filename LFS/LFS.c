@@ -650,16 +650,15 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 	string_to_upper(tabla);
 	if (!existeLaTabla(tabla)) {
 		char* mensajeALogear = malloc(
-				strlen("Error: no existe una tabla con el nombre ")
+				strlen(" No existe tabla con el nombre : ")
 						+ strlen(tabla) + 1);
-		strcpy(mensajeALogear, "Error: no existe una tabla con el nombre ");
+		strcpy(mensajeALogear, " No existe tabla con el nombre : ");
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
-		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe. ¿Esto deberia guardarlo en un .log?
 		g_logger = log_create(
 				string_from_format("%s/erroresInsert.log",
 						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
-				LOG_LEVEL_INFO);
+				LOG_LEVEL_ERROR);
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
@@ -674,23 +673,41 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 			list_add(listaDeStructs, p_registro);
 			dictionary_put(memtable, tabla, listaDeStructs);
 
-			/*
-			t_list* entradaTabla = dictionary_get(memtable, tabla);
-			t_registro *p_registro = list_get(entradaTabla, 0);
-			char* mensajeALogear = malloc( 50 +  strlen(string_itoa(p_registro->timestamp)));
-			strcpy(mensajeALogear, "MEMTABLE : ");
+			char* mensajeALogear = malloc(100 + strlen(string_itoa(p_registro->key)) +  strlen(string_itoa(p_registro->timestamp)));
+			strcpy(mensajeALogear, "  /  SE CREO LA TABLA : ");
+			strcat(mensajeALogear, tabla);
+			strcat(mensajeALogear, "  /  TIMESTAMP : ");
 			strcat(mensajeALogear, string_itoa(p_registro->timestamp));
+			strcat(mensajeALogear, "  /  KEY : ");
+			strcat(mensajeALogear, string_itoa(p_registro->key));
+			strcat(mensajeALogear, "  /  VALUE : ");
+			strcat(mensajeALogear, p_registro->value);
 			t_log* g_logger;
-			g_logger = log_create(string_from_format("%sbloqueoEntreCompactacion.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,LOG_LEVEL_INFO);
+			g_logger = log_create(string_from_format("%sinsert.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,LOG_LEVEL_INFO);
 			log_info(g_logger, mensajeALogear);
 			log_destroy(g_logger);
 			free(mensajeALogear);
-			*/
+
 		} else {
 			t_list* listaDeStructs = dictionary_get(memtable, tabla);
 			list_add(listaDeStructs, p_registro);
 			dictionary_remove(memtable, tabla);
 			dictionary_put(memtable, tabla, listaDeStructs);
+
+			char* mensajeALogear = malloc(100 + strlen(string_itoa(p_registro->key)) +  strlen(string_itoa(p_registro->timestamp)));
+			strcpy(mensajeALogear, "  /  TABLA A DUMPEAR : ");
+			strcat(mensajeALogear, tabla);
+			strcat(mensajeALogear, "  /  TIMESTAMP : ");
+			strcat(mensajeALogear, string_itoa(p_registro->timestamp));
+			strcat(mensajeALogear, "  /  KEY : ");
+			strcat(mensajeALogear, string_itoa(p_registro->key));
+			strcat(mensajeALogear, "  /  VALUE : ");
+			strcat(mensajeALogear, p_registro->value);
+			t_log* g_logger;
+			g_logger = log_create(string_from_format("%sinsert.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,LOG_LEVEL_INFO);
+			log_info(g_logger, mensajeALogear);
+			log_destroy(g_logger);
+			free(mensajeALogear);
 		}
 	}
 }
