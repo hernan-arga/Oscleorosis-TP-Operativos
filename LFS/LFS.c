@@ -148,7 +148,7 @@ void levantarConfiguracionLFS();
 void crearArchivoBitmap();
 void iniciarMmap();
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
-		t_registro **entradaTabla, int key, int *cant);
+		t_list*entradaTabla, int key, int *cant, char* tabla);
 int estaEntreComillas(char*);
 
 t_config* configLFS;
@@ -421,7 +421,6 @@ void realizarPeticion(char** parametros) {
 				//Seccion critica
 			insert(tabla, key, valor, timestamp);
 
-			printf("hola");
 			//sem_post(semaforoTabla);
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
@@ -439,7 +438,6 @@ void realizarPeticion(char** parametros) {
 			string_to_upper(tablaMayusculas);
 			sem_t *semaforoTabla;
 
-			printf("hola2");
 			//la key del diccionario esta en mayusculas para cada tabla
 			//dameSemaforo(tablaMayusculas, &semaforoTabla);
 			//sem_wait(semaforoTabla);
@@ -568,7 +566,7 @@ int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
 		int (*criterioTiposCorrectos)(char**, int)) {
 	return cantidadValidaParametros(parametros, cantidadDeParametrosNecesarios)
 			&& criterioTiposCorrectos(parametros,
-					cantidadDeParametrosNecesarios);;
+					cantidadDeParametrosNecesarios);
 }
 
 int cantidadValidaParametros(char** parametros,
@@ -2084,10 +2082,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 		// LEO MEMTABLE
 
-		t_registro **entradaTabla = dictionary_get(memtable, tabla); //me devuelve un array de t_registro's
-
 		t_list* entradaTabla = dictionary_get(memtable, tabla);
-		t_registro *p_registro = list_get(entradaTabla, 0);
 
 		/*
 		char* mensajeALogear = malloc( 50 +  strlen(entradaTabla[0]->timestamp));
@@ -2107,7 +2102,7 @@ char* realizarSelect(char* tabla, char* key) {
 		//creo nuevo array que va a tener solo los structs de la key que me pasaron por parametro
 		t_registro* arrayPorKeyDeseadaMemtable[100];
 
-		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, entradaTabla, atoi(key), &cantIgualDeKeyEnMemtable);
+		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, entradaTabla, atoi(key), &cantIgualDeKeyEnMemtable, tabla);
 
 		int t = 0;
 		char* unValor;
@@ -2340,19 +2335,20 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 }
 
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
-		t_registro **entradaTabla, int laKey, int *cant) {
-	for (int i = 0; i < (sizeof(entradaTabla)/sizeof(t_registro)); i++) {
-		if (entradaTabla[i]->key == laKey) {
+		t_list* entradaTabla, int laKey, int *cant, char* tabla) {
+	while( (*cant) < list_size(entradaTabla)) {
+		t_registro* p_registro = list_get(entradaTabla, (*cant));
+		if (p_registro->key == laKey) {
 			arrayPorKeyDeseadaMemtable[*cant] = malloc(12);
-			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key,	&entradaTabla[i]->key, sizeof(entradaTabla[i]->key));
+			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key,	&p_registro->key, sizeof(p_registro->key));
 			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->timestamp,
-					&entradaTabla[i]->timestamp,
-					sizeof(entradaTabla[i]->timestamp));
+					&p_registro->timestamp,
+					sizeof(p_registro->timestamp));
 
 			arrayPorKeyDeseadaMemtable[*cant]->value = malloc(
-					strlen(entradaTabla[i]->value));
+					strlen(p_registro->value));
 			memcpy(arrayPorKeyDeseadaMemtable[*cant]->value,
-					entradaTabla[i]->value, strlen(entradaTabla[i]->value));
+					p_registro->value, strlen(p_registro->value));
 
 			(*cant)++;
 		}
