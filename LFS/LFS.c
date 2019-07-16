@@ -2099,7 +2099,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 		// LEO MEMTABLE
 
-		t_list* entradaTabla = dictionary_get(memtable, tabla);
+		t_list* listaRegistros = dictionary_get(memtable, tabla);
 
 		/*
 		char* mensajeALogear = malloc( 50 +  strlen(entradaTabla[0]->timestamp));
@@ -2119,7 +2119,7 @@ char* realizarSelect(char* tabla, char* key) {
 		//creo nuevo array que va a tener solo los structs de la key que me pasaron por parametro
 		t_registro* arrayPorKeyDeseadaMemtable[100];
 
-		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, entradaTabla, atoi(key), &cantIgualDeKeyEnMemtable, tabla);
+		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, listaRegistros, atoi(key), &cantIgualDeKeyEnMemtable, tabla);
 
 		int t = 0;
 		char* unValor;
@@ -2159,15 +2159,15 @@ char* realizarSelect(char* tabla, char* key) {
 				&& (timestampMayorMemtable == -1)
 				&& (timestampActualMayorTemporalesC == -1)) {
 			char* mensajeALogear = malloc(
-					strlen("Error: no existe la key numero ") + strlen(key)
+					strlen(" No existe la key numero : ") + strlen(key)
 							+ 1);
-			strcpy(mensajeALogear, "Error: no existe la key numero ");
+			strcpy(mensajeALogear, " No existe la key numero : ");
 			strcat(mensajeALogear, key);
 			t_log* g_logger;
 			g_logger = log_create(
 					string_from_format("%serroresSelect.log",
 							structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
-					LOG_LEVEL_INFO);
+					LOG_LEVEL_ERROR);
 			log_error(g_logger, mensajeALogear);
 			log_destroy(g_logger);
 			free(mensajeALogear);
@@ -2182,6 +2182,19 @@ char* realizarSelect(char* tabla, char* key) {
 					&& (timestampActualMayorBloques >= timestampMayorMemtable)) {
 				printf("%s\n", valueDeTimestampActualMayorBloques);
 				string_append(&valueFinal, valueDeTimestampActualMayorBloques);
+
+				char* mensajeALogear = malloc( 100 + strlen(tabla) + strlen(string_itoa(timestampActualMayorBloques)) + strlen(valueDeTimestampActualMayorBloques) + 1);
+				strcpy(mensajeALogear, " Se selecciono tabla : ");
+				strcat(mensajeALogear, tabla);
+				strcat(mensajeALogear, " / Mayor timestamp en BLOQUE : ");
+				strcat(mensajeALogear, string_itoa(timestampActualMayorBloques));
+				strcat(mensajeALogear, " / Value : ");
+				strcat(mensajeALogear, valueDeTimestampActualMayorBloques);
+				t_log* g_logger;
+				g_logger = log_create( string_from_format("%select.log",structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
+				log_error(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
 			}
 
 			// si tmp tiene mayor timestamp que todos
@@ -2192,6 +2205,24 @@ char* realizarSelect(char* tabla, char* key) {
 				printf("%s\n", valueDeTimestampActualMayorTemporales);
 				string_append(&valueFinal,
 						valueDeTimestampActualMayorTemporales);
+
+
+				char* mensajeALogear = malloc( 120 + strlen(tabla) + strlen(string_itoa(timestampActualMayorTemporales)) + strlen(valueDeTimestampActualMayorTemporales) + 1);
+				strcpy(mensajeALogear, " Se selecciono tabla : ");
+				strcat(mensajeALogear, tabla);
+				strcat(mensajeALogear, " / Mayor timestamp en TMP : ");
+				strcat(mensajeALogear,
+						string_itoa(timestampActualMayorTemporales));
+				strcat(mensajeALogear, " / Value : ");
+				strcat(mensajeALogear, valueDeTimestampActualMayorTemporales);
+				t_log* g_logger;
+				g_logger = log_create(
+						string_from_format("%select.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						LOG_LEVEL_INFO);
+				log_error(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
 			}
 
 			// si tmpc tiene mayor timestamp que todos
@@ -2204,6 +2235,23 @@ char* realizarSelect(char* tabla, char* key) {
 				printf("%s\n", valueDeTimestampActualMayorTemporalesC);
 				string_append(&valueFinal,
 						valueDeTimestampActualMayorTemporalesC);
+
+				char* mensajeALogear = malloc( 120 + strlen(tabla) + strlen(string_itoa(timestampActualMayorTemporalesC)) + strlen(valueDeTimestampActualMayorTemporalesC) + 1);
+				strcpy(mensajeALogear, " Se selecciono tabla : ");
+				strcat(mensajeALogear, tabla);
+				strcat(mensajeALogear, " / Mayor timestamp en TMPC : ");
+				strcat(mensajeALogear,
+						string_itoa(timestampActualMayorTemporalesC));
+				strcat(mensajeALogear, " / Value : ");
+				strcat(mensajeALogear, valueDeTimestampActualMayorTemporalesC);
+				t_log* g_logger;
+				g_logger = log_create(
+						string_from_format("%select.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						LOG_LEVEL_INFO);
+				log_error(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
 			}
 
 			// si memtable tiene mayor timestamp que todos
@@ -2214,6 +2262,23 @@ char* realizarSelect(char* tabla, char* key) {
 				printf("%s\n", arrayPorKeyDeseadaMemtable[0]->value);
 				string_append(&valueFinal,
 						arrayPorKeyDeseadaMemtable[0]->value);
+
+				char* mensajeALogear = malloc( 120 + strlen(tabla) + strlen(string_itoa(timestampMayorMemtable)) + strlen(arrayPorKeyDeseadaMemtable[0]->value) + 1);
+				strcpy(mensajeALogear, " Se selecciono tabla : ");
+				strcat(mensajeALogear, tabla);
+				strcat(mensajeALogear, " / Mayor timestamp en MEMTABLE : ");
+				strcat(mensajeALogear,
+						string_itoa(timestampMayorMemtable));
+				strcat(mensajeALogear, " / Value : ");
+				strcat(mensajeALogear, arrayPorKeyDeseadaMemtable[0]->value);
+				t_log* g_logger;
+				g_logger = log_create(
+						string_from_format("%select.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						LOG_LEVEL_INFO);
+				log_error(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
 			}
 
 			return valueFinal;
@@ -2231,16 +2296,15 @@ char* realizarSelect(char* tabla, char* key) {
 		// SI NO ENCUENTRA LA TABLA (lo de abajo)
 	} else {
 		char* mensajeALogear = malloc(
-				strlen("Error: no existe una tabla con el nombre ")
+				strlen(" No existe una tabla con el nombre : ")
 						+ strlen(tabla) + 1);
-		strcpy(mensajeALogear, "Error: no existe una tabla con el nombre ");
+		strcpy(mensajeALogear, " No existe una tabla con el nombre : ");
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
-		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
 		g_logger = log_create(
 				string_from_format("%serroresSelect.log",
 						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
-				LOG_LEVEL_INFO);
+				LOG_LEVEL_ERROR);
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
