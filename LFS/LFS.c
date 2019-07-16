@@ -2,7 +2,6 @@
 /*
  * FALTANTES POR PRIORIDADES :
  *
- * - ARREGLO FUNCION APARTE MEMTABLE
  * - AGREGAR VARIABLE EN EL SELECT PARA QUE IMPRIMA POR CONSOLA SOLO CUANDO SE USE LA MISMA
  * - ARREGLO DE RETORNO EN SELECT -> comunicacion entre modulos -> OJO
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
@@ -128,7 +127,7 @@ void crearArchivoDeBloquesVacio(char*, int);
 int existeCarpeta(char*);
 int existeLaTabla(char*);
 void tomarPeticion(char*);
-void separarPorComillas(char*, char* *, char* *);
+void separarPorComillas(char*, char* *, char* *, char* *);
 void realizarPeticion(char**);
 OPERACION tipoDePeticion(char*);
 int cantidadValidaParametros(char**, int);
@@ -149,7 +148,7 @@ void levantarConfiguracionLFS();
 void crearArchivoBitmap();
 void iniciarMmap();
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
-		t_registro **entradaTabla, int key, int *cant);
+		t_list*entradaTabla, int key, int *cant, char* tabla);
 int estaEntreComillas(char*);
 
 t_config* configLFS;
@@ -158,6 +157,43 @@ t_bitarray* bitarrayBloques;
 char *mmapDeBitmap;
 t_dictionary* diccionarioDescribe;
 
+
+
+int main(int argc, char *argv[]) {
+	//tablasQueTienenTMPs = dictionary_create();
+	binariosParaCompactar = dictionary_create();
+	diccionarioDeSemaforos = dictionary_create();
+	//pthread_t hiloLevantarConexion;
+	pthread_t hiloDump;
+	pthread_t atenderPeticionesConsola;
+	levantarConfiguracionLFS();
+	levantarFileSystem();
+	iniciarMmap();
+	bitarrayBloques = bitarray_create(mmapDeBitmap,
+			tamanioEnBytesDelBitarray());
+	//verBitArray();
+	//pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
+	pthread_create(&hiloDump, NULL, (void*) dump, NULL);
+	pthread_create(&atenderPeticionesConsola, NULL,
+			(void*) atenderPeticionesDeConsola, NULL);
+	levantarHilosCompactacionParaTodasLasTablas();
+	memtable = malloc(4);
+	memtable = dictionary_create();
+
+	diccionarioDescribe = malloc(4000);
+	diccionarioDescribe = dictionary_create();
+
+	//Se queda esperando a que termine el hilo de escuchar peticiones
+	//pthread_join(hiloLevantarConexion, NULL);
+	pthread_join(hiloDump, NULL);
+	pthread_join(atenderPeticionesConsola, NULL);
+	//Aca se destruye el bitarray?
+	//bitarray_destroy(bitarrayBloques);
+	return 0;
+}
+
+
+/*
 int main(int argc, char *argv[]) {
 	//tablasQueTienenTMPs = dictionary_create();
 	binariosParaCompactar = dictionary_create();
@@ -189,7 +225,7 @@ int main(int argc, char *argv[]) {
 	//Aca se destruye el bitarray?
 	//bitarray_destroy(bitarrayBloques);
 	return 0;
-}
+} */
 
 void atenderPeticionesDeConsola() {
 	while (1) {
@@ -254,7 +290,8 @@ void levantarConfiguracionLFS() {
 void tomarPeticion(char* mensaje) {
 	char* value;
 	char* noValue = string_new();
-	separarPorComillas(mensaje, &value, &noValue);
+	char *posibleTimestamp = string_new();
+	separarPorComillas(mensaje, &value, &noValue, &posibleTimestamp);
 	char** mensajeSeparado = malloc(strlen(mensaje) + 1);
 	char** mensajeSeparadoConValue = malloc(strlen(mensaje) + 1);
 	;
@@ -266,7 +303,13 @@ void tomarPeticion(char* mensaje) {
 	}
 	mensajeSeparadoConValue[i] = value;
 	if (value != NULL) {
-		mensajeSeparadoConValue[i + 1] = NULL;
+		if(posibleTimestamp != NULL){
+			mensajeSeparadoConValue[i + 1] = posibleTimestamp;
+			mensajeSeparadoConValue[i + 2] = NULL;
+		}
+		else{
+			mensajeSeparadoConValue[i + 1] = NULL;
+		}
 	}
 
 	/*int j = 0;
@@ -279,7 +322,7 @@ void tomarPeticion(char* mensaje) {
 }
 
 //Esta funcion esta para separar la peticion del value del insert
-void separarPorComillas(char* mensaje, char* *value, char* *noValue) {
+void separarPorComillas(char* mensaje, char* *value, char* *noValue, char* *posibleTimestamp) {
 	char** mensajeSeparado;
 	mensajeSeparado = string_split(mensaje, "\"");
 	string_append(noValue, mensajeSeparado[0]);
@@ -288,9 +331,27 @@ void separarPorComillas(char* mensaje, char* *value, char* *noValue) {
 		string_append(value, "\"");
 		string_append(value, mensajeSeparado[1]);
 		string_append(value, "\"");
+
+		//Evaluo si existe el posibleTimestamp
+		if(mensajeSeparado[2] != NULL){
+			if(strcmp(mensajeSeparado[2], "\n")){
+				string_trim(&mensajeSeparado[2]);
+				string_append(posibleTimestamp, mensajeSeparado[2]);
+			}
+			else{
+				*posibleTimestamp = NULL;
+			}
+		}
+		else{
+			*posibleTimestamp = NULL;
+		}
+
+
 	} else {
 		*value = NULL;
+		*posibleTimestamp = NULL;
 	}
+
 }
 
 int cantidadDeElementosDePunteroDePunterosDeChar(char** puntero) {
@@ -326,16 +387,17 @@ void realizarPeticion(char** parametros) {
 			char* tablaMayusculas = string_new();
 			string_append(&tablaMayusculas, tabla);
 			string_to_upper(tablaMayusculas);
-			sem_t *semaforoTabla;
+			//sem_t *semaforoTabla;
 			//close y unlink por si ya estaba abierto el semaforo
-			sem_close(semaforoTabla);
-			sem_unlink(tablaMayusculas);
+			//sem_close(semaforoTabla);
+			//sem_unlink(tablaMayusculas);
 			//la key del diccionario esta en mayusculas para cada tabla
-			dameSemaforo(tablaMayusculas, &semaforoTabla);
-			sem_wait(semaforoTabla);
-			//Seccion critica
-			realizarSelect(tabla, key);
-			sem_post(semaforoTabla);
+
+			//dameSemaforo(tablaMayusculas, &semaforoTabla);
+			//sem_wait(semaforoTabla);
+				//Seccion critica
+				realizarSelect(tabla, key);
+			//sem_post(semaforoTabla);
 		}
 
 		break;
@@ -384,11 +446,14 @@ void realizarPeticion(char** parametros) {
 			string_to_upper(tablaMayusculas);
 			sem_t *semaforoTabla;
 			//la key del diccionario esta en mayusculas para cada tabla
+
 			dameSemaforo(tablaMayusculas, &semaforoTabla);
 			sem_wait(semaforoTabla);
-			//Seccion critica
+				//Seccion critica
 			insert(tabla, key, valor, timestamp);
+
 			sem_post(semaforoTabla);
+
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
 			char *tabla = parametros[1];
@@ -404,11 +469,13 @@ void realizarPeticion(char** parametros) {
 			string_append(&tablaMayusculas, tabla);
 			string_to_upper(tablaMayusculas);
 			sem_t *semaforoTabla;
+
 			//la key del diccionario esta en mayusculas para cada tabla
+
 			dameSemaforo(tablaMayusculas, &semaforoTabla);
 			sem_wait(semaforoTabla);
-			//Seccion critica
-			insert(tabla, key, valor, timestamp);
+				//Seccion critica
+				insert(tabla, key, valor, timestamp);
 			sem_post(semaforoTabla);
 		}
 		break;
@@ -532,7 +599,7 @@ int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
 		int (*criterioTiposCorrectos)(char**, int)) {
 	return cantidadValidaParametros(parametros, cantidadDeParametrosNecesarios)
 			&& criterioTiposCorrectos(parametros,
-					cantidadDeParametrosNecesarios);;
+					cantidadDeParametrosNecesarios);
 }
 
 int cantidadValidaParametros(char** parametros,
@@ -609,22 +676,21 @@ void actualizarTiempoDeRetardo() {
 
 void insert(char* tabla, char* key, char* valor, char* timestamp) {
 	//Puedo modificar en tiempo de ejecucion el retardo
-	actualizarTiempoDeRetardo();
-	sleep(structConfiguracionLFS.RETARDO);
+	//actualizarTiempoDeRetardo();
+	//sleep(structConfiguracionLFS.RETARDO);
 
 	string_to_upper(tabla);
 	if (!existeLaTabla(tabla)) {
 		char* mensajeALogear = malloc(
-				strlen("Error: no existe una tabla con el nombre ")
+				strlen(" No existe tabla con el nombre : ")
 						+ strlen(tabla) + 1);
-		strcpy(mensajeALogear, "Error: no existe una tabla con el nombre ");
+		strcpy(mensajeALogear, " No existe tabla con el nombre : ");
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
-		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe. ¿Esto deberia guardarlo en un .log?
 		g_logger = log_create(
 				string_from_format("%s/erroresInsert.log",
 						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
-				LOG_LEVEL_INFO);
+				LOG_LEVEL_ERROR);
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
@@ -639,11 +705,41 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 			list_add(listaDeStructs, p_registro);
 			dictionary_put(memtable, tabla, listaDeStructs);
 
+			char* mensajeALogear = malloc(100 + strlen(string_itoa(p_registro->key)) +  strlen(string_itoa(p_registro->timestamp)));
+			strcpy(mensajeALogear, "  /  SE CREO LA TABLA : ");
+			strcat(mensajeALogear, tabla);
+			strcat(mensajeALogear, "  /  TIMESTAMP : ");
+			strcat(mensajeALogear, string_itoa(p_registro->timestamp));
+			strcat(mensajeALogear, "  /  KEY : ");
+			strcat(mensajeALogear, string_itoa(p_registro->key));
+			strcat(mensajeALogear, "  /  VALUE : ");
+			strcat(mensajeALogear, p_registro->value);
+			t_log* g_logger;
+			g_logger = log_create(string_from_format("%sinsert.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,LOG_LEVEL_INFO);
+			log_info(g_logger, mensajeALogear);
+			log_destroy(g_logger);
+			free(mensajeALogear);
+
 		} else {
 			t_list* listaDeStructs = dictionary_get(memtable, tabla);
 			list_add(listaDeStructs, p_registro);
 			dictionary_remove(memtable, tabla);
 			dictionary_put(memtable, tabla, listaDeStructs);
+
+			char* mensajeALogear = malloc(100 + strlen(string_itoa(p_registro->key)) +  strlen(string_itoa(p_registro->timestamp)));
+			strcpy(mensajeALogear, "  /  TABLA A DUMPEAR : ");
+			strcat(mensajeALogear, tabla);
+			strcat(mensajeALogear, "  /  TIMESTAMP : ");
+			strcat(mensajeALogear, string_itoa(p_registro->timestamp));
+			strcat(mensajeALogear, "  /  KEY : ");
+			strcat(mensajeALogear, string_itoa(p_registro->key));
+			strcat(mensajeALogear, "  /  VALUE : ");
+			strcat(mensajeALogear, p_registro->value);
+			t_log* g_logger;
+			g_logger = log_create(string_from_format("%sinsert.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,LOG_LEVEL_INFO);
+			log_info(g_logger, mensajeALogear);
+			log_destroy(g_logger);
+			free(mensajeALogear);
 		}
 	}
 }
@@ -1631,7 +1727,7 @@ int existeCarpeta(char *nombreCarpeta) {
 
 //No le pongo "select" porque ya esta la funcion de socket y rompe
 char* realizarSelect(char* tabla, char* key) {
-	actualizarTiempoDeRetardo();
+	//actualizarTiempoDeRetardo();
 	//sleep(structConfiguracionLFS.RETARDO);
 
 	string_to_upper(tabla);
@@ -1669,21 +1765,7 @@ char* realizarSelect(char* tabla, char* key) {
 		strcat(pathParticionQueContieneKey, stringParticion);
 		strcat(pathParticionQueContieneKey, ".bin");
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
-		char** vectorBloques = config_get_array_value(tamanioYBloques,
-				"BLOCKS"); //devuelve vector de STRINGS
-
-		/*char* mensajeALogear = malloc(80);
-		 strcpy(mensajeALogear, "vector bloques");
-		 strcat(mensajeALogear, vectorBloques[0]);
-		 strcat(mensajeALogear, vectorBloques[1]);
-		 t_log* g_logger;
-		 g_logger = log_create(
-		 string_from_format("%serroresSelect.log",
-		 structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
-		 LOG_LEVEL_INFO);
-		 log_error(g_logger, mensajeALogear);
-		 log_destroy(g_logger);
-		 free(mensajeALogear);*/
+		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCKS"); //devuelve vector de STRINGS
 
 		int m = 0;
 		while (vectorBloques[m] != NULL) {
@@ -2077,13 +2159,27 @@ char* realizarSelect(char* tabla, char* key) {
 
 		// LEO MEMTABLE
 
-		t_registro **entradaTabla = dictionary_get(memtable, tabla); //me devuelve un array de t_registro's
+		t_list* listaRegistros = dictionary_get(memtable, tabla);
+
+		/*
+		char* mensajeALogear = malloc( 50 +  strlen(entradaTabla[0]->timestamp));
+		strcpy(mensajeALogear, "MEMTABLE : ");
+		strcat(mensajeALogear, &entradaTabla[0]->timestamp);
+		t_log* g_logger;
+		g_logger = log_create(
+				string_from_format("%sbloqueoEntreCompactacion.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+				LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+		*/
 
 		int cantIgualDeKeyEnMemtable = 0;
 		//creo nuevo array que va a tener solo los structs de la key que me pasaron por parametro
 		t_registro* arrayPorKeyDeseadaMemtable[100];
-		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, entradaTabla,
-				atoi(key), &cantIgualDeKeyEnMemtable);
+
+		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, listaRegistros, atoi(key), &cantIgualDeKeyEnMemtable, tabla);
 
 		int t = 0;
 		char* unValor;
@@ -2123,15 +2219,15 @@ char* realizarSelect(char* tabla, char* key) {
 				&& (timestampMayorMemtable == -1)
 				&& (timestampActualMayorTemporalesC == -1)) {
 			char* mensajeALogear = malloc(
-					strlen("Error: no existe la key numero ") + strlen(key)
+					strlen(" No existe la key numero : ") + strlen(key)
 							+ 1);
-			strcpy(mensajeALogear, "Error: no existe la key numero ");
+			strcpy(mensajeALogear, " No existe la key numero : ");
 			strcat(mensajeALogear, key);
 			t_log* g_logger;
 			g_logger = log_create(
 					string_from_format("%serroresSelect.log",
 							structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
-					LOG_LEVEL_INFO);
+					LOG_LEVEL_ERROR);
 			log_error(g_logger, mensajeALogear);
 			log_destroy(g_logger);
 			free(mensajeALogear);
@@ -2146,6 +2242,19 @@ char* realizarSelect(char* tabla, char* key) {
 					&& (timestampActualMayorBloques >= timestampMayorMemtable)) {
 				printf("%s\n", valueDeTimestampActualMayorBloques);
 				string_append(&valueFinal, valueDeTimestampActualMayorBloques);
+
+				char* mensajeALogear = malloc( 100 + strlen(tabla) + strlen(string_itoa(timestampActualMayorBloques)) + strlen(valueDeTimestampActualMayorBloques) + 1);
+				strcpy(mensajeALogear, " Se selecciono tabla : ");
+				strcat(mensajeALogear, tabla);
+				strcat(mensajeALogear, " / Mayor timestamp en BLOQUE : ");
+				strcat(mensajeALogear, string_itoa(timestampActualMayorBloques));
+				strcat(mensajeALogear, " / Value : ");
+				strcat(mensajeALogear, valueDeTimestampActualMayorBloques);
+				t_log* g_logger;
+				g_logger = log_create( string_from_format("%sselect.log",structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0, LOG_LEVEL_INFO);
+				log_info(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
 			}
 
 			// si tmp tiene mayor timestamp que todos
@@ -2156,6 +2265,24 @@ char* realizarSelect(char* tabla, char* key) {
 				printf("%s\n", valueDeTimestampActualMayorTemporales);
 				string_append(&valueFinal,
 						valueDeTimestampActualMayorTemporales);
+
+
+				char* mensajeALogear = malloc( 120 + strlen(tabla) + strlen(string_itoa(timestampActualMayorTemporales)) + strlen(valueDeTimestampActualMayorTemporales) + 1);
+				strcpy(mensajeALogear, " Se selecciono tabla : ");
+				strcat(mensajeALogear, tabla);
+				strcat(mensajeALogear, " / Mayor timestamp en TMP : ");
+				strcat(mensajeALogear,
+						string_itoa(timestampActualMayorTemporales));
+				strcat(mensajeALogear, " / Value : ");
+				strcat(mensajeALogear, valueDeTimestampActualMayorTemporales);
+				t_log* g_logger;
+				g_logger = log_create(
+						string_from_format("%sselect.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+						LOG_LEVEL_INFO);
+				log_info(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
 			}
 
 			// si tmpc tiene mayor timestamp que todos
@@ -2168,6 +2295,23 @@ char* realizarSelect(char* tabla, char* key) {
 				printf("%s\n", valueDeTimestampActualMayorTemporalesC);
 				string_append(&valueFinal,
 						valueDeTimestampActualMayorTemporalesC);
+
+				char* mensajeALogear = malloc( 120 + strlen(tabla) + strlen(string_itoa(timestampActualMayorTemporalesC)) + strlen(valueDeTimestampActualMayorTemporalesC) + 1);
+				strcpy(mensajeALogear, " Se selecciono tabla : ");
+				strcat(mensajeALogear, tabla);
+				strcat(mensajeALogear, " / Mayor timestamp en TMPC : ");
+				strcat(mensajeALogear,
+						string_itoa(timestampActualMayorTemporalesC));
+				strcat(mensajeALogear, " / Value : ");
+				strcat(mensajeALogear, valueDeTimestampActualMayorTemporalesC);
+				t_log* g_logger;
+				g_logger = log_create(
+						string_from_format("%sselect.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+						LOG_LEVEL_INFO);
+				log_info(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
 			}
 
 			// si memtable tiene mayor timestamp que todos
@@ -2178,6 +2322,23 @@ char* realizarSelect(char* tabla, char* key) {
 				printf("%s\n", arrayPorKeyDeseadaMemtable[0]->value);
 				string_append(&valueFinal,
 						arrayPorKeyDeseadaMemtable[0]->value);
+
+				char* mensajeALogear = malloc( 120 + strlen(tabla) + strlen(string_itoa(timestampMayorMemtable)) + strlen(arrayPorKeyDeseadaMemtable[0]->value) + 1);
+				strcpy(mensajeALogear, " Se selecciono tabla : ");
+				strcat(mensajeALogear, tabla);
+				strcat(mensajeALogear, " / Mayor timestamp en MEMTABLE : ");
+				strcat(mensajeALogear,
+						string_itoa(timestampMayorMemtable));
+				strcat(mensajeALogear, " / Value : ");
+				strcat(mensajeALogear, arrayPorKeyDeseadaMemtable[0]->value);
+				t_log* g_logger;
+				g_logger = log_create(
+						string_from_format("%sselect.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+						LOG_LEVEL_INFO);
+				log_info(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
 			}
 
 			return valueFinal;
@@ -2195,16 +2356,15 @@ char* realizarSelect(char* tabla, char* key) {
 		// SI NO ENCUENTRA LA TABLA (lo de abajo)
 	} else {
 		char* mensajeALogear = malloc(
-				strlen("Error: no existe una tabla con el nombre ")
+				strlen(" No existe una tabla con el nombre : ")
 						+ strlen(tabla) + 1);
-		strcpy(mensajeALogear, "Error: no existe una tabla con el nombre ");
+		strcpy(mensajeALogear, " No existe una tabla con el nombre : ");
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
-		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
 		g_logger = log_create(
 				string_from_format("%serroresSelect.log",
 						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
-				LOG_LEVEL_INFO);
+				LOG_LEVEL_ERROR);
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
@@ -2223,8 +2383,9 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	FILE *proximoBloque = NULL;
 
 	if (charAnteriorBloque == NULL) {
-		printf("no existe el bloque anterior \n");
-	} else {
+			//printf("no existe el bloque anterior \n");
+	}
+	else{
 		char* pathBloque = malloc(
 				strlen(
 						string_from_format("%sBloques/",
@@ -2256,7 +2417,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	}
 
 	if (proximoBloque == NULL) {
-		printf("no existe el prox bloque \n");
+		//printf("no existe el prox bloque \n");
 	}
 
 	// si NO es el primer bloque del array de BLOCK
@@ -2318,20 +2479,20 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 }
 
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
-		t_registro **entradaTabla, int laKey, int *cant) {
-	for (int i = 0; i < 100; i++) {
-		if (entradaTabla[i]->key == laKey) {
+		t_list* entradaTabla, int laKey, int *cant, char* tabla) {
+	while( (*cant) < list_size(entradaTabla)) {
+		t_registro* p_registro = list_get(entradaTabla, (*cant));
+		if (p_registro->key == laKey) {
 			arrayPorKeyDeseadaMemtable[*cant] = malloc(12);
-			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key,
-					&entradaTabla[i]->key, sizeof(entradaTabla[i]->key));
+			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key,	&p_registro->key, sizeof(p_registro->key));
 			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->timestamp,
-					&entradaTabla[i]->timestamp,
-					sizeof(entradaTabla[i]->timestamp));
+					&p_registro->timestamp,
+					sizeof(p_registro->timestamp));
 
 			arrayPorKeyDeseadaMemtable[*cant]->value = malloc(
-					strlen(entradaTabla[i]->value));
+					strlen(p_registro->value));
 			memcpy(arrayPorKeyDeseadaMemtable[*cant]->value,
-					entradaTabla[i]->value, strlen(entradaTabla[i]->value));
+					p_registro->value, strlen(p_registro->value));
 
 			(*cant)++;
 		}
@@ -2433,7 +2594,7 @@ t_dictionary *describeTodasLasTablas(int seImprimePorPantalla) {
 	return diccionarioDescribe;
 
 }
-
+/*
 void iniciarConexion() {
 	int opt = 1;
 	int master_socket, addrlen, new_socket, client_socket[30], max_clients = 30,
@@ -2670,4 +2831,4 @@ void iniciarConexion() {
  //insert(tabla, key, value);
  printf("Haciendo insert");
  }
-
+*/
