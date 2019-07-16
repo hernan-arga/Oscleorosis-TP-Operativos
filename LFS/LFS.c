@@ -2,7 +2,6 @@
 /*
  * FALTANTES POR PRIORIDADES :
  *
- * - ARREGLO FUNCION APARTE MEMTABLE
  * - AGREGAR VARIABLE EN EL SELECT PARA QUE IMPRIMA POR CONSOLA SOLO CUANDO SE USE LA MISMA
  * - ARREGLO DE RETORNO EN SELECT -> comunicacion entre modulos -> OJO
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
@@ -157,11 +156,13 @@ configuracionLFS structConfiguracionLFS;
 t_bitarray* bitarrayBloques;
 char *mmapDeBitmap;
 t_dictionary* diccionarioDescribe;
-/*
+
+
+
 int main(int argc, char *argv[]) {
 	//tablasQueTienenTMPs = dictionary_create();
-	binariosParaCompactar = dictionary_create();
-	diccionarioDeSemaforos = dictionary_create();
+	//binariosParaCompactar = dictionary_create();
+	//diccionarioDeSemaforos = dictionary_create();
 	//pthread_t hiloLevantarConexion;
 	//pthread_t hiloDump;
 	pthread_t atenderPeticionesConsola;
@@ -189,9 +190,10 @@ int main(int argc, char *argv[]) {
 	//Aca se destruye el bitarray?
 	//bitarray_destroy(bitarrayBloques);
 	return 0;
-} */
+}
 
 
+/*
 int main(int argc, char *argv[]) {
 	//tablasQueTienenTMPs = dictionary_create();
 	binariosParaCompactar = dictionary_create();
@@ -223,7 +225,7 @@ int main(int argc, char *argv[]) {
 	//Aca se destruye el bitarray?
 	//bitarray_destroy(bitarrayBloques);
 	return 0;
-}
+} */
 
 void atenderPeticionesDeConsola() {
 	while (1) {
@@ -365,11 +367,11 @@ void realizarPeticion(char** parametros) {
 			sem_close(semaforoTabla);
 			sem_unlink(tablaMayusculas);
 			//la key del diccionario esta en mayusculas para cada tabla
-			dameSemaforo(tablaMayusculas, &semaforoTabla);
-			sem_wait(semaforoTabla);
+			//dameSemaforo(tablaMayusculas, &semaforoTabla);
+			//sem_wait(semaforoTabla);
 				//Seccion critica
 				realizarSelect(tabla, key);
-			sem_post(semaforoTabla);
+			//sem_post(semaforoTabla);
 		}
 
 		break;
@@ -414,11 +416,11 @@ void realizarPeticion(char** parametros) {
 			string_to_upper(tablaMayusculas);
 			sem_t *semaforoTabla;
 			//la key del diccionario esta en mayusculas para cada tabla
-			/*dameSemaforo(tablaMayusculas, &semaforoTabla);
-			sem_wait(semaforoTabla);
+			//dameSemaforo(tablaMayusculas, &semaforoTabla);
+			//sem_wait(semaforoTabla);
 				//Seccion critica
-				insert(tabla, key, valor, timestamp);
-			sem_post(semaforoTabla);*/
+			insert(tabla, key, valor, timestamp);
+			//sem_post(semaforoTabla);
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
 			char *tabla = parametros[1];
@@ -435,11 +437,11 @@ void realizarPeticion(char** parametros) {
 			string_to_upper(tablaMayusculas);
 			sem_t *semaforoTabla;
 			//la key del diccionario esta en mayusculas para cada tabla
-			dameSemaforo(tablaMayusculas, &semaforoTabla);
-			sem_wait(semaforoTabla);
+			//dameSemaforo(tablaMayusculas, &semaforoTabla);
+			//sem_wait(semaforoTabla);
 				//Seccion critica
 				insert(tabla, key, valor, timestamp);
-			sem_post(semaforoTabla);
+			//sem_post(semaforoTabla);
 		}
 		break;
 	case CREATE:
@@ -1634,7 +1636,7 @@ int existeCarpeta(char *nombreCarpeta) {
 
 //No le pongo "select" porque ya esta la funcion de socket y rompe
 char* realizarSelect(char* tabla, char* key) {
-	actualizarTiempoDeRetardo();
+	//actualizarTiempoDeRetardo();
 	//sleep(structConfiguracionLFS.RETARDO);
 
 	string_to_upper(tabla);
@@ -1671,7 +1673,7 @@ char* realizarSelect(char* tabla, char* key) {
 		strcat(pathParticionQueContieneKey, "/");
 		strcat(pathParticionQueContieneKey, stringParticion);
 		strcat(pathParticionQueContieneKey, ".bin");
-		t_config *tamanioYBloques = config_create("/home/utnso/lissandra-checkpoint/Tables/TABLA2/3.bin");
+		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
 		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCKS"); //devuelve vector de STRINGS
 
 		int m = 0;
@@ -2213,7 +2215,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	FILE *proximoBloque = NULL;
 
 	if (charAnteriorBloque == NULL) {
-			printf("no existe el bloque anterior \n");
+			//printf("no existe el bloque anterior \n");
 	}
 	else{
 		char* pathBloque = malloc(
@@ -2243,7 +2245,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	}
 
 	if (proximoBloque == NULL) {
-		printf("no existe el prox bloque \n");
+		//printf("no existe el prox bloque \n");
 	}
 
 	// si NO es el primer bloque del array de BLOCK
