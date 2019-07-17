@@ -65,8 +65,10 @@ void popear(struct Script *,t_queue*);
 void realizar_peticion(char**,int,int*);
 char* tempSinAsignar();
 void tomar_peticion(char*,int, int*);
+void separarPorComillas(char*, char* *, char* *, char* *);
 void ejecutor(struct Script *);
 void ejecutarReady();
+void atenderPeticionesDeConsola();
 
 void drop(char*);
 void describeTodasLasTablas();
@@ -108,22 +110,30 @@ int main(){
 	tablas_conocidas = dictionary_create();
 	new = queue_create();
 	ready = queue_create();
-
 	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
-	char* mensaje = malloc(100);
 	//configurar_kernel();
 	operacion_gossiping(); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
 	pthread_t hiloEjecutarReady;
+	pthread_t atenderPeticionesConsola;
 	pthread_create(&hiloEjecutarReady, NULL, (void*)ejecutarReady, NULL);
-	do{
-		//Aca no me interesa esta variable pero la necesita
-		int huboError;
-		printf("Mis subprocesos estan a la espera de su mensaje, usuario.\n");
-		fgets(mensaje,100,stdin);
-		tomar_peticion(mensaje, 1, &huboError);
-	}while(strcmp(mensaje,"\n"));
+	pthread_create(&atenderPeticionesConsola, NULL, (void*) atenderPeticionesDeConsola, NULL);
+	pthread_join(atenderPeticionesConsola, NULL);
 	pthread_join(hiloEjecutarReady, NULL);
 	return 0;
+}
+
+void atenderPeticionesDeConsola(){
+	while(1){
+		char* mensaje = malloc(100);
+		//Aca no me interesa esta variable pero la necesita
+		int huboError;
+		do{
+			printf("Mis subprocesos estan a la espera de su mensaje, usuario.\n");
+			fgets(mensaje,100,stdin);
+		}while(!strcmp(mensaje,"\n"));
+		tomar_peticion(mensaje, 1, &huboError);
+		free(mensaje);
+	}
 }
 
 OPERACION tipo_de_peticion(char* peticion) {
@@ -304,12 +314,76 @@ void funcionLoca2(){
 
 //huboError se activa en 1 en caso de error
 void tomar_peticion(char* mensaje, int es_request, int *huboError){
-	//Fijarse despues cual seria la cantidad correcta de malloc
+	char* value;
+	char* noValue = string_new();
+	char *posibleTimestamp = string_new();
+	separarPorComillas(mensaje, &value, &noValue, &posibleTimestamp);
 	char** mensajeSeparado = malloc(strlen(mensaje) + 1);
+	char** mensajeSeparadoConValue = malloc(strlen(mensaje) + 1);
+	mensajeSeparado = string_split(noValue, " \n");
+	int i = 0;
+	while (mensajeSeparado[i] != NULL) {
+		mensajeSeparadoConValue[i] = mensajeSeparado[i];
+		i++;
+	}
+	mensajeSeparadoConValue[i] = value;
+	if (value != NULL) {
+		if(posibleTimestamp != NULL){
+			mensajeSeparadoConValue[i + 1] = posibleTimestamp;
+			mensajeSeparadoConValue[i + 2] = NULL;
+		}
+		else{
+			mensajeSeparadoConValue[i + 1] = NULL;
+		}
+	}
+		/*int j = 0;
+		 while(mensajeSeparadoConValue[j]!=NULL){
+		 printf("%s\n", mensajeSeparadoConValue[j]);
+		 j++;
+		 }*/
+	realizar_peticion(mensajeSeparadoConValue, es_request, huboError);
+	free(mensajeSeparado);
+
+	//Fijarse despues cual seria la cantidad correcta de malloc
+	/*char** mensajeSeparado = malloc(strlen(mensaje) + 1);
 	mensajeSeparado = string_split(mensaje, " \n");
 	realizar_peticion(mensajeSeparado,es_request, huboError); //NOTA :XXX: Agrego 'es_request' para que realizar_peticion sepa que es un request de usuario.
-	free(mensajeSeparado);
+	free(mensajeSeparado);*/
 }
+
+//Esta funcion esta para separar la peticion del value del insert
+void separarPorComillas(char* mensaje, char* *value, char* *noValue, char* *posibleTimestamp) {
+	char** mensajeSeparado;
+	mensajeSeparado = string_split(mensaje, "\"");
+	string_append(noValue, mensajeSeparado[0]);
+	if (mensajeSeparado[1] != NULL) {
+		*value = string_new();
+		string_append(value, "\"");
+		string_append(value, mensajeSeparado[1]);
+		string_append(value, "\"");
+
+		//Evaluo si existe el posibleTimestamp
+		if(mensajeSeparado[2] != NULL){
+			if(strcmp(mensajeSeparado[2], "\n")){
+				string_trim(&mensajeSeparado[2]);
+				string_append(posibleTimestamp, mensajeSeparado[2]);
+			}
+			else{
+				*posibleTimestamp = NULL;
+			}
+		}
+		else{
+			*posibleTimestamp = NULL;
+		}
+
+
+	} else {
+		*value = NULL;
+		*posibleTimestamp = NULL;
+	}
+
+}
+
 
 //TODO Hay que hacer que el parser reconozca algunos comandos más
 //huboError se activa en 1 en caso de error
