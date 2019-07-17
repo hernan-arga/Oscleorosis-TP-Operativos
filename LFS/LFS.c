@@ -69,7 +69,7 @@ typedef struct {
 } binarioCompactacion;
 
 
- void iniciarConexion();
+ int32_t iniciarConexion();
  void tomarPeticionSelect(int sd);
  void tomarPeticionCreate(int sd);
  void tomarPeticionInsert(int sd);
@@ -2614,9 +2614,6 @@ int32_t iniciarConexion() {
 	//set of socket descriptors
 	fd_set readfds;
 
-	//a message
-	char *message = "Este es el mensaje del server\r\n";
-
 	//initialise all client_socket[] to 0 so not checked
 	for (i = 0; i < max_clients; i++) {
 		client_socket[i] = 0;
@@ -2784,17 +2781,29 @@ int32_t iniciarConexion() {
 
 
  void tomarPeticionSelect(int sd) {
- void *tamanioTabla = malloc(sizeof(int));
- read(sd, tamanioTabla, sizeof(int));
- void *tabla = malloc(atoi(tamanioTabla));
- read(sd, tabla, (int)tamanioTabla);
- char *tamanioKey = malloc(sizeof(int));
- read(sd, tamanioKey, sizeof(int));
- char *key = malloc(atoi(tamanioKey));
- read(sd, key, (int)tamanioKey);
- printf("Haciendo Select");
- char *value = realizarSelect(tabla, key);
- send(sd, value, structConfiguracionLFS.TAMANIO_VALUE, 0);
+	 // deserializo peticion de la memoria
+	 void *tamanioTabla = malloc(sizeof(int));
+	 read(sd, tamanioTabla, sizeof(int));
+
+	 void *tabla = malloc(atoi(tamanioTabla));
+	 read(sd, tabla, (int)tamanioTabla);
+
+	 char *tamanioKey = malloc(sizeof(int));
+	 read(sd, tamanioKey, sizeof(int));
+
+	 char *key = malloc(atoi(tamanioKey));
+	 read(sd, key, (int)tamanioKey);
+
+	 printf("Haciendo Select");
+	 char *value = realizarSelect(tabla, key);
+
+	 // serializo paquete
+	 void *buffer = malloc(strlen(value) + sizeof(int));
+	 int tamanio = strlen(value);
+	 memcpy(&buffer, &tamanio, sizeof(int));
+	 memcpy(&buffer + sizeof(int), &value, strlen(value));
+
+	 send(sd, buffer, strlen(value)+sizeof(int), 0);
  }
 
  void tomarPeticionCreate(int sd) {
@@ -2802,38 +2811,67 @@ int32_t iniciarConexion() {
  read(sd, tamanioTabla, sizeof(int));
  void *tabla = malloc(atoi(tamanioTabla));
  read(sd, tabla, (int)tamanioTabla);
+
  void *tamanioConsistencia = malloc(sizeof(int));
  read(sd, tamanioConsistencia, sizeof(int));
  void *tipoConsistencia = malloc(atoi(tamanioConsistencia));
  read(sd, tipoConsistencia, (int)tamanioConsistencia);
+
  char *tamanioNumeroParticiones = malloc(sizeof(int));
  read(sd, tamanioNumeroParticiones, sizeof(int));
  void *numeroParticiones = malloc((int)tamanioNumeroParticiones);
  read(sd, numeroParticiones, (int)tamanioNumeroParticiones);
+
  void *tamanioTiempoCompactacion = malloc(sizeof(int));
  read(sd, tamanioTiempoCompactacion, sizeof(int));
  void *tiempoCompactacion = malloc((int)tamanioTiempoCompactacion);
  read(sd, tiempoCompactacion, (int)tamanioTiempoCompactacion);
- printf("abc\n");
- //create(tabla, tipoConsistencia, numeroParticiones, tiempoCompactacion);
+
+ create(tabla, tipoConsistencia, numeroParticiones, tiempoCompactacion);
+ void* buffer = malloc(sizeof(int));
+ int ok = 1;
+ memcpy(&buffer, &ok, sizeof(int));
+ send(sd, buffer, sizeof(int), 0);
  }
 
  void tomarPeticionInsert(int sd) {
  char *tamanioTabla = malloc(sizeof(int));
  read(sd, tamanioTabla, sizeof(int));
  char *tabla = malloc(atoi(tamanioTabla));
- read(sd, tabla, tamanioTabla);
+ read(sd, tabla, atoi(tamanioTabla));
 
  char *tamanioKey = malloc(sizeof(int));
  read(sd, tamanioKey, sizeof(int));
  char *key = malloc(atoi(tamanioKey));
- read(sd, key, tamanioKey);
+ read(sd, key, atoi(tamanioKey));
+
  char *tamanioValue = malloc(sizeof(int));
  read(sd, tamanioValue, sizeof(int));
- char *value = malloc(tamanioValue);
- read(sd, value, tamanioValue);
+ char *value = malloc(atoi(tamanioValue));
+ read(sd, value, atoi(tamanioValue));
 
- //insert(tabla, key, value);
- printf("Haciendo insert");
+ void* existeTimestamp = malloc(sizeof(int));
+ read(sd, existeTimestamp, sizeof(int));
+
+ char* timestamp = NULL;
+ if(existeTimestamp){
+	 char *tamanioTime = malloc(sizeof(int));
+	 read(sd, tamanioTime, sizeof(int));
+	 timestamp = malloc(atoi(tamanioTime));
+	 read(sd, timestamp, atoi(tamanioTime));
  }
 
+ insert(tabla, key, value, timestamp);
+ void* buffer = malloc(sizeof(int));
+ int ok = 1;
+ memcpy(&buffer, &ok, sizeof(int));
+ send(sd, buffer, sizeof(int), 0);
+ }
+
+
+ void tomarPeticionDescribe(int sd){
+	 char *tamanioTabla = malloc(sizeof(int));
+	 read(sd, tamanioTabla, sizeof(int));
+	 char *tabla = malloc(atoi(tamanioTabla));
+	 read(sd, tabla, atoi(tamanioTabla));
+ }
