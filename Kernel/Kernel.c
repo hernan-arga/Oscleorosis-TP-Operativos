@@ -69,6 +69,7 @@ void separarPorComillas(char*, char* *, char* *, char* *);
 void ejecutor(struct Script *);
 void ejecutarReady();
 void atenderPeticionesDeConsola();
+void refreshMetadata();
 
 void drop(char*);
 void describeTodasLasTablas();
@@ -92,18 +93,6 @@ int n = 0;
 t_log* g_logger;
 
 int main(){
-	/*
-	pthread_t hola;
-	pthread_t hola2;
-	t_list* listaDeMemorias = list_create();
-	pthread_create(&hola, NULL, (void*)funcionLoca, NULL);
-	pthread_create(&hola2, NULL, (void*)funcionLoca2, NULL);
-	pthread_join(hola,NULL);
-	pthread_join(hola2,NULL);
-	new = queue_create();
-
-	printf("hola");
-	*/
 	configuracion = config_create("Kernel_config");
 	PIDs = list_create();
 	listaDeMemorias = list_create();
@@ -115,11 +104,24 @@ int main(){
 	operacion_gossiping(); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
 	pthread_t hiloEjecutarReady;
 	pthread_t atenderPeticionesConsola;
+	pthread_t describe;
 	pthread_create(&hiloEjecutarReady, NULL, (void*)ejecutarReady, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL, (void*) atenderPeticionesDeConsola, NULL);
+	pthread_create(&describe, NULL, (void*)refreshMetadata, NULL);
+	pthread_join(describe, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	pthread_join(hiloEjecutarReady, NULL);
 	return 0;
+}
+
+void refreshMetadata(){
+	while(1){
+		int refreshMetadata = config_get_int_value(configuracion, "METADATA_REFRESH");
+		sleep(refreshMetadata);
+		//Aca no me interesa esta variable pero la necesita
+		int huboError;
+		tomar_peticion("DESCRIBE", 0, &huboError);
+	}
 }
 
 void atenderPeticionesDeConsola(){
