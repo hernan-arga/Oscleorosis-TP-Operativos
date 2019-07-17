@@ -59,11 +59,13 @@ void pasar_a_ready(t_queue*);
 int PID_usada(int);
 void planificador(char*);
 void popear(struct Script *,t_queue*);
-void realizar_peticion(char**);
+void realizar_peticion(char**,int);
 char* tempSinAsignar();
-void tomar_peticion(char*);
+void tomar_peticion(char*,int);
 void ejecutor(struct Script *);
 void ejecutarReady();
+
+
 
 /*
 void funcionLoca();
@@ -76,6 +78,8 @@ t_list * listaDeMemorias;
 t_list * tablas_conocidas;
 t_config* configuracion;
 int enEjecucionActualmente = 0;
+int n = 0;
+
 
 int main(){
 	/*
@@ -106,7 +110,7 @@ int main(){
 	do{
 		printf("Mis subprocesos estan a la espera de su mensaje, usuario.\n");
 		fgets(mensaje,100,stdin);
-		tomar_peticion(mensaje);
+		tomar_peticion(mensaje,1);
 	}while(strcmp(mensaje,"\n"));
 	pthread_join(hiloEjecutarReady, NULL);
 	return 0;
@@ -256,7 +260,7 @@ int IP_en_lista(int ip_memoria){
 	return (list_find(listaDeMemorias, _IP_presente) != NULL);
 }
 
-//TODO WTF no me acordaba que estaba esto, se me hace que está mal codeado xd re negro jaja
+//NOTA :XXX: numeroSinUsar devuelve numeros para asignar nombres distintos a archivos temporales
 int numeroSinUsar(){
 	int n = 0;
 	n++;
@@ -288,17 +292,18 @@ void funcionLoca2(){
 */
 
 
-void tomar_peticion(char* mensaje){
+
+void tomar_peticion(char* mensaje, int es_request){
 	//Fijarse despues cual seria la cantidad correcta de malloc
 	char** mensajeSeparado = malloc(strlen(mensaje) + 1);
 	mensajeSeparado = string_split(mensaje, " \n");
-	realizar_peticion(mensajeSeparado);
+	realizar_peticion(mensajeSeparado,es_request); //NOTA :XXX: Agrego 'es_request' para que realizar_peticion sepa que es un request de usuario.
 	free(mensajeSeparado);
 }
 
 //TODO Hay que hacer que el parser reconozca algunos comandos más
-
-void realizar_peticion(char** parametros) {
+//NOTA:XXX: realizar_peticion es void pero tiene returns, eso es legal? xd
+void realizar_peticion(char** parametros, int es_request) {
 	char *peticion = parametros[0];
 	OPERACION instruccion = tipo_de_peticion(peticion);
 	switch (instruccion) {
@@ -317,11 +322,15 @@ void realizar_peticion(char** parametros) {
 
 		if (parametrosValidos(2, parametros, (void*) criterioSelect)) {
 			printf("Enviando SELECT a memoria.\n");
-			char* nombre_archivo = tempSinAsignar();
-			FILE* temp = fopen(nombre_archivo,"w");
-			fprintf(temp,"%s %s %s" ,"SELECT",parametros[1],parametros[2]);
-			fclose(temp);
-			planificador(nombre_archivo);
+			//FIXME Una vez corroborado los parámetros, debo enviarlo a memoria.
+			if(es_request){
+				printf("Archivando SELECT para ir a cola de Ready.\n");
+				char* nombre_archivo = tempSinAsignar();
+				FILE* temp = fopen(nombre_archivo,"w");
+				fprintf(temp,"%s %s %s" ,"SELECT",parametros[1],parametros[2]);
+				fclose(temp);
+				planificador(nombre_archivo);
+			}
 		}
 
 		break;
@@ -346,16 +355,23 @@ void realizar_peticion(char** parametros) {
 		//puede o no estar el timestamp
 		if (parametrosValidos(4, parametros, (void *) criterioInsert)) {
 			printf("Envio el comando INSERT a memoria");
-			char* nombre_archivo = tempSinAsignar();
-			FILE* temp = fopen(nombre_archivo,"w");
-			fprintf(temp,"%s %s %s %s %s" ,"INSERT",parametros[1],parametros[2],parametros[3],parametros[4]);
-
+			if(es_request){
+				char* nombre_archivo = tempSinAsignar();
+				FILE* temp = fopen(nombre_archivo,"w");
+				fprintf(temp,"%s %s %s %s %s" ,"INSERT",parametros[1],parametros[2],parametros[3],parametros[4]);
+				fclose(temp);
+				planificador(nombre_archivo);
+			}
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
 			printf("Envio el comando INSERT a memoria");
-			char* nombre_archivo = tempSinAsignar();
-			FILE* temp = fopen(nombre_archivo,"w");
-			fprintf(temp,"%s %s %s %s" ,"INSERT",parametros[1],parametros[2],parametros[3]);
+			if(es_request){
+				char* nombre_archivo = tempSinAsignar();
+				FILE* temp = fopen(nombre_archivo,"w");
+				fprintf(temp,"%s %s %s %s" ,"INSERT",parametros[1],parametros[2],parametros[3]);
+				fclose(temp);
+				planificador(nombre_archivo);
+			}
 		}
 		break;
 	case CREATE:
@@ -376,11 +392,13 @@ void realizar_peticion(char** parametros) {
 		}
 		if (parametrosValidos(4, parametros, (void *) criterioCreate)) {
 			printf("Enviando CREATE a memoria.\n");
-			char* nombre_archivo = tempSinAsignar();
-			FILE* temp = fopen(nombre_archivo,"w");
-			fprintf(temp,"%s %s %s %s %s" ,"CREATE",parametros[1],parametros[2],parametros[3],parametros[4]);
-			fclose(temp);
-			planificador(nombre_archivo);
+			if(es_request){
+				char* nombre_archivo = tempSinAsignar();
+				FILE* temp = fopen(nombre_archivo,"w");
+				fprintf(temp,"%s %s %s %s %s" ,"CREATE",parametros[1],parametros[2],parametros[3],parametros[4]);
+				fclose(temp);
+				planificador(nombre_archivo);
+			}
 		}
 		break;
 	case DESCRIBE:
@@ -413,7 +431,7 @@ void realizar_peticion(char** parametros) {
 				describeUnaTabla(tabla);
 			}
 			break;
-
+			//TODO Falta que el drop sepa cuando es un request y cuando no
 	case DROP:
 			printf("Seleccionaste Drop\n");
 			int criterioDrop(char** parametros, int cantidadDeParametrosUsados) {
@@ -439,7 +457,7 @@ void realizar_peticion(char** parametros) {
 				printf("No elegiste archivo.\n");
 			}else{
 				if(parametros[2] != NULL){
-					printf("No deberia haber mas de un parametro, pero soy groso y puedo encolar de todas formas.\n");
+					printf("No deberia haber mas de un parametro, pero soy groso y puedo encolar de todas formas.\n"); //:FIXME: Debería cambiar esto?
 				}
 				char* nombre_del_archivo = parametros[1];
 				string_trim(&nombre_del_archivo);
@@ -564,7 +582,7 @@ void ejecutor(struct Script *ejecutando){
 					fread(caracter, sizeof(char), 1, lql);
 				}
 				printf("%s\n", lineaDeScript);
-				//error = tomar_peticion(lineaDeScript);
+				//error = tomar_peticion(lineaDeScript,0); //:XXX: Hernán, cambié el tomar_petición, el 0 sirve para indicar que no es un request de usuario, entonces no tiene que archivarlo, sino que tiene que ejecutarlo.
 				free(lineaDeScript);
 				i++;
 			}
@@ -591,9 +609,6 @@ char* tempSinAsignar(){
 	string_append(&nombre,".lql");
 	return nombre;
 }
-
-//Este n aca esta raro
-//int n=0;
 
 void planificador(char* nombre_del_archivo){
 	pasar_a_new(nombre_del_archivo);
