@@ -734,6 +734,7 @@ void actualizarDiccionarioDeTablas(char *tabla, struct tabla *metadata){
 
 //TODO Inicializar queue_peek
 void ejecutor(struct Script *ejecutando){
+	printf("El script %s esta en ejecucion!\n", ejecutando->peticiones);
 	char* caracter = (char *)malloc(sizeof(char)+1);
 	//le copio algo adentro porque queda con basura sino
 	strcpy(caracter, "0");
@@ -759,6 +760,9 @@ void ejecutor(struct Script *ejecutando){
 		printf("---Fin q---\n");
 		ejecutando->posicionActual = ftell(lql);
 		queue_push(ready, ejecutando);
+	}
+	else{
+		printf("el script %s paso a exit\n", ejecutando->peticiones);
 	}
 	fclose(lql);
 	free(caracter);
@@ -787,7 +791,7 @@ void popear(struct Script * proceso,t_queue* cola){
 }
 
 void pasar_a_new(char* nombre_del_archivo){ //Prepara las estructuras necesarias y pushea el request a la cola de new
-	 printf("\tAgregando script a cola de New\n");
+	 //printf("\tAgregando script a cola de New\n");
 	 struct Script *proceso = malloc(sizeof(struct Script));
 	 proceso->PID = get_PID(PIDs);
 	 proceso->PC = 0;
@@ -796,7 +800,7 @@ void pasar_a_new(char* nombre_del_archivo){ //Prepara las estructuras necesarias
 	 string_append(&proceso->peticiones, "./");
 	 string_append(&proceso->peticiones,nombre_del_archivo);
 	 queue_push(new,proceso);
-	 printf("Script agregado\n");
+	 printf("El script %s paso a new\n", proceso->peticiones);
 }
 
 
@@ -809,9 +813,10 @@ int PID_usada(int numPID){
 }
 
 void pasar_a_ready(t_queue * colaAnterior){
-	printf("\tTrasladando script a Ready\n");
-	queue_push(ready,queue_pop(colaAnterior));
-	 printf("Script trasladado a Ready\n");
+	//printf("\tTrasladando script a Ready\n");
+	struct Script *proceso = queue_pop(colaAnterior);
+	queue_push(ready, proceso);
+	printf("El script %s fue trasladado a Ready\n", proceso->peticiones);
 }
 
 
