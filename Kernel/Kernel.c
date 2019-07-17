@@ -303,6 +303,7 @@ void tomar_peticion(char* mensaje, int es_request){
 
 //TODO Hay que hacer que el parser reconozca algunos comandos más
 //NOTA:XXX: realizar_peticion es void pero tiene returns, eso es legal? xd
+//No capo los return estan dentro de las funciones de criterios no del realizar_peticion
 void realizar_peticion(char** parametros, int es_request) {
 	char *peticion = parametros[0];
 	OPERACION instruccion = tipo_de_peticion(peticion);
@@ -573,6 +574,7 @@ void ejecutor(struct Script *ejecutando){
 	//if(!queue_is_empty(ready)){
 			int i = 0;
 			FILE * lql = fopen(ejecutando->peticiones,"r");
+			fseek(lql, ejecutando->posicionActual, 0);
 			while(i<quantum && !feof(lql) && !error){
 				char* lineaDeScript = string_new();
 				fread(caracter, 1, 1, lql);
