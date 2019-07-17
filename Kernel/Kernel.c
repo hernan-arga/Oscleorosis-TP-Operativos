@@ -22,6 +22,7 @@
 #include <commons/config.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <commons/log.h>
 
 struct Script{
 	int PID;
@@ -34,8 +35,10 @@ struct datosMemoria{
 	int ip;
 };
 
-struct tablas{
-	char* nombre;
+struct tabla{
+	int PARTITIONS;
+	char *CONSISTENCY;
+	int COMPACTION_TIME;
 };
 
 typedef enum {
@@ -68,7 +71,7 @@ void ejecutarReady();
 void drop(char*);
 void describeTodasLasTablas();
 void describeUnaTabla(char*);
-int existeLaTabla(char *);
+void actualizarDiccionarioDeTablas(char *, struct tabla *);
 
 /*
 void funcionLoca();
@@ -78,11 +81,13 @@ t_queue* new;
 t_queue* ready;
 t_list * PIDs;
 t_list * listaDeMemorias;
-t_list * tablas_conocidas;
+//tablas_conocidas diccionario que tiene structs tabla
+t_dictionary *tablas_conocidas;
 t_config* configuracion;
 int enEjecucionActualmente = 0;
 int n = 0;
 
+t_log* g_logger;
 
 int main(){
 	/*
@@ -100,7 +105,7 @@ int main(){
 	configuracion = config_create("Kernel_config");
 	PIDs = list_create();
 	listaDeMemorias = list_create();
-	tablas_conocidas = list_create();
+	tablas_conocidas = dictionary_create();
 	new = queue_create();
 	ready = queue_create();
 
@@ -267,7 +272,7 @@ int IP_en_lista(int ip_memoria){
 
 //NOTA :XXX: numeroSinUsar devuelve numeros para asignar nombres distintos a archivos temporales
 int numeroSinUsar(){
-	int n = 0;
+	//int n = 0;
 	n++;
 	return n;
 }
@@ -319,10 +324,20 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		//polimorfica la funcion criterioTiposCorrectos.
 		int criterioSelect(char** parametros, int cantidadDeParametrosUsados) {
 			char* key = parametros[2];
+			char* tabla = parametros[1];
+			string_to_upper(tabla);
 			if (!esUnNumero(key)) {
 				printf("La key debe ser un numero.\n");
 			}
-			return esUnNumero(key);
+			if(!dictionary_has_key(tablas_conocidas, tabla)){
+				char *mensajeALogear = string_new();
+				string_append(&mensajeALogear, "No se tiene conocimiento de la tabla: ");
+				string_append(&mensajeALogear, tabla);
+				g_logger = log_create("./tablasNoEncontradas", "KERNEL", 1,	LOG_LEVEL_ERROR);
+				log_error(g_logger, mensajeALogear);
+				free(mensajeALogear);
+			}
+			return esUnNumero(key) && dictionary_has_key(tablas_conocidas, tabla);
 		}
 
 		if (parametrosValidos(2, parametros, (void*) criterioSelect)) {
@@ -342,14 +357,28 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			}
 		}
 
+		else{
+			*huboError = 1;
+		}
+
 		break;
 
 	case INSERT:
 		printf("Seleccionaste Insert\n");
 		int criterioInsert(char** parametros, int cantidadDeParametrosUsados) {
 			char* key = parametros[2];
+			char *tabla = parametros[1];
+			string_to_upper(tabla);
 			if (!esUnNumero(key)) {
 				printf("La key debe ser un numero.\n");
+			}
+			if(!dictionary_has_key(tablas_conocidas, tabla)){
+				char *mensajeALogear = string_new();
+				string_append(&mensajeALogear, "No se tiene conocimiento de la tabla: ");
+				string_append(&mensajeALogear, tabla);
+				g_logger = log_create("./tablasNoEncontradas", "KERNEL", 1,	LOG_LEVEL_ERROR);
+				log_error(g_logger, mensajeALogear);
+				free(mensajeALogear);
 			}
 
 			if (cantidadDeParametrosUsados == 4) {
@@ -357,9 +386,9 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				if (!esUnNumero(timestamp)) {
 					printf("El timestamp debe ser un numero.\n");
 				}
-				return esUnNumero(key) && esUnNumero(timestamp);
+				return esUnNumero(key) && esUnNumero(timestamp) && dictionary_has_key(tablas_conocidas, tabla);
 			}
-			return esUnNumero(key);
+			return esUnNumero(key) && dictionary_has_key(tablas_conocidas, tabla);
 		}
 		//puede o no estar el timestamp
 		if (parametrosValidos(4, parametros, (void *) criterioInsert)) {
@@ -389,6 +418,9 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				//Aca lo manda por sockets y en caso de error modifica la variable huboError
 				*huboError = 0;
 			}
+		}
+		else{
+			*huboError = 1;
 		}
 		break;
 	case CREATE:
@@ -424,7 +456,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		break;
 	case DESCRIBE:
 			printf("Seleccionaste Describe\n");
-			int criterioDescribeTodasLasTablas(char** parametros,
+			/*int criterioDescribeTodasLasTablas(char** parametros,
 					int cantidadDeParametrosUsados) {
 				char* tabla = parametros[1];
 				return (tabla == NULL);
@@ -436,21 +468,35 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					return 0;
 				}
 				string_to_upper(tabla);
-				if (!existeLaTabla(tabla)) {
+				if (!dictionary_has_key(tablas_conocidas, tabla)) {
 					printf("La tabla no existe\n");
 				}
-				return existeLaTabla(tabla);
+				return dictionary_has_key(tablas_conocidas, tabla);
+			}*/
+			//Solo esta para polimorfismo, el describe depende de si se encuentra la tabla en el LFS
+			int criterioDescribe(char** parametros, int cantidadDeParametrosUsados) {
+				return 0;
 			}
 			if (parametrosValidos(0, parametros,
-					(void *) criterioDescribeTodasLasTablas)) {
-				describeTodasLasTablas();
+					(void *) criterioDescribe)) {
+				t_dictionary *diccionarioDeTablasTemporal;
+				//diccionarioDeTablasTemporal = 	Le pido el diccionario de todas las tablas a memoria y actualizo el propio
+				//dictionary_iterator(diccionarioDeTablasTemporal, (void*)actualizarDiccionarioDeTablas);
+				dictionary_destroy(diccionarioDeTablasTemporal);
 				*huboError = 0;
+				if(es_request){
+					describeTodasLasTablas();
+				}
 			}
 			if (parametrosValidos(1, parametros,
-					(void *) criterioDescribeUnaTabla)) {
+					(void *) criterioDescribe)) {
 				char* tabla = parametros[1];
 				string_to_upper(tabla);
-				describeUnaTabla(tabla);
+				//struct tabla *metadata = 	pido la metadata de 1 tabla a memoria y actualizo el diccionario de las tablas
+				//actualizarDiccionarioDeTablas(tabla, metadata);
+				if(es_request){
+					describeUnaTabla(tabla);
+				}
 				*huboError = 0;
 			}
 			break;
@@ -460,16 +506,24 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			int criterioDrop(char** parametros, int cantidadDeParametrosUsados) {
 				char* tabla = parametros[1];
 				string_to_upper(tabla);
-				if (!existeLaTabla(tabla)) {
-					printf("La tabla a borrar no existe\n");
+				if(!dictionary_has_key(tablas_conocidas, tabla)){
+					char *mensajeALogear = string_new();
+					string_append(&mensajeALogear, "No se tiene conocimiento de la tabla: ");
+					string_append(&mensajeALogear, tabla);
+					g_logger = log_create("./tablasNoEncontradas", "KERNEL", 1,	LOG_LEVEL_ERROR);
+					log_error(g_logger, mensajeALogear);
+					free(mensajeALogear);
 				}
-				return existeLaTabla(tabla);
+				return dictionary_has_key(tablas_conocidas, tabla);
 			}
 			if (parametrosValidos(1, parametros, (void *) criterioDrop)) {
 				char* tabla = parametros[1];
 				string_to_upper(tabla);
 				drop(tabla);
 				*huboError = 0;
+			}
+			else{
+				*huboError = 1;
 			}
 		break;
 	case JOURNAL: //falta continuarlo
@@ -519,15 +573,18 @@ int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
 }
 
 void describeUnaTabla(char* tabla){
+	if(dictionary_has_key(tablas_conocidas, tabla)){
+		struct tabla *metadataTabla = dictionary_get(tablas_conocidas, tabla);
+		printf("%s: \n", tabla);
+		printf("Particiones: %i\n", metadataTabla->PARTITIONS);
+		printf("Consistencia: %s\n", metadataTabla->CONSISTENCY);
+		printf("Tiempo de compactacion: %i\n\n", metadataTabla->COMPACTION_TIME);
+	}
 
 }
 
 void describeTodasLasTablas(){
-
-}
-
-int existeLaTabla(char *tabla){
-	return 0;
+	dictionary_iterator(tablas_conocidas, (void*) describeUnaTabla);
 }
 
 //TODO socket para dropear la tabla en memoria y borrar la tabla de mi lista de tablas conocidas.
@@ -575,17 +632,29 @@ int main()
 }
 */
 
-//Esta funcion la llamaria desde un hilo
 void ejecutarReady(){
 	while(1){
 		int multiprocesamiento = config_get_int_value(configuracion, "MULTIPROCESAMIENTO");
 		if(enEjecucionActualmente<multiprocesamiento && !queue_is_empty(ready)){
 			enEjecucionActualmente++;
 			struct Script *unScript =  queue_pop(ready);
-			//Ejecutor la llamaria desde un hilo detach (bajo demanda)
-			ejecutor(unScript);
+			//Creo los hilos de ejecucion bajo demanda
+			pthread_t hiloScript;
+			pthread_create(&hiloScript, NULL, (void*)ejecutor, (void*)unScript);
+			pthread_detach(hiloScript);
+			//ejecutor(unScript);
 			enEjecucionActualmente--;
 		}
+	}
+}
+
+void actualizarDiccionarioDeTablas(char *tabla, struct tabla *metadata){
+	if(dictionary_has_key(tablas_conocidas, tabla)){
+		dictionary_remove(tablas_conocidas, tabla);
+		dictionary_put(tablas_conocidas, tabla, metadata);
+	}
+	else{
+		dictionary_put(tablas_conocidas, tabla, metadata);
 	}
 }
 
@@ -607,7 +676,7 @@ void ejecutor(struct Script *ejecutando){
 			string_append(&lineaDeScript, caracter);
 			fread(caracter, sizeof(char), 1, lql);
 		}
-		tomar_peticion(lineaDeScript,0, &error); //:XXX: Hernán, cambié el tomar_petición, el 0 sirve para indicar que no es un request de usuario, entonces no tiene que archivarlo, sino que tiene que ejecutarlo.
+		tomar_peticion(lineaDeScript,0, &error);
 		free(lineaDeScript);
 		i++;
 	}
