@@ -62,7 +62,8 @@ void popear(struct Script *,t_queue*);
 void realizar_peticion(char**);
 char* tempSinAsignar();
 void tomar_peticion(char*);
-void ejecutor(struct Script);
+void ejecutor(struct Script *);
+void ejecutarReady();
 
 /*
 void funcionLoca();
@@ -70,11 +71,11 @@ void funcionLoca2();
 */
 t_queue* new;
 t_queue* ready;
-t_queue* exec;
 t_list * PIDs;
 t_list * listaDeMemorias;
 t_list * tablas_conocidas;
 t_config* configuracion;
+int enEjecucionActualmente = 0;
 
 int main(){
 	/*
@@ -95,17 +96,19 @@ int main(){
 	tablas_conocidas = list_create();
 	new = queue_create();
 	ready = queue_create();
-	exec = queue_create(); //creo que no hace falta
 
 	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
 	char* mensaje = malloc(100);
 	//configurar_kernel();
 	operacion_gossiping(); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
+	pthread_t hiloEjecutarReady;
+	pthread_create(&hiloEjecutarReady, NULL, (void*)ejecutarReady, NULL);
 	do{
 		printf("Mis subprocesos estan a la espera de su mensaje, usuario.\n");
 		fgets(mensaje,100,stdin);
 		tomar_peticion(mensaje);
 	}while(strcmp(mensaje,"\n"));
+	pthread_join(hiloEjecutarReady, NULL);
 	return 0;
 }
 
@@ -255,13 +258,14 @@ int IP_en_lista(int ip_memoria){
 
 //TODO WTF no me acordaba que estaba esto, se me hace que está mal codeado xd re negro jaja
 int numeroSinUsar(){
+	int n = 0;
 	n++;
 	return n;
 }
 
 //TODO falta sockets acá
 void operacion_gossiping(){
-	int IP = config_get_int_value(configuracion,"IP");
+	int IP = config_get_int_value(configuracion,"IP_MEMORIA");
 	struct datosMemoria unaMemoria;
 	//aca va algo con sockets para pedirle a la memoria principal, la IP de las demas memorias. Carga en unaMemoria la info y si no está en la lista de IPs, la coloca.
 	if(!IP_en_lista(unaMemoria.ip)){
@@ -284,7 +288,7 @@ void funcionLoca2(){
 */
 
 
-int tomar_peticion(char* mensaje){
+void tomar_peticion(char* mensaje){
 	//Fijarse despues cual seria la cantidad correcta de malloc
 	char** mensajeSeparado = malloc(strlen(mensaje) + 1);
 	mensajeSeparado = string_split(mensaje, " \n");
@@ -439,9 +443,12 @@ void realizar_peticion(char** parametros) {
 				}
 				char* nombre_del_archivo = parametros[1];
 				string_trim(&nombre_del_archivo);
-				if(!string_contains(nombre_del_archivo,".lql")){
+				/*if(!string_contains(nombre_del_archivo,".lql")){
 					string_append(&nombre_del_archivo,".lql");
-				}
+				}*/
+				char *rutaDelArchivo = string_new();
+				string_append(&rutaDelArchivo, "./");
+				string_append(&rutaDelArchivo, nombre_del_archivo);
 				FILE* archivo = fopen(nombre_del_archivo,"r");
 				if(archivo==NULL){
 					printf("El archivo no existe\n");
@@ -469,7 +476,17 @@ int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
 					cantidadDeParametrosNecesarios);;
 }
 
+void describeUnaTabla(){
 
+}
+
+void describeTodasLasTablas(){
+
+}
+
+int existeLaTabla(char *tabla){
+
+}
 
 //TODO socket para dropear la tabla en memoria y borrar la tabla de mi lista de tablas conocidas.
 void drop(char* nombre_tabla){
@@ -516,41 +533,48 @@ int main()
 }
 */
 
+//Esta funcion la llamaria desde un hilo
 void ejecutarReady(){
-	ejecutor(queue_pop(ready));
+	while(1){
+		int multiprocesamiento = config_get_int_value(configuracion, "MULTIPROCESAMIENTO");
+		if(enEjecucionActualmente<multiprocesamiento && !queue_is_empty(ready)){
+			enEjecucionActualmente++;
+			struct Script *unScript =  queue_pop(ready);
+			//Ejecutor la llamaria desde un hilo detach (bajo demanda)
+			ejecutor(unScript);
+			enEjecucionActualmente--;
+		}
+	}
 }
 
 //TODO Inicializar queue_peek
-void ejecutor(struct Script ejecutando){
+void ejecutor(struct Script *ejecutando){
 	char* caracter = malloc(sizeof(char));
 	int quantum = config_get_int_value(configuracion,"QUANTUM");
-	int multiprocesamiento = config_get_int_value(configuracion, "MULTIPROCESAMIENTO");
 	int error = 0;
 	//if(!queue_is_empty(ready)){
-
-		if(queue_size(exec)<multiprocesamiento){
-			queue_push(exec, &ejecutando);
 			int i = 0;
-			FILE * lql = fopen(ejecutando.peticiones,"r");
+			FILE * lql = fopen(ejecutando->peticiones,"r");
 			while(i<quantum && !feof(lql) && !error){
 				char* lineaDeScript = string_new();
-				fread(&caracter, 1, 1, lql);
+				fread(caracter, 1, 1, lql);
 				//leo caracter a caracter hasta encontrar \n
-				while(!feof(lql) && caracter!='\n'){
+				while(!feof(lql) && strcmp(caracter, "\n")){
 					string_append(&lineaDeScript, caracter);
-					fread(&caracter, 1, 1, lql);
+					fread(caracter, sizeof(char), 1, lql);
 				}
-				error = tomar_peticion(lineaDeScript);
+				printf("%s\n", lineaDeScript);
+				//error = tomar_peticion(lineaDeScript);
 				free(lineaDeScript);
 				i++;
 			}
 			//Si salio por quantum
 			if(i>=quantum){
-				ejecutando.posicionActual = ftell(lql);
-				queue_push(ready, &ejecutando);
+				printf("---Fin q---\n");
+				ejecutando->posicionActual = ftell(lql);
+				queue_push(ready, ejecutando);
 			}
-			queue_pop(exec);
-		}
+
 
 	//}
 }
@@ -568,7 +592,8 @@ char* tempSinAsignar(){
 	return nombre;
 }
 
-int n=0;
+//Este n aca esta raro
+//int n=0;
 
 void planificador(char* nombre_del_archivo){
 	pasar_a_new(nombre_del_archivo);
@@ -581,13 +606,14 @@ void popear(struct Script * proceso,t_queue* cola){
 
 void pasar_a_new(char* nombre_del_archivo){ //Prepara las estructuras necesarias y pushea el request a la cola de new
 	 printf("\tAgregando script a cola de New\n");
-	 struct Script proceso;
-	 proceso.PID = get_PID(PIDs);
-	 proceso.PC = 0;
-	 proceso.peticiones = string_new();
-	 proceso.posicionActual = 0;
-	 string_append(&proceso.peticiones,nombre_del_archivo);
-	 queue_push(new,&proceso);
+	 struct Script *proceso = malloc(sizeof(struct Script));
+	 proceso->PID = get_PID(PIDs);
+	 proceso->PC = 0;
+	 proceso->peticiones = string_new();
+	 proceso->posicionActual = 0;
+	 string_append(&proceso->peticiones, "./");
+	 string_append(&proceso->peticiones,nombre_del_archivo);
+	 queue_push(new,proceso);
 	 printf("Script agregado\n");
 }
 
