@@ -27,7 +27,7 @@ struct Script{
 	int PID;
 	int PC;
 	char* peticiones;
-	int posicionActual = 0;
+	int posicionActual;
 };
 
 struct datosMemoria{
@@ -62,6 +62,7 @@ void popear(struct Script *,t_queue*);
 void realizar_peticion(char**);
 char* tempSinAsignar();
 void tomar_peticion(char*);
+void ejecutor(struct Script);
 
 /*
 void funcionLoca();
@@ -98,7 +99,7 @@ int main(){
 
 	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
 	char* mensaje = malloc(100);
-	configurar_kernel();
+	//configurar_kernel();
 	operacion_gossiping(); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
 	do{
 		printf("Mis subprocesos estan a la espera de su mensaje, usuario.\n");
@@ -181,33 +182,15 @@ int cantidadValidaParametros(char** parametros,
 	return 1;
 }
 
-void configurar_kernel(){
-	FILE* archivo_configuracion = fopen("Kernel_config","w");
-	printf("\tQue bien! Parece que hoy van a configurarme\n");
-	char * valor = string_new();
-	printf("\tNecesito la direccion IP de la memoria principal, para poder intercambiar ceros y unos.\n Por favor ingresa su IP\n");
-	fgets(valor, 100, stdin);
-	config_set_value(configuracion,"IP",valor);
-	printf("\tGracias, ahora me dieron ganas de hablar con las memorias... Por un canal privado. Podrias conseguirme un puerto?\n Por favor, ingresa el puerto para comunicarme con las memorias\n");
-	fgets(valor, 100, stdin);
-	config_set_value(configuracion,"PUERTO_MEMORIA",valor);
-	printf("\tExcelente! Pero hay otro problema: Esos request no se van a ejecutar en un FIFO arcaico, no. Tenemos un RoundRobin!\n Por favor, ingrese el numero de quantum: \n");
-	fgets(valor, 100, stdin);
-	config_set_value(configuracion,"QUANTUM",valor);
-	printf("\tLo siento, se que es engorroso... Pero para empezar, fuiste vos el que inicio mi ejecucion.\n Ahora necesito que me digas cuantos procesos van a estar ejecutandose a la vez en las memorias\n Ingresa el grado de multiprocesamiento: \n");
-	fgets(valor, 100, stdin);
-	config_set_value(configuracion,"MULTIPROCESAMIENTO",valor);
-	printf("\tTodavia no se ni que es eso, pero por las dudas pone algun numerito...\n Ingresa el numero de Fresh Metadata: \n");
-	fgets(valor, 100, stdin);
-	config_set_value(configuracion,"METADATA_REFRESH",valor);
-	printf("\tMuy bien, por ultimo necesito otro numero que se mide en milisegundos, que rapido!\n Ingresa el retardo del ciclo de ejecucion: \n");
-	fgets(valor, 100, stdin);
-	config_set_value(configuracion,"SLEEP_EJECUCION",valor);
-	printf("\tBueno, eso es todo. Esperame que guardo estos datos en mi archivo de configuracion\n");
-	config_save(configuracion);
-	fclose(archivo_configuracion);
-	}
-
+/*void configurar_kernel(){
+	int IP = config_get_int_value(configuracion, "IP_MEMORIA");
+	int PUERTO_MEMORIA = config_get_int_value(configuracion,"PUERTO_MEMORIA");
+	int QUANTUM = config_get_int_value(configuracion,"QUANTUM");
+	int MULTIPROCESAMIENTO = config_get_int_value(configuracion,"MULTIPROCESAMIENTO");
+	int METADATA_REFRESH = config_get_int_value(configuracion,"METADATA_REFRESH");
+	int SLEEP_EJECUCION = config_get_int_value(configuracion,"SLEEP_EJECUCION");
+}*/
+/*
 void ejecutar(){
 	int quantum = config_get_int_value(configuracion,"QUANTUM");
 	int contador = 0;
@@ -228,7 +211,7 @@ void ejecutar(){
 		}
 	}
 }
-
+*/
 int esUnNumero(char* cadena) {
 	for (int i = 0; i < strlen(cadena); i++) {
 		if (!isdigit(cadena[i])) {
@@ -301,7 +284,7 @@ void funcionLoca2(){
 */
 
 
-void tomar_peticion(char* mensaje){
+int tomar_peticion(char* mensaje){
 	//Fijarse despues cual seria la cantidad correcta de malloc
 	char** mensajeSeparado = malloc(strlen(mensaje) + 1);
 	mensajeSeparado = string_split(mensaje, " \n");
@@ -490,12 +473,10 @@ int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
 
 //TODO socket para dropear la tabla en memoria y borrar la tabla de mi lista de tablas conocidas.
 void drop(char* nombre_tabla){
-	borrar_tabla(nombre_tabla);
-}
-
-void borrar_tabla(char* nombre_tabla){
 
 }
+
+
 
 /*
 int main()
@@ -534,19 +515,24 @@ int main()
 	return 0;
 }
 */
+
+void ejecutarReady(){
+	ejecutor(queue_pop(ready));
+}
+
 //TODO Inicializar queue_peek
-void ejecutor(){
+void ejecutor(struct Script ejecutando){
 	char* caracter = malloc(sizeof(char));
 	int quantum = config_get_int_value(configuracion,"QUANTUM");
+	int multiprocesamiento = config_get_int_value(configuracion, "MULTIPROCESAMIENTO");
+	int error = 0;
 	//if(!queue_is_empty(ready)){
 
-
-		while(!queue_is_empty(exec)){
-			struct Script ejecutando = queue_pop(ready);
-			queue_push(exec, ejecutando);
+		if(queue_size(exec)<multiprocesamiento){
+			queue_push(exec, &ejecutando);
 			int i = 0;
 			FILE * lql = fopen(ejecutando.peticiones,"r");
-			while(i<quantum && !feof(lql)){
+			while(i<quantum && !feof(lql) && !error){
 				char* lineaDeScript = string_new();
 				fread(&caracter, 1, 1, lql);
 				//leo caracter a caracter hasta encontrar \n
@@ -554,18 +540,16 @@ void ejecutor(){
 					string_append(&lineaDeScript, caracter);
 					fread(&caracter, 1, 1, lql);
 				}
-				//ACA MANDAR A EJECUTAR LA LINEA DEL SCRIPT LA RECALCADA CONCHA DE TU MADRE
+				error = tomar_peticion(lineaDeScript);
 				free(lineaDeScript);
 				i++;
 			}
 			//Si salio por quantum
 			if(i>=quantum){
 				ejecutando.posicionActual = ftell(lql);
-				queue_push(ready, ejecutando);
+				queue_push(ready, &ejecutando);
 			}
-			/*for(int i=0;i<quantum;i++){
-				FILE * lql = fopen(ejecutando.peticiones,"r");
-			}*/
+			queue_pop(exec);
 		}
 
 	//}
@@ -589,7 +573,6 @@ int n=0;
 void planificador(char* nombre_del_archivo){
 	pasar_a_new(nombre_del_archivo);
 	pasar_a_ready(new);
-	ejecutar();
 }
 
 void popear(struct Script * proceso,t_queue* cola){
@@ -602,6 +585,7 @@ void pasar_a_new(char* nombre_del_archivo){ //Prepara las estructuras necesarias
 	 proceso.PID = get_PID(PIDs);
 	 proceso.PC = 0;
 	 proceso.peticiones = string_new();
+	 proceso.posicionActual = 0;
 	 string_append(&proceso.peticiones,nombre_del_archivo);
 	 queue_push(new,&proceso);
 	 printf("Script agregado\n");
