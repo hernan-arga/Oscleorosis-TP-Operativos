@@ -45,8 +45,8 @@ typedef enum {
 OPERACION tipo_de_peticion(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char**);
 int cantidadValidaParametros(char**, int);
-void configurar_kernel();
-void ejecutar();
+//void configurar_kernel();
+//void ejecutar();
 int esUnNumero(char*);
 int esUnTipoDeConsistenciaValida(char*);
 int get_PID();
@@ -59,13 +59,16 @@ void pasar_a_ready(t_queue*);
 int PID_usada(int);
 void planificador(char*);
 void popear(struct Script *,t_queue*);
-void realizar_peticion(char**,int);
+void realizar_peticion(char**,int,int*);
 char* tempSinAsignar();
-void tomar_peticion(char*,int);
+void tomar_peticion(char*,int, int*);
 void ejecutor(struct Script *);
 void ejecutarReady();
 
-
+void drop(char*);
+void describeTodasLasTablas();
+void describeUnaTabla(char*);
+int existeLaTabla(char *);
 
 /*
 void funcionLoca();
@@ -108,9 +111,11 @@ int main(){
 	pthread_t hiloEjecutarReady;
 	pthread_create(&hiloEjecutarReady, NULL, (void*)ejecutarReady, NULL);
 	do{
+		//Aca no me interesa esta variable pero la necesita
+		int huboError;
 		printf("Mis subprocesos estan a la espera de su mensaje, usuario.\n");
 		fgets(mensaje,100,stdin);
-		tomar_peticion(mensaje,1);
+		tomar_peticion(mensaje, 1, &huboError);
 	}while(strcmp(mensaje,"\n"));
 	pthread_join(hiloEjecutarReady, NULL);
 	return 0;
@@ -183,7 +188,7 @@ int cantidadValidaParametros(char** parametros,
 			cantidadDeElementosDePunteroDePunterosDeChar(parametros) - 2;
 	if (cantidadDeParametrosQueTengo != cantidadDeParametrosNecesarios) {
 		//hay que arreglar esto para que en el caso de insert solo lo muestre si no se cumple con 4 ni con 3
-		printf("La cantidad de parametros no es valida\n");
+		//printf("La cantidad de parametros no es valida\n");
 		return 0;
 	}
 	return 1;
@@ -292,19 +297,18 @@ void funcionLoca2(){
 */
 
 
-
-void tomar_peticion(char* mensaje, int es_request){
+//huboError se activa en 1 en caso de error
+void tomar_peticion(char* mensaje, int es_request, int *huboError){
 	//Fijarse despues cual seria la cantidad correcta de malloc
 	char** mensajeSeparado = malloc(strlen(mensaje) + 1);
 	mensajeSeparado = string_split(mensaje, " \n");
-	realizar_peticion(mensajeSeparado,es_request); //NOTA :XXX: Agrego 'es_request' para que realizar_peticion sepa que es un request de usuario.
+	realizar_peticion(mensajeSeparado,es_request, huboError); //NOTA :XXX: Agrego 'es_request' para que realizar_peticion sepa que es un request de usuario.
 	free(mensajeSeparado);
 }
 
 //TODO Hay que hacer que el parser reconozca algunos comandos más
-//NOTA:XXX: realizar_peticion es void pero tiene returns, eso es legal? xd
-//No capo los return estan dentro de las funciones de criterios no del realizar_peticion
-void realizar_peticion(char** parametros, int es_request) {
+//huboError se activa en 1 en caso de error
+void realizar_peticion(char** parametros, int es_request, int *huboError) {
 	char *peticion = parametros[0];
 	OPERACION instruccion = tipo_de_peticion(peticion);
 	switch (instruccion) {
@@ -332,6 +336,10 @@ void realizar_peticion(char** parametros, int es_request) {
 				fclose(temp);
 				planificador(nombre_archivo);
 			}
+			else{
+				//Aca lo manda por sockets y en caso de error modifica la variable huboError
+				*huboError = 0;
+			}
 		}
 
 		break;
@@ -355,13 +363,17 @@ void realizar_peticion(char** parametros, int es_request) {
 		}
 		//puede o no estar el timestamp
 		if (parametrosValidos(4, parametros, (void *) criterioInsert)) {
-			printf("Envio el comando INSERT a memoria");
+			printf("Envio el comando INSERT a memoria\n");
 			if(es_request){
 				char* nombre_archivo = tempSinAsignar();
 				FILE* temp = fopen(nombre_archivo,"w");
 				fprintf(temp,"%s %s %s %s %s" ,"INSERT",parametros[1],parametros[2],parametros[3],parametros[4]);
 				fclose(temp);
 				planificador(nombre_archivo);
+			}
+			else{
+				//Aca lo manda por sockets y en caso de error modifica la variable huboError
+				*huboError = 0;
 			}
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
@@ -372,6 +384,10 @@ void realizar_peticion(char** parametros, int es_request) {
 				fprintf(temp,"%s %s %s %s" ,"INSERT",parametros[1],parametros[2],parametros[3]);
 				fclose(temp);
 				planificador(nombre_archivo);
+			}
+			else{
+				//Aca lo manda por sockets y en caso de error modifica la variable huboError
+				*huboError = 0;
 			}
 		}
 		break;
@@ -400,6 +416,10 @@ void realizar_peticion(char** parametros, int es_request) {
 				fclose(temp);
 				planificador(nombre_archivo);
 			}
+			else{
+				//Aca lo manda por sockets y en caso de error modifica la variable huboError
+				*huboError = 0;
+			}
 		}
 		break;
 	case DESCRIBE:
@@ -424,12 +444,14 @@ void realizar_peticion(char** parametros, int es_request) {
 			if (parametrosValidos(0, parametros,
 					(void *) criterioDescribeTodasLasTablas)) {
 				describeTodasLasTablas();
+				*huboError = 0;
 			}
 			if (parametrosValidos(1, parametros,
 					(void *) criterioDescribeUnaTabla)) {
 				char* tabla = parametros[1];
 				string_to_upper(tabla);
 				describeUnaTabla(tabla);
+				*huboError = 0;
 			}
 			break;
 			//TODO Falta que el drop sepa cuando es un request y cuando no
@@ -447,6 +469,7 @@ void realizar_peticion(char** parametros, int es_request) {
 				char* tabla = parametros[1];
 				string_to_upper(tabla);
 				drop(tabla);
+				*huboError = 0;
 			}
 		break;
 	case JOURNAL: //falta continuarlo
@@ -495,7 +518,7 @@ int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
 					cantidadDeParametrosNecesarios);;
 }
 
-void describeUnaTabla(){
+void describeUnaTabla(char* tabla){
 
 }
 
@@ -504,7 +527,7 @@ void describeTodasLasTablas(){
 }
 
 int existeLaTabla(char *tabla){
-
+	return 0;
 }
 
 //TODO socket para dropear la tabla en memoria y borrar la tabla de mi lista de tablas conocidas.
@@ -568,35 +591,34 @@ void ejecutarReady(){
 
 //TODO Inicializar queue_peek
 void ejecutor(struct Script *ejecutando){
-	char* caracter = malloc(sizeof(char));
+	char* caracter = (char *)malloc(sizeof(char)+1);
+	//le copio algo adentro porque queda con basura sino
+	strcpy(caracter, "0");
 	int quantum = config_get_int_value(configuracion,"QUANTUM");
 	int error = 0;
-	//if(!queue_is_empty(ready)){
-			int i = 0;
-			FILE * lql = fopen(ejecutando->peticiones,"r");
-			fseek(lql, ejecutando->posicionActual, 0);
-			while(i<quantum && !feof(lql) && !error){
-				char* lineaDeScript = string_new();
-				fread(caracter, 1, 1, lql);
-				//leo caracter a caracter hasta encontrar \n
-				while(!feof(lql) && strcmp(caracter, "\n")){
-					string_append(&lineaDeScript, caracter);
-					fread(caracter, sizeof(char), 1, lql);
-				}
-				printf("%s\n", lineaDeScript);
-				//error = tomar_peticion(lineaDeScript,0); //:XXX: Hernán, cambié el tomar_petición, el 0 sirve para indicar que no es un request de usuario, entonces no tiene que archivarlo, sino que tiene que ejecutarlo.
-				free(lineaDeScript);
-				i++;
-			}
-			//Si salio por quantum
-			if(i>=quantum){
-				printf("---Fin q---\n");
-				ejecutando->posicionActual = ftell(lql);
-				queue_push(ready, ejecutando);
-			}
-
-
-	//}
+	int i = 0;
+	FILE * lql = fopen(ejecutando->peticiones,"r");
+	fseek(lql, ejecutando->posicionActual, 0);
+	while(i<quantum && !feof(lql) && !error){
+		char* lineaDeScript = string_new();
+		fread(caracter, sizeof(char), 1, lql);
+		//leo caracter a caracter hasta encontrar \n
+		while(!feof(lql) && strcmp(caracter, "\n")){
+			string_append(&lineaDeScript, caracter);
+			fread(caracter, sizeof(char), 1, lql);
+		}
+		tomar_peticion(lineaDeScript,0, &error); //:XXX: Hernán, cambié el tomar_petición, el 0 sirve para indicar que no es un request de usuario, entonces no tiene que archivarlo, sino que tiene que ejecutarlo.
+		free(lineaDeScript);
+		i++;
+	}
+	//Si salio por quantum
+	if(i>=quantum && !error){
+		printf("---Fin q---\n");
+		ejecutando->posicionActual = ftell(lql);
+		queue_push(ready, ejecutando);
+	}
+	fclose(lql);
+	free(caracter);
 }
 
 char* tempSinAsignar(){
