@@ -156,6 +156,7 @@ configuracionLFS structConfiguracionLFS;
 t_bitarray* bitarrayBloques;
 char *mmapDeBitmap;
 t_dictionary* diccionarioDescribe;
+pthread_t hiloLevantarConexion;
 
 
 
@@ -163,7 +164,6 @@ int main(int argc, char *argv[]) {
 	//tablasQueTienenTMPs = dictionary_create();
 	binariosParaCompactar = dictionary_create();
 	diccionarioDeSemaforos = dictionary_create();
-	//pthread_t hiloLevantarConexion;
 	pthread_t hiloDump;
 	pthread_t atenderPeticionesConsola;
 	levantarConfiguracionLFS();
@@ -172,11 +172,11 @@ int main(int argc, char *argv[]) {
 	bitarrayBloques = bitarray_create(mmapDeBitmap,
 			tamanioEnBytesDelBitarray());
 	//verBitArray();
-	//pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
-	pthread_create(&hiloDump, NULL, (void*) dump, NULL);
+	pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
+	//pthread_create(&hiloDump, NULL, (void*) dump, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
-	levantarHilosCompactacionParaTodasLasTablas();
+	//levantarHilosCompactacionParaTodasLasTablas();
 	memtable = malloc(4);
 	memtable = dictionary_create();
 
@@ -184,8 +184,8 @@ int main(int argc, char *argv[]) {
 	diccionarioDescribe = dictionary_create();
 
 	//Se queda esperando a que termine el hilo de escuchar peticiones
-	//pthread_join(hiloLevantarConexion, NULL);
-	pthread_join(hiloDump, NULL);
+	pthread_join(hiloLevantarConexion, NULL);
+	//pthread_join(hiloDump, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	//Aca se destruye el bitarray?
 	//bitarray_destroy(bitarrayBloques);
@@ -444,15 +444,15 @@ void realizarPeticion(char** parametros) {
 			char* tablaMayusculas = string_new();
 			string_append(&tablaMayusculas, tabla);
 			string_to_upper(tablaMayusculas);
-			sem_t *semaforoTabla;
+			//sem_t *semaforoTabla;
 			//la key del diccionario esta en mayusculas para cada tabla
 
-			dameSemaforo(tablaMayusculas, &semaforoTabla);
-			sem_wait(semaforoTabla);
+			//dameSemaforo(tablaMayusculas, &semaforoTabla);
+			//sem_wait(semaforoTabla);
 				//Seccion critica
 			insert(tabla, key, valor, timestamp);
 
-			sem_post(semaforoTabla);
+			//sem_post(semaforoTabla);
 
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
@@ -468,15 +468,15 @@ void realizarPeticion(char** parametros) {
 			char* tablaMayusculas = string_new();
 			string_append(&tablaMayusculas, tabla);
 			string_to_upper(tablaMayusculas);
-			sem_t *semaforoTabla;
+			//sem_t *semaforoTabla;
 
 			//la key del diccionario esta en mayusculas para cada tabla
 
-			dameSemaforo(tablaMayusculas, &semaforoTabla);
-			sem_wait(semaforoTabla);
+			//dameSemaforo(tablaMayusculas, &semaforoTabla);
+			//sem_wait(semaforoTabla);
 				//Seccion critica
 				insert(tabla, key, valor, timestamp);
-			sem_post(semaforoTabla);
+			//sem_post(semaforoTabla);
 		}
 		break;
 	case CREATE:
@@ -509,15 +509,15 @@ void realizarPeticion(char** parametros) {
 			//sem_close(semaforoTabla);
 			//sem_unlink(tablaMayusculas);
 			//la key del diccionario esta en mayusculas para cada tabla
-			dameSemaforo(tablaMayusculas, &semaforoTabla);
+					//dameSemaforo(tablaMayusculas, &semaforoTabla);
 			/*int value;
 			 sem_getvalue(semaforoTabla, &value);
 			 printf("create: %i\n", value);*/
-			sem_wait(semaforoTabla);
+					//sem_wait(semaforoTabla);
 			//seccion critica
 			create(tabla, consistencia, cantidadParticiones,
 					tiempoCompactacion);
-			sem_post(semaforoTabla);
+					//sem_post(semaforoTabla);
 			/*sem_getvalue(semaforoTabla, &value);
 			 printf("create: %i\n", value);*/
 			//sem_unlink(tabla);
@@ -1838,12 +1838,11 @@ char* realizarSelect(char* tabla, char* key) {
 					}
 				}
 			} // aca quedaria el vector ordenado por timestamp mayor
-
 			if (vectorStructs[0]->timestamp > timestampActualMayorBloques) {
-				timestampActualMayorBloques = vectorStructs[0]->timestamp;
-				strcpy(valueDeTimestampActualMayorBloques, "");
-				string_append(&valueDeTimestampActualMayorBloques,
-						vectorStructs[0]->value);
+					timestampActualMayorBloques = vectorStructs[0]->timestamp;
+					strcpy(valueDeTimestampActualMayorBloques, "");
+					string_append(&valueDeTimestampActualMayorBloques,
+							vectorStructs[0]->value);
 			}
 			fclose(archivoBloque);
 			free(pathBloque);
@@ -2470,6 +2469,12 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			(*cant)++;
 		}
 	} // cierra el while
+	if(i==0){
+		t_registro* p_registro = malloc(12);
+		p_registro->timestamp = -1;
+		memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp, sizeof(p_registro->timestamp));
+	}
+
 	if (anteriorBloque != NULL) {
 		fclose(anteriorBloque);
 	}
@@ -2480,21 +2485,23 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 		t_list* entradaTabla, int laKey, int *cant, char* tabla) {
-	while( (*cant) < list_size(entradaTabla)) {
-		t_registro* p_registro = list_get(entradaTabla, (*cant));
-		if (p_registro->key == laKey) {
-			arrayPorKeyDeseadaMemtable[*cant] = malloc(12);
-			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key,	&p_registro->key, sizeof(p_registro->key));
-			memcpy(&arrayPorKeyDeseadaMemtable[*cant]->timestamp,
-					&p_registro->timestamp,
-					sizeof(p_registro->timestamp));
+	if(entradaTabla){
+		while ((*cant) < list_size(entradaTabla)) {
+			t_registro* p_registro = list_get(entradaTabla, (*cant));
+			if (p_registro->key == laKey) {
+				arrayPorKeyDeseadaMemtable[*cant] = malloc(12);
+				memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key,
+						&p_registro->key, sizeof(p_registro->key));
+				memcpy(&arrayPorKeyDeseadaMemtable[*cant]->timestamp,
+						&p_registro->timestamp, sizeof(p_registro->timestamp));
 
-			arrayPorKeyDeseadaMemtable[*cant]->value = malloc(
-					strlen(p_registro->value));
-			memcpy(arrayPorKeyDeseadaMemtable[*cant]->value,
-					p_registro->value, strlen(p_registro->value));
+				arrayPorKeyDeseadaMemtable[*cant]->value = malloc(
+						strlen(p_registro->value));
+				memcpy(arrayPorKeyDeseadaMemtable[*cant]->value,
+						p_registro->value, strlen(p_registro->value));
 
-			(*cant)++;
+				(*cant)++;
+			}
 		}
 	}
 }
@@ -2594,8 +2601,8 @@ t_dictionary *describeTodasLasTablas(int seImprimePorPantalla) {
 	return diccionarioDescribe;
 
 }
-/*
-void iniciarConexion() {
+
+int32_t iniciarConexion() {
 	int opt = 1;
 	int master_socket, addrlen, new_socket, client_socket[30], max_clients = 30,
 			activity, i, valread, sd;
@@ -2637,8 +2644,8 @@ void iniciarConexion() {
 	//bind the socket to localhost port 8888
 	if (bind(master_socket, (struct sockaddr *) &address, sizeof(address))
 			< 0) {
-		perror("bind failed en lfs");
-		exit(EXIT_FAILURE);
+		perror("Bind fallo en el FS");
+		return 1;
 	}
 	printf("Escuchando en el puerto: %d \n",
 			structConfiguracionLFS.PUERTO_ESCUCHA);
@@ -2697,9 +2704,7 @@ void iniciarConexion() {
 
 			char* tamanioValue = string_itoa(structConfiguracionLFS.TAMANIO_VALUE);
 			//send new connection greeting message
-			if (send(new_socket, (void*)tamanioValue,
-					strlen(tamanioValue), 0)
-					!= strlen(tamanioValue)) {
+			if ( send(new_socket, (void*)tamanioValue, strlen(tamanioValue), 0)    !=      strlen(tamanioValue)) {
 				perror("send");
 			}
 
@@ -2831,4 +2836,4 @@ void iniciarConexion() {
  //insert(tabla, key, value);
  printf("Haciendo insert");
  }
-*/
+

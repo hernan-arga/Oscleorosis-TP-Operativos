@@ -11,193 +11,74 @@
 #include<commons/log.h>
 #include<commons/collections/list.h>
 #include<commons/temporal.h>
+#include <commons/string.h>
+#include <ctype.h>
+#include<time.h>
 
 typedef enum {
-	SELECT, INSERT, CREATE, DESCRIBE, DROP, OPERACIONINVALIDA
+	SELECT, INSERT, CREATE, DESCRIBE, DROP, JOURNAL, OPERACIONINVALIDA
 } OPERACION;
 
-typedef struct{
-	int32_t PUERTO;
-	char* IP_FS;
-	int32_t PUERTO_FS;
-	int32_t RETARDO_MEM;
-	int32_t RETARDO_FS;
-	int32_t TAM_MEM;
-	int32_t RETARDO_JOURNAL;
-	int32_t RETARDO_GOSSIPING;
-	int32_t MEMORY_NUMBER;
-	char** IP_SEEDS;
-	char** PUERTO_SEEDS;
-}archivoConfiguracion;
-
-typedef struct{
-	uint32_t NUMERO_PAGINA;
-	uint32_t TIMESTAMP;
-	int KEY;
-	char* VALUE;
-	bool MODIFICADO;
-	uint32_t EN_USO;
-}pagina;
-
-typedef struct{
-	char* PATH;
-	char* TABLA_ASOCIADA;
-	uint32_t NUMERO_SEGMENTO;
-	//uint32_t CANTIDAD_PAGINAS;
-	pagina PAGINAS[50];
-	uint32_t EN_USO;
+typedef struct
+{
+	char* nombreTabla;
+	t_list* paginas;
 }segmento;
 
-struct sockaddr_in serverAddress;
-struct sockaddr_in serverAddressFS;
-archivoConfiguracion t_archivoConfiguracion;
-t_config *config;
-int32_t server;
-int32_t clienteKernel;
-int32_t clienteFS;
-uint32_t tamanoDireccion;
-int32_t activado = 1;
-pthread_t threadKernel;
-pthread_t threadFS;
-uint32_t tamanoValue;
-bool sem1 = false;
-bool sem2 = true;
-segmento tablaSegmentos[50];
-segmento segmentoNulo;
-pagina paginaNulo;
+typedef struct
+{
+	int numeroPag;
+	bool modificado;
+	int numeroFrame;
+	long int timeStamp;
+}pagina;
 
-segmento buscarSegmentoSegunTabla(char* tabla);
-pagina buscarPagina(char* key, segmento segmentoAsociado);
-pagina encontrarPaginaLibre(pagina tablaPaginas[]);
-void serServidor();
-void consola();
-void controlarKernel();
-OPERACION tipoDePeticion(char* peticion);
-pagina ejecutarLRU(pagina tablaPaginas[]);
-segmento buscarSegmentoLibre();
-char* realizarSelect(char* tabla, char* key);
-void conectarseAFS();
-void conectarseAKernel();
+t_dictionary* tablaSegmentos;
+char* memoriaPrincipal;
+int tamanoFrame;
+int tamanoValue;
+int* frames;
+
 void analizarInstruccion(char* instruccion);
 void realizarComando(char** comando);
-int insertarEnPaginaLibre(segmento segmentoAsociado, char* key, char* value);
+OPERACION tipoDePeticion(char* peticion);
+int realizarSelect(char* tabla, char* key);
+int realizarInsert(char* tabla, char* key, char* value);
+int frameLibre();
+char* pedirValue(char* tabla, char* key);
+int ejecutarLRU();
 void ejecutarJournaling();
-void realizarInsert(char* tabla, char* key, char* value);
 void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones, char* tiempoCompactacion);
+void realizarDrop(char* tabla);
+void realizarDescribeGolbal();
+void realizarDescribe(char* tabla);
 
-int main(int argc, char *argv[])
+int main()
 {
-	/*config = config_create(argv[1]);
+	tablaSegmentos = dictionary_create();
+	memoriaPrincipal = malloc(1000);
+	tamanoValue = 100;
+	tamanoFrame = sizeof(int)+sizeof(long int)+tamanoValue;
+	//Key , TimeStamp, Value
+	int tablaFrames[1000/tamanoFrame];
+	frames = tablaFrames;
 
-	t_archivoConfiguracion.PUERTO = config_get_int_value(config, "PUERTO");
-	t_archivoConfiguracion.PUERTO_FS = config_get_int_value(config, "PUERTO_FS");
-	t_archivoConfiguracion.IP_SEEDS= config_get_array_value(config, "IP_SEEDS");
-	t_archivoConfiguracion.PUERTO_SEEDS = config_get_array_value(config, "PUERTO_SEEDS");
-	t_archivoConfiguracion.RETARDO_MEM = config_get_int_value(config, "RETARDO_MEM");
-	t_archivoConfiguracion.RETARDO_FS = config_get_int_value(config, "RETARDO_FS");
-	t_archivoConfiguracion.TAM_MEM = config_get_int_value(config, "TAM_MEM");
-	t_archivoConfiguracion.RETARDO_JOURNAL = config_get_int_value(config, "RETARDO_JOURNAL");
-	t_archivoConfiguracion.RETARDO_GOSSIPING = config_get_int_value(config, "RETARDO_GOSSIPING");
-	t_archivoConfiguracion.MEMORY_NUMBER = config_get_int_value(config, "MEMORY_NUMBER");
-
-	void inicializarSegmentos();*/
-
-	pthread_t threadSerServidor;
-	int32_t idThreadSerServidor = pthread_create(&threadSerServidor, NULL, serServidor, NULL);
-
-	/*pthread_t threadConsola;
-	int32_t idthreadConsola = pthread_create(&threadConsola, NULL, consola, NULL);
-
-	pthread_join(threadConsola, NULL);*/
-	pthread_join(threadSerServidor, NULL);
-}
-
-void inicializarSegmentos()
-{
-	for(int i = 0; i < 50; i++)
+	for(int i = 0; i < 1000/tamanoFrame; i++)
 	{
-		tablaSegmentos[i].NUMERO_SEGMENTO = i;
-		tablaSegmentos[i].EN_USO = 0;
-		for(int j = 0; j < 50 ; j++)
-		{
-			tablaSegmentos[i].PAGINAS[j].NUMERO_PAGINA = j;
-			tablaSegmentos[i].PAGINAS[j].EN_USO = 0;
-		}
-	}
-	segmentoNulo.EN_USO = -1;
-	paginaNulo.EN_USO = -1;
-}
-
-void serServidor()
-{
-	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_addr.s_addr = INADDR_ANY;
-	serverAddress.sin_port = htons(5000);
-
-	server = socket(AF_INET, SOCK_STREAM, 0);
-
-	setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &activado, sizeof(activado));
-
-	if(bind(server, (void*) &serverAddress, sizeof(serverAddress)) != 0)
-	{
-		perror("Fallo el bind");
+		*(frames+i) = 0;
 	}
 
-	printf( "Estoy escuchando\n");
-	listen(server, 100);
+	printf("\nTamaño frame: %d", tamanoFrame);
 
-	//conectarseAKernel();
-	conectarseAFS();
-}
-
-void conectarseAKernel()
-{
-	clienteKernel = accept(server, (void*) &serverAddress, &tamanoDireccion);
-	printf( "Recibi una conexion en %d\n", clienteKernel);
-
-	pthread_create(&threadKernel, NULL, (void*) controlarKernel, NULL);
-	pthread_join(threadKernel, NULL);
-}
-
-void controlarKernel()
-{
-	while(1)
-	{
-
-	}
-
-}
-
-void conectarseAFS()
-{
-	clienteFS = socket(AF_INET, SOCK_STREAM, 0);
-	serverAddressFS.sin_family = AF_INET;
-	serverAddressFS.sin_port = htons(5005);
-	serverAddressFS.sin_addr.s_addr = INADDR_ANY;
-
-	if (connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS)) == -1)
-	{
-		perror("Hubo un error en la conexion \n");
-	}
-
-	//recv(clienteFS, &tamanoValue, sizeof(tamanoValue), 0);
-	send(clienteFS, "f", sizeof(char), 0);
-
-	sem1 = true;
-}
-
-void consola()
-{
-	while(!sem1)
-	{
-
-	}
 	while(1)
 	{
 		char* instruccion = malloc(1000);
-		do {
+
+		do
+		{
 			fgets(instruccion, 1000, stdin);
-		} while (!strcmp(instruccion, "\n"));
+		}while(!strcmp(instruccion, " \n"));
+
 		analizarInstruccion(instruccion);
 		free(instruccion);
 	}
@@ -213,9 +94,6 @@ void analizarInstruccion(char* instruccion)
 
 void realizarComando(char** comando)
 {
-	while(!sem2){
-
-	}
 	char *peticion = comando[0];
 	OPERACION accion = tipoDePeticion(peticion);
 	char* tabla;
@@ -231,7 +109,7 @@ void realizarComando(char** comando)
 			break;
 
 		case INSERT:
-			printf( "INSERT");
+			printf("INSERT");
 			tabla = comando[1];
 			key = comando[2];
 			value = comando[3];
@@ -240,11 +118,40 @@ void realizarComando(char** comando)
 
 		case CREATE:
 			printf("CREATE");
-			char* tabla = comando[1];
+			tabla = comando[1];
 			char* tipoConsistencia = comando[2];
 			char* numeroParticiones = comando[3];
 			char* tiempoCompactacion = comando[4];
 			realizarCreate(tabla, tipoConsistencia, numeroParticiones, tiempoCompactacion);
+			break;
+
+		//Describe recibe un diccionario con (nombreTabla - struct(con la info de la metadata)
+
+		case DESCRIBE:
+			printf("\nDESCRIBE");
+
+			if(comando[1] == NULL)
+			{
+				printf("GLOBAL");
+				realizarDescribeGolbal();
+			}
+			else
+			{
+				printf("Normal");
+				tabla = comando[1];
+				realizarDescribe(tabla);
+			}
+			break;
+
+		case DROP:
+			printf("\nDROP");
+			tabla = comando[1];
+			realizarDrop(tabla);
+			break;
+
+		case JOURNAL:
+			printf("\nJOURNAL");
+			ejecutarJournaling();
 			break;
 
 		case OPERACIONINVALIDA:
@@ -253,228 +160,419 @@ void realizarComando(char** comando)
 	}
 }
 
-OPERACION tipoDePeticion(char* peticion) {
+OPERACION tipoDePeticion(char* peticion)
+{
 	if (!strcmp(peticion, "SELECT"))
 	{
 		free(peticion);
 		return SELECT;
-	} else {
-		if (!strcmp(peticion, "INSERT")) {
+	} else if (!strcmp(peticion, "INSERT")) {
 			free(peticion);
 			return INSERT;
-		} else {
-			if (!strcmp(peticion, "CREATE")) {
+		} else if (!strcmp(peticion, "CREATE")) {
 				free(peticion);
 				return CREATE;
-			} else {
+			} else if(!strcmp(peticion, "DESCRIBE"))
+			{
+				free(peticion);
+				return DESCRIBE;
+			}else if(!strcmp(peticion, "DROP"))
+			{
+				free(peticion);
+				return DROP;
+			}else if(!strcmp(peticion, "JOURNAL"))
+			{
+				free(peticion);
+				return JOURNAL;
+			}else {
 				free(peticion);
 				return OPERACIONINVALIDA;
 			}
 		}
-	}
-}
 
-char* realizarSelect(char* tabla, char* key)
+int realizarSelect(char* tabla, char* key)
 {
-	segmento segmentoAsociado = buscarSegmentoSegunTabla(tabla);
-	if(segmentoAsociado.EN_USO != -1)
+	if(dictionary_has_key(tablaSegmentos, tabla))
 	{
-		pagina paginaAsociada = buscarPagina(key, segmentoAsociado);
-		if(paginaAsociada.EN_USO != -1)
-		{
-			printf(paginaAsociada.KEY);
-			return paginaAsociada.KEY;
-		}
-		else
-		{
-			char* peticionValue;
-			send(clienteFS, peticionValue, strlen(peticionValue), 0);
-			char* value = malloc(tamanoValue);
-			recv(clienteFS, &value, sizeof(value), 0);
-			int num = insertarEnPaginaLibre(segmentoAsociado, key, value);
-			printf(value);
-			free(value);
-			return segmentoAsociado.PAGINAS[num].VALUE;
+		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
 
+		for(int i = 0; i < list_size(tablaPag); i++)
+		{
+			pagina* pag = list_get(tablaPag, i);
+
+			char* laKey = malloc(sizeof(int));
+
+			memcpy(laKey, (memoriaPrincipal+pag->numeroFrame*tamanoFrame), sizeof(int));
+
+			if(!strcmp(laKey, key))
+			{
+				char* value = malloc(tamanoValue);
+
+				memcpy(value, (memoriaPrincipal+pag->numeroFrame*tamanoFrame+sizeof(int)+sizeof(long int)), *(frames+pag->numeroFrame));
+
+				char* timeStamp = malloc(sizeof(long int));
+				long int timeS = (long int) time(NULL);
+				sprintf(timeStamp, "%d", timeS);
+
+				memcpy((memoriaPrincipal+pag->numeroFrame*tamanoFrame+sizeof(int)), timeStamp, sizeof(long int));
+
+				free(timeStamp);
+
+				printf("%s", value);
+
+				pag->timeStamp = timeS;
+
+				free(value);
+				free(laKey);
+
+				return 0;
+			}
+			free(laKey);
 		}
-	}
-	else
-	{
-		char* peticionValue = malloc(sizeof(int) + sizeof(int) + sizeof(int) + strlen(tabla) + strlen(key));
-		strcpy(peticionValue, 1);
-		strcat(peticionValue, strlen(tabla));
-		strcat(peticionValue, tabla);
-		strcat(peticionValue, strlen(key));
-		strcat(peticionValue, key);
-		send(clienteFS, peticionValue, strlen(peticionValue), 0);
-		free(peticionValue);
+
+		printf("Pedir a el FS");
+
+		int frameNum = frameLibre();
+
+		pagina* pagp = malloc(sizeof(pagina));
+		pagp->modificado = false;
+		pagp->numeroFrame = frameNum;
+		pagp->numeroPag = list_size(tablaPag);
+		pagp->timeStamp = (long int) time(NULL);
+
+		list_add(tablaPag, pagp);
 
 		char* value = malloc(tamanoValue);
-		recv(clienteFS, &value, sizeof(value), 0);
+		value = pedirValue(tabla, key);
 
-		segmentoAsociado = buscarSegmentoLibre();
-		segmentoAsociado.PAGINAS[0].EN_USO = 1;
-		segmentoAsociado.PAGINAS[0].KEY = key;
-		segmentoAsociado.PAGINAS[0].MODIFICADO = 0;
-		segmentoAsociado.PAGINAS[0].TIMESTAMP = temporal_get_string_time();
-		segmentoAsociado.PAGINAS[0].VALUE = value;
+		*(frames+frameNum) = sizeof(value);
 
+		printf("%s", value);
+
+		memcpy((memoriaPrincipal+pagp->numeroFrame*tamanoFrame), key, sizeof(int));
+		memcpy((memoriaPrincipal+pagp->numeroFrame*tamanoFrame+sizeof(int)+sizeof(long int)), value, sizeof(value));
+
+		char* timeStamp = malloc(sizeof(long int));
+		sprintf(timeStamp, "%d", (long int) time(NULL));
+
+		memcpy((memoriaPrincipal+pagp->numeroFrame*tamanoFrame+sizeof(int)), timeStamp, sizeof(long int));
+
+		free(timeStamp);
 		free(value);
 
-		printf(segmentoAsociado.PAGINAS[0].VALUE);
-		return segmentoAsociado.PAGINAS[0].VALUE;
+		return 0;
 	}
+
+	char* value = malloc(tamanoValue);
+	value = pedirValue(tabla, key);
+
+	int frameNum = frameLibre();
+	*(frames+frameNum) = sizeof(value);
+
+	pagina* pagp = malloc(sizeof(pagina));
+	t_list* paginasp = list_create();
+
+	pagp->modificado = false;
+	pagp->numeroFrame = frameNum;
+	pagp->numeroPag = 0;
+	pagp->timeStamp = (long int)time(NULL);
+
+	list_add(paginasp, pagp);
+	dictionary_put(tablaSegmentos, tabla, paginasp);
+
+	char* timeStamp = malloc(sizeof(long int));
+	sprintf(timeStamp, "%ld", pagp->timeStamp);
+
+	memcpy((memoriaPrincipal+pagp->numeroFrame*tamanoFrame), key, sizeof(int));
+	memcpy((memoriaPrincipal+pagp->numeroFrame*tamanoFrame+sizeof(int)), timeStamp, sizeof(long int));
+	memcpy((memoriaPrincipal+pagp->numeroFrame*tamanoFrame+sizeof(int)+sizeof(long int)), value, sizeof(value));
+
+	free(timeStamp);
+	free(value);
+	return 0;
 }
 
-segmento buscarSegmentoLibre()
+int realizarInsert(char* tabla, char* key, char* value)
 {
-	for(int i = 0; i < 50; i++)
+	if(dictionary_has_key(tablaSegmentos, tabla))
 	{
-		if(tablaSegmentos[i].EN_USO == 0)
-			return tablaSegmentos[i];
-	}
-}
+		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
 
-segmento buscarSegmentoSegunTabla(char* tabla)
-{
-	for(int i = 0; i < 50; i++)
-	{
-		segmento segmento = tablaSegmentos[i];
-		if(segmento.EN_USO)
+		for(int i = 0; i < list_size(tablaPag); i++)
 		{
-			if(tablaSegmentos[i].TABLA_ASOCIADA == tabla)
-				return tablaSegmentos[i];
+			pagina* pagy = list_get(tablaPag, i);
+
+			char* laKey = malloc(sizeof(int));
+
+			memcpy(laKey, (memoriaPrincipal+pagy->numeroFrame*tamanoFrame), sizeof(int));
+
+			if(!strcmp(laKey, key))
+			{
+				char* timeStamp = malloc(sizeof(long int));
+				sprintf(timeStamp, "%d", (long int) time(NULL));
+
+				memcpy((memoriaPrincipal+(pagy->numeroFrame*tamanoFrame)+sizeof(int)+sizeof(long int)), (const char*) value, sizeof(value));
+				memcpy(memoriaPrincipal+pagy->numeroFrame*tamanoFrame+sizeof(int), timeStamp, sizeof(long int));
+
+				*(frames+pagy->numeroFrame) = sizeof(value);
+
+				pagy->timeStamp = (long int) time(NULL);
+
+				free(laKey);
+				free(timeStamp);
+
+				return 0;
+			}
+		}
+
+		int frameNum = frameLibre();
+		*(frames+frameNum) = sizeof(value);
+
+		pagina* pagp = malloc(sizeof(pagina));
+
+		pagp->modificado = true;
+		pagp->numeroFrame = frameNum;
+		pagp->numeroPag = list_size(tablaPag);
+		pagp->timeStamp = (long int)time(NULL);
+
+		list_add(tablaPag, pagp);
+
+		char* timeStamp = malloc(sizeof(long int));
+		sprintf(timeStamp, "%ld", pagp->timeStamp);
+
+		memcpy(memoriaPrincipal+pagp->numeroFrame*tamanoFrame, key, sizeof(int));
+		memcpy(memoriaPrincipal+pagp->numeroFrame*tamanoFrame+sizeof(int), timeStamp, sizeof(long int));
+		memcpy(memoriaPrincipal+pagp->numeroFrame*tamanoFrame+sizeof(int)+sizeof(long int), value, sizeof(value));
+
+		free(timeStamp);
+
+		return 0;
+	}
+
+	int frameNum = frameLibre();
+	*(frames+frameNum) = sizeof(value);
+
+	pagina* pagp = malloc(sizeof(pagina));
+	pagp->modificado = true;
+	pagp->numeroFrame = frameNum;
+	pagp->numeroPag = 0;
+	pagp->timeStamp = (long int) time(NULL);
+
+	t_list* paginas = list_create();
+	list_add(paginas, pagp);
+
+	char* timeStamp = malloc(sizeof(long int));
+	sprintf(timeStamp, "%ld", pagp->timeStamp);
+
+	dictionary_put(tablaSegmentos, tabla, paginas);
+
+	memcpy(memoriaPrincipal+pagp->numeroFrame*tamanoFrame, key, sizeof(int));
+	memcpy(memoriaPrincipal+pagp->numeroFrame*tamanoFrame+sizeof(int), timeStamp, sizeof(long int));
+	memcpy(memoriaPrincipal+pagp->numeroFrame*tamanoFrame+sizeof(int)+sizeof(long int), value, sizeof(value));
+
+	free(timeStamp);
+}
+
+int frameLibre()
+{
+	for(int i = 0; i < 1000/tamanoFrame; i++)
+	{
+		if(*(frames+i) == 0)
+		{
+			return i;
 		}
 	}
-	return segmentoNulo;
+	printf("Ejecutar LRU");
+	return ejecutarLRU();
 }
 
-pagina buscarPagina(char* key, segmento segmentoAsociado)
+char* pedirValue(char* tabla, char* key)
 {
-	for(int i = 0; i < 50; i++)
+	printf("\nMagia de socket\n");
+	char* value = malloc(100);
+	strcpy(value, "NO esta");
+	return value;
+}
+
+int ejecutarLRU()
+{
+	long int timeStamp = 0;
+	int numF;
+	int target;
+	t_list* objetivo;
+
+	void elMenor(char* key, void* value)
 	{
-		if(segmentoAsociado.PAGINAS[i].EN_USO)
+		t_list* paginas = value;
+		for(int i = 0; i < list_size(paginas); i++)
 		{
-			if(segmentoAsociado.PAGINAS[i].KEY == atoi(key))
+			pagina* pag = list_get(paginas, i);
+			if(timeStamp == 0 && !pag->modificado)
 			{
-				return segmentoAsociado.PAGINAS[i];
+			timeStamp = pag->timeStamp;
+			numF = pag->numeroFrame;
+			target = pag->numeroPag;
+			objetivo = paginas;
+			}
+			else
+			{
+				if(pag->timeStamp < timeStamp && !pag->modificado)
+				{
+					timeStamp = pag->timeStamp;
+					numF = pag->numeroFrame;
+					target = pag->numeroPag;
+					objetivo = paginas;
+				}
 			}
 		}
 	}
-	return paginaNulo;
-}
-
-int insertarEnPaginaLibre(segmento segmentoAsociado, char* key, char* value)
-{
-	pagina primeraLibre = encontrarPaginaLibre(segmentoAsociado.PAGINAS);
-	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].EN_USO = 1;
-	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].KEY = atoi(key);
-	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].MODIFICADO = 0;
-	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].VALUE = value;
-	segmentoAsociado.PAGINAS[primeraLibre.NUMERO_PAGINA].TIMESTAMP = atoi(temporal_get_string_time());
-	return primeraLibre.NUMERO_PAGINA;
-
-}
-
-pagina encontrarPaginaLibre(pagina tablaPaginas[])
-{
-	for(int i = 0; i < 50; i++)
+	dictionary_iterator(tablaSegmentos, elMenor);
+	if(timeStamp == 0)
 	{
-		if(tablaPaginas[i].EN_USO == 0)
-			return tablaPaginas[i];
+		ejecutarJournaling();
+		numF = 0;
 	}
-	return ejecutarLRU(tablaPaginas);
-}
-
-pagina ejecutarLRU(pagina tablaPaginas[])
-{
-	pagina candidataRemplazo = tablaPaginas[0];
-	uint32_t tiempoMenor = candidataRemplazo.TIMESTAMP;
-
-	for(int i = 1; i < 50; i++)
+	else
 	{
-		if(tablaPaginas[i].TIMESTAMP < tiempoMenor && !tablaPaginas[i].MODIFICADO)
-		{
-			candidataRemplazo = tablaPaginas[i];
-			tiempoMenor = candidataRemplazo.TIMESTAMP;
-		}
+		list_remove_and_destroy_element(objetivo, target, NULL);
 	}
-	if(!candidataRemplazo.MODIFICADO)
-		return candidataRemplazo;
-
-	ejecutarJournaling();
-	return candidataRemplazo;
-	ejecutarLRU(tablaPaginas);
+	return numF;
 }
 
 void ejecutarJournaling()
 {
-	sem2 = false;
-	for(int i = 0; i < 50; i++)
+	void journal(char* tabla, void* valor)
 	{
-		for(int j = 0; j < 50; j ++)
+		t_list* paginas = valor;
+		for(int i = 0; i < list_size(paginas); i++)
 		{
-			if(tablaSegmentos[i].PAGINAS[j].MODIFICADO)
+			pagina* pag = list_get(paginas, i);
+			if(pag->modificado)
 			{
-				char* actualizacion = malloc(sizeof(int) + sizeof(int) + sizeof(int) + sizeof(tablaSegmentos[i].PAGINAS[j].KEY
-						+ sizeof(tablaSegmentos[i].TABLA_ASOCIADA))
-						+ strlen(tablaSegmentos[i].PAGINAS[j].VALUE));
-				strcpy(actualizacion, (char*) 6);
-				strcat(actualizacion, (char*) strlen(tablaSegmentos[i].TABLA_ASOCIADA));
-				strcat(actualizacion, tablaSegmentos[i].TABLA_ASOCIADA);
-				strcat(actualizacion, (char*) strlen( (char*)tablaSegmentos[i].PAGINAS[j].KEY));
-				strcat(actualizacion, (char*) tablaSegmentos[i].PAGINAS[j].KEY);
-				strcat(actualizacion, (char*) strlen(tablaSegmentos[i].PAGINAS[j].VALUE));
-				strcat(actualizacion, tablaSegmentos[i].PAGINAS[j].VALUE);
-				send(clienteFS, actualizacion, strlen(actualizacion), 0);
+				char* key = malloc(sizeof(int));
+				memcpy(key, (memoriaPrincipal+pag->numeroFrame*tamanoFrame), sizeof(int));
+
+				char* value = malloc(tamanoValue);
+				memcpy(value, (memoriaPrincipal+pag->numeroFrame*tamanoFrame+sizeof(int)+sizeof(long int)), *(frames+pag->numeroFrame));
+
+				char* mensaje = malloc(sizeof(int)+sizeof(int)+sizeof(tabla)+sizeof(int)+
+						sizeof(key)+sizeof(int)+sizeof(value));
+				strcpy(mensaje, "1");
+
+				char* num = malloc(sizeof(int));
+				sprintf(num, "%d", sizeof(tabla));
+
+				strcat(mensaje, num);
+				free(num);
+
+				strcat(mensaje, tabla);
+
+				num = malloc(sizeof(int));
+				sprintf(num, "%d", sizeof(key));
+
+				strcat(mensaje, num);
+				free(num);
+
+				strcat(mensaje, key);
+
+				num = malloc(sizeof(int));
+				sprintf(num, "%d", sizeof(value));
+
+				strcat(mensaje, num);
+				free(num);
+
+				strcat(mensaje, value);
+
+				//Magia Sockets
+
+				free(mensaje);
 			}
 		}
 	}
-	inicializarSegmentos();
-	sem2 = true;
-}
-
-void realizarInsert(char* tabla, char* key, char* value)
-{
-	segmento segmentoAsociado = buscarSegmentoSegunTabla(tabla);
-	if(segmentoAsociado.EN_USO != -1)
+	for(int i = 0; i < 1000/tamanoFrame; i++)
 	{
-		pagina paginaAsociada = buscarPagina(key, segmentoAsociado);
-		if(paginaAsociada.EN_USO != -1)
-		{
-			paginaAsociada.MODIFICADO = 1;
-			paginaAsociada.VALUE = value;
-			paginaAsociada.TIMESTAMP = temporal_get_string_time();
-		}
-		else
-		{
-			insertarEnPaginaLibre(segmentoAsociado, key, value);
-		}
+		*(frames+i) = 0;
 	}
-	else
-	{
-		segmentoAsociado = buscarSegmentoLibre();
-		segmentoAsociado.PAGINAS[0].EN_USO = 1;
-		segmentoAsociado.PAGINAS[0].KEY = key;
-		segmentoAsociado.PAGINAS[0].MODIFICADO = 0;
-		segmentoAsociado.PAGINAS[0].TIMESTAMP = temporal_get_string_time();
-		segmentoAsociado.PAGINAS[0].VALUE = value;
-	}
+	dictionary_clean_and_destroy_elements(tablaSegmentos, NULL);
 }
 
 void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones, char* tiempoCompactacion)
 {
-	char* mensaje = malloc(sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+strlen(tabla)+strlen(tipoConsistencia)+strlen(numeroParticiones)+strlen(tiempoCompactacion));
-	strcpy(mensaje, 3);
-	strcat(mensaje, strlen(tabla));
+	char* mensaje = malloc(sizeof(int) + sizeof(int) + sizeof(tabla) + sizeof(int) + sizeof(tipoConsistencia)
+			+ sizeof(int) + sizeof(numeroParticiones) + sizeof(int) + sizeof(tiempoCompactacion));
+
+	strcpy(mensaje, "2");
+
+	char* num = malloc(sizeof(int));
+	sprintf(num, "%d", sizeof(tabla));
+
+	strcat(mensaje, num);
+	free(num);
+
 	strcat(mensaje, tabla);
-	strcat(mensaje, strlen(tipoConsistencia));
+
+	num = malloc(sizeof(int));
+	sprintf(num, "%d", sizeof(tipoConsistencia));
+
+	strcat(mensaje, num);
+	free(num);
+
 	strcat(mensaje, tipoConsistencia);
-	strcat(mensaje, strlen(numeroParticiones));
+
+	num = malloc(sizeof(int));
+	sprintf(num, "%d", sizeof(numeroParticiones));
+
+	strcat(mensaje, num);
+	free(num);
+
 	strcat(mensaje, numeroParticiones);
-	strcat(mensaje, strlen(tiempoCompactacion));
+
+	num = malloc(sizeof(int));
+	sprintf(num, "%d", sizeof(tiempoCompactacion));
+
+	strcat(mensaje, num);
+	free(num);
+
 	strcat(mensaje, tiempoCompactacion);
-	send(clienteFS, mensaje, strlen(mensaje), 0);
+
+	//Magia Sockets
+
+	free(mensaje);
+
+	printf("\nSe envio la peticion\n");
 }
 
+void realizarDrop(char* tabla)
+{
+	if(dictionary_has_key(tablaSegmentos, tabla))
+	{
+		void* elemento = dictionary_remove(tablaSegmentos, tabla);
+		free(elemento);
+	}
 
+	char* mensaje = malloc(sizeof(int) + sizeof(int) + sizeof(tabla));
+
+	strcpy(mensaje, "4");
+
+	char* num = malloc(sizeof(int));
+	sprintf(num, "%d", sizeof(tabla));
+
+	strcat(mensaje, num);
+	free(num);
+
+	strcat(mensaje, tabla);
+
+	//Magia sockets
+
+	free(mensaje);
+}
+
+void realizarDescribe(char* tabla)
+{
+
+}
+
+void realizarDescribeGolbal()
+{
+
+}
