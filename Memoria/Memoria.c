@@ -746,6 +746,7 @@ void realizarDrop(char* tabla)
 void realizarDescribe(char* tabla)
 {
 	//3
+	/*
 	char* mensaje = malloc(sizeof(int) + sizeof(int) + sizeof(tabla));
 
 	strcpy(mensaje, "3");
@@ -758,13 +759,48 @@ void realizarDescribe(char* tabla)
 
 	strcat(mensaje, tabla);
 
-	//Magia sockets
+	//Magia sockets  */
 
-	free(mensaje);
+	// Serializo peticion y tabla
+	void* buffer = malloc(strlen(tabla) + 3 * sizeof(int));
+
+	int peticion = 4;
+	int tamanioPeticion = sizeof(int);
+	memcpy(&buffer, &tamanioPeticion, sizeof(int));
+	memcpy(&buffer + sizeof(int), &peticion, sizeof(int));
+
+	int tamanioTabla = strlen(tabla);
+	memcpy(&buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(&buffer + 3 * sizeof(int), &tabla, strlen(tabla));
+
+	send(sd, buffer, strlen(tabla) + 3 * sizeof(int), 0);
+
+	//deserializo metadata
+	void *tamanioConsistencia = malloc(sizeof(int));
+	read(sd, tamanioConsistencia, sizeof(int));
+	void *tipoConsistencia = malloc(atoi(tamanioConsistencia));
+	read(sd, tipoConsistencia, (int) tamanioConsistencia);
+
+	char *tamanioNumeroParticiones = malloc(sizeof(int));
+	read(sd, tamanioNumeroParticiones, sizeof(int));
+	void *numeroParticiones = malloc((int) tamanioNumeroParticiones);
+	read(sd, numeroParticiones, (int) tamanioNumeroParticiones);
+
+	void *tamanioTiempoCompactacion = malloc(sizeof(int));
+	read(sd, tamanioTiempoCompactacion, sizeof(int));
+	void *tiempoCompactacion = malloc((int) tamanioTiempoCompactacion);
+	read(sd, tiempoCompactacion, (int) tamanioTiempoCompactacion);
+	// aca ya tengo toda la metadata, falta guardarla en struct
+
+	//free(mensaje);
 
 	char* metadata = malloc(sizeof(metadataTabla));
-
 	metadataTabla* data = metadata;
+
+	//guardo metadata en struct
+	memcpy(&data->particiones, &numeroParticiones, sizeof(int));
+	memcpy(&data->consistencia, &tipoConsistencia, sizeof(tipoConsistencia));
+	memcpy(&data->tiempoCompactacion, &tiempoCompactacion, sizeof(int));
 
 	printf("\nTabla: %s", tabla);
 	printf("\nParticiones: %d", data->particiones);
