@@ -2734,20 +2734,24 @@ int32_t iniciarConexion() {
 					//Select
 					tomarPeticionSelect(sd);
 					break;
-
+				case 2:
+					//Insert
+					tomarPeticionInsert(sd);
+					break;
 				case 3:
 					//Create
 					tomarPeticionCreate(sd);
 					break;
-
-				case 6:
-					//Insert
-					tomarPeticionInsert(sd);
+				case 4:
+					//Describe
+					tomarPeticionDescribePorTabla(sd);
 					break;
-
+				case 5:
+					//Drop
+					tomarPeticionDrop(sd);
+					break;
 				default:
 					break;
-
 				}
 
 				if (valread == 0) {
@@ -2874,7 +2878,8 @@ int32_t iniciarConexion() {
 	 char *tabla = malloc(atoi(tamanioTabla));
 	 read(sd, tabla, atoi(tamanioTabla));
 
-	 metadataTabla metadata = describeUnaTabla(tabla, 0);
+	 metadataTabla metadata;
+	 metadata = describeUnaTabla(tabla, 0);
 
 	 // serializo paquete
 	 void *buffer = malloc( strlen(metadata->CONSISTENCY) + 2*sizeof(int) + 3*sizeof(int) ); //primeros dos terminos para datos, tercer termino para longitudes
@@ -2896,9 +2901,24 @@ int32_t iniciarConexion() {
 
 
  void tomarPeticionDescribeTodasLasTablas(int sd){
-	 t_dictionary diccionario = describeTodasLasTablas(0);
+	 t_dictionary *diccionario = describeTodasLasTablas(0);
 	 int cantidadEntradas = dictionary_size(diccionario);
 	 for(int i = 0; i < cantidadEntradas; i++){
 		 metadataTabla metadata = dictionary_get(diccionario, tabla);
 	 }
+ }
+
+
+ void tomarPeticionDrop(int sd){
+ 	char *tamanioTabla = malloc(sizeof(int));
+ 	read(sd, tamanioTabla, sizeof(int));
+ 	char *tabla = malloc(atoi(tamanioTabla));
+ 	read(sd, tabla, atoi(tamanioTabla));
+
+ 	drop(tabla);
+
+ 	void* buffer = malloc(sizeof(int));
+ 	int ok = 1;
+ 	memcpy(&buffer, &ok, sizeof(int));
+ 	send(sd, buffer, sizeof(int), 0);
  }
