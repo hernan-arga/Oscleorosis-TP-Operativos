@@ -704,17 +704,19 @@ void realizarDrop(char* tabla)
 
 	strcat(mensaje, tabla);
 
-	//Magia sockets
+	// Serializo peticion y tabla
+	void* buffer = malloc( strlen(tabla) + 3*sizeof(int) );
 
-	// Serializo tabla
-	/*
-	void* buffer = malloc( strlen(tabla) + sizeof(int) );
+	int peticion = 5;
+	int tamanioPeticion = sizeof(int);
+	memcpy(&buffer, &tamanioPeticion, sizeof(int));
+	memcpy(&buffer + sizeof(int), &peticion, sizeof(int));
+
 	int tamanioTabla = strlen(tabla);
-	memcpy(&buffer, &tamanioTabla, sizeof(int));
-	memcpy(&buffer + sizeof(int), &tabla, strlen(tabla));
+	memcpy(&buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(&buffer + 3*sizeof(int), &tabla, strlen(tabla));
 
-	send(sd, buffer, strlen(tabla) + sizeof(int), 0);
-	*/
+	send(sd, buffer, strlen(tabla) + 3*sizeof(int), 0);
 
 	free(mensaje);
 }
