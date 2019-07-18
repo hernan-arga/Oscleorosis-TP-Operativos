@@ -436,8 +436,32 @@ int frameLibre()
 	return ejecutarLRU();
 }
 
-char* pedirValue(char* tabla, char* key)
+char* pedirValue(char* tabla, char* laKey)
 {
+	// Serializo tabla y key
+	/*
+	int key = atoi(laKey);
+	void* buffer = malloc( strlen(tabla) + sizeof(int) + 2*sizeof(int) ); // primeros dos terminos para TABLA; ultimo termino para KEY
+
+	int tamanioTabla = strlen(tabla);
+	memcpy(&buffer, &tamanioTabla, sizeof(int));
+	memcpy(&buffer + sizeof(int), &tabla, strlen(tabla));
+
+	int tamanioKey = sizeof(int);
+	memcpy(&buffer + sizeof(int) + strlen(tabla), &tamanioKey, sizeof(int));
+	memcpy(&buffer + 2*sizeof(int) + strlen(tabla), &key, sizeof(int));
+
+	send(sd, buffer, strlen(tabla) + 3*sizeof(int), 0);
+
+	//deserializo value
+	char *tamanioValue = malloc(sizeof(int));
+	read(sd, tamanioValue, sizeof(int));
+	char *value = malloc(atoi(tamanioValue));
+	read(sd, value, atoi(tamanioValue));
+
+	return value;
+	*/
+
 	char* mensaje = malloc(sizeof(int) + sizeof(int) + strlen(tabla) + sizeof(int) + strlen(key));
 
 	strcpy(mensaje, "0");
