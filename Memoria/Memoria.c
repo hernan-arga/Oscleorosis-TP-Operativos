@@ -647,6 +647,28 @@ void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones
 
 	//Magia Sockets
 
+	// Serializo Tabla y Metadata
+	/*
+	void* buffer = malloc( strlen(tabla) + 6*sizeof(int) + strlen(tipoConsistencia));
+	int tamanioTabla = strlen(tabla);
+	memcpy(&buffer, &tamanioTabla, sizeof(int));
+	memcpy(&buffer + sizeof(int), &tabla, strlen(tabla));
+
+	int tamanioMetadataConsistency = strlen(tipoConsistencia);
+	memcpy(&buffer + sizeof(int), &tamanioMetadataConsistency, sizeof(int));
+	memcpy(&buffer + 2*sizeof(int), &tipoConsistencia, strlen(tipoConsistencia));
+
+	int tamanioParticiones = sizeof(int);
+	memcpy(&buffer + 2*sizeof(int) + strlen(tipoConsistencia), &tamanioParticiones, sizeof(int));
+	memcpy(&buffer + 3*sizeof(int) + strlen(tipoConsistencia), &numeroParticiones, sizeof(int));
+
+	int tamanioCompactacion = sizeof(int);
+	memcpy(&buffer + 4*sizeof(int) + strlen(tipoConsistencia), &tamanioCompactacion, sizeof(int));
+	memcpy(&buffer + 5*sizeof(int) + strlen(tipoConsistencia), &tiempoCompactacion, sizeof(int));
+
+	send(sd, buffer, strlen(tabla) + 6*sizeof(int) + strlen(tipoConsistencia), 0);
+	*/
+
 	free(mensaje);
 
 	printf("\nSe envio la peticion\n");
