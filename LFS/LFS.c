@@ -154,6 +154,7 @@ void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 		t_list*entradaTabla, int key, int *cant, char* tabla);
 int estaEntreComillas(char*);
 void registrarBloqueQueCambio(int);
+void registrarBloqueQueSeBorro(int);
 
 void serializarDescribe(char*, metadataTabla*);
 
@@ -179,10 +180,10 @@ int main(int argc, char *argv[]) {
 			tamanioEnBytesDelBitarray());
 	//verBitArray();
 	pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
-	//pthread_create(&hiloDump, NULL, (void*) dump, NULL);
+	pthread_create(&hiloDump, NULL, (void*) dump, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
-	//levantarHilosCompactacionParaTodasLasTablas();
+	levantarHilosCompactacionParaTodasLasTablas();
 	memtable = malloc(4);
 	memtable = dictionary_create();
 
@@ -191,7 +192,7 @@ int main(int argc, char *argv[]) {
 
 	//Se queda esperando a que termine el hilo de escuchar peticiones
 	pthread_join(hiloLevantarConexion, NULL);
-	//pthread_join(hiloDump, NULL);
+	pthread_join(hiloDump, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	//Aca se destruye el bitarray?
 	//bitarray_destroy(bitarrayBloques);
@@ -1162,7 +1163,6 @@ void actualizarBin(char *pathBin) {
 	//Primero  para los que ocupan 1 bloque entero sin fragmentacion interna
 	while (cantidadDeBloquesCompletosNecesarios != 0) {
 		int bloqueEncontrado = asignarBloque();
-		registrarBloqueQueCambio(bloqueEncontrado);
 		char *stringAuxRegistros = string_new();
 		string_append(&stringAuxRegistros,
 				string_substring(registrosNuevos, desdeDondeTomarLosRegistros,
@@ -1189,7 +1189,6 @@ void actualizarBin(char *pathBin) {
 	//printf("Remanente: %i\n", remanenteEnBytes);
 	if (remanenteEnBytes != 0) {
 		int bloqueEncontrado = asignarBloque();
-		registrarBloqueQueCambio(bloqueEncontrado);
 		char *stringAuxRegistros = string_new();
 		string_append(&stringAuxRegistros,
 				string_substring(registrosNuevos, desdeDondeTomarLosRegistros,
@@ -1208,6 +1207,24 @@ void actualizarBin(char *pathBin) {
 
 }
 
+void registrarBloqueQueSeBorro(int bloqueEncontrado){
+	char* mensajeALogear =
+				malloc(strlen("Se desasigno el bloque: .bin")
+						+ contarLosDigitos((long int) bloqueEncontrado) * sizeof(int) + 1);
+		strcpy(mensajeALogear,
+				"Se desasigno el bloque: ");
+		strcat(mensajeALogear, string_itoa(bloqueEncontrado));
+		strcat(mensajeALogear, ".bin");
+		t_log* g_logger;
+		g_logger = log_create(
+				string_from_format("%sbloquesModificados.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+				LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+}
+
 void registrarBloqueQueCambio(int bloqueEncontrado){
 	char* mensajeALogear =
 				malloc(strlen("Se modifico el bloque: .bin")
@@ -1224,8 +1241,8 @@ void registrarBloqueQueCambio(int bloqueEncontrado){
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
-
 }
+
 
 void liberarBloques(char *pathArchivo) {
 	t_config *configArchivo = config_create(pathArchivo);
@@ -1241,6 +1258,7 @@ void desasignarBloqueDelBitarray(int bloque) {
 	if (bitarray_test_bit(bitarrayBloques, bloque) == 1) {
 		//verBitArray();
 		bitarray_clean_bit(bitarrayBloques, bloque);
+		registrarBloqueQueSeBorro(bloque);
 		//printf("Bloque %i -------\n", bloque);
 		//printf(">>>%i\n", bitarray_test_bit(bitarrayBloques, bloque));
 		//verBitArray();
@@ -1560,6 +1578,7 @@ int asignarBloque() {
 	}
 
 	if (encontroUnBloque) {
+		registrarBloqueQueCambio(bloqueEncontrado);
 		return bloqueEncontrado;
 	}
 
