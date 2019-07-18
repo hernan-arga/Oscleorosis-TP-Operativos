@@ -100,7 +100,7 @@ void consola();
 void serServidor();
 void conectarseAFS();
 void conectarseAKernel();
-void gosiping(int cliente);
+void gossiping(int cliente);
 void tratarCliente(int cliente);
 
 int main()
@@ -759,7 +759,9 @@ void realizarDescribe(char* tabla)
 
 	strcat(mensaje, tabla);
 
-	//Magia sockets  */
+	//Magia sockets
+
+	free(mensaje); */
 
 	// Serializo peticion y tabla
 	void* buffer = malloc(strlen(tabla) + 3 * sizeof(int));
@@ -792,14 +794,16 @@ void realizarDescribe(char* tabla)
 	read(sd, tiempoCompactacion, (int) tamanioTiempoCompactacion);
 	// aca ya tengo toda la metadata, falta guardarla en struct
 
-	//free(mensaje);
+	//char* metadata = malloc(sizeof(metadataTabla));
+	//metadataTabla* data = metadata;
 
-	char* metadata = malloc(sizeof(metadataTabla));
-	metadataTabla* data = metadata;
+	//para mi (abril) seria :
+	metadataTabla* data = malloc(8 + strlen(tipoConsistencia));    // 2 int = 2*4 bytes
 
+	//todo verificar
 	//guardo metadata en struct
 	memcpy(&data->particiones, &numeroParticiones, sizeof(int));
-	memcpy(&data->consistencia, &tipoConsistencia, sizeof(tipoConsistencia));
+	memcpy(&data->consistencia, &tipoConsistencia, strlen(tipoConsistencia));
 	memcpy(&data->tiempoCompactacion, &tiempoCompactacion, sizeof(int));
 
 	printf("\nTabla: %s", tabla);
@@ -807,7 +811,7 @@ void realizarDescribe(char* tabla)
 	printf("\nConsistencia: %s", data->consistencia);
 	printf("\nTiempo Compactacion: %d", data->tiempoCompactacion);
 
-	free(metadata);
+	//free(metadata);
 }
 
 void realizarDescribeGolbal()
