@@ -75,6 +75,7 @@ void drop(char*);
 void describeTodasLasTablas();
 void describeUnaTabla(char*);
 void actualizarDiccionarioDeTablas(char *, struct tabla *);
+void quitarDelDiccionarioDeTablasLaTablaBorrada(char *);
 
 /*
 void funcionLoca();
@@ -86,6 +87,7 @@ t_list * PIDs;
 t_list * listaDeMemorias;
 //tablas_conocidas diccionario que tiene structs tabla
 t_dictionary *tablas_conocidas;
+t_dictionary *diccionarioDeTablasTemporal;
 t_config* configuracion;
 int enEjecucionActualmente = 0;
 int n = 0;
@@ -555,10 +557,10 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			}
 			if (parametrosValidos(0, parametros,
 					(void *) criterioDescribe)) {
-				t_dictionary *diccionarioDeTablasTemporal;
-				//diccionarioDeTablasTemporal = 	Le pido el diccionario de todas las tablas a memoria y actualizo el propio
-				//dictionary_iterator(diccionarioDeTablasTemporal, (void*)actualizarDiccionarioDeTablas);
-				dictionary_destroy(diccionarioDeTablasTemporal);
+				//diccionarioDeTablasTemporal = 	Le pido el diccionario de todas las tablas a memoria
+				//dictionary_iterator(diccionarioDeTablasTemporal, (void*)actualizarDiccionarioDeTablas); actualizo el propio
+				//dictionary_iterator(tablas_conocidas, (void*)quitarDelDiccionarioDeTablasLaTablaBorrada);
+				//dictionary_destroy(diccionarioDeTablasTemporal);
 				*huboError = 0;
 				if(es_request){
 					describeTodasLasTablas();
@@ -646,6 +648,12 @@ int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
 	return cantidadValidaParametros(parametros, cantidadDeParametrosNecesarios)
 			&& criterioTiposCorrectos(parametros,
 					cantidadDeParametrosNecesarios);;
+}
+
+void quitarDelDiccionarioDeTablasLaTablaBorrada(char *tabla){
+	if(!dictionary_has_key(diccionarioDeTablasTemporal, tabla)){
+		dictionary_remove(tablas_conocidas, tabla);
+	}
 }
 
 void describeUnaTabla(char* tabla){
