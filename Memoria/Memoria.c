@@ -573,6 +573,7 @@ void ejecutarJournaling()
 				char* value = malloc(tamanoValue);
 				memcpy(value, (memoriaPrincipal+pag->numeroFrame*tamanoFrame+sizeof(int)+sizeof(long int)), *(frames+pag->numeroFrame));
 
+				/*
 				char* mensaje = malloc(sizeof(int)+sizeof(int)+sizeof(tabla)+sizeof(int)+
 						sizeof(key)+sizeof(int)+strlen(value));
 				strcpy(mensaje, "1");
@@ -600,10 +601,31 @@ void ejecutarJournaling()
 				free(num);
 
 				strcat(mensaje, value);
+				*/
 
-				//Magia Sockets
+				// Serializo peticion, tabla, key, value (el timestamp lo agrega el fs y siempre es el ACTUAL)
+				char* buffer = malloc( 6*sizeof(int) + strlen(tabla) + strlen(value));
 
-				free(mensaje);
+				int peticion = 2;
+				int tamanioPeticion = sizeof(int);
+				memcpy(&buffer, &tamanioPeticion, sizeof(int));
+				memcpy(&buffer + sizeof(int), &peticion, sizeof(int));
+
+				int tamanioTabla = strlen(tabla);
+				memcpy(&buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
+				memcpy(&buffer + 3 * sizeof(int), &tabla, strlen(tabla));
+
+				int tamanioKey = sizeof(int);
+				memcpy(&buffer+ 3 * sizeof(int)+ strlen(tabla), &tamanioKey, sizeof(int));
+				memcpy(&buffer+ 4 * sizeof(int)+ strlen(tabla), &key, sizeof(int));
+
+				int tamanioValue = strlen(value);
+				memcpy(&buffer+ 5 * sizeof(int)+ strlen(tabla), &tamanioValue, sizeof(int));
+				memcpy(buffer+ 6 * sizeof(int)+ strlen(tabla), &value, strlen(value));
+
+				send(sd, buffer,6*sizeof(int) + strlen(tabla) + strlen(value), 0 );
+
+				//free(mensaje);
 			}
 		}
 	}
