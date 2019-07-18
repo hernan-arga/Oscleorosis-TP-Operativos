@@ -674,6 +674,16 @@ void realizarDrop(char* tabla)
 
 	//Magia sockets
 
+	// Serializo tabla
+	/*
+	void* buffer = malloc( strlen(tabla) + sizeof(int) );
+	int tamanioTabla = strlen(tabla);
+	memcpy(&buffer, &tamanioTabla, sizeof(int));
+	memcpy(&buffer + sizeof(int), &tabla, strlen(tabla));
+
+	send(sd, buffer, strlen(tabla) + sizeof(int), 0);
+	*/
+
 	free(mensaje);
 }
 
