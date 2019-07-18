@@ -153,6 +153,9 @@ void iniciarMmap();
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 		t_list*entradaTabla, int key, int *cant, char* tabla);
 int estaEntreComillas(char*);
+void registrarBloqueQueCambio(int);
+
+void serializarDescribe(char*, metadataTabla*);
 
 t_config* configLFS;
 configuracionLFS structConfiguracionLFS;
@@ -1159,6 +1162,7 @@ void actualizarBin(char *pathBin) {
 	//Primero  para los que ocupan 1 bloque entero sin fragmentacion interna
 	while (cantidadDeBloquesCompletosNecesarios != 0) {
 		int bloqueEncontrado = asignarBloque();
+		registrarBloqueQueCambio(bloqueEncontrado);
 		char *stringAuxRegistros = string_new();
 		string_append(&stringAuxRegistros,
 				string_substring(registrosNuevos, desdeDondeTomarLosRegistros,
@@ -1185,6 +1189,7 @@ void actualizarBin(char *pathBin) {
 	//printf("Remanente: %i\n", remanenteEnBytes);
 	if (remanenteEnBytes != 0) {
 		int bloqueEncontrado = asignarBloque();
+		registrarBloqueQueCambio(bloqueEncontrado);
 		char *stringAuxRegistros = string_new();
 		string_append(&stringAuxRegistros,
 				string_substring(registrosNuevos, desdeDondeTomarLosRegistros,
@@ -1200,6 +1205,25 @@ void actualizarBin(char *pathBin) {
 	//Creo el binario con el stringdelArrayDeBloques y totalDeBytesDelBin
 	crearArchivoConBloques(pathBin, stringdelArrayDeBloques,
 			totalDeBytesDelBin);
+
+}
+
+void registrarBloqueQueCambio(int bloqueEncontrado){
+	char* mensajeALogear =
+				malloc(strlen("Se modifico el bloque: .bin")
+						+ contarLosDigitos((long int) bloqueEncontrado) * sizeof(int) + 1);
+		strcpy(mensajeALogear,
+				"Se modifico el bloque: ");
+		strcat(mensajeALogear, string_itoa(bloqueEncontrado));
+		strcat(mensajeALogear, ".bin");
+		t_log* g_logger;
+		g_logger = log_create(
+				string_from_format("%sbloquesModificados.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+				LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
 
 }
 

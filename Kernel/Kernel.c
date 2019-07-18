@@ -776,6 +776,10 @@ void ejecutor(struct Script *ejecutando){
 	}
 	fclose(lql);
 	free(caracter);
+
+	/*	//No se donde va esta wea
+	int sleepEjecucion = config_get_int_value(configuracion, "SLEEP_EJECUCION");
+	sleep(sleepEjecucion);*/
 }
 
 char* tempSinAsignar(){
