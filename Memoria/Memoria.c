@@ -653,29 +653,31 @@ void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones
 
 	strcat(mensaje, tiempoCompactacion);
 
-	//Magia Sockets
+	// Serializo Peticion, Tabla y Metadata
+	void* buffer = malloc( strlen(tabla) + 8*sizeof(int) + strlen(tipoConsistencia));
 
-	// Serializo Tabla y Metadata
-	/*
-	void* buffer = malloc( strlen(tabla) + 6*sizeof(int) + strlen(tipoConsistencia));
+	int peticion = 3;
+	int tamanioPeticion = sizeof(int);
+	memcpy(&buffer, &tamanioPeticion, sizeof(int));
+	memcpy(&buffer + sizeof(int), &peticion, sizeof(int));
+
 	int tamanioTabla = strlen(tabla);
-	memcpy(&buffer, &tamanioTabla, sizeof(int));
-	memcpy(&buffer + sizeof(int), &tabla, strlen(tabla));
+	memcpy(&buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(&buffer + 3*sizeof(int), &tabla, strlen(tabla));
 
 	int tamanioMetadataConsistency = strlen(tipoConsistencia);
-	memcpy(&buffer + sizeof(int), &tamanioMetadataConsistency, sizeof(int));
-	memcpy(&buffer + 2*sizeof(int), &tipoConsistencia, strlen(tipoConsistencia));
+	memcpy(&buffer + 3*sizeof(int)+ strlen(tabla), &tamanioMetadataConsistency, sizeof(int));
+	memcpy(&buffer + 4*sizeof(int)+ strlen(tabla), &tipoConsistencia, strlen(tipoConsistencia));
 
 	int tamanioParticiones = sizeof(int);
-	memcpy(&buffer + 2*sizeof(int) + strlen(tipoConsistencia), &tamanioParticiones, sizeof(int));
-	memcpy(&buffer + 3*sizeof(int) + strlen(tipoConsistencia), &numeroParticiones, sizeof(int));
+	memcpy(&buffer + 4*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &tamanioParticiones, sizeof(int));
+	memcpy(&buffer + 5*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &numeroParticiones, sizeof(int));
 
 	int tamanioCompactacion = sizeof(int);
-	memcpy(&buffer + 4*sizeof(int) + strlen(tipoConsistencia), &tamanioCompactacion, sizeof(int));
-	memcpy(&buffer + 5*sizeof(int) + strlen(tipoConsistencia), &tiempoCompactacion, sizeof(int));
+	memcpy(&buffer + 6*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &tamanioCompactacion, sizeof(int));
+	memcpy(&buffer + 7*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &tiempoCompactacion, sizeof(int));
 
-	send(sd, buffer, strlen(tabla) + 6*sizeof(int) + strlen(tipoConsistencia), 0);
-	*/
+	send(sd, buffer, strlen(tabla) + 8*sizeof(int) + strlen(tipoConsistencia), 0);
 
 	free(mensaje);
 
