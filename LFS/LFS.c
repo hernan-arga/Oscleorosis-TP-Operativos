@@ -2776,7 +2776,6 @@ int32_t iniciarConexion() {
 			}
 		}
 	}
-
 }
 
 
@@ -2784,13 +2783,11 @@ int32_t iniciarConexion() {
 	 // deserializo peticion de la memoria
 	 void *tamanioTabla = malloc(sizeof(int));
 	 read(sd, tamanioTabla, sizeof(int));
-
 	 void *tabla = malloc(atoi(tamanioTabla));
 	 read(sd, tabla, (int)tamanioTabla);
 
 	 char *tamanioKey = malloc(sizeof(int));
 	 read(sd, tamanioKey, sizeof(int));
-
 	 char *key = malloc(atoi(tamanioKey));
 	 read(sd, key, (int)tamanioKey);
 
@@ -2806,72 +2803,102 @@ int32_t iniciarConexion() {
 	 send(sd, buffer, strlen(value)+sizeof(int), 0);
  }
 
+
  void tomarPeticionCreate(int sd) {
- void *tamanioTabla = malloc(sizeof(int));
- read(sd, tamanioTabla, sizeof(int));
- void *tabla = malloc(atoi(tamanioTabla));
- read(sd, tabla, (int)tamanioTabla);
+	 void *tamanioTabla = malloc(sizeof(int));
+	 read(sd, tamanioTabla, sizeof(int));
+	 void *tabla = malloc(atoi(tamanioTabla));
+	 read(sd, tabla, (int)tamanioTabla);
 
- void *tamanioConsistencia = malloc(sizeof(int));
- read(sd, tamanioConsistencia, sizeof(int));
- void *tipoConsistencia = malloc(atoi(tamanioConsistencia));
- read(sd, tipoConsistencia, (int)tamanioConsistencia);
+	 void *tamanioConsistencia = malloc(sizeof(int));
+	 read(sd, tamanioConsistencia, sizeof(int));
+	 void *tipoConsistencia = malloc(atoi(tamanioConsistencia));
+	 read(sd, tipoConsistencia, (int)tamanioConsistencia);
 
- char *tamanioNumeroParticiones = malloc(sizeof(int));
- read(sd, tamanioNumeroParticiones, sizeof(int));
- void *numeroParticiones = malloc((int)tamanioNumeroParticiones);
- read(sd, numeroParticiones, (int)tamanioNumeroParticiones);
+	 char *tamanioNumeroParticiones = malloc(sizeof(int));
+	 read(sd, tamanioNumeroParticiones, sizeof(int));
+	 void *numeroParticiones = malloc((int)tamanioNumeroParticiones);
+	 read(sd, numeroParticiones, (int)tamanioNumeroParticiones);
 
- void *tamanioTiempoCompactacion = malloc(sizeof(int));
- read(sd, tamanioTiempoCompactacion, sizeof(int));
- void *tiempoCompactacion = malloc((int)tamanioTiempoCompactacion);
- read(sd, tiempoCompactacion, (int)tamanioTiempoCompactacion);
+	 void *tamanioTiempoCompactacion = malloc(sizeof(int));
+	 read(sd, tamanioTiempoCompactacion, sizeof(int));
+	 void *tiempoCompactacion = malloc((int)tamanioTiempoCompactacion);
+	 read(sd, tiempoCompactacion, (int)tamanioTiempoCompactacion);
 
- create(tabla, tipoConsistencia, numeroParticiones, tiempoCompactacion);
- void* buffer = malloc(sizeof(int));
- int ok = 1;
- memcpy(&buffer, &ok, sizeof(int));
- send(sd, buffer, sizeof(int), 0);
+	 create(tabla, tipoConsistencia, numeroParticiones, tiempoCompactacion);
+	 void* buffer = malloc(sizeof(int));
+	 int ok = 1;
+	 memcpy(&buffer, &ok, sizeof(int));
+	 send(sd, buffer, sizeof(int), 0);
  }
+
 
  void tomarPeticionInsert(int sd) {
- char *tamanioTabla = malloc(sizeof(int));
- read(sd, tamanioTabla, sizeof(int));
- char *tabla = malloc(atoi(tamanioTabla));
- read(sd, tabla, atoi(tamanioTabla));
-
- char *tamanioKey = malloc(sizeof(int));
- read(sd, tamanioKey, sizeof(int));
- char *key = malloc(atoi(tamanioKey));
- read(sd, key, atoi(tamanioKey));
-
- char *tamanioValue = malloc(sizeof(int));
- read(sd, tamanioValue, sizeof(int));
- char *value = malloc(atoi(tamanioValue));
- read(sd, value, atoi(tamanioValue));
-
- void* existeTimestamp = malloc(sizeof(int));
- read(sd, existeTimestamp, sizeof(int));
-
- char* timestamp = NULL;
- if(existeTimestamp){
-	 char *tamanioTime = malloc(sizeof(int));
-	 read(sd, tamanioTime, sizeof(int));
-	 timestamp = malloc(atoi(tamanioTime));
-	 read(sd, timestamp, atoi(tamanioTime));
- }
-
- insert(tabla, key, value, timestamp);
- void* buffer = malloc(sizeof(int));
- int ok = 1;
- memcpy(&buffer, &ok, sizeof(int));
- send(sd, buffer, sizeof(int), 0);
- }
-
-
- void tomarPeticionDescribe(int sd){
 	 char *tamanioTabla = malloc(sizeof(int));
 	 read(sd, tamanioTabla, sizeof(int));
 	 char *tabla = malloc(atoi(tamanioTabla));
 	 read(sd, tabla, atoi(tamanioTabla));
+
+	 char *tamanioKey = malloc(sizeof(int));
+	 read(sd, tamanioKey, sizeof(int));
+	 char *key = malloc(atoi(tamanioKey));
+	 read(sd, key, atoi(tamanioKey));
+
+	 char *tamanioValue = malloc(sizeof(int));
+	 read(sd, tamanioValue, sizeof(int));
+	 char *value = malloc(atoi(tamanioValue));
+	 read(sd, value, atoi(tamanioValue));
+
+	 void* existeTimestamp = malloc(sizeof(int));
+	 read(sd, existeTimestamp, sizeof(int));
+
+	 char* timestamp = NULL;
+	 if(existeTimestamp){
+		 char *tamanioTime = malloc(sizeof(int));
+		 read(sd, tamanioTime, sizeof(int));
+		 timestamp = malloc(atoi(tamanioTime));
+		 read(sd, timestamp, atoi(tamanioTime));
+	 }
+
+	 insert(tabla, key, value, timestamp);
+	 void* buffer = malloc(sizeof(int));
+	 int ok = 1;
+	 memcpy(&buffer, &ok, sizeof(int));
+	 send(sd, buffer, sizeof(int), 0);
+ }
+
+
+ void tomarPeticionDescribePorTabla(int sd){
+	 char *tamanioTabla = malloc(sizeof(int));
+	 read(sd, tamanioTabla, sizeof(int));
+	 char *tabla = malloc(atoi(tamanioTabla));
+	 read(sd, tabla, atoi(tamanioTabla));
+
+	 metadataTabla metadata = describeUnaTabla(tabla, 0);
+
+	 // serializo paquete
+	 void *buffer = malloc( strlen(metadata->CONSISTENCY) + 2*sizeof(int) + 3*sizeof(int) ); //primeros dos terminos para datos, tercer termino para longitudes
+
+	 int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
+	 memcpy(&buffer, &tamanioMetadataConsistency, sizeof(int));
+	 memcpy(&buffer + sizeof(int), &metadata->CONSISTENCY, strlen(metadata->CONSISTENCY));
+
+	 int tamanioParticiones = sizeof(int);
+	 memcpy(&buffer + sizeof(int) + strlen(metadata->CONSISTENCY), &tamanioParticiones, sizeof(int));
+	 memcpy(&buffer + 2*sizeof(int) + strlen(metadata->CONSISTENCY), &metadata->PARTITIONS, sizeof(int));
+
+	 int tamanioCompactacion = sizeof(int);
+	 memcpy(&buffer + 3*sizeof(int) + strlen(metadata->CONSISTENCY), &tamanioCompactacion, sizeof(int));
+	 memcpy(&buffer + 4*sizeof(int) + strlen(metadata->CONSISTENCY), &metadata->COMPACTION_TIME, sizeof(int));
+
+	 send(sd, buffer, strlen(metadata->CONSISTENCY)+5*sizeof(int), 0);
+ }
+
+
+ void tomarPeticionDescribeTodasLasTablas(int sd){
+	 t_dictionary diccionario = describeTodasLasTablas(0);
+	 int cantidadEntradas = dictionary_size(diccionario);
+	 for(int i = 0; i < cantidadEntradas; i++){
+		 metadataTabla metadata = dictionary_get(diccionario, tabla);
+	 }
  }
