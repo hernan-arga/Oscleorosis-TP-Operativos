@@ -438,20 +438,27 @@ int frameLibre()
 
 char* pedirValue(char* tabla, char* laKey)
 {
-	// Serializo tabla y key
-	/*
+	// PETICION A FS : 0 TABLA KEY
+	// Serializo peticion, tabla y key
 	int key = atoi(laKey);
-	void* buffer = malloc( strlen(tabla) + sizeof(int) + 2*sizeof(int) ); // primeros dos terminos para TABLA; ultimo termino para KEY
+
+	void* buffer = malloc( strlen(tabla) + sizeof(int) + 2*sizeof(int) + 2*sizeof(int));
+	// primeros dos terminos para TABLA; anteultimo termino para KEY; ultimo para peticion
+
+	int peticion = 0;
+	int tamanioPeticion = sizeof(int);
+	memcpy(&buffer, &tamanioPeticion, sizeof(int));
+	memcpy(&buffer + sizeof(int), &peticion, sizeof(int));
 
 	int tamanioTabla = strlen(tabla);
-	memcpy(&buffer, &tamanioTabla, sizeof(int));
-	memcpy(&buffer + sizeof(int), &tabla, strlen(tabla));
+	memcpy(&buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(&buffer + 3*sizeof(int), &tabla, strlen(tabla));
 
 	int tamanioKey = sizeof(int);
-	memcpy(&buffer + sizeof(int) + strlen(tabla), &tamanioKey, sizeof(int));
-	memcpy(&buffer + 2*sizeof(int) + strlen(tabla), &key, sizeof(int));
+	memcpy(&buffer + 3*sizeof(int) + strlen(tabla), &tamanioKey, sizeof(int));
+	memcpy(&buffer + 4*sizeof(int) + strlen(tabla), &key, sizeof(int));
 
-	send(sd, buffer, strlen(tabla) + 3*sizeof(int), 0);
+	send(sd, buffer, strlen(tabla) + 5*sizeof(int), 0);
 
 	//deserializo value
 	char *tamanioValue = malloc(sizeof(int));
@@ -460,8 +467,8 @@ char* pedirValue(char* tabla, char* laKey)
 	read(sd, value, atoi(tamanioValue));
 
 	return value;
-	*/
 
+/*
 	char* mensaje = malloc(sizeof(int) + sizeof(int) + strlen(tabla) + sizeof(int) + strlen(key));
 
 	strcpy(mensaje, "0");
@@ -502,6 +509,7 @@ char* pedirValue(char* tabla, char* laKey)
 	free(tamV);
 
 	return value;
+*/
 }
 
 int ejecutarLRU()
