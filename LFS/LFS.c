@@ -73,6 +73,9 @@ typedef struct {
  void tomarPeticionSelect(int sd);
  void tomarPeticionCreate(int sd);
  void tomarPeticionInsert(int sd);
+ void tomarPeticionDrop(int sd);
+ void tomarPeticionDescribePorTabla(int sd);
+ void tomarPeticionDescribeTodasLasTablas(int sd);
 
 
 void atenderPeticionesDeConsola();
@@ -2878,11 +2881,11 @@ int32_t iniciarConexion() {
 	 char *tabla = malloc(atoi(tamanioTabla));
 	 read(sd, tabla, atoi(tamanioTabla));
 
-	 metadataTabla metadata;
-	 metadata = describeUnaTabla(tabla, 0);
+	 metadataTabla metadataPuntero = describeUnaTabla(tabla, 0);
+	 metadataTabla* metadata = &metadataPuntero;
 
 	 // serializo paquete
-	 void *buffer = malloc( strlen(metadata->CONSISTENCY) + 2*sizeof(int) + 3*sizeof(int) ); //primeros dos terminos para datos, tercer termino para longitudes
+	 void* buffer = malloc( strlen(metadata->CONSISTENCY) + 2*sizeof(int) + 3*sizeof(int) ); //primeros dos terminos para datos, tercer termino para longitudes
 
 	 int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
 	 memcpy(&buffer, &tamanioMetadataConsistency, sizeof(int));
@@ -2901,11 +2904,31 @@ int32_t iniciarConexion() {
 
 
  void tomarPeticionDescribeTodasLasTablas(int sd){
-	 t_dictionary *diccionario = describeTodasLasTablas(0);
-	 int cantidadEntradas = dictionary_size(diccionario);
-	 for(int i = 0; i < cantidadEntradas; i++){
-		 metadataTabla metadata = dictionary_get(diccionario, tabla);
-	 }
+	t_dictionary *diccionario = describeTodasLasTablas(0);
+	int i = 0;
+	dictionary_iterator(diccionario, (void*)serializarDescribe);
+ }
+
+ void serializarDescribe(char* tabla, metadataTabla* metadata){
+ 	// serializo paquete
+	// primer sizeof para la tabla, segundo para datos de la metadata, tercero para longitudes de la metadata
+	void* buffer = malloc(strlen(tabla) + sizeof(int) + strlen(metadata->CONSISTENCY) + 2*sizeof(int) + 3*sizeof(int));
+	int tamanioTabla = strlen(tabla);
+	memcpy(&buffer, &tamanioTabla, sizeof(int));
+	memcpy(&buffer + sizeof(int), &tabla, strlen(tabla));
+	// hasta aca el buffer tiene tod para la tabla, falta tod para la metadata
+
+	int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
+	memcpy(&buffer + sizeof(int) + strlen(tabla), &tamanioMetadataConsistency, sizeof(int));
+	memcpy(&buffer + 2*sizeof(int)+ strlen(tabla), &metadata->CONSISTENCY, strlen(metadata->CONSISTENCY));
+
+	int tamanioParticiones = sizeof(int);
+	memcpy(&buffer + 2*sizeof(int) + strlen(tabla) + strlen(metadata->CONSISTENCY), &tamanioParticiones, sizeof(int));
+	memcpy(&buffer + 3 * sizeof(int)+ strlen(tabla) + strlen(metadata->CONSISTENCY),&metadata->PARTITIONS, sizeof(int));
+
+	int tamanioCompactacion = sizeof(int);
+	memcpy(&buffer + 4 * sizeof(int)+ strlen(tabla) + strlen(metadata->CONSISTENCY),&tamanioCompactacion, sizeof(int));
+	memcpy(&buffer + 5 * sizeof(int)+ strlen(tabla) + strlen(metadata->CONSISTENCY), &metadata->COMPACTION_TIME, sizeof(int));
  }
 
 
