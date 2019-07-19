@@ -24,6 +24,13 @@
 #include <semaphore.h>
 #include <commons/log.h>
 
+struct metricas{
+	clock_t tiempoDeCreacion;
+	double segundosDeEjecucion;
+	int tipoDeMetric; //0 para SELECT, 1 para INSERT
+	int IPMemoria;
+};
+
 struct Script{
 	int PID;
 	int PC;
@@ -33,6 +40,7 @@ struct Script{
 
 struct datosMemoria{
 	int ip;
+
 };
 
 struct tabla{
@@ -70,17 +78,24 @@ void ejecutor(struct Script *);
 void ejecutarReady();
 void atenderPeticionesDeConsola();
 void refreshMetadata();
+void generarMetrica(clock_t, int);
+void borrarObsoletos(clock_t);
+void mostrarInserts();
+void mostrarSelects();
+void memoryLoad();
 
 void drop(char*);
 void describeTodasLasTablas();
 void describeUnaTabla(char*);
 void actualizarDiccionarioDeTablas(char *, struct tabla *);
 void quitarDelDiccionarioDeTablasLaTablaBorrada(char *);
+void borrarTemps();
 
 /*
 void funcionLoca();
 void funcionLoca2();
 */
+t_list * metricas; // Lista con info. de los últimos INSERT y SELECT, se irán borrando si exceden los 30 segundos. Se considera el tiempo de ejecución, el tiempo que tardan mientras se están ejecutando.
 t_queue* new;
 t_queue* ready;
 t_list * PIDs;
@@ -95,6 +110,7 @@ int n = 0;
 t_log* g_logger;
 
 int main(){
+	metricas = list_create();
 	configuracion = config_create("Kernel_config");
 	PIDs = list_create();
 	listaDeMemorias = list_create();
@@ -113,7 +129,83 @@ int main(){
 	pthread_join(describe, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	pthread_join(hiloEjecutarReady, NULL);
+	//borrarTemps();
 	return 0;
+}
+// :XXX: Esta función todavía no se usa, hay que ver dónde ponerla xd
+void borrarTemps(){
+	char * nombre= string_new();
+	char * strNumero = string_new();
+	int status;
+	for (int i=0; i<=n;i++){
+		strNumero = string_itoa(i);
+		string_append(&nombre,"temp");
+		string_append(&nombre,strNumero);
+		string_append(&nombre,".lql");
+		status = remove(nombre);
+		if(status == 0){
+			printf("%s file deleted successfully.\n", nombre);
+		}
+	}
+}
+
+void metrics(){
+	clock_t tiempoActual = clock();
+	borrarObsoletos(tiempoActual);
+	mostrarInserts();
+	mostrarSelects();
+	memoryLoad();
+}
+
+void memoryLoad(){
+
+}
+
+void mostrarInserts(){
+	printf("Promedio de tiempo de ejecucion para INSERT\n");
+	double contador = 0;
+	t_list * soloInserts = list_create();
+	struct metricas* unaMetrica;
+	bool _filtrarInsert(void* tipo){
+		return 1 == (int) tipo;
+	}
+	soloInserts = list_filter(metricas,_filtrarInsert);
+	int cantidadDeElementos = list_size(soloInserts);
+	for(int i=0; i<cantidadDeElementos;i++){
+		unaMetrica = list_get(soloInserts,i);
+		contador += unaMetrica->segundosDeEjecucion;
+	}
+	contador = contador / cantidadDeElementos;
+	printf("%f\n",contador);
+	printf("Cantidad de INSERTS en los ultimos 30 segundos: %i\n",cantidadDeElementos);
+}
+
+void mostrarSelects(){
+	printf("Promedio de tiempo de ejecucion para SELECT\n");
+	double contador = 0;
+	t_list * soloInserts = list_create();
+	struct metricas* unaMetrica;
+	bool _filtrarSELECT(void* tipo){
+		return 0 == tipo;
+	}
+	soloInserts = list_filter(metricas,_filtrarSELECT);
+	int cantidadDeElementos = list_size(soloInserts);
+	for(int i=0; i<cantidadDeElementos;i++){
+		unaMetrica = list_get(soloInserts,i);
+		contador += unaMetrica->segundosDeEjecucion;
+	}
+	contador = contador / cantidadDeElementos;
+	printf("%f\n",contador);
+	printf("Cantidad de SELECTS en los ultimos 30 segundos: %i\n",cantidadDeElementos);
+}
+
+void borrarObsoletos(clock_t tiempoActual){
+	if(!list_is_empty(metricas)){
+		bool _tiempoPasado(void* tiempoDeCreacion){
+					return (int) (clock()/ CLOCKS_PER_SEC - 30) < (int)tiempoDeCreacion / CLOCKS_PER_SEC;
+				}
+		metricas = list_filter(metricas,_tiempoPasado);
+	}
 }
 
 void refreshMetadata(){
@@ -430,7 +522,9 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				planificador(nombre_archivo);
 			}
 			else{
+				clock_t tiempoSelect = clock();
 				//Aca lo manda por sockets y en caso de error modifica la variable huboError
+				generarMetrica(tiempoSelect,0,IP);
 				*huboError = 0;
 			}
 		}
@@ -479,7 +573,9 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				planificador(nombre_archivo);
 			}
 			else{
+				clock_t tiempoInsert = clock();
 				//Aca lo manda por sockets y en caso de error modifica la variable huboError
+				generarMetrica(tiempoInsert,1);
 				*huboError = 0;
 			}
 
@@ -493,7 +589,9 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				planificador(nombre_archivo);
 			}
 			else{
+				clock_t tiempoInsert = clock();
 				//Aca lo manda por sockets y en caso de error modifica la variable huboError
+				generarMetrica(tiempoInsert,1,IP);
 				*huboError = 0;
 			}
 		}
@@ -635,11 +733,22 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		}
 		break;
 
-	case METRICS: //falta continuarlo
+	case METRICS: metrics();
+	break;
 
 	default:
 		printf("Error operacion invalida\n");
 	}
+}
+
+void generarMetrica(clock_t tiempoInicial,int tipoDeMetrica){
+	struct metricas unRegistro;
+	clock_t tiempoFinal = clock() - tiempoInicial;
+	unRegistro.segundosDeEjecucion = ((double)tiempoFinal)/CLOCKS_PER_SEC;
+	unRegistro.tipoDeMetric = tipoDeMetrica;
+	unRegistro.tiempoDeCreacion = clock();
+
+	list_add(metricas,&unRegistro);
 }
 
 //TODO Esto tiene dos ;; se me hace raro
