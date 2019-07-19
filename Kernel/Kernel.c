@@ -23,6 +23,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <commons/log.h>
+#include <dirent.h>
 
 struct metricas{
 	clock_t tiempoDeCreacion;
@@ -90,15 +91,11 @@ void describeUnaTabla(char*);
 void actualizarDiccionarioDeTablas(char *, struct tabla *);
 void quitarDelDiccionarioDeTablasLaTablaBorrada(char *);
 
-void borrarTemps();
+void borrarTodosLosTemps();
+int funcionHash(int);
 
 void agregarAMiLista(char*);
 
-
-/*
-void funcionLoca();
-void funcionLoca2();
-*/
 t_list * metricasTotales;
 t_list * metricas; // Lista con info. de los últimos INSERT y SELECT, se irán borrando si exceden los 30 segundos. Se considera el tiempo de ejecución, el tiempo que tardan mientras se están ejecutando.
 t_queue* new;
@@ -130,7 +127,7 @@ int main(){
 	new = queue_create();
 	ready = queue_create();
 	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
-	//configurar_kernel();
+	borrarTodosLosTemps();
 	operacion_gossiping(); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
 	pthread_t hiloEjecutarReady;
 	pthread_t atenderPeticionesConsola;
@@ -141,11 +138,25 @@ int main(){
 	pthread_join(describe, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	pthread_join(hiloEjecutarReady, NULL);
-	//borrarTemps();
 	return 0;
 }
-// :XXX: Esta función todavía no se usa, hay que ver dónde ponerla xd
-void borrarTemps(){
+
+void borrarTodosLosTemps(){
+	DIR *directorio = opendir("./");
+	struct dirent *directorioALeer;
+	while ((directorioALeer = readdir(directorio)) != NULL) {
+		//Evaluo si de todas las carpetas dentro de TABLAS existe alguna que tenga el mismo nombre
+		if (string_starts_with(directorioALeer->d_name, "temp")) {
+			char *archivoABorrar = string_new();
+			string_append(&archivoABorrar, "./");
+			string_append(&archivoABorrar, directorioALeer->d_name);
+			remove(archivoABorrar);
+		}
+	}
+	closedir(directorio);
+}
+
+/*void borrarTemps(){
 	char * nombre= string_new();
 	char * strNumero = string_new();
 	int status;
@@ -159,7 +170,7 @@ void borrarTemps(){
 			printf("%s file deleted successfully.\n", nombre);
 		}
 	}
-}
+}*/
 
 void metrics(){
 	clock_t tiempoActual = clock();
@@ -167,6 +178,10 @@ void metrics(){
 	mostrarInserts();
 	mostrarSelects();
 	memoryLoad();
+}
+
+int funcionHash(int key){
+	return key%list_size(hashConsistency);
 }
 
 void memoryLoad(){
@@ -300,7 +315,7 @@ OPERACION tipo_de_peticion(char* peticion) {
 							return JOURNAL;
 						} else{
 							if (!strcmp(peticion, "ADD")) {
-								free(peticion);
+								//free(peticion);//ACA ROMPE
 								return ADD;
 							} else{
 								if (!strcmp(peticion, "RUN")) {
@@ -346,36 +361,6 @@ int cantidadValidaParametros(char** parametros,
 	return 1;
 }
 
-/*void configurar_kernel(){
-	int IP = config_get_int_value(configuracion, "IP_MEMORIA");
-	int PUERTO_MEMORIA = config_get_int_value(configuracion,"PUERTO_MEMORIA");
-	int QUANTUM = config_get_int_value(configuracion,"QUANTUM");
-	int MULTIPROCESAMIENTO = config_get_int_value(configuracion,"MULTIPROCESAMIENTO");
-	int METADATA_REFRESH = config_get_int_value(configuracion,"METADATA_REFRESH");
-	int SLEEP_EJECUCION = config_get_int_value(configuracion,"SLEEP_EJECUCION");
-}*/
-/*
-void ejecutar(){
-	int quantum = config_get_int_value(configuracion,"QUANTUM");
-	int contador = 0;
-	char * una_peticion = string_new();
-	int error = 0;
-	size_t tamanio_peticion = 0;
-
-	while(!queue_is_empty(ready)){
-		struct Script proceso;
-		popear(&proceso,ready);
-		char * nombre_del_archivo = proceso.peticiones;
-		FILE* peticiones = fopen(nombre_del_archivo,"r");
-		while(!feof(peticiones) && contador < quantum && error == 0 ){
-			contador++;
-			getline(&una_peticion,&tamanio_peticion,peticiones);
-			tomar_peticion(una_peticion);
-
-		}
-	}
-}
-*/
 int esUnNumero(char* cadena) {
 	for (int i = 0; i < strlen(cadena); i++) {
 		if (!isdigit(cadena[i])) {
@@ -573,12 +558,24 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					//Mando directo a strongConsistency
 				}
 				else if(!strcmp(unaTabla->CONSISTENCY , "SHC")){
-					//Funcion hash
+					if(list_size(hashConsistency) != 0){
+						char* key = parametros[2];
+						int numeroMemoria = funcionHash(atoi(key));
+						//Mando por socket a char *IP = list_get(hashConsistency, numeroMemoria);
+					}
+					else{
+						//Mando directo a strongConsistency
+					}
 				}
 				else{ //EC
-					char* memoriaRandom = queue_pop(eventualConsistency);
-					//Mando por socket a eventualConsistency
-					queue_push(eventualConsistency, memoriaRandom);
+					if(queue_size(eventualConsistency) != 0){
+						char* memoriaRandom = queue_pop(eventualConsistency);
+						//Mando por socket a eventualConsistency
+						queue_push(eventualConsistency, memoriaRandom);
+					}
+					else{
+						//Mando directo a strongConsistency
+					}
 				}
 
 				*huboError = 0;
@@ -631,7 +628,6 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			else{
 
 				clock_t tiempoInsert = clock();
-				//Aca lo manda por sockets y en caso de error modifica la variable huboError
 				//generarMetrica(tiempoInsert,1,IPMemoria);
 
 				char *tabla = parametros[1];
@@ -640,12 +636,24 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					//Mando directo a strongConsistency
 				}
 				else if(!strcmp(unaTabla->CONSISTENCY , "SHC")){
-					//Funcion hash
+					if(list_size(hashConsistency) != 0){
+						char* key = parametros[2];
+						int numeroMemoria = funcionHash(atoi(key));
+						//Mando por socket a char *IP = list_get(hashConsistency, numeroMemoria);
+					}
+					else{
+						//Mando directo a strongConsistency
+					}
 				}
 				else{ //EC
-					char* memoriaRandom = queue_pop(eventualConsistency);
-					//Mando por socket a eventualConsistency
-					queue_push(eventualConsistency, memoriaRandom);
+					if(queue_size(eventualConsistency) != 0){
+						char* memoriaRandom = queue_pop(eventualConsistency);
+						//Mando por socket a eventualConsistency
+						queue_push(eventualConsistency, memoriaRandom);
+					}
+					else{
+						//Mando directo a strongConsistency
+					}
 				}
 
 				*huboError = 0;
@@ -672,12 +680,24 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					//Mando directo a strongConsistency
 				}
 				else if(!strcmp(unaTabla->CONSISTENCY , "SHC")){
-					//Funcion hash
+					if(list_size(hashConsistency) != 0){
+						char* key = parametros[2];
+						int numeroMemoria = funcionHash(atoi(key));
+						//Mando por socket a char *IP = list_get(hashConsistency, numeroMemoria);
+					}
+					else{
+						//Mando directo a strongConsistency
+					}
 				}
 				else{ //EC
-					char* memoriaRandom = queue_pop(eventualConsistency);
-					//Mando por socket a eventualConsistency
-					queue_push(eventualConsistency, memoriaRandom);
+					if(queue_size(eventualConsistency) != 0){
+						char* memoriaRandom = queue_pop(eventualConsistency);
+						//Mando por socket a eventualConsistency
+						queue_push(eventualConsistency, memoriaRandom);
+					}
+					else{
+						//Mando directo a strongConsistency
+					}
 				}
 
 				*huboError = 0;
@@ -719,12 +739,24 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					//Mando directo a strongConsistency
 				}
 				else if(!strcmp(unaTabla->CONSISTENCY , "SHC")){
-					//Funcion hash
+					if(list_size(hashConsistency) != 0){
+						char* cantidadDeParticiones = parametros[3];
+						int numeroMemoria = funcionHash(atoi(cantidadDeParticiones));
+						//Mando por socket a char *IP = list_get(hashConsistency, numeroMemoria);
+					}
+					else{
+						//Mando directo a strongConsistency
+					}
 				}
 				else{ //EC
-					char* memoriaRandom = queue_pop(eventualConsistency);
-					//Mando por socket a eventualConsistency
-					queue_push(eventualConsistency, memoriaRandom);
+					if(queue_size(eventualConsistency) != 0){
+						char* memoriaRandom = queue_pop(eventualConsistency);
+						//Mando por socket a eventualConsistency
+						queue_push(eventualConsistency, memoriaRandom);
+					}
+					else{
+						//Mando directo a strongConsistency
+					}
 				}
 				*huboError = 0;
 			}
@@ -732,7 +764,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		break;
 	case DESCRIBE:
 			printf("Seleccionaste Describe\n");
-			/*int criterioDescribeTodasLasTablas(char** parametros,
+			int criterioDescribeTodasLasTablas(char** parametros,
 					int cantidadDeParametrosUsados) {
 				char* tabla = parametros[1];
 				return (tabla == NULL);
@@ -748,14 +780,14 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					printf("La tabla no existe\n");
 				}
 				return dictionary_has_key(tablas_conocidas, tabla);
-			}*/
-			//Solo esta para polimorfismo, el describe depende de si se encuentra la tabla en el LFS
-			int criterioDescribe(char** parametros, int cantidadDeParametrosUsados) {
-				return 0;
 			}
+			//Solo esta para polimorfismo, el describe depende de si se encuentra la tabla en el LFS
+			/*int criterioDescribe(char** parametros, int cantidadDeParametrosUsados) {
+				return 0;
+			}*/
 			if (parametrosValidos(0, parametros,
-					(void *) criterioDescribe)) {
-				//diccionarioDeTablasTemporal = 	Le pido el diccionario de todas las tablas a memoria
+					(void *) criterioDescribeTodasLasTablas)) {
+				//diccionarioDeTablasTemporal = 	Le pido el diccionario de todas las tablas a memoria strongConsistency
 				//dictionary_iterator(diccionarioDeTablasTemporal, (void*)actualizarDiccionarioDeTablas); actualizo el propio
 				//dictionary_iterator(tablas_conocidas, (void*)quitarDelDiccionarioDeTablasLaTablaBorrada);
 				//dictionary_destroy(diccionarioDeTablasTemporal);
@@ -765,10 +797,10 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				}
 			}
 			if (parametrosValidos(1, parametros,
-					(void *) criterioDescribe)) {
+					(void *) criterioDescribeUnaTabla)) {
 				char* tabla = parametros[1];
 				string_to_upper(tabla);
-				//struct tabla *metadata = 	pido la metadata de 1 tabla a memoria y actualizo el diccionario de las tablas
+				//struct tabla *metadata = 	pido la metadata de 1 tabla a memoria strongConsistency y actualizo el diccionario de las tablas
 				//actualizarDiccionarioDeTablas(tabla, metadata);
 				if(es_request){
 					describeUnaTabla(tabla);
@@ -776,7 +808,6 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				*huboError = 0;
 			}
 			break;
-			//TODO Falta que el drop sepa cuando es un request y cuando no
 	case DROP:
 			printf("Seleccionaste Drop\n");
 			int criterioDrop(char** parametros, int cantidadDeParametrosUsados) {
@@ -811,12 +842,24 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						//Mando directo a strongConsistency
 					}
 					else if(!strcmp(unaTabla->CONSISTENCY , "SHC")){
-						//Funcion hash
+						if(list_size(hashConsistency) != 0){
+							int max = list_size(hashConsistency)-1;
+							int memoriaRandom = rand() % max;
+							//Mandarlo a list_get(hashConsistecy, memoriaRandom);
+						}
+						else{
+							//Mando directo a strongConsistency
+						}
 					}
 					else{ //EC
-						char* memoriaRandom = queue_pop(eventualConsistency);
-						//Mando por socket a eventualConsistency
-						queue_push(eventualConsistency, memoriaRandom);
+						if(queue_size(eventualConsistency) != 0){
+							char* memoriaRandom = queue_pop(eventualConsistency);
+							//Mando por socket a eventualConsistency
+							queue_push(eventualConsistency, memoriaRandom);
+						}
+						else{
+							//Mando directo a strongConsistency
+						}
 					}
 
 				}
@@ -835,7 +878,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		}
 
 		else{
-			//Mando msj a memoria
+			//Mando msj a memoria strongConsistency
 		}
 		break;
 	case ADD:
@@ -905,16 +948,17 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					string_append(&nombre_del_archivo,".lql");
 				}*/
 				char *rutaDelArchivo = string_new();
-				string_append(&rutaDelArchivo, "./");
+				string_append(&rutaDelArchivo, "./scripts/");
 				string_append(&rutaDelArchivo, nombre_del_archivo);
-				FILE* archivo = fopen(nombre_del_archivo,"r");
+				//printf("%s", rutaDelArchivo);
+				FILE* archivo = fopen(rutaDelArchivo,"r");
 				if(archivo==NULL){
 					printf("El archivo no existe\n");
 				}
 				else{
 					fclose(archivo);
 					printf("Enviando Script a ejecutar.\n");
-					planificador(nombre_del_archivo);
+					planificador(rutaDelArchivo);
 				}
 		}
 		break;
@@ -1107,7 +1151,6 @@ void pasar_a_new(char* nombre_del_archivo){ //Prepara las estructuras necesarias
 	 proceso->PC = 0;
 	 proceso->peticiones = string_new();
 	 proceso->posicionActual = 0;
-	 string_append(&proceso->peticiones, "./");
 	 string_append(&proceso->peticiones,nombre_del_archivo);
 	 queue_push(new,proceso);
 	 printf("El script %s paso a new\n", proceso->peticiones);

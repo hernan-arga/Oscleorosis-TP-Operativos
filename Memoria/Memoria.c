@@ -1070,18 +1070,19 @@ void conectarseAFS()
 
 	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
 
-	/*
-	char* tamano = malloc(100);
+
+	/*char* tamano = malloc(100);
 
 	recv(clienteFS, tamano, sizeof(tamano), 0);
 
-	tamanoValue = atoi(tamano);
-	*/
+	tamanoValue = atoi(tamano);*/
+
 
 	//free(tamano);
 
 	sem_post(&sem);
 }
+
 
 void tratarKernel(int kernel)
 {

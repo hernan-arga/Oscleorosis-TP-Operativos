@@ -240,7 +240,7 @@ void atenderPeticionesDeConsola() {
 		char* mensaje = malloc(1000);
 		do {
 			fgets(mensaje, 1000, stdin);
-		} while (!strcmp(mensaje, "\n"));
+		} while (!strcmp(mensaje, "\n")|| !strcmp(mensaje," \n"));
 		tomarPeticion(mensaje);
 		free(mensaje);
 		//verBitArray();
