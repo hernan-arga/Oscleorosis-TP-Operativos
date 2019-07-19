@@ -502,6 +502,15 @@ char* pedirValue(char* tabla, char* laKey)
 	char *value = malloc(*tamanioValue);
 	recv(clienteFS, value, *tamanioValue, 0);
 
+	char* mensajeALogear = malloc(strlen(" Llego select con VALUE : ") + strlen(value) + 1);
+	strcpy(mensajeALogear, " Llego select con VALUE : ");
+	strcat(mensajeALogear, value);
+	t_log* g_logger;
+	g_logger = log_create("%./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+	log_info(g_logger, mensajeALogear);
+	log_destroy(g_logger);
+	free(mensajeALogear);
+
 	return value;
 
 /*
