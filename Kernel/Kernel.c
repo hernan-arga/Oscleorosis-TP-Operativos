@@ -24,6 +24,7 @@
 #include <semaphore.h>
 #include <commons/log.h>
 #include <dirent.h>
+#include <commons/temporal.h>
 
 struct metricas{
 	clock_t tiempoDeCreacion;
@@ -84,12 +85,14 @@ void borrarObsoletos(clock_t);
 void mostrarInserts();
 void mostrarSelects();
 void memoryLoad();
+void metrics(int);
 
 void drop(char*);
 void describeTodasLasTablas();
 void describeUnaTabla(char*);
 void actualizarDiccionarioDeTablas(char *, struct tabla *);
 void quitarDelDiccionarioDeTablasLaTablaBorrada(char *);
+void logearMetrics();
 
 void borrarTodosLosTemps();
 int funcionHash(int);
@@ -132,9 +135,12 @@ int main(){
 	pthread_t hiloEjecutarReady;
 	pthread_t atenderPeticionesConsola;
 	pthread_t describe;
+	pthread_t metrics;
+	pthread_create(&metrics,NULL,(void*)logearMetrics,NULL);
 	pthread_create(&hiloEjecutarReady, NULL, (void*)ejecutarReady, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL, (void*) atenderPeticionesDeConsola, NULL);
 	pthread_create(&describe, NULL, (void*)refreshMetadata, NULL);
+	pthread_join(metrics,NULL);
 	pthread_join(describe, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	pthread_join(hiloEjecutarReady, NULL);
@@ -172,23 +178,33 @@ void borrarTodosLosTemps(){
 	}
 }*/
 
-void metrics(){
+// METRICS tiene dos opciones... O logear automáticamente cada 30 segundos o informar por consola a pedido del usuario, sin logear.
+void metrics(int opcion){
 	clock_t tiempoActual = clock();
 	borrarObsoletos(tiempoActual);
-	mostrarInserts();
-	mostrarSelects();
-	memoryLoad();
+	mostrarInserts(opcion);
+	mostrarSelects(opcion);
+	memoryLoad(opcion);
+}
+
+void logearMetrics(){
+	while(1){
+		metrics(1);
+		sleep(30);
+	}
+
 }
 
 int funcionHash(int key){
 	return key%list_size(hashConsistency);
 }
 
-void memoryLoad(){
+void memoryLoad(int opcion){
 	t_list * soloMismaIP = list_create();
 	t_list * soloInserts = list_create();
 	t_list * soloSelect = list_create();
 	int contador= 0;
+	int operacionesTotales = list_size(metricasTotales);
 	int cantidadDeIPS = list_size(listaDeMemorias);
 	for(int i=0;i<cantidadDeIPS;i++){
 		 char* unaIP = list_get(listaDeMemorias,i);
@@ -203,40 +219,108 @@ void memoryLoad(){
 			}
 		soloInserts = list_filter(soloMismaIP,_filtrarInsert);
 		contador = list_size(soloInserts);
-		printf("La cantidad de INSERTS de la IP %s es %i\n",unaIP,contador);
+		if(opcion == 0){
+			printf("La cantidad de INSERTS de la Memoria con IP %s es %i, respecto de %i operaciones totales.\n",unaIP,contador,operacionesTotales);
+		}
+		else{
+			char* mensajeALogear = string_new();
+			char* tiempo = temporal_get_string_time();
+			char* tiempoCorchetes = string_new();
+			char* info = string_new();
+			string_append_with_format(&tiempoCorchetes, "[%s]\t", tiempo);
+			string_append(&mensajeALogear, tiempoCorchetes);
+				info = string_from_format("La cantidad de INSERTS de la memoria con IP %s es %i, respecto de %i operaciones totales.\n",unaIP,contador,operacionesTotales);
+				string_append(&mensajeALogear,info);
+			    t_log* g_logger;
+			    g_logger = log_create("./metricas.log", "Kernel", 0,
+			            LOG_LEVEL_INFO);
+			    log_info(g_logger, mensajeALogear);
+			    log_destroy(g_logger);
+			    free(mensajeALogear);
+			    free (tiempo);
+			    free(tiempoCorchetes);
+			    free(info);
+		}
+
 
 		bool _filtrarSELECT(void* tipo){
 				return 0 == tipo;
 			}
 		soloSelect = list_filter(soloMismaIP,_filtrarSELECT);
 		contador = list_size(soloSelect);
-		printf("La cantidad de SELECT de la IP %s es %i\n",unaIP,contador);
-
+		if(opcion == 0 ){
+			printf("La cantidad de SELECTS de la memoria con IP %s es %i, respecto de %i operaciones totales.\n",unaIP,contador,operacionesTotales);
+		}
+		else{
+			char* mensajeALogear = string_new();
+			char* tiempo = temporal_get_string_time();
+			char* tiempoCorchetes = string_new();
+			char* info = string_new();
+			string_append_with_format(&tiempoCorchetes, "[%s]\t", tiempo);
+			string_append(&mensajeALogear, tiempoCorchetes);
+				info = string_from_format("La cantidad de SELECTS de la memoria con IP %s es %i, respecto de %i operaciones totales.\n",unaIP,contador,operacionesTotales);
+				string_append(&mensajeALogear,info);
+			    t_log* g_logger;
+			    g_logger = log_create("./metricas.log", "Kernel", 0,
+			            LOG_LEVEL_INFO);
+			    log_info(g_logger, mensajeALogear);
+			    log_destroy(g_logger);
+			    free(mensajeALogear);
+			    free (tiempo);
+			    free(tiempoCorchetes);
+			    free(info);
+		}
 	}
-
 }
 
-void mostrarInserts(){
-	printf("Promedio de tiempo de ejecucion para INSERT\n");
-	double contador = 0;
-	t_list * soloInserts = list_create();
-	struct metricas* unaMetrica;
-	bool _filtrarInsert(void* tipo){
-		return 1 == (int) tipo;
-	}
-	soloInserts = list_filter(metricas,_filtrarInsert);
-	int cantidadDeElementos = list_size(soloInserts);
-	for(int i=0; i<cantidadDeElementos;i++){
-		unaMetrica = list_get(soloInserts,i);
-		contador += unaMetrica->segundosDeEjecucion;
-	}
-	contador = contador / cantidadDeElementos;
-	printf("%f\n",contador);
-	printf("Cantidad de INSERTS en los ultimos 30 segundos: %i\n",cantidadDeElementos);
-}
+void mostrarInserts(int opcion){
+		double contador = 0;
+			t_list * soloInserts = list_create();
+			struct metricas* unaMetrica;
+			bool _filtrarInsert(void* tipo){
+				return 1 == (int) tipo;
+			}
+			soloInserts = list_filter(metricas,_filtrarInsert);
+				int cantidadDeElementos = list_size(soloInserts);
+				if(cantidadDeElementos != 0){
+						for(int i=0; i<cantidadDeElementos;i++){
+							unaMetrica = list_get(soloInserts,i);
+							contador += unaMetrica->segundosDeEjecucion;
+						}
+					contador = contador / cantidadDeElementos;
+				}
+				else{
+					contador = 0;
+				}
 
-void mostrarSelects(){
-	printf("Promedio de tiempo de ejecucion para SELECT\n");
+				if(opcion == 0){
+					printf("Promedio de tiempo de ejecucion para INSERT\n");
+					printf("%f\n",contador);
+					printf("Cantidad de INSERTS en los ultimos 30 segundos: %i\n",cantidadDeElementos);
+				}
+				else{
+					char* mensajeALogear = string_new();
+					char* tiempo = temporal_get_string_time();
+					char* tiempoCorchetes = string_new();
+					char * info = string_new();
+					string_append_with_format(&tiempoCorchetes, "[%s]\t", tiempo);
+					string_append(&mensajeALogear, tiempoCorchetes);
+					info = string_from_format("El promedio de tiempo de ejecucion para INSERT es %f\n",contador);
+					string_append(&mensajeALogear,info);
+					t_log* g_logger;
+					g_logger = log_create("./metricas.log", "Kernel", 0,
+					           LOG_LEVEL_INFO);
+					log_info(g_logger, mensajeALogear);
+					log_destroy(g_logger);
+					free(mensajeALogear);
+					free(tiempo);
+					free(tiempoCorchetes);
+					free(info);
+				}
+	}
+
+void mostrarSelects(int opcion){
+
 	double contador = 0;
 	t_list * soloSelects = list_create();
 	struct metricas* unaMetrica;
@@ -245,20 +329,48 @@ void mostrarSelects(){
 	}
 	soloSelects = list_filter(metricas,_filtrarSELECT);
 	int cantidadDeElementos = list_size(soloSelects);
-	for(int i=0; i<cantidadDeElementos;i++){
-		unaMetrica = list_get(soloSelects,i);
-		contador += unaMetrica->segundosDeEjecucion;
+	if(cantidadDeElementos != 0){
+		for(int i=0; i<cantidadDeElementos;i++){
+				unaMetrica = list_get(soloSelects,i);
+				contador += unaMetrica->segundosDeEjecucion;
+			}
+			contador = contador / cantidadDeElementos;
 	}
-	contador = contador / cantidadDeElementos;
-	printf("%f\n",contador);
-	printf("Cantidad de SELECTS en los ultimos 30 segundos: %i\n",cantidadDeElementos);
+	else{
+		contador = 0;
+	}
+
+	if(opcion == 0){
+		printf("Promedio de tiempo de ejecucion para SELECT\n");
+		printf("%f\n",contador);
+		printf("Cantidad de SELECTS en los ultimos 30 segundos: %i\n",cantidadDeElementos);
+	}
+	else{
+		char* mensajeALogear = string_new();
+				char* tiempo = temporal_get_string_time();
+				char* tiempoCorchetes = string_new();
+				char * info = string_new();
+				string_append_with_format(&tiempoCorchetes, "[%s]\t", tiempo);
+				string_append(&mensajeALogear, tiempoCorchetes);
+				info = string_from_format("El promedio de tiempo de ejecucion para SELECT es %f\n",contador);
+				string_append(&mensajeALogear,info);
+				t_log* g_logger;
+				g_logger = log_create("./metricas.log", "Kernel", 0,
+				           LOG_LEVEL_INFO);
+				log_info(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
+				free(tiempo);
+				free(tiempoCorchetes);
+				free(info);
+	}
 }
 
 void borrarObsoletos(clock_t tiempoActual){
 	if(!list_is_empty(metricas)){
 		metricasTotales = list_duplicate(metricas);
 		bool _tiempoPasado(void* tiempoDeCreacion){
-					return (int) (clock()/ CLOCKS_PER_SEC - 30) < (int)tiempoDeCreacion / CLOCKS_PER_SEC;
+					return (int) (clock()/ CLOCKS_PER_SEC - 30) < (int) tiempoDeCreacion / CLOCKS_PER_SEC;
 				}
 		metricas = list_filter(metricas,_tiempoPasado);
 	}
@@ -963,7 +1075,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		}
 		break;
 
-	case METRICS: metrics();
+	case METRICS: metrics(0);
 	break;
 
 	default:
