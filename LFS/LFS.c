@@ -112,6 +112,7 @@ void comparar1RegistroBinarioCon1NuevoRegistro(int, int, char *, char **, int *)
 void actualizarBin(char *);
 void liberarBloques(char *);
 void desasignarBloqueDelBitarray(int);
+void serializarDescribe(char* tabla, metadataTabla* metadata, void* buffer, int* i);
 
 void drop(char*);
 
@@ -156,7 +157,6 @@ int estaEntreComillas(char*);
 void registrarBloqueQueCambio(int);
 void registrarBloqueQueSeBorro(int);
 
-void serializarDescribe(char*, metadataTabla*);
 
 t_config* configLFS;
 configuracionLFS structConfiguracionLFS;
@@ -2516,6 +2516,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 		}
 	} // cierra el while
 	if(i==0){
+		vectorStructs[i] = malloc(12);
 		t_registro* p_registro = malloc(12);
 		p_registro->timestamp = -1;
 		memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp, sizeof(p_registro->timestamp));
@@ -2772,10 +2773,12 @@ int32_t iniciarConexion() {
 			if (FD_ISSET(sd, &readfds)) {
 				//Check if it was for closing , and also read the
 				//incoming message
-				char *operacion = malloc(sizeof(int));
-				valread = read(sd, operacion, sizeof(int));
+				int *tamanio = malloc(sizeof(int));
+				read(sd, tamanio, sizeof(int));
+				int *operacion = malloc(*tamanio);
+				read(sd, operacion, sizeof(int));
 
-				switch (atoi(operacion)) {
+				switch (*operacion) {
 				case 1:
 					//Select
 					tomarPeticionSelect(sd);
@@ -2799,30 +2802,6 @@ int32_t iniciarConexion() {
 				default:
 					break;
 				}
-
-				if (valread == 0) {
-					//Somebody disconnected , get his details and print
-					getpeername(sd, (struct sockaddr*) &address,
-							(socklen_t*) &addrlen);
-					printf("Host disconnected , ip %s , port %d \n",
-							inet_ntoa(address.sin_addr),
-							ntohs(address.sin_port));
-
-					//Close the socket and mark as 0 in list for reuse
-					close(sd);
-					client_socket[i] = 0;
-				}
-
-				//Echo back the message that came in
-				else {
-					//set the string terminating NULL byte on the end
-					//of the data read
-					char mensaje[] = "Le llego tu mensaje al File System";
-					buffer[valread] = '\0';
-					printf("Memoria %d: %s\n", sd, buffer);
-					send(sd, mensaje, strlen(mensaje), 0);
-
-				}
 			}
 		}
 	}
@@ -2831,24 +2810,25 @@ int32_t iniciarConexion() {
 
  void tomarPeticionSelect(int sd) {
 	 // deserializo peticion de la memoria
-	 void *tamanioTabla = malloc(sizeof(int));
+	 int *tamanioTabla = malloc(sizeof(int));
 	 read(sd, tamanioTabla, sizeof(int));
-	 void *tabla = malloc(atoi(tamanioTabla));
-	 read(sd, tabla, (int)tamanioTabla);
+	 char *tabla = malloc(*tamanioTabla);
+	 read(sd, tabla, *tamanioTabla);
+	 char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
-	 char *tamanioKey = malloc(sizeof(int));
+	 int *tamanioKey = malloc(sizeof(int));
 	 read(sd, tamanioKey, sizeof(int));
-	 char *key = malloc(atoi(tamanioKey));
-	 read(sd, key, (int)tamanioKey);
-
+	 int *key = malloc(*tamanioKey);
+	 read(sd, key, *tamanioKey);
+	 char* keyString = string_itoa(*key);
 	 printf("Haciendo Select");
-	 char *value = realizarSelect(tabla, key);
+	 char *value = realizarSelect(tablaCortada, keyString);
 
 	 // serializo paquete
 	 void *buffer = malloc(strlen(value) + sizeof(int));
 	 int tamanio = strlen(value);
 	 memcpy(&buffer, &tamanio, sizeof(int));
-	 memcpy(&buffer + sizeof(int), &value, strlen(value));
+	 memcpy(&buffer + sizeof(int), value, tamanio);
 
 	 send(sd, buffer, strlen(value)+sizeof(int), 0);
  }
@@ -2948,30 +2928,52 @@ int32_t iniciarConexion() {
 
  void tomarPeticionDescribeTodasLasTablas(int sd){
 	t_dictionary *diccionario = describeTodasLasTablas(0);
+
+	DIR *directorio = opendir(string_from_format("%sTables", structConfiguracionLFS.PUNTO_MONTAJE));
+	struct dirent *directorioALeer;
+
+	void * buffer = 0;
 	int i = 0;
-	dictionary_iterator(diccionario, (void*)serializarDescribe);
+
+	while ((directorioALeer = readdir(directorio)) != NULL) {
+		//Busco la metadata de todas las tablas (evaluo que no ingrese a los directorios "." y ".."
+		if ((directorioALeer->d_type) == DT_DIR	&& strcmp((directorioALeer->d_name), ".") && strcmp((directorioALeer->d_name), "..")) {
+			char *tabla = string_new();
+			string_append(&tabla, directorioALeer->d_name);
+
+			metadataTabla *metadata;
+			metadata = (metadataTabla *)dictionary_get(diccionario, directorioALeer->d_name);
+
+			serializarDescribe(tabla, metadata, &buffer, &i);
+		}
+	}
+	send(sd, buffer, sizeof(buffer), 0);
+	closedir(directorio);
  }
 
- void serializarDescribe(char* tabla, metadataTabla* metadata){
+ void serializarDescribe(char* tabla, metadataTabla* metadata, void* buffer, int* i){
  	// serializo paquete
 	// primer sizeof para la tabla, segundo para datos de la metadata, tercero para longitudes de la metadata
-	void* buffer = malloc(strlen(tabla) + sizeof(int) + strlen(metadata->CONSISTENCY) + 2*sizeof(int) + 3*sizeof(int));
+	buffer = malloc( *i + strlen(tabla) + sizeof(int) + strlen(metadata->CONSISTENCY) + 2*sizeof(int) + 3*sizeof(int));
+
 	int tamanioTabla = strlen(tabla);
-	memcpy(&buffer, &tamanioTabla, sizeof(int));
-	memcpy(&buffer + sizeof(int), &tabla, strlen(tabla));
+	memcpy(&buffer + *i, &tamanioTabla, sizeof(int));
+	memcpy(&buffer + *i + sizeof(int), &tabla, strlen(tabla));
 	// hasta aca el buffer tiene tod para la tabla, falta tod para la metadata
 
 	int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
-	memcpy(&buffer + sizeof(int) + strlen(tabla), &tamanioMetadataConsistency, sizeof(int));
-	memcpy(&buffer + 2*sizeof(int)+ strlen(tabla), &metadata->CONSISTENCY, strlen(metadata->CONSISTENCY));
+	memcpy(&buffer+ +*i + sizeof(int) + strlen(tabla), &tamanioMetadataConsistency, sizeof(int));
+	memcpy(&buffer + *i + 2*sizeof(int)+ strlen(tabla), &metadata->CONSISTENCY, strlen(metadata->CONSISTENCY));
 
 	int tamanioParticiones = sizeof(int);
-	memcpy(&buffer + 2*sizeof(int) + strlen(tabla) + strlen(metadata->CONSISTENCY), &tamanioParticiones, sizeof(int));
-	memcpy(&buffer + 3 * sizeof(int)+ strlen(tabla) + strlen(metadata->CONSISTENCY),&metadata->PARTITIONS, sizeof(int));
+	memcpy(&buffer + *i + 2*sizeof(int) + strlen(tabla) + strlen(metadata->CONSISTENCY), &tamanioParticiones, sizeof(int));
+	memcpy(&buffer + *i + 3 * sizeof(int)+ strlen(tabla) + strlen(metadata->CONSISTENCY),&metadata->PARTITIONS, sizeof(int));
 
 	int tamanioCompactacion = sizeof(int);
-	memcpy(&buffer + 4 * sizeof(int)+ strlen(tabla) + strlen(metadata->CONSISTENCY),&tamanioCompactacion, sizeof(int));
-	memcpy(&buffer + 5 * sizeof(int)+ strlen(tabla) + strlen(metadata->CONSISTENCY), &metadata->COMPACTION_TIME, sizeof(int));
+	memcpy(&buffer + *i + 4 * sizeof(int)+ strlen(tabla) + strlen(metadata->CONSISTENCY),&tamanioCompactacion, sizeof(int));
+	memcpy(&buffer + *i + 5 * sizeof(int)+ strlen(tabla) + strlen(metadata->CONSISTENCY), &metadata->COMPACTION_TIME, sizeof(int));
+
+	(*i)++;
  }
 
 
