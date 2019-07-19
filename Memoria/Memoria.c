@@ -78,6 +78,7 @@ int32_t activado = 1;
 
 //Semaforos
 sem_t sem;
+sem_t sem2;
 
 //Hilos
 pthread_t threadKernel;
@@ -106,6 +107,7 @@ void tratarCliente(int cliente);
 int main(int argc, char *argv[])
 {
 	sem_init(&sem, 1, 0);
+	sem_init(&sem2, 1, 1);
 
 	config = config_create(argv[1]);
 
@@ -132,8 +134,6 @@ int main(int argc, char *argv[])
 
 	memoriaPrincipal = malloc(t_archivoConfiguracion.TAM_MEM);
 	//memoriaPrincipal = malloc(1000);
-
-
 
 	sem_wait(&sem);
 
@@ -266,6 +266,8 @@ OPERACION tipoDePeticion(char* peticion)
 
 int realizarSelect(char* tabla, char* key)
 {
+	sem_wait(&sem2);
+
 	if(dictionary_has_key(tablaSegmentos, tabla))
 	{
 		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
@@ -298,6 +300,8 @@ int realizarSelect(char* tabla, char* key)
 
 				free(value);
 				free(laKey);
+
+				sem_post(&sem2);
 
 				return 0;
 			}
@@ -332,6 +336,7 @@ int realizarSelect(char* tabla, char* key)
 		free(timeStamp);
 		free(value);
 
+		sem_post(&sem2);
 		return 0;
 	}
 
@@ -361,11 +366,15 @@ int realizarSelect(char* tabla, char* key)
 
 	free(timeStamp);
 	free(value);
+
+	sem_post(&sem2);
 	return 0;
 }
 
 int realizarInsert(char* tabla, char* key, char* value)
 {
+	sem_wait(&sem2);
+
 	if(dictionary_has_key(tablaSegmentos, tabla))
 	{
 		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
@@ -393,6 +402,8 @@ int realizarInsert(char* tabla, char* key, char* value)
 				free(laKey);
 				free(timeStamp);
 
+				sem_post(&sem2);
+
 				return 0;
 			}
 		}
@@ -418,6 +429,7 @@ int realizarInsert(char* tabla, char* key, char* value)
 
 		free(timeStamp);
 
+		sem_post(&sem2);
 		return 0;
 	}
 
@@ -443,6 +455,8 @@ int realizarInsert(char* tabla, char* key, char* value)
 	memcpy(memoriaPrincipal+pagp->numeroFrame*tamanoFrame+sizeof(int)+sizeof(long int), value, strlen(value));
 
 	free(timeStamp);
+
+	sem_post(&sem2);
 }
 
 int frameLibre()
@@ -569,6 +583,7 @@ int ejecutarLRU()
 	dictionary_iterator(tablaSegmentos, elMenor);
 	if(timeStamp == 0)
 	{
+		sem_post(&sem2);
 		ejecutarJournaling();
 		numF = 0;
 	}
@@ -581,6 +596,7 @@ int ejecutarLRU()
 
 void ejecutarJournaling()
 {
+	sem_wait(&sem2);
 	void journal(char* tabla, void* valor)
 	{
 		t_list* paginas = valor;
@@ -680,10 +696,18 @@ void ejecutarJournaling()
 		*(frames+i) = 0;
 	}
 	dictionary_clean_and_destroy_elements(tablaSegmentos, NULL);
+
+	free(memoriaPrincipal);
+
+	memoriaPrincipal = malloc(t_archivoConfiguracion.TAM_MEM);
+
+	sem_post(&sem2);
 }
 
 void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones, char* tiempoCompactacion)
 {
+	sem_wait(&sem2);
+
 	/*
 	char* mensaje = malloc(sizeof(int) + sizeof(int) + sizeof(tabla) + sizeof(int) + sizeof(tipoConsistencia)
 			+ sizeof(int) + sizeof(numeroParticiones) + sizeof(int) + sizeof(tiempoCompactacion));
@@ -774,10 +798,14 @@ void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	}
+
+	sem_post(&sem2);
 }
 
 void realizarDrop(char* tabla)
 {
+	sem_wait(&sem2);
+
 	if(dictionary_has_key(tablaSegmentos, tabla))
 	{
 		void* elemento = dictionary_remove(tablaSegmentos, tabla);
@@ -835,10 +863,13 @@ void realizarDrop(char* tabla)
 		free(mensajeALogear);
 	}
 	free(mensaje);
+
+	sem_post(&sem2);
 }
 
 void realizarDescribe(char* tabla)
 {
+	sem_wait(&sem2);
 	/*
 	char* mensaje = malloc(sizeof(int) + sizeof(int) + sizeof(tabla));
 
@@ -900,10 +931,14 @@ void realizarDescribe(char* tabla)
 	printf("\nTiempo Compactacion: %d", data->tiempoCompactacion);
 
 	//free(metadata);
+
+	sem_post(&sem2);
 }
 
 void realizarDescribeGolbal()
 {
+	sem_wait(&sem2);
+
 	char* mensaje = malloc(sizeof(int));
 	strcpy(mensaje, "4");
 
@@ -953,6 +988,8 @@ void realizarDescribeGolbal()
 	dictionary_iterator(tablas, mostrar);
 
 	free(mensaje);
+
+	sem_post(&sem2);
 }
 
 void consola()
@@ -1092,3 +1129,4 @@ void tratarCliente(int cliente)
 		list_add_all(clientes, lista);
 	}
 }
+
