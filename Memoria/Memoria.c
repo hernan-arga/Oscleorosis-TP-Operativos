@@ -170,8 +170,8 @@ void realizarComando(char** comando)
 {
 	char *peticion = comando[0];
 	OPERACION accion = tipoDePeticion(peticion);
-	char* tabla;
-	char* key;
+	char* tabla = malloc(strlen(comando[1]));
+	char* key = malloc(strlen(comando[2]));
 	char* value;
 	switch(accion)
 	{
@@ -467,14 +467,14 @@ char* pedirValue(char* tabla, char* laKey)
 	void* buffer = malloc( strlen(tabla) + sizeof(int) + 2*sizeof(int) + 2*sizeof(int));
 	// primeros dos terminos para TABLA; anteultimo termino para KEY; ultimo para peticion
 
-	int peticion = 0;
+	int peticion = 1;
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
 	int tamanioTabla = strlen(tabla);
 	memcpy(buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
-	memcpy(buffer + 3*sizeof(int), &tabla, strlen(tabla));
+	memcpy(buffer + 3*sizeof(int), tabla, strlen(tabla));
 
 	int tamanioKey = sizeof(int);
 	memcpy(buffer + 3*sizeof(int) + strlen(tabla), &tamanioKey, sizeof(int));
@@ -483,10 +483,10 @@ char* pedirValue(char* tabla, char* laKey)
 	send(clienteFS, buffer, strlen(tabla) + 5*sizeof(int), 0);
 
 	//deserializo value
-	char *tamanioValue = malloc(sizeof(int));
-	read(clienteFS, tamanioValue, sizeof(int));
-	char *value = malloc(atoi(tamanioValue));
-	read(clienteFS, value, atoi(tamanioValue));
+	int *tamanioValue = malloc(sizeof(int));
+	recv(clienteFS, tamanioValue, sizeof(int), 0);
+	char *value = malloc(*tamanioValue);
+	recv(clienteFS, value, *tamanioValue, 0);
 
 	return value;
 
@@ -647,6 +647,30 @@ void ejecutarJournaling()
 
 				send(clienteFS, buffer,6*sizeof(int) + strlen(tabla) + strlen(value), 0 );
 
+				// Deserializo respuesta OK
+				char* tamanioOk = malloc(sizeof(int));
+				read(clienteFS, &tamanioOk, sizeof(int));
+				char* ok = malloc(atoi(tamanioOk));
+				read(clienteFS, ok, atoi(tamanioOk));
+
+				if( ok == 0 ){
+					char* mensajeALogear = malloc( strlen(" No se pudo realizar insert en FS ") + 1);
+					strcpy(mensajeALogear, " No se pudo realizar insert en FS ");
+					t_log* g_logger;
+					g_logger = log_create("./errores.log", "MEMORIA", 1, LOG_LEVEL_ERROR);
+					log_error(g_logger, mensajeALogear);
+					log_destroy(g_logger);
+					free(mensajeALogear);
+				}
+				if(ok == 1){
+					char* mensajeALogear = malloc( strlen(" Se realizo insert en FS ") + 1);
+					strcpy(mensajeALogear, " Se realizo insert en FS ");
+					t_log* g_logger;
+					g_logger = log_create("./logs.log", "MEMORIA", 1, LOG_LEVEL_INFO);
+					log_error(g_logger, mensajeALogear);
+					log_destroy(g_logger);
+					free(mensajeALogear);
+				}
 				//free(mensaje);
 			}
 		}
@@ -660,6 +684,7 @@ void ejecutarJournaling()
 
 void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones, char* tiempoCompactacion)
 {
+	/*
 	char* mensaje = malloc(sizeof(int) + sizeof(int) + sizeof(tabla) + sizeof(int) + sizeof(tipoConsistencia)
 			+ sizeof(int) + sizeof(numeroParticiones) + sizeof(int) + sizeof(tiempoCompactacion));
 
@@ -696,6 +721,8 @@ void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones
 	free(num);
 
 	strcat(mensaje, tiempoCompactacion);
+	free(mensaje);
+	*/
 
 	// Serializo Peticion, Tabla y Metadata
 	void* buffer = malloc( strlen(tabla) + 8*sizeof(int) + strlen(tipoConsistencia));
@@ -723,9 +750,30 @@ void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones
 
 	send(clienteFS, buffer, strlen(tabla) + 8*sizeof(int) + strlen(tipoConsistencia), 0);
 
-	free(mensaje);
+	// Deserializo respuesta OK
+	char* tamanioOk = malloc(sizeof(int));
+	read(clienteFS, &tamanioOk, sizeof(int));
+	char* ok = malloc(atoi(tamanioOk));
+	read(clienteFS, ok, atoi(tamanioOk));
 
-	printf("\nSe envio la peticion\n");
+	if( ok == 0 ){
+		char* mensajeALogear = malloc( strlen(" No se pudo realizar create en FS ") + 1);
+		strcpy(mensajeALogear, " No se pudo realizar create en FS ");
+		t_log* g_logger;
+		g_logger = log_create("./errores.log", "MEMORIA", 1, LOG_LEVEL_ERROR);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+	if(ok == 1){
+		char* mensajeALogear = malloc( strlen(" Se realizo create en FS ") + 1);
+		strcpy(mensajeALogear, " Se realizo create en FS ");
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "MEMORIA", 1, LOG_LEVEL_INFO);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
 }
 
 void realizarDrop(char* tabla)
@@ -762,12 +810,35 @@ void realizarDrop(char* tabla)
 
 	send(clienteFS, buffer, strlen(tabla) + 3*sizeof(int), 0);
 
+	// Deserializo respuesta OK
+	char* tamanioOk = malloc(sizeof(int));
+	read(clienteFS, &tamanioOk, sizeof(int));
+	char* ok = malloc(atoi(tamanioOk));
+	read(clienteFS, ok, atoi(tamanioOk));
+
+	if( ok == 0 ){
+		char* mensajeALogear = malloc( strlen(" No se pudo realizar drop en FS ") + 1);
+		strcpy(mensajeALogear, " No se pudo realizar drop en FS ");
+		t_log* g_logger;
+		g_logger = log_create("./errores.log", "MEMORIA", 1, LOG_LEVEL_ERROR);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+	if(ok == 1){
+		char* mensajeALogear = malloc( strlen(" Se realizo drop en FS ") + 1);
+		strcpy(mensajeALogear, " Se realizo drop en FS ");
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "MEMORIA", 1, LOG_LEVEL_INFO);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
 	free(mensaje);
 }
 
 void realizarDescribe(char* tabla)
 {
-	//3
 	/*
 	char* mensaje = malloc(sizeof(int) + sizeof(int) + sizeof(tabla));
 
@@ -816,14 +887,9 @@ void realizarDescribe(char* tabla)
 	read(clienteFS, tiempoCompactacion, (int) tamanioTiempoCompactacion);
 	// aca ya tengo toda la metadata, falta guardarla en struct
 
-	//char* metadata = malloc(sizeof(metadataTabla));
-	//metadataTabla* data = metadata;
-
 	//para mi (abril) seria :
 	metadataTabla* data = malloc(8 + strlen(tipoConsistencia));    // 2 int = 2*4 bytes
 
-	//todo verificar
-	//guardo metadata en struct
 	memcpy(&data->particiones, &numeroParticiones, sizeof(int));
 	memcpy(&data->consistencia, &tipoConsistencia, strlen(tipoConsistencia));
 	memcpy(&data->tiempoCompactacion, &tiempoCompactacion, sizeof(int));
@@ -838,11 +904,35 @@ void realizarDescribe(char* tabla)
 
 void realizarDescribeGolbal()
 {
-	//4
 	char* mensaje = malloc(sizeof(int));
 	strcpy(mensaje, "4");
 
-	//Magia sockets
+	//Deserializo diccionario :
+	// entrada : tabla
+	// valor : metadata (consistencia[char*], particiones[int], compactacion[int])
+
+	char *tamanioTabla = malloc(sizeof(int));
+	read(clienteFS, tamanioTabla, sizeof(int));
+	char *tabla = malloc(atoi(tamanioTabla));
+	read(clienteFS, tabla, atoi(tamanioTabla));
+
+	void *tamanioConsistencia = malloc(sizeof(int));
+	read(clienteFS, tamanioConsistencia, sizeof(int));
+	void *tipoConsistencia = malloc(atoi(tamanioConsistencia));
+	read(clienteFS, tipoConsistencia, (int) tamanioConsistencia);
+
+	char *tamanioNumeroParticiones = malloc(sizeof(int));
+	read(clienteFS, tamanioNumeroParticiones, sizeof(int));
+	void *numeroParticiones = malloc((int) tamanioNumeroParticiones);
+	read(clienteFS, numeroParticiones, (int) tamanioNumeroParticiones);
+
+	void *tamanioTiempoCompactacion = malloc(sizeof(int));
+	read(clienteFS, tamanioTiempoCompactacion, sizeof(int));
+	void *tiempoCompactacion = malloc((int) tamanioTiempoCompactacion);
+	read(clienteFS, tiempoCompactacion, (int) tamanioTiempoCompactacion);
+
+	// lo guardo en un diccionario
+	//todo
 
 	free(mensaje);
 
@@ -943,13 +1033,15 @@ void conectarseAFS()
 
 	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
 
+	/*
 	char* tamano = malloc(100);
 
 	recv(clienteFS, tamano, sizeof(tamano), 0);
 
 	tamanoValue = atoi(tamano);
+	*/
 
-	free(tamano);
+	//free(tamano);
 
 	sem_post(&sem);
 }
