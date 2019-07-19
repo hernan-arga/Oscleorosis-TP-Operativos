@@ -99,20 +99,41 @@ void realizarDescribe(char* tabla);
 void consola();
 void serServidor();
 void conectarseAFS();
-void conectarseAKernel();
+void tratarKernel(int kernel);
 void gossiping(int cliente);
 void tratarCliente(int cliente);
 
-int main()
+int main(int argc, char *argv[])
 {
 	sem_init(&sem, 1, 0);
+
+	config = config_create(argv[1]);
+
+	t_archivoConfiguracion.PUERTO = config_get_int_value(config, "PUERTO");
+	t_archivoConfiguracion.PUERTO_FS = config_get_int_value(config, "PUERTO_FS");
+	t_archivoConfiguracion.IP_SEEDS= config_get_array_value(config, "IP_SEEDS");
+	t_archivoConfiguracion.PUERTO_SEEDS = config_get_array_value(config, "PUERTO_SEEDS");
+	t_archivoConfiguracion.RETARDO_MEM = config_get_int_value(config, "RETARDO_MEM");
+	t_archivoConfiguracion.RETARDO_FS = config_get_int_value(config, "RETARDO_FS");
+	t_archivoConfiguracion.TAM_MEM = config_get_int_value(config, "TAM_MEM");
+	t_archivoConfiguracion.RETARDO_JOURNAL = config_get_int_value(config, "RETARDO_JOURNAL");
+	t_archivoConfiguracion.RETARDO_GOSSIPING = config_get_int_value(config, "RETARDO_GOSSIPING");
+	t_archivoConfiguracion.MEMORY_NUMBER = config_get_int_value(config, "MEMORY_NUMBER");
 
 	pthread_t threadSerServidor;
 	int32_t idThreadSerServidor = pthread_create(&threadSerServidor, NULL, serServidor, NULL);
 
+	pthread_t threadFS;
+	int32_t idThreadFS = pthread_create(&threadFS, NULL, conectarseAFS, NULL);
+
 	tablaSegmentos = dictionary_create();
 
-	memoriaPrincipal = malloc(1000);
+	printf("%d", t_archivoConfiguracion.PUERTO);
+
+	memoriaPrincipal = malloc(t_archivoConfiguracion.TAM_MEM);
+	//memoriaPrincipal = malloc(1000);
+
+
 
 	sem_wait(&sem);
 
@@ -121,10 +142,10 @@ int main()
 	tamanoFrame = sizeof(int)+sizeof(long int)+tamanoValue;
 	//Key , TimeStamp, Value
 
-	int tablaFrames[1000/tamanoFrame];
+	int tablaFrames[t_archivoConfiguracion.TAM_MEM/tamanoFrame];
 	frames = tablaFrames;
 
-	for(int i = 0; i < 1000/tamanoFrame; i++)
+	for(int i = 0; i < t_archivoConfiguracion.TAM_MEM/tamanoFrame; i++)
 	{
 		*(frames+i) = 0;
 	}
@@ -133,7 +154,8 @@ int main()
 	int32_t idthreadConsola = pthread_create(&threadConsola, NULL, consola, NULL);
 
 	pthread_join(threadConsola, NULL);
-	//pthread_join(threadSerServidor, NULL);
+	pthread_join(threadSerServidor, NULL);
+	pthread_join(threadFS, NULL);
 }
 
 void analizarInstruccion(char* instruccion)
@@ -447,24 +469,24 @@ char* pedirValue(char* tabla, char* laKey)
 
 	int peticion = 0;
 	int tamanioPeticion = sizeof(int);
-	memcpy(&buffer, &tamanioPeticion, sizeof(int));
-	memcpy(&buffer + sizeof(int), &peticion, sizeof(int));
+	memcpy(buffer, &tamanioPeticion, sizeof(int));
+	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
 	int tamanioTabla = strlen(tabla);
-	memcpy(&buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
-	memcpy(&buffer + 3*sizeof(int), &tabla, strlen(tabla));
+	memcpy(buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(buffer + 3*sizeof(int), &tabla, strlen(tabla));
 
 	int tamanioKey = sizeof(int);
-	memcpy(&buffer + 3*sizeof(int) + strlen(tabla), &tamanioKey, sizeof(int));
-	memcpy(&buffer + 4*sizeof(int) + strlen(tabla), &key, sizeof(int));
+	memcpy(buffer + 3*sizeof(int) + strlen(tabla), &tamanioKey, sizeof(int));
+	memcpy(buffer + 4*sizeof(int) + strlen(tabla), &key, sizeof(int));
 
-	send(sd, buffer, strlen(tabla) + 5*sizeof(int), 0);
+	send(clienteFS, buffer, strlen(tabla) + 5*sizeof(int), 0);
 
 	//deserializo value
 	char *tamanioValue = malloc(sizeof(int));
-	read(sd, tamanioValue, sizeof(int));
+	read(clienteFS, tamanioValue, sizeof(int));
 	char *value = malloc(atoi(tamanioValue));
-	read(sd, value, atoi(tamanioValue));
+	read(clienteFS, value, atoi(tamanioValue));
 
 	return value;
 
@@ -623,7 +645,7 @@ void ejecutarJournaling()
 				memcpy(&buffer+ 5 * sizeof(int)+ strlen(tabla), &tamanioValue, sizeof(int));
 				memcpy(buffer+ 6 * sizeof(int)+ strlen(tabla), &value, strlen(value));
 
-				send(sd, buffer,6*sizeof(int) + strlen(tabla) + strlen(value), 0 );
+				send(clienteFS, buffer,6*sizeof(int) + strlen(tabla) + strlen(value), 0 );
 
 				//free(mensaje);
 			}
@@ -699,7 +721,7 @@ void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones
 	memcpy(&buffer + 6*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &tamanioCompactacion, sizeof(int));
 	memcpy(&buffer + 7*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &tiempoCompactacion, sizeof(int));
 
-	send(sd, buffer, strlen(tabla) + 8*sizeof(int) + strlen(tipoConsistencia), 0);
+	send(clienteFS, buffer, strlen(tabla) + 8*sizeof(int) + strlen(tipoConsistencia), 0);
 
 	free(mensaje);
 
@@ -738,7 +760,7 @@ void realizarDrop(char* tabla)
 	memcpy(&buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
 	memcpy(&buffer + 3*sizeof(int), &tabla, strlen(tabla));
 
-	send(sd, buffer, strlen(tabla) + 3*sizeof(int), 0);
+	send(clienteFS, buffer, strlen(tabla) + 3*sizeof(int), 0);
 
 	free(mensaje);
 }
@@ -775,23 +797,23 @@ void realizarDescribe(char* tabla)
 	memcpy(&buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
 	memcpy(&buffer + 3 * sizeof(int), &tabla, strlen(tabla));
 
-	send(sd, buffer, strlen(tabla) + 3 * sizeof(int), 0);
+	send(clienteFS, buffer, strlen(tabla) + 3 * sizeof(int), 0);
 
 	//deserializo metadata
 	void *tamanioConsistencia = malloc(sizeof(int));
-	read(sd, tamanioConsistencia, sizeof(int));
+	read(clienteFS, tamanioConsistencia, sizeof(int));
 	void *tipoConsistencia = malloc(atoi(tamanioConsistencia));
-	read(sd, tipoConsistencia, (int) tamanioConsistencia);
+	read(clienteFS, tipoConsistencia, (int) tamanioConsistencia);
 
 	char *tamanioNumeroParticiones = malloc(sizeof(int));
-	read(sd, tamanioNumeroParticiones, sizeof(int));
+	read(clienteFS, tamanioNumeroParticiones, sizeof(int));
 	void *numeroParticiones = malloc((int) tamanioNumeroParticiones);
-	read(sd, numeroParticiones, (int) tamanioNumeroParticiones);
+	read(clienteFS, numeroParticiones, (int) tamanioNumeroParticiones);
 
 	void *tamanioTiempoCompactacion = malloc(sizeof(int));
-	read(sd, tamanioTiempoCompactacion, sizeof(int));
+	read(clienteFS, tamanioTiempoCompactacion, sizeof(int));
 	void *tiempoCompactacion = malloc((int) tamanioTiempoCompactacion);
-	read(sd, tiempoCompactacion, (int) tamanioTiempoCompactacion);
+	read(clienteFS, tiempoCompactacion, (int) tamanioTiempoCompactacion);
 	// aca ya tengo toda la metadata, falta guardarla en struct
 
 	//char* metadata = malloc(sizeof(metadataTabla));
@@ -880,6 +902,7 @@ void serServidor()
 	printf( "Estoy escuchando\n");
 	listen(server, 100);
 
+
 	//conectarseAKernel();
 	int i = 0;
 	while(t_archivoConfiguracion.PUERTO_SEEDS[i] != NULL)
@@ -887,41 +910,42 @@ void serServidor()
 		int cliente = socket(AF_INET, SOCK_STREAM, 0);
 		int* sock = malloc(sizeof(int));
 		sock = cliente;
-
+		printf("Hola");
 		direccionCliente.sin_family = AF_INET;
 		direccionCliente.sin_port = htons(atoi(t_archivoConfiguracion.PUERTO_SEEDS[i]));
 		direccionCliente.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_SEEDS[i]);
 
 		connect(cliente, (struct sockaddr *) &direccionCliente, sizeof(direccionCliente));
 		//Mandar un 0 para q se sepa si es memoria o kernel
+
+		char* buffer = malloc(1);
+		strcpy(buffer, "0");
+
+		send(cliente, &buffer, strlen(buffer), 0);
+
 		list_add(clientes, sock);
 
-		gossiping(cliente);
+		pthread_t threadCliente;
+		int32_t idThreadCliente = pthread_create(&threadCliente, NULL, gossiping, cliente);
 
 		i++;
 	}
-	conectarseAFS();
 }
 
 void conectarseAFS()
 {
 	clienteFS = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddressFS.sin_family = AF_INET;
-	//serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
+	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
 	//serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
-	serverAddressFS.sin_port = htons(4093);
+	//serverAddressFS.sin_port = htons(4093);
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
 
-	if (connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS)) == -1)
-	{
-		perror("Hubo un error en la conexion \n");
-	}
+	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
 
 	char* tamano = malloc(100);
 
 	recv(clienteFS, tamano, sizeof(tamano), 0);
-
-	printf("%s", tamano);
 
 	tamanoValue = atoi(tamano);
 
@@ -930,13 +954,12 @@ void conectarseAFS()
 	sem_post(&sem);
 }
 
-void conectarseAKernel()
+void tratarKernel(int kernel)
 {
-	//clienteKernel = accept(server, (void*) &serverAddress, &tamanoDireccion);
-	//printf("Recibi una conexion en %d\n", clienteKernel);
-
-	//pthread_create(&threadKernel, NULL, (void*) controlarKernel, NULL);
-	//pthread_join(threadKernel, NULL);
+	while(1)
+	{
+		//Recivir mensajes constantemente y responder
+	}
 }
 
 void aceptar()
@@ -944,7 +967,18 @@ void aceptar()
 	while(1)
 	{
 		int cliente = accept(server, (void*) &serverAddress, &tamanoDireccion);
-		tratarCliente(cliente);
+		char* buf = malloc(2);
+		recv(cliente, buf, 2, 0);
+		if(atoi(buf) == 0)
+		{
+			pthread_t threadTratarCliente;
+			int32_t idThreadTratarCliente = pthread_create(&threadTratarCliente, NULL, tratarCliente, cliente);
+		}
+		else
+		{
+			pthread_t threadTratarCliente;
+			int32_t idThreadTratarCliente = pthread_create(&threadTratarCliente, NULL, tratarKernel, cliente);
+		}
 	}
 }
 
@@ -953,7 +987,7 @@ void gossiping(int cliente)
 	while(1)
 	{
 		sleep(t_archivoConfiguracion.RETARDO_GOSSIPING);
-		send(cliente, clientes, sizeof(cliente), 0);
+		send(cliente, clientes, sizeof(clientes), 0);
 	}
 }
 
