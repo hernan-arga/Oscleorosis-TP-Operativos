@@ -832,6 +832,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 	case CREATE:
 		printf("Seleccionaste Create\n");
 		int criterioCreate(char** parametros, int cantidadDeParametrosUsados) {
+			char* tabla = parametros[1];
 			char* tiempoCompactacion = parametros[4];
 			char* cantidadParticiones = parametros[3];
 			char* consistencia = parametros[2];
@@ -841,9 +842,21 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			if (!esUnNumero(tiempoCompactacion)) {
 				printf("El tiempo de compactacion debe ser un numero.\n");
 			}
+
+			if (!dictionary_has_key(tablas_conocidas, tabla)) {
+				char *mensajeALogear = string_new();
+				string_append(&mensajeALogear,
+					"No se tiene conocimiento de la tabla: ");
+				string_append(&mensajeALogear, tabla);
+				g_logger = log_create("./tablasNoEncontradas", "KERNEL", 1,
+					LOG_LEVEL_ERROR);
+				log_error(g_logger, mensajeALogear);
+				free(mensajeALogear);
+			}
 			return esUnNumero(cantidadParticiones)
 					&& esUnNumero(tiempoCompactacion)
-					&& esUnTipoDeConsistenciaValida(consistencia);
+					&& esUnTipoDeConsistenciaValida(consistencia)
+					&& dictionary_has_key(tablas_conocidas, tabla);
 		}
 		if (parametrosValidos(4, parametros, (void *) criterioCreate)) {
 			printf("Enviando CREATE a memoria.\n");
