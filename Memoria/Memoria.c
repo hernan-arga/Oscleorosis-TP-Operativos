@@ -323,7 +323,7 @@ int realizarSelect(char* tabla, char* key)
 
 		*(frames+frameNum) = strlen(value);
 
-		printf("%s", value);
+		//printf("%s", value);
 
 		memcpy((memoriaPrincipal+pagp->numeroFrame*tamanoFrame), key, sizeof(int));
 		memcpy((memoriaPrincipal+pagp->numeroFrame*tamanoFrame+sizeof(int)+sizeof(long int)), value, strlen(value));
@@ -340,8 +340,7 @@ int realizarSelect(char* tabla, char* key)
 		return 0;
 	}
 
-	char* value = malloc(tamanoValue);
-	strcpy(value, pedirValue(tabla, key));
+	char* value = pedirValue(tabla, key);
 
 	int frameNum = frameLibre();
 	*(frames+frameNum) = strlen(value);
@@ -504,17 +503,14 @@ char* pedirValue(char* tabla, char* laKey)
 	char *value = malloc(*tamanioValue);
 	recv(clienteFS, value, *tamanioValue, 0);
 
-/*
 	char* mensajeALogear = malloc(strlen(" Llego select con VALUE : ") + strlen(value) + 1);
 	strcpy(mensajeALogear, " Llego select con VALUE : ");
 	strcat(mensajeALogear, value);
 	t_log* g_logger;
-	g_logger = log_create("%./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+	g_logger = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
 	log_info(g_logger, mensajeALogear);
 	log_destroy(g_logger);
 	free(mensajeALogear);
-*/
-	printf("%s\n", value);
 
 	return value;
 }
