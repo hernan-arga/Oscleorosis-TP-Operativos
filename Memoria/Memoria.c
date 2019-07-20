@@ -662,21 +662,21 @@ void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones
 
 	int tamanioParticiones = strlen(numeroParticiones);
 	memcpy(buffer + 4*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &tamanioParticiones, sizeof(int));
-	memcpy(buffer + 5*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), numeroParticiones, sizeof(int));
+	memcpy(buffer + 5*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), numeroParticiones, tamanioParticiones);
 
 	int tamanioCompactacion = strlen(tiempoCompactacion);
-	memcpy(buffer + 6*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &tamanioCompactacion, sizeof(int));
-	memcpy(buffer + 7*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), tiempoCompactacion, sizeof(int));
+	memcpy(buffer + 5*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia) + tamanioParticiones, &tamanioCompactacion, sizeof(int));
+	memcpy(buffer + 6*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia) + tamanioParticiones, tiempoCompactacion, tamanioCompactacion);
 
 	send(clienteFS, buffer, strlen(tabla) + 6*sizeof(int) + strlen(tipoConsistencia) + strlen(numeroParticiones) + strlen(tiempoCompactacion), 0);
 
 	// Deserializo respuesta OK
-	char* tamanioOk = malloc(sizeof(int));
+	int* tamanioOk = malloc(sizeof(int));
 	read(clienteFS, tamanioOk, sizeof(int));
-	char* ok = malloc(atoi(tamanioOk));
-	read(clienteFS, ok, atoi(tamanioOk));
+	int* ok = malloc(*tamanioOk);
+	read(clienteFS, ok, *tamanioOk);
 
-	if( ok == 0 ){
+	if( *ok == 0 ){
 		char* mensajeALogear = malloc( strlen(" No se pudo realizar create en FS ") + 1);
 		strcpy(mensajeALogear, " No se pudo realizar create en FS ");
 		t_log* g_logger;
@@ -685,12 +685,12 @@ void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	}
-	if(ok == 1){
+	if(*ok == 1){
 		char* mensajeALogear = malloc( strlen(" Se realizo create en FS ") + 1);
 		strcpy(mensajeALogear, " Se realizo create en FS ");
 		t_log* g_logger;
 		g_logger = log_create("./logs.log", "MEMORIA", 1, LOG_LEVEL_INFO);
-		log_error(g_logger, mensajeALogear);
+		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	}
@@ -947,7 +947,7 @@ void conectarseAFS()
 	//TODO cambiar IP
 	serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
 	//serverAddressFS.sin_port = htons(4093);
-	// serverAddress.sin_addr.s_addr = INADDR_ANY;
+	//serverAddress.sin_addr.s_addr = INADDR_ANY;
 
 	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
 
