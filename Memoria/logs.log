@@ -12,3 +12,5 @@
 
 [ERROR] 00:12:20:185 MEMORIA/(15164:15187):  Se realizo create en FS 
 [INFO] 00:53:42:287 MEMORIA/(16373:16393):  Se realizo drop en FS 
+[ERROR] 02:32:17:6 LFS/(20204:20211):  No se encontro la key : 57654
+[ERROR] 02:34:34:913 LFS/(20336:20343):  No se encontro la key : 24234

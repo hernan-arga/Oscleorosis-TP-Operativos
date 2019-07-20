@@ -321,6 +321,10 @@ int realizarSelect(char* tabla, char* key)
 		char* value = malloc(tamanoValue);
 		value = pedirValue(tabla, key);
 
+		if (value == NULL) {
+			return 0;
+		}
+
 		*(frames+frameNum) = strlen(value);
 
 		//printf("%s", value);
@@ -341,6 +345,10 @@ int realizarSelect(char* tabla, char* key)
 	}
 
 	char* value = pedirValue(tabla, key);
+
+	if (value == NULL) {
+		return 0;
+	}
 
 	int frameNum = frameLibre();
 	*(frames+frameNum) = strlen(value);
@@ -496,22 +504,33 @@ char* pedirValue(char* tabla, char* laKey)
 
 	//deserializo value
 	int *tamanioValue = malloc(sizeof(int));
-	//printf("hola\n");
 	recv(clienteFS, tamanioValue, sizeof(int), 0);
-	//printf("chau\n");
-	char *value = malloc(*tamanioValue);
-	recv(clienteFS, value, *tamanioValue, 0);
+	if(*tamanioValue == 0){
+		char* mensajeALogear = malloc(strlen(" No se encontro la key : ") + sizeof(key) + 1);
+			strcpy(mensajeALogear, " No se encontro la key : ");
+			strcat(mensajeALogear, string_itoa(key));
+			t_log* g_logger;
+			g_logger = log_create("./logs.log", "LFS", 1, LOG_LEVEL_ERROR);
+			log_error(g_logger, mensajeALogear);
+			log_destroy(g_logger);
+			free(mensajeALogear);
+			return NULL;
+	}
+	else{
+		char *value = malloc(*tamanioValue);
+		recv(clienteFS, value, *tamanioValue, 0);
 
-	char* mensajeALogear = malloc(strlen(" Llego select con VALUE : ") + strlen(value) + 1);
-	strcpy(mensajeALogear, " Llego select con VALUE : ");
-	strcat(mensajeALogear, value);
-	t_log* g_logger;
-	g_logger = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
-	log_info(g_logger, mensajeALogear);
-	log_destroy(g_logger);
-	free(mensajeALogear);
+		char* mensajeALogear = malloc(strlen(" Llego select con VALUE : ") + strlen(value) + 1);
+		strcpy(mensajeALogear, " Llego select con VALUE : ");
+		strcat(mensajeALogear, value);
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
 
-	return value;
+		return value;
+	}
 }
 
 int ejecutarLRU()
@@ -946,9 +965,9 @@ void conectarseAFS()
 	serverAddressFS.sin_family = AF_INET;
 	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
 	//TODO cambiar IP
-	serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
+	//serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
 	//serverAddressFS.sin_port = htons(4093);
-	//serverAddress.sin_addr.s_addr = INADDR_ANY;
+	serverAddress.sin_addr.s_addr = INADDR_ANY;
 
 	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
 

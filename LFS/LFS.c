@@ -2837,6 +2837,12 @@ int32_t iniciarConexion() {
 
 	 printf("Haciendo Select");
 	 char *value = realizarSelect(tablaCortada, keyString);
+	 if(value == NULL){
+		 int ok = 0;
+		 void* buffer = malloc(4);
+		 memcpy(buffer, &ok, 4);
+		 send(sd, buffer,4,0);
+	 }
 
 	 // serializo paquete
 	 void *buffer = malloc(strlen(value) + sizeof(int));
