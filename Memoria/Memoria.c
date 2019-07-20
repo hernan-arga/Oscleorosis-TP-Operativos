@@ -965,6 +965,7 @@ void conectarseAFS()
 	sem_post(&sem);
 }
 
+
 void tratarKernel(int kernel)
 {
 	while(1)
