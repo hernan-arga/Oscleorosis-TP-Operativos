@@ -826,13 +826,9 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				*huboError = 0;
 			}
 
-<<<<<<< HEAD
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) { //fixme borrar esto
 			printf("Envio el comando INSERT a memoria");
-=======
-		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
-			printf("Envio el comando INSERT a memoria\n");
->>>>>>> 25070d0b11fb3254628a4234ffc7b5f588efb47b
+
 			if (es_request) {
 				char* nombre_archivo = tempSinAsignar();
 				FILE* temp = fopen(nombre_archivo, "w");
@@ -1159,7 +1155,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		printf("Error operacion invalida\n");
 	}
 }
-<<<<<<< HEAD
+
 
 void mandarDrop(char *tabla, int socketMemoria){
 	int peticion = 5;
@@ -1283,8 +1279,7 @@ char* pedirValue(char* tabla, char* laKey, int socketMemoria)
 }
 
 
-=======
->>>>>>> 25070d0b11fb3254628a4234ffc7b5f588efb47b
+
 void generarMetrica(clock_t tiempoInicial, int tipoDeMetrica, char* IPMemoria) {
 	struct metricas * prueba;
 	unRegistro = malloc(sizeof(struct metricas));
