@@ -773,45 +773,45 @@ void realizarDescribe(char* tabla)
 
 	int peticion = 4;
 	int tamanioPeticion = sizeof(int);
-	memcpy(&buffer, &tamanioPeticion, sizeof(int));
-	memcpy(&buffer + sizeof(int), &peticion, sizeof(int));
+	memcpy(buffer, &tamanioPeticion, sizeof(int));
+	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
 	int tamanioTabla = strlen(tabla);
-	memcpy(&buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
-	memcpy(&buffer + 3 * sizeof(int), &tabla, strlen(tabla));
+	memcpy(buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(buffer + 3 * sizeof(int), tabla, strlen(tabla));
 
 	send(clienteFS, buffer, strlen(tabla) + 3 * sizeof(int), 0);
 
 	//deserializo metadata
-	void *tamanioConsistencia = malloc(sizeof(int));
+	int *tamanioConsistencia = malloc(sizeof(int));
 	read(clienteFS, tamanioConsistencia, sizeof(int));
-	void *tipoConsistencia = malloc(atoi(tamanioConsistencia));
-	read(clienteFS, tipoConsistencia, (int) tamanioConsistencia);
+	char *tipoConsistencia = malloc(*tamanioConsistencia);
+	read(clienteFS, tipoConsistencia, *tamanioConsistencia);
+	char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia,*tamanioConsistencia);
 
-	char *tamanioNumeroParticiones = malloc(sizeof(int));
+	int* tamanioNumeroParticiones = malloc(sizeof(int));
 	read(clienteFS, tamanioNumeroParticiones, sizeof(int));
-	void *numeroParticiones = malloc((int) tamanioNumeroParticiones);
-	read(clienteFS, numeroParticiones, (int) tamanioNumeroParticiones);
+	int* numeroParticiones = malloc(*tamanioNumeroParticiones);
+	read(clienteFS, numeroParticiones, *tamanioNumeroParticiones);
 
-	void *tamanioTiempoCompactacion = malloc(sizeof(int));
+	int* tamanioTiempoCompactacion = malloc(sizeof(int));
 	read(clienteFS, tamanioTiempoCompactacion, sizeof(int));
-	void *tiempoCompactacion = malloc((int) tamanioTiempoCompactacion);
-	read(clienteFS, tiempoCompactacion, (int) tamanioTiempoCompactacion);
+	int* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
+	read(clienteFS, tiempoCompactacion, *tamanioTiempoCompactacion);
 	// aca ya tengo toda la metadata, falta guardarla en struct
 
-	//para mi (abril) seria :
-	metadataTabla* data = malloc(8 + strlen(tipoConsistencia));    // 2 int = 2*4 bytes
 
-	memcpy(&data->particiones, &numeroParticiones, sizeof(int));
-	memcpy(&data->consistencia, &tipoConsistencia, strlen(tipoConsistencia));
-	memcpy(&data->tiempoCompactacion, &tiempoCompactacion, sizeof(int));
+	metadataTabla* data = malloc(8 + 4);    // 2 int = 2*4 bytes
+	data->consistencia = malloc(strlen(tipoConsistenciaCortada));
+
+	memcpy(&data->particiones, numeroParticiones, sizeof(int));
+	memcpy(data->consistencia, tipoConsistenciaCortada, strlen(tipoConsistenciaCortada));
+	memcpy(&data->tiempoCompactacion, tiempoCompactacion, sizeof(int));
 
 	printf("\nTabla: %s", tabla);
 	printf("\nParticiones: %d", data->particiones);
 	printf("\nConsistencia: %s", data->consistencia);
 	printf("\nTiempo Compactacion: %d", data->tiempoCompactacion);
-
-	//free(metadata);
 
 	sem_post(&sem2);
 }
@@ -946,7 +946,7 @@ void conectarseAFS()
 	serverAddressFS.sin_family = AF_INET;
 	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
 	//TODO cambiar IP
-	 serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
+	serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
 	//serverAddressFS.sin_port = htons(4093);
 	//serverAddress.sin_addr.s_addr = INADDR_ANY;
 

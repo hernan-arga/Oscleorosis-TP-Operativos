@@ -2921,28 +2921,29 @@ int32_t iniciarConexion() {
 
 
  void tomarPeticionDescribePorTabla(int sd){
-	 char *tamanioTabla = malloc(sizeof(int));
-	 read(sd, tamanioTabla, sizeof(int));
-	 char *tabla = malloc(atoi(tamanioTabla));
-	 read(sd, tabla, atoi(tamanioTabla));
+	int *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(*tamanioTabla);
+	read(sd, tabla, *tamanioTabla);
+	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
-	 metadataTabla metadataPuntero = describeUnaTabla(tabla, 0);
+	 metadataTabla metadataPuntero = describeUnaTabla(tablaCortada, 0);
 	 metadataTabla* metadata = &metadataPuntero;
 
 	 // serializo paquete
 	 void* buffer = malloc( strlen(metadata->CONSISTENCY) + 2*sizeof(int) + 3*sizeof(int) ); //primeros dos terminos para datos, tercer termino para longitudes
 
 	 int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
-	 memcpy(&buffer, &tamanioMetadataConsistency, sizeof(int));
-	 memcpy(&buffer + sizeof(int), &metadata->CONSISTENCY, strlen(metadata->CONSISTENCY));
+	 memcpy(buffer, &tamanioMetadataConsistency, sizeof(int));
+	 memcpy(buffer + sizeof(int), metadata->CONSISTENCY, strlen(metadata->CONSISTENCY));
 
 	 int tamanioParticiones = sizeof(int);
-	 memcpy(&buffer + sizeof(int) + strlen(metadata->CONSISTENCY), &tamanioParticiones, sizeof(int));
-	 memcpy(&buffer + 2*sizeof(int) + strlen(metadata->CONSISTENCY), &metadata->PARTITIONS, sizeof(int));
+	 memcpy(buffer + sizeof(int) + strlen(metadata->CONSISTENCY), &tamanioParticiones, sizeof(int));
+	 memcpy(buffer + 2*sizeof(int) + strlen(metadata->CONSISTENCY), &metadata->PARTITIONS, sizeof(int));
 
 	 int tamanioCompactacion = sizeof(int);
-	 memcpy(&buffer + 3*sizeof(int) + strlen(metadata->CONSISTENCY), &tamanioCompactacion, sizeof(int));
-	 memcpy(&buffer + 4*sizeof(int) + strlen(metadata->CONSISTENCY), &metadata->COMPACTION_TIME, sizeof(int));
+	 memcpy(buffer + 3*sizeof(int) + strlen(metadata->CONSISTENCY), &tamanioCompactacion, sizeof(int));
+	 memcpy(buffer + 4*sizeof(int) + strlen(metadata->CONSISTENCY), &metadata->COMPACTION_TIME, sizeof(int));
 
 	 send(sd, buffer, strlen(metadata->CONSISTENCY)+5*sizeof(int), 0);
  }
