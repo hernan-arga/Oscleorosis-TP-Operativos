@@ -947,7 +947,7 @@ void conectarseAFS()
 	//TODO cambiar IP
 	serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
 	//serverAddressFS.sin_port = htons(4093);
-	serverAddress.sin_addr.s_addr = INADDR_ANY;
+	// serverAddress.sin_addr.s_addr = INADDR_ANY;
 
 	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
 
