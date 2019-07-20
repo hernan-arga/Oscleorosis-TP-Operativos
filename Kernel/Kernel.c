@@ -111,6 +111,9 @@ int funcionHash(int);
 char* pedirValue(char* tabla, char* laKey, int socketMemoria);
 struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria);
 void mandarInsert(char* tabla, char* key, char* value, int socketMemoria);
+void mandarDrop(char *tabla, int socketMemoria);
+void mandarJournal(int socketMemoria);
+t_dictionary *pedirDiccionarioGlobal(int socketMemoria);
 
 
 void PRUEBA();
@@ -159,7 +162,7 @@ int main() {
 	pthread_create(&hiloEjecutarReady, NULL, (void*) ejecutarReady, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
-	pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
+	pthread_create(&hiloLevantarConexion, NULL, (void*)iniciarConexion, NULL);
 	pthread_create(&describe, NULL, (void*) refreshMetadata, NULL);
 	pthread_join(metrics, NULL);
 	pthread_join(describe, NULL);
@@ -169,7 +172,7 @@ int main() {
 	return 0;
 }
 
-void PRUEBA(){
+/*void PRUEBA(){
 	struct tabla * unaTabla = malloc(sizeof(struct tabla));
 	unaTabla->CONSISTENCY = "SC";
 	unaTabla->COMPACTION_TIME = 123;
@@ -178,7 +181,7 @@ void PRUEBA(){
 	char* unaMemoria = malloc(40);
 	strcpy(unaMemoria,"192.168");
 	agregarAMiLista(unaMemoria);
-}
+}*/
 
 
 void borrarTodosLosTemps() {
@@ -417,7 +420,7 @@ void mostrarSelects(int opcion) {
 }
 
 t_list *  borrarObsoletos(clock_t tiempoActual) {
-	struct metricas* unaMetrica = malloc(sizeof(struct metricas));
+	//struct metricas* unaMetrica = malloc(sizeof(struct metricas*));
 	if (!list_is_empty(listaMetricas)) {
 		bool _tiempoPasado(void*unaMetrica) {
 			return (clock() / CLOCKS_PER_SEC - 30)
@@ -562,7 +565,8 @@ int get_PID() {
 //FIXME
 int IP_en_lista(char* ip_memoria) {
 	bool _IP_presente(struct datosMemoria * unaMemoria) {
-		return !strcmp(unaMemoria->direccionSocket.sin_addr.s_addr, ip_memoria);
+		//return !strcmp(unaMemoria->direccionSocket.sin_addr.s_addr, ip_memoria);
+		return unaMemoria->direccionSocket.sin_addr.s_addr == atoi(ip_memoria);
 	}
 	return (list_find(listaDeMemorias, (void*) _IP_presente) != NULL);
 }
@@ -724,28 +728,33 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				//generarMetrica(tiempoSelect,0,IPMemoria);
 
 				char* tabla = parametros[1];
+				char *key = parametros[2];
 				struct tabla *unaTabla = dictionary_get(tablas_conocidas,
 						tabla);
 				//Aca lo manda por sockets a la memoria correspondiente y en caso de error modifica la variable huboError
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
-					char* tabla = parametros[1];
-					char *key = parametros[2];
 					char *value = pedirValue(tabla, key, strongConsistency->socket);
+					printf("El value es: %s\n", value);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						char* key = parametros[2];
 						int numeroMemoria = funcionHash(atoi(key));
-						//Mando por socket a char *IP = list_get(hashConsistency, numeroMemoria);
+						struct datosMemoria *unaMemoria = list_get(hashConsistency, numeroMemoria);
+						char * value = pedirValue(tabla, key, unaMemoria->socket);
+						printf("El value es: %s\n", value);
 					} else {
-						//Mando directo a strongConsistency
+						char *value = pedirValue(tabla, key, strongConsistency->socket);
+						printf("El value es: %s\n", value);
 					}
 				} else { //EC
 					if (queue_size(eventualConsistency) != 0) {
-						char* memoriaRandom = queue_pop(eventualConsistency);
-						//Mando por socket a eventualConsistency
-						queue_push(eventualConsistency, memoriaRandom);
+						struct datosMemoria *unaMemoria = queue_pop(eventualConsistency);
+						char* value = pedirValue(tabla, key, unaMemoria->socket);
+						printf("El value es: %s\n", value);
+						queue_push(eventualConsistency, unaMemoria);
 					} else {
-						//Mando directo a strongConsistency
+						char *value = pedirValue(tabla, key, strongConsistency->socket);
+						printf("El value es: %s\n", value);
 					}
 				}
 
@@ -791,7 +800,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					&& dictionary_has_key(tablas_conocidas, tabla);
 		}
 		//puede o no estar el timestamp
-		if (parametrosValidos(4, parametros, (void *) criterioInsert)) {
+		if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
 			printf("Envio el comando INSERT a memoria\n");
 			if (es_request) {
 				char* nombre_archivo = tempSinAsignar();
@@ -818,24 +827,25 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					if (list_size(hashConsistency) != 0) {
 						char* key = parametros[2];
 						int numeroMemoria = funcionHash(atoi(key));
-						//Mando por socket a char *IP = list_get(hashConsistency, numeroMemoria);
+						struct datosMemoria *unaMemoria = list_get(hashConsistency, numeroMemoria);
+						mandarInsert(tabla, key, value, unaMemoria->socket);
 					} else {
-						//Mando directo a strongConsistency
+						mandarInsert(tabla, key, value, strongConsistency->socket);
 					}
 				} else { //EC
 					if (queue_size(eventualConsistency) != 0) {
-						char* memoriaRandom = queue_pop(eventualConsistency);
-						//Mando por socket a eventualConsistency
+						struct datosMemoria *memoriaRandom = queue_pop(eventualConsistency);
+						mandarInsert(tabla, key, value, memoriaRandom->socket);
 						queue_push(eventualConsistency, memoriaRandom);
 					} else {
-						//Mando directo a strongConsistency
+						mandarInsert(tabla, key, value, strongConsistency->socket);
 					}
 				}
 
 				*huboError = 0;
 			}
 
-		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) { //fixme borrar esto
+		} /*else if (parametrosValidos(3, parametros, (void *) criterioInsert)) { //fixme borrar esto
 			printf("Envio el comando INSERT a memoria");
 
 			if (es_request) {
@@ -872,11 +882,11 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					} else {
 						//Mando directo a strongConsistency
 					}
-				}
+				}*/
 
-				*huboError = 0;
-			}
-		} else {
+				//*huboError = 0;
+			//}
+		else {
 			*huboError = 1;
 		}
 		break;
@@ -932,17 +942,18 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						char* cantidadDeParticiones = parametros[3];
 						int numeroMemoria = funcionHash(
 								atoi(cantidadDeParticiones));
-						//Mando por socket a char *IP = list_get(hashConsistency, numeroMemoria);
+						struct datosMemoria *unaMemoria = list_get(hashConsistency, numeroMemoria);
+						mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, unaMemoria->socket);
 					} else {
-						//Mando directo a strongConsistency
+						mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, strongConsistency->socket);
 					}
 				} else { //EC
 					if (queue_size(eventualConsistency) != 0) {
-						char* memoriaRandom = queue_pop(eventualConsistency);
-						//Mando por socket a eventualConsistency
+						struct datosMemoria* memoriaRandom = queue_pop(eventualConsistency);
+						mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, memoriaRandom->socket);
 						queue_push(eventualConsistency, memoriaRandom);
 					} else {
-						//Mando directo a strongConsistency
+						mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, strongConsistency->socket);
 					}
 				}
 				*huboError = 0;
@@ -1035,17 +1046,18 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					if (list_size(hashConsistency) != 0) {
 						int max = list_size(hashConsistency) - 1;
 						int memoriaRandom = rand() % max;
-						//Mandarlo a list_get(hashConsistecy, memoriaRandom);
+						struct datosMemoria* unaMemoria = list_get(hashConsistency, memoriaRandom);
+						mandarDrop(tabla, unaMemoria->socket);
 					} else {
-						//Mando directo a strongConsistency
+						mandarDrop(tabla, strongConsistency->socket);
 					}
 				} else { //EC
 					if (queue_size(eventualConsistency) != 0) {
-						char* memoriaRandom = queue_pop(eventualConsistency);
-						//Mando por socket a eventualConsistency
+						struct datosMemoria *memoriaRandom = queue_pop(eventualConsistency);
+						mandarDrop(tabla, memoriaRandom->socket);
 						queue_push(eventualConsistency, memoriaRandom);
 					} else {
-						//Mando directo a strongConsistency
+						mandarDrop(tabla, strongConsistency->socket);
 					}
 				}
 
