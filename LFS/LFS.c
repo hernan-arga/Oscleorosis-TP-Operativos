@@ -2746,13 +2746,26 @@ int32_t iniciarConexion() {
 					new_socket, inet_ntoa(address.sin_addr),
 					ntohs(address.sin_port));
 
-			char* tamanioValue = string_itoa(structConfiguracionLFS.TAMANIO_VALUE);
-			//send new connection greeting message
-			if ( send(new_socket, (void*)tamanioValue, strlen(tamanioValue), 0)    !=      strlen(tamanioValue)) {
-				perror("send");
-			}
+			int tamanioValue = structConfiguracionLFS.TAMANIO_VALUE;
+			void* buffer = malloc( 2*sizeof(int) );
 
-			//puts("Welcome message sent successfully");
+			int tamaniodelTamanioValue = sizeof(int);
+			memcpy(buffer, &tamaniodelTamanioValue,sizeof(int));
+			memcpy(buffer + sizeof(int), &tamanioValue, sizeof(int));
+
+			//send new connection greeting message
+			/*
+			int* var = malloc(4);
+			*var=1;
+			send(new_socket, &var, sizeof(int), 0);
+			send(new_socket, &var, sizeof(int), 0);
+			send(new_socket, &var, sizeof(int), 0);
+			send(new_socket, &var, sizeof(int), 0);
+			send(new_socket, &var, sizeof(int), 0);
+			send(new_socket, &var, sizeof(int), 0);
+			send(new_socket, &var, sizeof(int), 0);*/
+
+			send(new_socket, buffer, 2*sizeof(int), 0);
 
 			//add new socket to array of sockets
 			for (i = 0; i < max_clients; i++) {
@@ -2821,29 +2834,32 @@ int32_t iniciarConexion() {
 	 int *key = malloc(*tamanioKey);
 	 read(sd, key, *tamanioKey);
 	 char* keyString = string_itoa(*key);
+
 	 printf("Haciendo Select");
 	 char *value = realizarSelect(tablaCortada, keyString);
 
 	 // serializo paquete
 	 void *buffer = malloc(strlen(value) + sizeof(int));
 	 int tamanio = strlen(value);
-	 memcpy(&buffer, &tamanio, sizeof(int));
-	 memcpy(&buffer + sizeof(int), value, tamanio);
+	 memcpy(buffer, &tamanio, sizeof(int));
+	 memcpy(buffer + sizeof(int), value, tamanio);
 
 	 send(sd, buffer, strlen(value)+sizeof(int), 0);
  }
 
 
  void tomarPeticionCreate(int sd) {
-	 void *tamanioTabla = malloc(sizeof(int));
+	 // deserializo peticion de mm
+	 int *tamanioTabla = malloc(sizeof(int));
 	 read(sd, tamanioTabla, sizeof(int));
-	 void *tabla = malloc(atoi(tamanioTabla));
-	 read(sd, tabla, (int)tamanioTabla);
+	 char *tabla = malloc(*tamanioTabla);
+	 read(sd, tabla, *tamanioTabla);
+	 char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
-	 void *tamanioConsistencia = malloc(sizeof(int));
+	 int *tamanioConsistencia = malloc(sizeof(int));
 	 read(sd, tamanioConsistencia, sizeof(int));
-	 void *tipoConsistencia = malloc(atoi(tamanioConsistencia));
-	 read(sd, tipoConsistencia, (int)tamanioConsistencia);
+	 char *tipoConsistencia = malloc(*tamanioConsistencia);
+	 read(sd, tipoConsistencia, *tamanioConsistencia);
 
 	 char *tamanioNumeroParticiones = malloc(sizeof(int));
 	 read(sd, tamanioNumeroParticiones, sizeof(int));

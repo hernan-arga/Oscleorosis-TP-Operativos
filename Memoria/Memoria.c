@@ -122,11 +122,11 @@ int main(int argc, char *argv[])
 	t_archivoConfiguracion.RETARDO_GOSSIPING = config_get_int_value(config, "RETARDO_GOSSIPING");
 	t_archivoConfiguracion.MEMORY_NUMBER = config_get_int_value(config, "MEMORY_NUMBER");
 
-	pthread_t threadSerServidor;
-	int32_t idThreadSerServidor = pthread_create(&threadSerServidor, NULL, serServidor, NULL);
-
 	pthread_t threadFS;
 	int32_t idThreadFS = pthread_create(&threadFS, NULL, conectarseAFS, NULL);
+
+	pthread_t threadSerServidor;
+	int32_t idThreadSerServidor = pthread_create(&threadSerServidor, NULL, serServidor, NULL);
 
 	tablaSegmentos = dictionary_create();
 
@@ -498,10 +498,13 @@ char* pedirValue(char* tabla, char* laKey)
 
 	//deserializo value
 	int *tamanioValue = malloc(sizeof(int));
+	//printf("hola\n");
 	recv(clienteFS, tamanioValue, sizeof(int), 0);
+	//printf("chau\n");
 	char *value = malloc(*tamanioValue);
 	recv(clienteFS, value, *tamanioValue, 0);
 
+/*
 	char* mensajeALogear = malloc(strlen(" Llego select con VALUE : ") + strlen(value) + 1);
 	strcpy(mensajeALogear, " Llego select con VALUE : ");
 	strcat(mensajeALogear, value);
@@ -510,51 +513,10 @@ char* pedirValue(char* tabla, char* laKey)
 	log_info(g_logger, mensajeALogear);
 	log_destroy(g_logger);
 	free(mensajeALogear);
-
-	return value;
-
-/*
-	char* mensaje = malloc(sizeof(int) + sizeof(int) + strlen(tabla) + sizeof(int) + strlen(key));
-
-	strcpy(mensaje, "0");
-
-	char* num = malloc(sizeof(int));
-	sprintf(num, "%d", strlen(tabla));
-
-	strcat(mensaje, num);
-	free(num);
-
-	strcat(mensaje, tabla);
-
-	num = malloc(sizeof(int));
-	sprintf(num, "%d", strlen(key));
-
-	strcat(mensaje, num);
-	free(num);
-
-	strcat(mensaje, key);
-
-	send(clienteFS, mensaje, strlen(mensaje), 0);
-
-	free(mensaje);
-
-	char* tamV = malloc(2);
-
-	recv(clienteFS, tamV, sizeof(int) , 0);
-
-	printf("%s\n", tamV);
-	printf("%d\n", atoi(tamV));
-
-	char* value = malloc(atoi(tamV));
-
-	recv(clienteFS, value, atoi(tamV)+1 , 0);
-
-	printf("\n%s\n", value);
-
-	free(tamV);
-
-	return value;
 */
+	printf("%s\n", value);
+
+	return value;
 }
 
 int ejecutarLRU()
@@ -619,36 +581,6 @@ void ejecutarJournaling()
 
 				char* value = malloc(tamanoValue);
 				memcpy(value, (memoriaPrincipal+pag->numeroFrame*tamanoFrame+sizeof(int)+sizeof(long int)), *(frames+pag->numeroFrame));
-
-				/*
-				char* mensaje = malloc(sizeof(int)+sizeof(int)+sizeof(tabla)+sizeof(int)+
-						sizeof(key)+sizeof(int)+strlen(value));
-				strcpy(mensaje, "1");
-
-				char* num = malloc(sizeof(int));
-				sprintf(num, "%d", sizeof(tabla));
-
-				strcat(mensaje, num);
-				free(num);
-
-				strcat(mensaje, tabla);
-
-				num = malloc(sizeof(int));
-				sprintf(num, "%d", sizeof(key));
-
-				strcat(mensaje, num);
-				free(num);
-
-				strcat(mensaje, key);
-
-				num = malloc(sizeof(int));
-				sprintf(num, "%d", strlen(value));
-
-				strcat(mensaje, num);
-				free(num);
-
-				strcat(mensaje, value);
-				*/
 
 				// Serializo peticion, tabla, key, value (el timestamp lo agrega el fs y siempre es el ACTUAL)
 				char* buffer = malloc( 6*sizeof(int) + strlen(tabla) + strlen(value));
@@ -716,46 +648,6 @@ void ejecutarJournaling()
 void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones, char* tiempoCompactacion)
 {
 	sem_wait(&sem2);
-
-	/*
-	char* mensaje = malloc(sizeof(int) + sizeof(int) + sizeof(tabla) + sizeof(int) + sizeof(tipoConsistencia)
-			+ sizeof(int) + sizeof(numeroParticiones) + sizeof(int) + sizeof(tiempoCompactacion));
-
-	strcpy(mensaje, "2");
-
-	char* num = malloc(sizeof(int));
-	sprintf(num, "%d", sizeof(tabla));
-
-	strcat(mensaje, num);
-	free(num);
-
-	strcat(mensaje, tabla);
-
-	num = malloc(sizeof(int));
-	sprintf(num, "%d", sizeof(tipoConsistencia));
-
-	strcat(mensaje, num);
-	free(num);
-
-	strcat(mensaje, tipoConsistencia);
-
-	num = malloc(sizeof(int));
-	sprintf(num, "%d", sizeof(numeroParticiones));
-
-	strcat(mensaje, num);
-	free(num);
-
-	strcat(mensaje, numeroParticiones);
-
-	num = malloc(sizeof(int));
-	sprintf(num, "%d", sizeof(tiempoCompactacion));
-
-	strcat(mensaje, num);
-	free(num);
-
-	strcat(mensaje, tiempoCompactacion);
-	free(mensaje);
-	*/
 
 	// Serializo Peticion, Tabla y Metadata
 	void* buffer = malloc( strlen(tabla) + 8*sizeof(int) + strlen(tipoConsistencia));
@@ -879,22 +771,6 @@ void realizarDrop(char* tabla)
 void realizarDescribe(char* tabla)
 {
 	sem_wait(&sem2);
-	/*
-	char* mensaje = malloc(sizeof(int) + sizeof(int) + sizeof(tabla));
-
-	strcpy(mensaje, "3");
-
-	char* num = malloc(sizeof(int));
-	sprintf(num, "%d", sizeof(tabla));
-
-	strcat(mensaje, num);
-	free(num);
-
-	strcat(mensaje, tabla);
-
-	//Magia sockets
-
-	free(mensaje); */
 
 	// Serializo peticion y tabla
 	void* buffer = malloc(strlen(tabla) + 3 * sizeof(int));
@@ -1079,15 +955,12 @@ void conectarseAFS()
 
 	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
 
-	/*
-	char* tamano = malloc(100);
+	int *tamaniodelTamanioValue = malloc(sizeof(int));
+	recv(clienteFS, tamaniodelTamanioValue, sizeof(int),0);
+	int *tamanioValue = malloc(*tamaniodelTamanioValue);
+	recv(clienteFS, tamanioValue, *tamaniodelTamanioValue,0);
 
-	recv(clienteFS, tamano, sizeof(tamano), 0);
-
-	tamanoValue = atoi(tamano);
-	*/
-
-	//free(tamano);
+	memcpy(&tamanoValue, &tamanioValue, sizeof(tamanioValue));
 
 	sem_post(&sem);
 }
