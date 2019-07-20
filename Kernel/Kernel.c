@@ -151,7 +151,7 @@ int main() {
 	new = queue_create();
 	ready = queue_create();
 	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
-	PRUEBA();
+	//PRUEBA();
 	borrarTodosLosTemps();
 	operacion_gossiping(); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
 	pthread_t hiloEjecutarReady;
@@ -580,7 +580,7 @@ int numeroSinUsar() {
 
 
 void conectarseAMemoria(struct datosMemoria* unaMemoria){
-	connect(unaMemoria->socket, (struct sockaddr *) unaMemoria->direccionSocket, sizeof(unaMemoria->direccionSocket));
+	connect(unaMemoria->socket, (struct sockaddr *) &unaMemoria->direccionSocket, sizeof(unaMemoria->direccionSocket));
 	char *mensaje = malloc(2);
 	strcpy(mensaje, "1");
 	send(unaMemoria->socket, mensaje, 2, 0);
@@ -811,8 +811,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				planificador(nombre_archivo);
 			} else {
 
-				clock_t tiempoInsert = clock();
-				generarMetrica(tiempoInsert,1,IPMemoria);
+
 
 				char *tabla = parametros[1];
 				char* key = parametros[2];
@@ -828,6 +827,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						char* key = parametros[2];
 						int numeroMemoria = funcionHash(atoi(key));
 						struct datosMemoria *unaMemoria = list_get(hashConsistency, numeroMemoria);
+						clock_t tiempoInsert = clock();
+						generarMetrica(tiempoInsert,1,unaMemoria->direccionSocket.sin_addr.s_addr);
 						mandarInsert(tabla, key, value, unaMemoria->socket);
 					} else {
 						mandarInsert(tabla, key, value, strongConsistency->socket);
