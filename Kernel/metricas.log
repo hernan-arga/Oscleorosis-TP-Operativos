@@ -10,3 +10,7 @@
 
 [INFO] 19:52:12:269 Kernel/(5759:5760): [19:52:12:269]	El promedio de tiempo de ejecucion para SELECT es 0.000000
 
+[INFO] 00:43:56:744 Kernel/(6887:6897): [00:43:56:743]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:43:56:744 Kernel/(6887:6897): [00:43:56:744]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+

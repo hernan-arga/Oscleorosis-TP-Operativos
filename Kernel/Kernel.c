@@ -39,11 +39,11 @@ struct Script {
 	char* peticiones;
 	int posicionActual;
 };
-/*
- struct datosMemoria{
- char* ip;
 
- };*/
+ struct datosMemoria{
+	int socket;
+	struct sockaddr_in direccionSocket;
+ };
 
 struct tabla {
 	int PARTITIONS;
@@ -123,7 +123,7 @@ int n = 0;
 
 t_log* g_logger;
 
-char* strongConsistency;
+struct datosMemoria* strongConsistency;
 t_list *hashConsistency;
 t_queue *eventualConsistency;
 
@@ -527,8 +527,8 @@ int get_PID() {
 }
 //FIXME
 int IP_en_lista(char* ip_memoria) {
-	bool _IP_presente(char* IP) {
-		return !strcmp(IP, ip_memoria);
+	bool _IP_presente(struct datosMemoria * unaMemoria) {
+		return !strcmp(unaMemoria->direccionSocket.sin_addr.s_addr, ip_memoria);
 	}
 	return (list_find(listaDeMemorias, (void*) _IP_presente) != NULL);
 }
@@ -543,13 +543,20 @@ int numeroSinUsar() {
 //TODO falta sockets acá
 void operacion_gossiping() {
 	char * IP = config_get_string_value(configuracion, "IP_MEMORIA");
-	//aca va algo con sockets para pedirle a la memoria principal, la IP de las demas memorias. Carga en unaMemoria la info y si no está en la lista de IPs, la coloca.
-	//Aca hay una lista que llega de memoria
-	//list_iterate(listaDeMemoriasRecibida, (void*)agregarAMiLista);
+	recv(socketMemoria, listaDeMemorias, sizeof(t_list*), 0);	//crear el socket memoria
+	list_iterate(listaDeMemorias, (void*)conectarseAMemoria);
+	list_iterate(listaDeMemorias, (void*)agregarAMiLista);
 }
 
-void agregarAMiLista(char* unaMemoria) {
-	if (!IP_en_lista(unaMemoria)) {
+void conectarseAMemoria(struct datosMemoria* unaMemoria){
+	connect(unaMemoria->socket, (struct sockaddr *) unaMemoria->direccionSocket, sizeof(unaMemoria->direccionSocket));
+	char *mensaje = malloc(2);
+	strcpy(mensaje, "1");
+	send(unaMemoria->socket, mensaje, 2, 0);
+}
+
+void agregarAMiLista(struct datosMemoria * unaMemoria) {
+	if (!IP_en_lista(unaMemoria->direccionSocket.sin_addr.s_addr)) {
 		list_add(listaDeMemorias, unaMemoria);
 	}
 }
@@ -684,7 +691,9 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						tabla);
 				//Aca lo manda por sockets a la memoria correspondiente y en caso de error modifica la variable huboError
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
-					//Mando directo a strongConsistency
+					char* tabla = parametros[1];
+					char *key = parametros[2];
+					char *value = pedirValue(tabla, key, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						char* key = parametros[2];
@@ -760,10 +769,15 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				//generarMetrica(tiempoInsert,1,IPMemoria);
 
 				char *tabla = parametros[1];
+				char* key = parametros[2];
+				char* value = parametros[3];
+				char *timeStamp = parametros[4];
+
 				struct tabla *unaTabla = dictionary_get(tablas_conocidas,
 						tabla);
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
-					//Mando directo a strongConsistency
+
+					mandarInsert(tabla, key, value, timestamp, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						char* key = parametros[2];
@@ -785,7 +799,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				*huboError = 0;
 			}
 
-		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
+		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) { //fixme borrar esto
 			printf("Envio el comando INSERT a memoria");
 			if (es_request) {
 				char* nombre_archivo = tempSinAsignar();
@@ -868,11 +882,14 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				fclose(temp);
 				planificador(nombre_archivo);
 			} else {
-				char *tabla = parametros[1];
+				char* tabla = parametros[1];
+							char* tiempoCompactacion = parametros[4];
+							char* cantidadParticiones = parametros[3];
+							char* consistencia = parametros[2];
 				struct tabla *unaTabla = dictionary_get(tablas_conocidas,
 						tabla);
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
-					//Mando directo a strongConsistency
+					mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						char* cantidadDeParticiones = parametros[3];
@@ -919,7 +936,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		}
 		if (parametrosValidos(0, parametros,
 				(void *) criterioDescribeTodasLasTablas)) {
-			//diccionarioDeTablasTemporal = 	Le pido el diccionario de todas las tablas a memoria strongConsistency
+			diccionarioDeTablasTemporal = pedirDiccionarioGlobal(strongConsistency->socket);
 			//dictionary_iterator(diccionarioDeTablasTemporal, (void*)actualizarDiccionarioDeTablas); actualizo el propio
 			//dictionary_iterator(tablas_conocidas, (void*)quitarDelDiccionarioDeTablasLaTablaBorrada);
 			//dictionary_destroy(diccionarioDeTablasTemporal);
@@ -932,7 +949,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				(void *) criterioDescribeUnaTabla)) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
-			//struct tabla *metadata = 	pido la metadata de 1 tabla a memoria strongConsistency y actualizo el diccionario de las tablas
+			struct tabla *metadata = pedirDescribeUnaTabla( tabla, strongConsistency->socket);
 			//actualizarDiccionarioDeTablas(tabla, metadata);
 			if (es_request) {
 				describeUnaTabla(tabla);
@@ -976,7 +993,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				struct tabla *unaTabla = dictionary_get(tablas_conocidas,
 						tabla);
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
-					//Mando directo a strongConsistency
+					mandarDrop(tabla, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						int max = list_size(hashConsistency) - 1;
@@ -1010,7 +1027,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		}
 
 		else {
-			//Mando msj a memoria strongConsistency
+			mandarJournal(strongConsistency->socket); ///revisar a quien se lo mando
 		}
 		break;
 	case ADD:
@@ -1111,6 +1128,128 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 	}
 }
 
+void mandarDrop(char *tabla, int socketMemoria){
+	int peticion = 5;
+	void* buffer = malloc(sizeof(int) + sizeof(int) +strlen(tabla));
+		memcpy(buffer, &peticion, sizeof(int));
+
+		int tamanioTabla = strlen(tabla);
+		memcpy(buffer + 1*sizeof(int), &tamanioTabla, sizeof(int));
+		memcpy(buffer + 2*sizeof(int), tabla, strlen(tabla));
+		send(socketMemoria, buffer, sizeof(buffer), 0);
+}
+
+void mandarJournal(int socketMemoria){
+	int peticion = 6;
+	void* buffer = malloc(sizeof(int));
+			memcpy(buffer, &peticion, sizeof(int));
+			send(socketMemoria, buffer, sizeof(int), 0);
+}
+
+t_dictionary *pedirDiccionarioGlobal(int socketMemoria){
+	int peticion = 4;
+		void* buffer = malloc(sizeof(int));
+		memcpy(buffer, &peticion, sizeof(int));
+		send(socketMemoria, buffer, sizeof(int), 0);
+		t_dictionary *unDiccionario;
+		recv(socketMemoria, unDiccionario, sizeof(unDiccionario), 0);
+		return unDiccionario;
+}
+
+struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria){
+	int peticion = 3;
+	void* buffer = malloc(sizeof(int) + sizeof(int) +strlen(tabla));
+	memcpy(buffer, &peticion, sizeof(int));
+
+	int tamanioTabla = strlen(tabla);
+	memcpy(buffer + 1*sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(buffer + 2*sizeof(int), tabla, strlen(tabla));
+	send(socketMemoria, buffer, sizeof(buffer), 0);
+	struct tabla *unaTabla;
+	recv(socketMemoria, unaTabla, sizeof(struct tabla*), 0);
+	return unaTabla;
+}
+
+void mandarInsert(char* tabla, char* key, char* value, int socketMemoria){
+	int peticion = 1;
+	void* buffer = malloc( strlen(tabla) + sizeof(int) + 2*sizeof(int) + 2*sizeof(int) + strlen(value));
+	memcpy(buffer, &peticion, sizeof(int));
+
+	int tamanioTabla = strlen(tabla);
+	memcpy(buffer + 1*sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(buffer + 2*sizeof(int), tabla, strlen(tabla));
+
+	int tamanioKey = sizeof(int);
+	memcpy(buffer + 2*sizeof(int) + strlen(tabla), &tamanioKey, sizeof(int));
+	memcpy(buffer + 3*sizeof(int) + strlen(tabla), &key, sizeof(int));
+
+	int tamanioValue = sizeof(int);
+	memcpy(buffer + 4*sizeof(int) + strlen(tabla), &tamanioValue, sizeof(int));
+	memcpy(buffer + 5*sizeof(int) + strlen(tabla), &value, strlen(value));
+	//No mandar el timestamp
+	send(socketMemoria, buffer, sizeof(buffer), 0);
+
+}
+
+void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones, char *tiempoCompactacion, int socketMemoria){
+	int peticion = 2;
+	void* buffer = malloc( strlen(tabla) + sizeof(int) + 2*sizeof(int) + 2*sizeof(int) + strlen(consistencia) + strlen(cantidadParticiones) + strlen(tiempoCompactacion));
+	memcpy(buffer, &peticion, sizeof(int));
+
+	int tamanioTabla = strlen(tabla);
+	memcpy(buffer + 1*sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(buffer + 2*sizeof(int), tabla, strlen(tabla));
+
+	int tamanioConsistencia = strlen(consistencia);
+	memcpy(buffer + 2*sizeof(int), &tamanioConsistencia, sizeof(int));
+	memcpy(buffer + 3*sizeof(int), &consistencia, tamanioConsistencia);
+
+	int tamanioCantidadParticiones = strlen(cantidadParticiones);
+		memcpy(buffer + 3*sizeof(int), &tamanioCantidadParticiones, sizeof(int));
+		memcpy(buffer + 4*sizeof(int), &cantidadParticiones, tamanioCantidadParticiones);
+
+		int tamanioTiempoCompactacion = strlen(tiempoCompactacion);
+		memcpy(buffer + 4*sizeof(int), &tamanioTiempoCompactacion, sizeof(int));
+			memcpy(buffer + 5*sizeof(int), &tiempoCompactacion, tamanioTiempoCompactacion);
+
+			send(socketMemoria, buffer, sizeof(buffer), 0);
+
+}
+
+
+char* pedirValue(char* tabla, char* laKey, int socketMemoria)
+{
+	// Serializo peticion, tabla y key
+	int key = atoi(laKey);
+
+	void* buffer = malloc( strlen(tabla) + sizeof(int) + 2*sizeof(int) + 2*sizeof(int));
+	// primeros dos terminos para TABLA; anteultimo termino para KEY; ultimo para peticion
+
+	int peticion = 0;
+	memcpy(buffer, &peticion, sizeof(int));
+
+	int tamanioTabla = strlen(tabla);
+	memcpy(buffer + sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(buffer + 2*sizeof(int), tabla, strlen(tabla));
+
+	int tamanioKey = sizeof(int);
+	memcpy(buffer + 3*sizeof(int) + strlen(tabla), &tamanioKey, sizeof(int));
+	memcpy(buffer + 4*sizeof(int) + strlen(tabla), &key, sizeof(int));
+
+	send(socketMemoria, buffer, strlen(tabla) + 4*sizeof(int), 0);
+
+	//deserializo value
+	int *tamanioValue = malloc(sizeof(int));
+	//printf("hola\n");
+	recv(socketMemoria, tamanioValue, sizeof(int), 0);
+	//printf("chau\n");
+	char *value = malloc(*tamanioValue);
+	recv(socketMemoria, value, *tamanioValue, 0);
+
+	return value;
+}
+
+
 void generarMetrica(clock_t tiempoInicial, int tipoDeMetrica, char* IPMemoria) {
 	struct metricas * unRegistro;
 	clock_t tiempoFinal = clock() - tiempoInicial;
@@ -1159,7 +1298,7 @@ void drop(char* nombre_tabla) {
 }
 
 /*
- int main()
+ int iniciarConexion()
  {
  printf("Soy Kernel \n");
  int sock_cliente_de_memoria;

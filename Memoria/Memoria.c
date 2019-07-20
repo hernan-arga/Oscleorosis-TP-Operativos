@@ -56,6 +56,11 @@ typedef struct{
 	char** PUERTO_SEEDS;
 }archivoConfiguracion;
 
+struct datosMemoria{
+	int socket;
+	struct sockaddr_in direccionSocket;
+ };
+
 t_dictionary* tablaSegmentos;
 char* memoriaPrincipal;
 int tamanoFrame;
@@ -87,7 +92,7 @@ pthread_t threadFS;
 void analizarInstruccion(char* instruccion);
 void realizarComando(char** comando);
 OPERACION tipoDePeticion(char* peticion);
-int realizarSelect(char* tabla, char* key);
+char* realizarSelect(char* tabla, char* key);
 int realizarInsert(char* tabla, char* key, char* value);
 int frameLibre();
 char* pedirValue(char* tabla, char* key);
@@ -95,8 +100,8 @@ int ejecutarLRU();
 void ejecutarJournaling();
 void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones, char* tiempoCompactacion);
 void realizarDrop(char* tabla);
-void realizarDescribeGolbal();
-void realizarDescribe(char* tabla);
+t_dictionary *realizarDescribeGolbal();
+metadataTabla* realizarDescribe(char* tabla);
 void consola();
 void serServidor();
 void conectarseAFS();
@@ -264,7 +269,7 @@ OPERACION tipoDePeticion(char* peticion)
 			}
 		}
 
-int realizarSelect(char* tabla, char* key)
+char* realizarSelect(char* tabla, char* key)
 {
 	sem_wait(&sem2);
 
@@ -298,12 +303,12 @@ int realizarSelect(char* tabla, char* key)
 
 				pag->timeStamp = timeS;
 
-				free(value);
+				//free(value);
 				free(laKey);
 
 				sem_post(&sem2);
 
-				return 0;
+				return value;
 			}
 			free(laKey);
 		}
@@ -334,10 +339,10 @@ int realizarSelect(char* tabla, char* key)
 		memcpy((memoriaPrincipal+pagp->numeroFrame*tamanoFrame+sizeof(int)), timeStamp, sizeof(long int));
 
 		free(timeStamp);
-		free(value);
+		//free(value);
 
 		sem_post(&sem2);
-		return 0;
+		return value;
 	}
 
 	char* value = pedirValue(tabla, key);
@@ -364,10 +369,10 @@ int realizarSelect(char* tabla, char* key)
 	memcpy((memoriaPrincipal+pagp->numeroFrame*tamanoFrame+sizeof(int)+sizeof(long int)), value, strlen(value));
 
 	free(timeStamp);
-	free(value);
+	//free(value);
 
 	sem_post(&sem2);
-	return 0;
+	return value;
 }
 
 int realizarInsert(char* tabla, char* key, char* value)
@@ -763,7 +768,7 @@ void realizarDrop(char* tabla)
 	sem_post(&sem2);
 }
 
-void realizarDescribe(char* tabla)
+metadataTabla* realizarDescribe(char* tabla)
 {
 	sem_wait(&sem2);
 
@@ -811,11 +816,11 @@ void realizarDescribe(char* tabla)
 	printf("\nTiempo Compactacion: %d", data->tiempoCompactacion);
 
 	//free(metadata);
-
 	sem_post(&sem2);
+	return data;
 }
 
-void realizarDescribeGolbal()
+t_dictionary *realizarDescribeGolbal()
 {
 	sem_wait(&sem2);
 
@@ -870,6 +875,7 @@ void realizarDescribeGolbal()
 	free(mensaje);
 
 	sem_post(&sem2);
+	return tablas;
 }
 
 void consola()
@@ -915,9 +921,6 @@ void serServidor()
 	while(t_archivoConfiguracion.PUERTO_SEEDS[i] != NULL)
 	{
 		int cliente = socket(AF_INET, SOCK_STREAM, 0);
-		int* sock = malloc(sizeof(int));
-		sock = cliente;
-		printf("Hola");
 		direccionCliente.sin_family = AF_INET;
 		direccionCliente.sin_port = htons(atoi(t_archivoConfiguracion.PUERTO_SEEDS[i]));
 		direccionCliente.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_SEEDS[i]);
@@ -929,8 +932,10 @@ void serServidor()
 		strcpy(buffer, "0");
 
 		send(cliente, &buffer, strlen(buffer), 0);
-
-		list_add(clientes, sock);
+		struct datosMemoria *unaMemoria = malloc(sizeof(struct datosMemoria*));
+		unaMemoria->socket = cliente;
+		unaMemoria->direccionSocket = direccionCliente;
+		list_add(clientes, unaMemoria);
 
 		pthread_t threadCliente;
 		int32_t idThreadCliente = pthread_create(&threadCliente, NULL, gossiping, cliente);
@@ -945,9 +950,9 @@ void conectarseAFS()
 	serverAddressFS.sin_family = AF_INET;
 	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
 	//TODO cambiar IP
-	serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
+	//serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
 	//serverAddressFS.sin_port = htons(4093);
-	// serverAddress.sin_addr.s_addr = INADDR_ANY;
+	serverAddress.sin_addr.s_addr = INADDR_ANY;
 
 	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
 
@@ -966,7 +971,95 @@ void tratarKernel(int kernel)
 {
 	while(1)
 	{
-		//Recivir mensajes constantemente y responder
+		int *operacion = malloc(sizeof(int));
+		recv(kernel, operacion, sizeof(int),0);
+		switch(operacion){
+			case 0: //Select
+				int *tamanioTabla = malloc(sizeof(int));
+				recv(kernel, tamanioTabla, sizeof(int),0);
+				char *tabla = malloc(tamanioTabla);
+				recv(kernel, tabla, tamanioTabla,0);
+				int *tamanioKey = malloc(sizeof(int));
+				recv(kernel, tamanioKey, sizeof(int),0);
+				char *key = malloc(tamanioKey);
+				recv(kernel, key, tamanioKey,0);
+				char* value = malloc(tamanoValue);
+				value = realizarSelect(tabla, key);
+				int tamanioValue = strlen(value);
+				char *buffer = malloc(sizeof(int)+strlen(value));
+					memcpy(buffer, &tamanioValue, sizeof(int));
+					memcpy(buffer + sizeof(int), value, strlen(value));
+
+				send(kernel, buffer, strlen(value), 0);
+				free(value);
+				free(key);
+				free(tamanioKey);
+				free(tamanioTabla);
+				break;
+			case 1: //Insert
+				int *tamanioTabla = malloc(sizeof(int));
+				recv(kernel, tamanioTabla, sizeof(int),0);
+				char *tabla = malloc(tamanioTabla);
+				recv(kernel, tabla, tamanioTabla,0);
+				int *tamanioKey = malloc(sizeof(int));
+				recv(kernel, tamanioKey, sizeof(int),0);
+				char *key = malloc(tamanioKey);
+				recv(kernel, key, tamanioKey,0);
+				int *tamanioValue2 = malloc(sizeof(int));
+				recv(kernel, tamanioValue2, sizeof(int), 0);
+				char* value = malloc(tamanioValue2);
+				recv(kernel, value, tamanioValue2, 0);
+				realizarInsert(tabla, key, value);
+				free(value);
+				free(key);
+				free(tamanioKey);
+				free(tamanioValue2);
+				free(tamanioTabla);
+				break;
+			case 2: //create
+				int *tamanioTabla = malloc(sizeof(int));
+				recv(kernel, tamanioTabla, sizeof(int),0);
+				char *tabla = malloc(tamanioTabla);
+				recv(kernel, tabla, tamanioTabla,0);
+				int *tamanioConsistencia = malloc(sizeof(int));
+				recv(kernel, tamanioConsistencia, sizeof(int),0);
+				char *consistencia = malloc(tamanioConsistencia);
+				recv(kernel, consistencia, tamanioConsistencia,0);
+				int *tamanionumeroParticiones = malloc(sizeof(int));
+				recv(kernel, tamanionumeroParticiones, sizeof(int), 0);
+				char *numeroDeParticiones = malloc(tamanionumeroParticiones);
+				recv(kernel, numeroDeParticiones, tamanionumeroParticiones, 0);
+				char* tamanioTiempoCompactacion = malloc(sizeof(int));
+				recv(kernel, tamanioTiempoCompactacion, sizeof(int), 0);
+				char *tiempoCompactacion = malloc(tamanioTiempoCompactacion);
+				recv(kernel, tiempoCompactacion, tamanioTiempoCompactacion, 0);
+				realizarCreate(tabla, consistencia, numeroDeParticiones, tiempoCompactacion);
+				break;
+			case 3: //Describe una tabla
+				int *tamanioTabla = malloc(sizeof(int));
+				recv(kernel, tamanioTabla, sizeof(int),0);
+				char *tabla = malloc(tamanioTabla);
+				recv(kernel, tabla, tamanioTabla,0);
+				metadataTabla* unaMetadata = realizarDescribe(tabla);
+				send(kernel, unaMetadata, sizeof(unaMetadata), 0);
+				break;
+			case 4: //Describe Global
+				t_dictionary *unDiccionario = realizarDescribeGolbal();
+				send(kernel, unDiccionario, sizeof(unDiccionario), 0);
+				break;
+			case 5: //Drop
+				int *tamanioTabla = malloc(sizeof(int));
+				recv(kernel, tamanioTabla, sizeof(int),0);
+				char *tabla = malloc(tamanioTabla);
+				recv(kernel, tabla, tamanioTabla,0);
+				realizarDrop(tabla);
+				break;
+			case 6: //JOURNAL
+				realizarJournal();
+				break;
+
+		}
+
 	}
 }
 
@@ -986,6 +1079,12 @@ void aceptar()
 		{
 			pthread_t threadTratarCliente;
 			int32_t idThreadTratarCliente = pthread_create(&threadTratarCliente, NULL, tratarKernel, cliente);
+			struct datosMemoria *unaMemoria = malloc(sizeof(struct datosMemoria*));
+			unaMemoria->direccionSocket = serverAddress;
+			unaMemoria->socket = cliente;
+			pthread_t threadCliente;
+			int32_t idThreadCliente = pthread_create(&threadCliente, NULL, gossiping, cliente);
+			list_add(clientes, unaMemoria);
 		}
 	}
 }
