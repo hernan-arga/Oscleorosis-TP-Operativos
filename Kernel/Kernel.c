@@ -90,7 +90,7 @@ void ejecutarReady();
 void atenderPeticionesDeConsola();
 void refreshMetadata();
 void generarMetrica(clock_t, int, char *);
-void borrarObsoletos(clock_t);
+t_list *  borrarObsoletos(clock_t);
 void mostrarInserts();
 void mostrarSelects();
 void memoryLoad();
@@ -108,8 +108,10 @@ int funcionHash(int);
 
 void agregarAMiLista(char*);
 
-t_list * metricasTotales;
-t_list * metricas; // Lista con info. de los últimos INSERT y SELECT, se irán borrando si exceden los 30 segundos. Se considera el tiempo de ejecución, el tiempo que tardan mientras se están ejecutando.
+void PRUEBA();
+
+t_list * metricasDeUltimos30Segundos;
+t_list * listaMetricas; // Lista con info. de los últimos INSERT y SELECT, se irán borrando si exceden los 30 segundos. Se considera el tiempo de ejecución, el tiempo que tardan mientras se están ejecutando.
 t_queue* new;
 t_queue* ready;
 t_list * PIDs;
@@ -126,10 +128,11 @@ t_log* g_logger;
 char* strongConsistency;
 t_list *hashConsistency;
 t_queue *eventualConsistency;
+struct metricas * unRegistro;
 
 int main() {
-	metricas = list_create();
-	metricasTotales = list_create();
+	listaMetricas = list_create();
+	metricasDeUltimos30Segundos = list_create();
 	configuracion = config_create("Kernel_config");
 	PIDs = list_create();
 	listaDeMemorias = list_create();
@@ -139,6 +142,7 @@ int main() {
 	new = queue_create();
 	ready = queue_create();
 	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
+	PRUEBA();
 	borrarTodosLosTemps();
 	operacion_gossiping(); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
 	pthread_t hiloEjecutarReady;
@@ -156,6 +160,18 @@ int main() {
 	pthread_join(hiloEjecutarReady, NULL);
 	return 0;
 }
+
+void PRUEBA(){
+	struct tabla * unaTabla = malloc(sizeof(struct tabla));
+	unaTabla->CONSISTENCY = "SC";
+	unaTabla->COMPACTION_TIME = 123;
+	unaTabla->PARTITIONS = 10;
+	actualizarDiccionarioDeTablas("PIOLA", unaTabla);
+	char* unaMemoria = malloc(40);
+	strcpy(unaMemoria,"192.168");
+	agregarAMiLista(unaMemoria);
+}
+
 
 void borrarTodosLosTemps() {
 	DIR *directorio = opendir("./");
@@ -191,7 +207,7 @@ void borrarTodosLosTemps() {
 // METRICS tiene dos opciones... O logear automáticamente cada 30 segundos o informar por consola a pedido del usuario, sin logear.
 void metrics(int opcion) {
 	clock_t tiempoActual = clock();
-	borrarObsoletos(tiempoActual);
+	metricasDeUltimos30Segundos = borrarObsoletos(tiempoActual);
 	mostrarInserts(opcion);
 	mostrarSelects(opcion);
 	memoryLoad(opcion);
@@ -214,18 +230,18 @@ void memoryLoad(int opcion) {
 	t_list * soloInserts = list_create();
 	t_list * soloSelect = list_create();
 	int contador = 0;
-	int operacionesTotales = list_size(metricasTotales);
+	int operacionesTotales = list_size(listaMetricas);
 	int cantidadDeIPS = list_size(listaDeMemorias);
 	for (int i = 0; i < cantidadDeIPS; i++) {
 		char* unaIP = list_get(listaDeMemorias, i);
 
-		bool _filtrarMismaIP(void* IP) {
-			return !strcmp(unaIP, IP);
+		bool _filtrarMismaIP(void* elemento) {
+			return !strcmp(unaIP, ((struct metricas *)elemento)->IPMemoria);
 		}
-		soloMismaIP = list_filter(metricasTotales, _filtrarMismaIP);
+		soloMismaIP = list_filter(listaMetricas, _filtrarMismaIP);
 
-		bool _filtrarInsert(void* tipo) {
-			return 1 == (int) tipo;
+		bool _filtrarInsert(void* elemento) {
+			return 1 == ((struct metricas*)elemento)->tipoDeMetric;
 		}
 		soloInserts = list_filter(soloMismaIP, _filtrarInsert);
 		contador = list_size(soloInserts);
@@ -291,15 +307,24 @@ void memoryLoad(int opcion) {
 }
 
 void mostrarInserts(int opcion) {
+	printf("mostrandoInserts =");
 	double contador = 0;
 	t_list * soloInserts = list_create();
 	struct metricas* unaMetrica;
-	bool _filtrarInsert(void* tipo) {
-		return 1 == (int) tipo;
+	bool _filtrarInsert(void* elemento) {
+		printf("%d\n",((struct metricas *) elemento)->tipoDeMetric);
+		return 1 == ((struct metricas *) elemento)->tipoDeMetric;
 	}
-	soloInserts = list_filter(metricas, _filtrarInsert);
+
+	//list_add_all(soloInserts,metricas);
+	printf("%d",list_size(listaMetricas));
+	soloInserts = list_filter(listaMetricas, _filtrarInsert);
+	//struct metricas * prueba = malloc(sizeof(struct metricas));
+	//prueba = list_get(metricas,0);
+
 	int cantidadDeElementos = list_size(soloInserts);
 	if (cantidadDeElementos != 0) {
+		printf("asdasd");
 		for (int i = 0; i < cantidadDeElementos; i++) {
 			unaMetrica = list_get(soloInserts, i);
 			contador += unaMetrica->segundosDeEjecucion;
@@ -344,7 +369,7 @@ void mostrarSelects(int opcion) {
 	bool _filtrarSELECT(void* tipo) {
 		return 0 == tipo;
 	}
-	soloSelects = list_filter(metricas, _filtrarSELECT);
+	soloSelects = list_filter(listaMetricas, _filtrarSELECT);
 	int cantidadDeElementos = list_size(soloSelects);
 	if (cantidadDeElementos != 0) {
 		for (int i = 0; i < cantidadDeElementos; i++) {
@@ -383,15 +408,16 @@ void mostrarSelects(int opcion) {
 	}
 }
 
-void borrarObsoletos(clock_t tiempoActual) {
-	if (!list_is_empty(metricas)) {
-		metricasTotales = list_duplicate(metricas);
-		bool _tiempoPasado(void* tiempoDeCreacion) {
-			return (int) (clock() / CLOCKS_PER_SEC - 30)
-					< (int) tiempoDeCreacion / CLOCKS_PER_SEC;
+t_list *  borrarObsoletos(clock_t tiempoActual) {
+	struct metricas* unaMetrica = malloc(sizeof(struct metricas));
+	if (!list_is_empty(listaMetricas)) {
+		bool _tiempoPasado(void*unaMetrica) {
+			return (clock() / CLOCKS_PER_SEC - 30)
+					< ((struct metricas *)unaMetrica)->tiempoDeCreacion/ CLOCKS_PER_SEC;
 		}
-		metricas = list_filter(metricas, _tiempoPasado);
+		return list_filter(listaMetricas, _tiempoPasado);
 	}
+	return listaMetricas;
 }
 
 void refreshMetadata() {
@@ -533,7 +559,7 @@ int IP_en_lista(char* ip_memoria) {
 	return (list_find(listaDeMemorias, (void*) _IP_presente) != NULL);
 }
 
-//NOTA :XXX: numeroSinUsar devuelve numeros para asignar nombres distintos a archivos temporales
+//NOTA: numeroSinUsar devuelve numeros para asignar nombres distintos a archivos temporales
 int numeroSinUsar() {
 	//int n = 0;
 	n++;
@@ -598,7 +624,7 @@ void tomar_peticion(char* mensaje, int es_request, int *huboError) {
 	//Fijarse despues cual seria la cantidad correcta de malloc
 	/*char** mensajeSeparado = malloc(strlen(mensaje) + 1);
 	 mensajeSeparado = string_split(mensaje, " \n");
-	 realizar_peticion(mensajeSeparado,es_request, huboError); //NOTA :XXX: Agrego 'es_request' para que realizar_peticion sepa que es un request de usuario.
+	 realizar_peticion(mensajeSeparado,es_request, huboError); //NOTA: Agrego 'es_request' para que realizar_peticion sepa que es un request de usuario.
 	 free(mensajeSeparado);*/
 }
 
@@ -633,9 +659,10 @@ void separarPorComillas(char* mensaje, char* *value, char* *noValue,
 
 }
 
-//TODO Hay que hacer que el parser reconozca algunos comandos más
+
 //huboError se activa en 1 en caso de error
 void realizar_peticion(char** parametros, int es_request, int *huboError) {
+
 	char *peticion = parametros[0];
 	OPERACION instruccion = tipo_de_peticion(peticion);
 	switch (instruccion) {
@@ -757,7 +784,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			} else {
 
 				clock_t tiempoInsert = clock();
-				//generarMetrica(tiempoInsert,1,IPMemoria);
+				generarMetrica(tiempoInsert,1,IPMemoria);
 
 				char *tabla = parametros[1];
 				struct tabla *unaTabla = dictionary_get(tablas_conocidas,
@@ -786,7 +813,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			}
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
-			printf("Envio el comando INSERT a memoria");
+			printf("Envio el comando INSERT a memoria\n");
 			if (es_request) {
 				char* nombre_archivo = tempSinAsignar();
 				FILE* temp = fopen(nombre_archivo, "w");
@@ -795,11 +822,11 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				fclose(temp);
 				planificador(nombre_archivo);
 			} else {
-
+				printf("Hasta aca funciona");
 				clock_t tiempoInsert = clock();
 				//Aca lo manda por sockets y en caso de error modifica la variable huboError
-				//generarMetrica(tiempoInsert,1,IPMemoria);
-
+				//:xxx: IPMemoria me lo manda el gossiping
+				generarMetrica(tiempoInsert,1,IPMemoria);
 				char *tabla = parametros[1];
 				struct tabla *unaTabla = dictionary_get(tablas_conocidas,
 						tabla);
@@ -1079,7 +1106,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		} else {
 			if (parametros[2] != NULL) {
 				printf(
-						"No deberia haber mas de un parametro, pero soy groso y puedo encolar de todas formas.\n"); //:FIXME: Debería cambiar esto?
+						"No deberia haber mas de un parametro, pero soy groso y puedo encolar de todas formas.\n");
 			}
 			char* nombre_del_archivo = parametros[1];
 			string_trim(&nombre_del_archivo);
@@ -1110,20 +1137,23 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		printf("Error operacion invalida\n");
 	}
 }
-
 void generarMetrica(clock_t tiempoInicial, int tipoDeMetrica, char* IPMemoria) {
-	struct metricas * unRegistro;
+	struct metricas * prueba;
+	unRegistro = malloc(sizeof(struct metricas));
 	clock_t tiempoFinal = clock() - tiempoInicial;
 	unRegistro->segundosDeEjecucion = ((double) tiempoFinal) / CLOCKS_PER_SEC;
 	unRegistro->tipoDeMetric = tipoDeMetrica;
 	unRegistro->tiempoDeCreacion = clock();
 	unRegistro->IPMemoria = string_new();
 	strcpy(unRegistro->IPMemoria, IPMemoria);
-
-	list_add(metricas, &unRegistro);
+	list_add(listaMetricas, unRegistro);
+	printf("\n ");
+	prueba = list_get(listaMetricas,0);
+	printf("%i",prueba->tipoDeMetric);
+	printf("%s",prueba->IPMemoria);
 }
 
-//TODO Esto tiene dos ;; se me hace raro
+
 int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
 		int (*criterioTiposCorrectos)(char**, int)) {
 	return cantidadValidaParametros(parametros, cantidadDeParametrosNecesarios)
@@ -1224,7 +1254,8 @@ void actualizarDiccionarioDeTablas(char *tabla, struct tabla *metadata) {
 	}
 }
 
-//TODO Inicializar queue_peek
+
+
 void ejecutor(struct Script *ejecutando) {
 	printf("El script %s esta en ejecucion!\n", ejecutando->peticiones);
 	char* caracter = (char *) malloc(sizeof(char) + 1);
