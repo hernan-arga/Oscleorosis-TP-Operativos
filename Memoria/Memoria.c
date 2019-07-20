@@ -473,7 +473,6 @@ int frameLibre()
 
 char* pedirValue(char* tabla, char* laKey)
 {
-	// PETICION A FS : 0 TABLA KEY
 	// Serializo peticion, tabla y key
 	int key = atoi(laKey);
 
@@ -646,34 +645,34 @@ void realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones
 	sem_wait(&sem2);
 
 	// Serializo Peticion, Tabla y Metadata
-	void* buffer = malloc( strlen(tabla) + 8*sizeof(int) + strlen(tipoConsistencia));
+	char* buffer = malloc( strlen(tabla) + 6*sizeof(int) + strlen(tipoConsistencia) + strlen(numeroParticiones) + strlen(tiempoCompactacion));
 
 	int peticion = 3;
 	int tamanioPeticion = sizeof(int);
-	memcpy(&buffer, &tamanioPeticion, sizeof(int));
-	memcpy(&buffer + sizeof(int), &peticion, sizeof(int));
+	memcpy(buffer, &tamanioPeticion, sizeof(int));
+	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
 	int tamanioTabla = strlen(tabla);
-	memcpy(&buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
-	memcpy(&buffer + 3*sizeof(int), &tabla, strlen(tabla));
+	memcpy(buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(buffer + 3 * sizeof(int), tabla, strlen(tabla));
 
 	int tamanioMetadataConsistency = strlen(tipoConsistencia);
-	memcpy(&buffer + 3*sizeof(int)+ strlen(tabla), &tamanioMetadataConsistency, sizeof(int));
-	memcpy(&buffer + 4*sizeof(int)+ strlen(tabla), &tipoConsistencia, strlen(tipoConsistencia));
+	memcpy(buffer + 3*sizeof(int)+ strlen(tabla), &tamanioMetadataConsistency, sizeof(int));
+	memcpy(buffer + 4*sizeof(int)+ strlen(tabla), tipoConsistencia, strlen(tipoConsistencia));
 
-	int tamanioParticiones = sizeof(int);
-	memcpy(&buffer + 4*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &tamanioParticiones, sizeof(int));
-	memcpy(&buffer + 5*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &numeroParticiones, sizeof(int));
+	int tamanioParticiones = strlen(numeroParticiones);
+	memcpy(buffer + 4*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &tamanioParticiones, sizeof(int));
+	memcpy(buffer + 5*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), numeroParticiones, sizeof(int));
 
-	int tamanioCompactacion = sizeof(int);
-	memcpy(&buffer + 6*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &tamanioCompactacion, sizeof(int));
-	memcpy(&buffer + 7*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &tiempoCompactacion, sizeof(int));
+	int tamanioCompactacion = strlen(tiempoCompactacion);
+	memcpy(buffer + 6*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), &tamanioCompactacion, sizeof(int));
+	memcpy(buffer + 7*sizeof(int)+ strlen(tabla) + strlen(tipoConsistencia), tiempoCompactacion, sizeof(int));
 
-	send(clienteFS, buffer, strlen(tabla) + 8*sizeof(int) + strlen(tipoConsistencia), 0);
+	send(clienteFS, buffer, strlen(tabla) + 6*sizeof(int) + strlen(tipoConsistencia) + strlen(numeroParticiones) + strlen(tiempoCompactacion), 0);
 
 	// Deserializo respuesta OK
 	char* tamanioOk = malloc(sizeof(int));
-	read(clienteFS, &tamanioOk, sizeof(int));
+	read(clienteFS, tamanioOk, sizeof(int));
 	char* ok = malloc(atoi(tamanioOk));
 	read(clienteFS, ok, atoi(tamanioOk));
 
@@ -945,9 +944,10 @@ void conectarseAFS()
 	clienteFS = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddressFS.sin_family = AF_INET;
 	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
+	//TODO cambiar IP
 	serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
 	//serverAddressFS.sin_port = htons(4093);
-	//serverAddress.sin_addr.s_addr = INADDR_ANY;
+	serverAddress.sin_addr.s_addr = INADDR_ANY;
 
 	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
 

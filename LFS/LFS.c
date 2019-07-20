@@ -2860,22 +2860,28 @@ int32_t iniciarConexion() {
 	 read(sd, tamanioConsistencia, sizeof(int));
 	 char *tipoConsistencia = malloc(*tamanioConsistencia);
 	 read(sd, tipoConsistencia, *tamanioConsistencia);
+	 char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia, *tamanioConsistencia);
 
-	 char *tamanioNumeroParticiones = malloc(sizeof(int));
+	 int* tamanioNumeroParticiones = malloc(sizeof(int));
 	 read(sd, tamanioNumeroParticiones, sizeof(int));
-	 void *numeroParticiones = malloc((int)tamanioNumeroParticiones);
-	 read(sd, numeroParticiones, (int)tamanioNumeroParticiones);
+	 char* numeroParticiones = malloc(*tamanioNumeroParticiones);
+	 read(sd, numeroParticiones, *tamanioNumeroParticiones);
 
-	 void *tamanioTiempoCompactacion = malloc(sizeof(int));
+	 int* tamanioTiempoCompactacion = malloc(sizeof(int));
 	 read(sd, tamanioTiempoCompactacion, sizeof(int));
-	 void *tiempoCompactacion = malloc((int)tamanioTiempoCompactacion);
-	 read(sd, tiempoCompactacion, (int)tamanioTiempoCompactacion);
+	 char* 	tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
+	 read(sd, tiempoCompactacion, *tamanioTiempoCompactacion);
 
-	 create(tabla, tipoConsistencia, numeroParticiones, tiempoCompactacion);
-	 void* buffer = malloc(sizeof(int));
+	 create(tablaCortada, tipoConsistenciaCortada, numeroParticiones, tiempoCompactacion);
+
+	 // serializo respuesta ok
+	 void* buffer = malloc(2*sizeof(int));
 	 int ok = 1;
-	 memcpy(&buffer, &ok, sizeof(int));
-	 send(sd, buffer, sizeof(int), 0);
+	 int tamanioOk = sizeof(int);
+	 memcpy(buffer, &tamanioOk, sizeof(int));
+	 memcpy(buffer + sizeof(int), &ok, sizeof(int));
+
+	 send(sd, buffer, 2*sizeof(int), 0);
  }
 
 
