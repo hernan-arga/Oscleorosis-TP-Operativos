@@ -899,8 +899,8 @@ void serServidor()
 {
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
-	//serverAddress.sin_port = htons(t_archivoConfiguracion.PUERTO);
-	serverAddress.sin_port = htons(4092);
+	serverAddress.sin_port = htons(t_archivoConfiguracion.PUERTO);
+	//serverAddress.sin_port = htons(4092);
 
 	server = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -949,9 +949,9 @@ void conectarseAFS()
 	clienteFS = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddressFS.sin_family = AF_INET;
 	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
-	//serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
+	serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
 	//serverAddressFS.sin_port = htons(4093);
-	serverAddress.sin_addr.s_addr = INADDR_ANY;
+	//serverAddress.sin_addr.s_addr = INADDR_ANY;
 
 	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
 
