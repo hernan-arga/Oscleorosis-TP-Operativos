@@ -73,6 +73,7 @@ int esUnNumero(char*);
 int esUnTipoDeConsistenciaValida(char*);
 int get_PID();
 int IP_en_lista(char*);
+void agregarAMiLista(struct datosMemoria * unaMemoria);
 int numeroSinUsar();
 void operacion_gossiping();
 int parametrosValidos(int, char**, int (*criterioTiposCorrectos)(char**, int));
@@ -95,18 +96,22 @@ void mostrarInserts();
 void mostrarSelects();
 void memoryLoad();
 void metrics(int);
+int32_t iniciarConexion();
 
 void drop(char*);
 void describeTodasLasTablas();
 void describeUnaTabla(char*);
 void actualizarDiccionarioDeTablas(char *, struct tabla *);
 void quitarDelDiccionarioDeTablasLaTablaBorrada(char *);
+void conectarseAMemoria(struct datosMemoria* unaMemoria);
 void logearMetrics();
 
 void borrarTodosLosTemps();
 int funcionHash(int);
+char* pedirValue(char* tabla, char* laKey, int socketMemoria);
+struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria);
+void mandarInsert(char* tabla, char* key, char* value, int socketMemoria);
 
-void agregarAMiLista(char*);
 
 void PRUEBA();
 
@@ -122,13 +127,14 @@ t_dictionary *diccionarioDeTablasTemporal;
 t_config* configuracion;
 int enEjecucionActualmente = 0;
 int n = 0;
-
+int32_t socketMemoriaPrincipal;
 t_log* g_logger;
 
 struct datosMemoria* strongConsistency;
 t_list *hashConsistency;
 t_queue *eventualConsistency;
 struct metricas * unRegistro;
+pthread_t hiloLevantarConexion;
 
 int main() {
 	listaMetricas = list_create();
@@ -153,11 +159,13 @@ int main() {
 	pthread_create(&hiloEjecutarReady, NULL, (void*) ejecutarReady, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
+	pthread_create(&hiloLevantarConexion, NULL, iniciarConexion, NULL);
 	pthread_create(&describe, NULL, (void*) refreshMetadata, NULL);
 	pthread_join(metrics, NULL);
 	pthread_join(describe, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	pthread_join(hiloEjecutarReady, NULL);
+	pthread_join(hiloLevantarConexion, NULL);
 	return 0;
 }
 
@@ -566,13 +574,6 @@ int numeroSinUsar() {
 	return n;
 }
 
-//TODO falta sockets acá
-void operacion_gossiping() {
-	char * IP = config_get_string_value(configuracion, "IP_MEMORIA");
-	recv(socketMemoria, listaDeMemorias, sizeof(t_list*), 0);	//crear el socket memoria
-	list_iterate(listaDeMemorias, (void*)conectarseAMemoria);
-	list_iterate(listaDeMemorias, (void*)agregarAMiLista);
-}
 
 void conectarseAMemoria(struct datosMemoria* unaMemoria){
 	connect(unaMemoria->socket, (struct sockaddr *) unaMemoria->direccionSocket, sizeof(unaMemoria->direccionSocket));
@@ -580,6 +581,15 @@ void conectarseAMemoria(struct datosMemoria* unaMemoria){
 	strcpy(mensaje, "1");
 	send(unaMemoria->socket, mensaje, 2, 0);
 }
+
+//TODO falta sockets acá
+void operacion_gossiping() {
+	char * IP = config_get_string_value(configuracion, "IP_MEMORIA");
+	recv(socketMemoriaPrincipal, listaDeMemorias, sizeof(t_list*), 0);	//crear el socket memoria
+	list_iterate(listaDeMemorias, (void*)conectarseAMemoria);
+	list_iterate(listaDeMemorias, (void*)agregarAMiLista);
+}
+
 
 void agregarAMiLista(struct datosMemoria * unaMemoria) {
 	if (!IP_en_lista(unaMemoria->direccionSocket.sin_addr.s_addr)) {
@@ -798,13 +808,12 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				char *tabla = parametros[1];
 				char* key = parametros[2];
 				char* value = parametros[3];
-				char *timeStamp = parametros[4];
 
 				struct tabla *unaTabla = dictionary_get(tablas_conocidas,
 						tabla);
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
 
-					mandarInsert(tabla, key, value, timestamp, strongConsistency->socket);
+					mandarInsert(tabla, key, value, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						char* key = parametros[2];
@@ -1331,26 +1340,26 @@ void drop(char* nombre_tabla) {
 
 }
 
-/*
- int iniciarConexion()
+
+ int32_t iniciarConexion()
  {
  printf("Soy Kernel \n");
- int sock_cliente_de_memoria;
- sock_cliente_de_memoria = socket(AF_INET, SOCK_STREAM, 0);
+ int socketMemoriaPrincipal;
+ socketMemoriaPrincipal = socket(AF_INET, SOCK_STREAM, 0);
 
  struct sockaddr_in direccion_server_memoria_kernel;
  direccion_server_memoria_kernel.sin_family = AF_INET;
  direccion_server_memoria_kernel.sin_port = htons(4441);
  direccion_server_memoria_kernel.sin_addr.s_addr = INADDR_ANY;
 
- if(connect(sock_cliente_de_memoria, (struct sockaddr *) &direccion_server_memoria_kernel, sizeof(direccion_server_memoria_kernel)) == -1)
+ if(connect(socketMemoriaPrincipal, (struct sockaddr *) &direccion_server_memoria_kernel, sizeof(direccion_server_memoria_kernel)) == -1)
  {
  perror("Hubo un error en la conexion");
  return -1;
  }
 
  char buffer[256];
- int leng = recv(sock_cliente_de_memoria, &buffer, sizeof(buffer), 0);
+ int leng = recv(socketMemoriaPrincipal, &buffer, sizeof(buffer), 0);
  buffer[leng] = '\0';
 
  printf("RECIBI INFORMACION DE LA MEMORIA: %s\n", buffer);
@@ -1359,15 +1368,15 @@ void drop(char* nombre_tabla) {
  while (1) {
  char* mensaje = malloc(1000);
  fgets(mensaje, 1024, stdin);
- send(sock_cliente_de_memoria, mensaje, strlen(mensaje), 0);
+ send(socketMemoriaPrincipal, mensaje, strlen(mensaje), 0);
  free(mensaje);
  }
 
- close(sock_cliente_de_memoria);
+ close(socketMemoriaPrincipal);
 
  return 0;
  }
- */
+
 
 void ejecutarReady() {
 	while (1) {
