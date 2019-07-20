@@ -2886,37 +2886,37 @@ int32_t iniciarConexion() {
 
 
  void tomarPeticionInsert(int sd) {
-	 char *tamanioTabla = malloc(sizeof(int));
+	 // deserializo peticion de mm
+	 int *tamanioTabla = malloc(sizeof(int));
 	 read(sd, tamanioTabla, sizeof(int));
-	 char *tabla = malloc(atoi(tamanioTabla));
-	 read(sd, tabla, atoi(tamanioTabla));
+	 char *tabla = malloc(*tamanioTabla);
+	 read(sd, tabla, *tamanioTabla);
+	 char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
-	 char *tamanioKey = malloc(sizeof(int));
+	 int *tamanioKey = malloc(sizeof(int));
 	 read(sd, tamanioKey, sizeof(int));
-	 char *key = malloc(atoi(tamanioKey));
-	 read(sd, key, atoi(tamanioKey));
+	 int *key = malloc(*tamanioKey);
+	 read(sd, key, *tamanioKey);
+	 char* keyString = string_itoa(*key);
 
-	 char *tamanioValue = malloc(sizeof(int));
-	 read(sd, tamanioValue, sizeof(int));
-	 char *value = malloc(atoi(tamanioValue));
-	 read(sd, value, atoi(tamanioValue));
+	 int *tamanioValue = malloc(sizeof(int));
+	 recv(sd, tamanioValue, sizeof(int), 0);
+ 	 char *value = malloc(*tamanioValue);
+	 recv(sd, value, *tamanioValue, 0);
 
-	 void* existeTimestamp = malloc(sizeof(int));
-	 read(sd, existeTimestamp, sizeof(int));
+	 int timestampActual = time(NULL);
+	 char* timestamp = string_itoa(timestampActual);
 
-	 char* timestamp = NULL;
-	 if(existeTimestamp){
-		 char *tamanioTime = malloc(sizeof(int));
-		 read(sd, tamanioTime, sizeof(int));
-		 timestamp = malloc(atoi(tamanioTime));
-		 read(sd, timestamp, atoi(tamanioTime));
-	 }
+	 insert(tablaCortada, keyString, value, timestamp);
 
-	 insert(tabla, key, value, timestamp);
-	 void* buffer = malloc(sizeof(int));
+	 // serializo respuesta ok
+	 void* buffer = malloc(2 * sizeof(int));
 	 int ok = 1;
-	 memcpy(&buffer, &ok, sizeof(int));
-	 send(sd, buffer, sizeof(int), 0);
+	 int tamanioOk = sizeof(int);
+	 memcpy(buffer, &tamanioOk, sizeof(int));
+	 memcpy(buffer + sizeof(int), &ok, sizeof(int));
+
+	 send(sd, buffer, 2 * sizeof(int), 0);
  }
 
 
@@ -3000,15 +3000,20 @@ int32_t iniciarConexion() {
 
 
  void tomarPeticionDrop(int sd){
- 	char *tamanioTabla = malloc(sizeof(int));
- 	read(sd, tamanioTabla, sizeof(int));
- 	char *tabla = malloc(atoi(tamanioTabla));
- 	read(sd, tabla, atoi(tamanioTabla));
+	int *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(*tamanioTabla);
+	read(sd, tabla, *tamanioTabla);
+	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
- 	drop(tabla);
+ 	drop(tablaCortada);
 
- 	void* buffer = malloc(sizeof(int));
- 	int ok = 1;
- 	memcpy(&buffer, &ok, sizeof(int));
- 	send(sd, buffer, sizeof(int), 0);
+ 	// serializo respuesta ok
+	void* buffer = malloc(2 * sizeof(int));
+	int ok = 1;
+	int tamanioOk = sizeof(int);
+	memcpy(buffer, &tamanioOk, sizeof(int));
+	memcpy(buffer + sizeof(int), &ok, sizeof(int));
+
+	send(sd, buffer, 2 * sizeof(int), 0);
  }

@@ -11,3 +11,4 @@
 [INFO] 23:22:37:475 LFS/(12613:12624):  Llego select con VALUE : winnerBIN
 
 [ERROR] 00:12:20:185 MEMORIA/(15164:15187):  Se realizo create en FS 
+[INFO] 00:53:42:287 MEMORIA/(16373:16393):  Se realizo drop en FS 
