@@ -113,6 +113,7 @@ struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria);
 void mandarInsert(char* tabla, char* key, char* value, int socketMemoria);
 void mandarDrop(char *tabla, int socketMemoria);
 void mandarJournal(int socketMemoria);
+void mandarCreate(char *, char *, char *, char *, int);
 t_dictionary *pedirDiccionarioGlobal(int socketMemoria);
 
 
@@ -588,20 +589,20 @@ void conectarseAMemoria(struct datosMemoria* unaMemoria){
 
 //TODO falta sockets acá
 void operacion_gossiping() {
-	char * IP = config_get_string_value(configuracion, "IP_MEMORIA");
+	//char * IP = config_get_string_value(configuracion, "IP_MEMORIA");
 	recv(socketMemoriaPrincipal, listaDeMemorias, sizeof(t_list*), 0);	//crear el socket memoria
 	list_iterate(listaDeMemorias, (void*)conectarseAMemoria);
-	list_iterate(listaDeMemorias, (void*)agregarAMiLista);
+	//list_iterate(listaDeMemorias, (void*)agregarAMiLista);	El enunciado dice que solo se hace goissiping al iniciar el kernel
 }
 
 
 void agregarAMiLista(struct datosMemoria * unaMemoria) {
-	if (!IP_en_lista(unaMemoria->direccionSocket.sin_addr.s_addr)) {
+	if (!IP_en_lista(string_itoa(unaMemoria->direccionSocket.sin_addr.s_addr))) {
 		list_add(listaDeMemorias, unaMemoria);
 	}
 }
 
-//fixme ARREGLAR QUE NO SE ROMPA ESTA FUNCION DEL ORTO			huboError se activa en 1 en caso de error
+//huboError se activa en 1 en caso de error
 void tomar_peticion(char* mensaje, int es_request, int *huboError) {
 	char* value;
 	char* noValue = string_new();
@@ -905,20 +906,10 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				printf("El tiempo de compactacion debe ser un numero.\n");
 			}
 
-			if (!dictionary_has_key(tablas_conocidas, tabla)) {
-				char *mensajeALogear = string_new();
-				string_append(&mensajeALogear,
-					"No se tiene conocimiento de la tabla: ");
-				string_append(&mensajeALogear, tabla);
-				g_logger = log_create("./tablasNoEncontradas", "KERNEL", 1,
-					LOG_LEVEL_ERROR);
-				log_error(g_logger, mensajeALogear);
-				free(mensajeALogear);
-			}
+
 			return esUnNumero(cantidadParticiones)
 					&& esUnNumero(tiempoCompactacion)
-					&& esUnTipoDeConsistenciaValida(consistencia)
-					&& dictionary_has_key(tablas_conocidas, tabla);
+					&& esUnTipoDeConsistenciaValida(consistencia);
 		}
 		if (parametrosValidos(4, parametros, (void *) criterioCreate)) {
 			printf("Enviando CREATE a memoria.\n");
@@ -931,14 +922,13 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				planificador(nombre_archivo);
 			} else {
 				char* tabla = parametros[1];
-							char* tiempoCompactacion = parametros[4];
-							char* cantidadParticiones = parametros[3];
-							char* consistencia = parametros[2];
-				struct tabla *unaTabla = dictionary_get(tablas_conocidas,
-						tabla);
-				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
+				char* tiempoCompactacion = parametros[4];
+				char* cantidadParticiones = parametros[3];
+				char* consistencia = parametros[2];
+
+				if (!strcmp(consistencia, "SC")) {
 					mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, strongConsistency->socket);
-				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
+				} else if (!strcmp(consistencia, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						char* cantidadDeParticiones = parametros[3];
 						int numeroMemoria = funcionHash(
@@ -1354,41 +1344,43 @@ void drop(char* nombre_tabla) {
 }
 
 
- int32_t iniciarConexion()
- {
- printf("Soy Kernel \n");
- int socketMemoriaPrincipal;
- socketMemoriaPrincipal = socket(AF_INET, SOCK_STREAM, 0);
+ int32_t iniciarConexion(){
+	 char * IP = config_get_string_value(configuracion, "IP_MEMORIA");
+	 int PUERTO_MEMORIA = config_get_int_value(configuracion, "PUERTO_MEMORIA");
 
- struct sockaddr_in direccion_server_memoria_kernel;
- direccion_server_memoria_kernel.sin_family = AF_INET;
- direccion_server_memoria_kernel.sin_port = htons(4441);
- direccion_server_memoria_kernel.sin_addr.s_addr = INADDR_ANY;
+	 int socketMemoriaPrincipal;
+	 socketMemoriaPrincipal = socket(AF_INET, SOCK_STREAM, 0);
 
- if(connect(socketMemoriaPrincipal, (struct sockaddr *) &direccion_server_memoria_kernel, sizeof(direccion_server_memoria_kernel)) == -1)
- {
- perror("Hubo un error en la conexion");
- return -1;
- }
+	 struct sockaddr_in direccion_server_memoria_kernel;
+	 direccion_server_memoria_kernel.sin_family = AF_INET;
+	 direccion_server_memoria_kernel.sin_port = htons(PUERTO_MEMORIA);
+	 direccion_server_memoria_kernel.sin_addr.s_addr = INADDR_ANY;
 
- char buffer[256];
- int leng = recv(socketMemoriaPrincipal, &buffer, sizeof(buffer), 0);
- buffer[leng] = '\0';
+	 if(connect(socketMemoriaPrincipal, (struct sockaddr *) &direccion_server_memoria_kernel, sizeof(direccion_server_memoria_kernel)) == -1)
+	 {
+		 perror("Hubo un error en la conexion");
+		 return -1;
+	 }
 
- printf("RECIBI INFORMACION DE LA MEMORIA: %s\n", buffer);
+	 //Esto no se si hace falta porque no tiene que quedarse esperando aca
+	 /*char buffer[256];
+	 int leng = recv(socketMemoriaPrincipal, &buffer, sizeof(buffer), 0);
+	 buffer[leng] = '\0';
 
- //Mandar Mensajes
- while (1) {
- char* mensaje = malloc(1000);
- fgets(mensaje, 1024, stdin);
- send(socketMemoriaPrincipal, mensaje, strlen(mensaje), 0);
- free(mensaje);
- }
+	 printf("RECIBI INFORMACION DE LA MEMORIA: %s\n", buffer);*/
 
- close(socketMemoriaPrincipal);
+	 //Mandar Mensajes
+	 while (1) {
+		 char* mensaje = malloc(1000);
+		 fgets(mensaje, 1024, stdin);
+		 send(socketMemoriaPrincipal, mensaje, strlen(mensaje), 0);
+		 free(mensaje);
+	 }
 
- return 0;
- }
+	 close(socketMemoriaPrincipal);
+
+	 return 0;
+}
 
 
 void ejecutarReady() {
