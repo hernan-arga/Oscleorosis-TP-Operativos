@@ -1362,12 +1362,11 @@ void drop(char* nombre_tabla) {
 		 return -1;
 	 }
 
-	 //Esto no se si hace falta porque no tiene que quedarse esperando aca
-	 /*char buffer[256];
+	 char buffer[256];
 	 int leng = recv(socketMemoriaPrincipal, &buffer, sizeof(buffer), 0);
 	 buffer[leng] = '\0';
 
-	 printf("RECIBI INFORMACION DE LA MEMORIA: %s\n", buffer);*/
+	 printf("RECIBI INFORMACION DE LA MEMORIA: %s\n", buffer);
 
 	 //Mandar Mensajes
 	 while (1) {
