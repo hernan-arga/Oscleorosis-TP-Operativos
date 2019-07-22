@@ -51,3 +51,8 @@
 À¶ðÀ¶
 [INFO] 17:52:49:860 MEMORIA/(2092:2104):  Se realizo create en FS 
 [INFO] 17:52:58:488 MEMORIA/(2092:2104):  Se realizo create en FS 
+[INFO] 18:30:38:437 LFS/(3280:3292):  Llego select con VALUE : OOF G
+x·
+[INFO] 18:32:10:603 LFS/(3329:3346):  Llego select con VALUE : OOF G
+x·
+[ERROR] 20:01:56:129 LFS/(5753:5789):  No se encontro la key : 0

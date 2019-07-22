@@ -1033,14 +1033,18 @@ void conectarseAFS() {
 }
 
 void tomarPeticionSelect(int kernel) {
+	//Recibe lo que le manda el kernel
 	int *tamanioTabla = malloc(sizeof(int));
 	recv(kernel, tamanioTabla, sizeof(int), 0);
-	char *tabla = malloc(tamanioTabla);
-	recv(kernel, tabla, tamanioTabla, 0);
+	char *tabla = malloc(*tamanioTabla);
+	recv(kernel, tabla, *tamanioTabla, 0);
+
 	int *tamanioKey = malloc(sizeof(int));
 	recv(kernel, tamanioKey, sizeof(int), 0);
-	char *key = malloc(tamanioKey);
-	recv(kernel, key, tamanioKey, 0);
+	char *key = malloc(*tamanioKey);
+	recv(kernel, key, *tamanioKey, 0);
+
+	//Se lo pide al FS
 	char* value = malloc(tamanoValue);
 	value = realizarSelect(tabla, key);
 	int tamanioValue = strlen(value);
@@ -1057,21 +1061,27 @@ void tomarPeticionSelect(int kernel) {
 void tomarPeticionInsert(int kernel) {
 	int *tamanioTabla = malloc(sizeof(int));
 	recv(kernel, tamanioTabla, sizeof(int), 0);
-	char *tabla = malloc(tamanioTabla);
-	recv(kernel, tabla, tamanioTabla, 0);
+	char *tabla = malloc(*tamanioTabla);
+	recv(kernel, tabla, *tamanioTabla, 0);
+	printf("tabla: %s\n", tabla);
+
 	int *tamanioKey = malloc(sizeof(int));
 	recv(kernel, tamanioKey, sizeof(int), 0);
-	char *key = malloc(tamanioKey);
-	recv(kernel, key, tamanioKey, 0);
-	int *tamanioValue2 = malloc(sizeof(int));
-	recv(kernel, tamanioValue2, sizeof(int), 0);
-	char* value = malloc(tamanioValue2);
-	recv(kernel, value, tamanioValue2, 0);
+	char *key = malloc(*tamanioKey);
+	recv(kernel, key, *tamanioKey, 0);
+	printf("key: %s\n", key);
+
+	int *tamanioValue = malloc(sizeof(int));
+	recv(kernel, tamanioValue, sizeof(int), 0);
+	char* value = malloc(*tamanioValue);
+	recv(kernel, value, *tamanioValue, 0);
+	printf("value: %s\n", value);
+
 	realizarInsert(tabla, key, value);
 	free(value);
 	free(key);
 	free(tamanioKey);
-	free(tamanioValue2);
+	free(tamanioValue);
 	free(tamanioTabla);
 }
 
@@ -1080,25 +1090,25 @@ void tomarPeticionCreate(int kernel) {
 	recv(kernel, tamanioTabla, sizeof(int), 0);
 	char *tabla = malloc(*tamanioTabla);
 	recv(kernel, tabla, *tamanioTabla, 0);
-	printf("tabla: %s\n", tabla);
+	//printf("tabla: %s\n", tabla);
 
 	int *tamanioConsistencia = malloc(sizeof(int));
 	recv(kernel, tamanioConsistencia, sizeof(int), 0);
 	char *consistencia = malloc(*tamanioConsistencia);
 	recv(kernel, consistencia, *tamanioConsistencia, 0);
-	printf("consistencia: %s\n", consistencia);
+	//printf("consistencia: %s\n", consistencia);
 
 	int *tamanionumeroParticiones = malloc(sizeof(int));
 	recv(kernel, tamanionumeroParticiones, sizeof(int), 0);
 	char *numeroDeParticiones = malloc(*tamanionumeroParticiones);
 	recv(kernel, numeroDeParticiones, *tamanionumeroParticiones, 0);
-	printf("cantidad de particiones: %s\n", numeroDeParticiones);
+	//printf("cantidad de particiones: %s\n", numeroDeParticiones);
 
 	int* tamanioTiempoCompactacion = malloc(sizeof(int));
 	recv(kernel, tamanioTiempoCompactacion, sizeof(int), 0);
 	char *tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
 	recv(kernel, tiempoCompactacion, *tamanioTiempoCompactacion, 0);
-	printf("tiempo de compactacion: %s\n", tiempoCompactacion);
+	//printf("tiempo de compactacion: %s\n", tiempoCompactacion);
 
 	realizarCreate(tabla, consistencia, numeroDeParticiones,
 			tiempoCompactacion);
@@ -1107,8 +1117,10 @@ void tomarPeticionCreate(int kernel) {
 void tomarPeticionDescribe1Tabla(int kernel){
 	int *tamanioTabla = malloc(sizeof(int));
 	recv(kernel, tamanioTabla, sizeof(int), 0);
-	char *tabla = malloc(tamanioTabla);
-	recv(kernel, tabla, tamanioTabla, 0);
+	char *tabla = malloc(*tamanioTabla);
+	recv(kernel, tabla, *tamanioTabla, 0);
+	//printf("tabla: %s\n", tabla);
+
 	metadataTabla* unaMetadata = realizarDescribe(tabla);
 	send(kernel, unaMetadata, sizeof(unaMetadata), 0);
 }
@@ -1121,8 +1133,9 @@ void tomarPeticionDescribeGlobal(int kernel){
 void tomarPeticionDrop(int kernel){
 	int *tamanioTabla = malloc(sizeof(int));
 	recv(kernel, tamanioTabla, sizeof(int), 0);
-	char *tabla = malloc(tamanioTabla);
-	recv(kernel, tabla, tamanioTabla, 0);
+	char *tabla = malloc(*tamanioTabla);
+	recv(kernel, tabla, *tamanioTabla, 0);
+	//printf("tabla: %s\n", tabla);
 	realizarDrop(tabla);
 }
 
@@ -1132,7 +1145,6 @@ void tratarKernel(int kernel) {
 		read(kernel, tamanio, sizeof(int));
 		int *operacion = malloc(*tamanio);
 		read(kernel, operacion, sizeof(int));
-
 		switch (*operacion) {
 			case 0: //Select
 				tomarPeticionSelect(kernel);
