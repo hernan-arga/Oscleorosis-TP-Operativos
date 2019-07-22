@@ -2,12 +2,17 @@
 /*
  * FALTANTES POR PRIORIDADES :
  *
- * - AGREGAR VARIABLE EN EL SELECT PARA QUE IMPRIMA POR CONSOLA SOLO CUANDO SE USE LA MISMA
- * - ARREGLO DE RETORNO EN SELECT -> comunicacion entre modulos -> OJO
+ * - MANEJO DE ERRORES : probar las respuestas de errores en tod fs (ej select de tabla q no existe -> LEER PRUEBAS)
+ *  - ver problema de mandar dos select (rompe el segundo)
+ * - sockets memoria- kernel
+ * - recortar todos los char* en serializacion
+ * - SEMAFOROS: ¿por q se bloquea en las terminales y no en el ecplipse? -> condicion de carrera
+ * - cambiar las operaciones de fs segun si las mandan por consola o memoria
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
- * - CAMBIAR LOS PRINTF A LOGS PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA (si alcanza el tiempo)
+ * - CAMBIAR LOS PRINTF A LOGS (en todos los modulos!!!!) PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA (si alcanza el tiempo)
  *
  */
+
 #include <stdio.h>
 #include <string.h> //strlen
 #include <stdlib.h>
