@@ -106,6 +106,7 @@ void conectarseAFS();
 void tratarKernel(int kernel);
 void gossiping(int cliente);
 void tratarCliente(int cliente);
+void aceptar();
 
 void tomarPeticionSelect(int);
 void tomarPeticionInsert(int);
@@ -146,6 +147,9 @@ int main(int argc, char *argv[]) {
 	int32_t idThreadSerServidor = pthread_create(&threadSerServidor, NULL,
 			serServidor, NULL);
 
+	//pthread_t threadKernel;
+	//int32_t idThreadKernel = pthread_create(&threadKernel, NULL, (void*)aceptar, NULL);
+
 	tablaSegmentos = dictionary_create();
 
 	printf("%d", t_archivoConfiguracion.PUERTO);
@@ -174,6 +178,7 @@ int main(int argc, char *argv[]) {
 	pthread_join(threadConsola, NULL);
 	pthread_join(threadSerServidor, NULL);
 	pthread_join(threadFS, NULL);
+	//pthread_join(aceptar, NULL);
 }
 
 void analizarInstruccion(char* instruccion) {
@@ -971,6 +976,9 @@ void serServidor() {
 	printf("Estoy escuchando\n");
 	listen(server, 100);
 
+	pthread_t threadKernel;
+	int32_t idThreadKernel = pthread_create(&threadKernel, NULL, (void*)aceptar, NULL);
+
 	//conectarseAKernel();
 	int i = 0;
 	while (t_archivoConfiguracion.PUERTO_SEEDS[i] != NULL) {
@@ -1000,6 +1008,8 @@ void serServidor() {
 
 		i++;
 	}
+
+	pthread_join(threadKernel, NULL);
 }
 
 void conectarseAFS() {
@@ -1070,20 +1080,28 @@ void tomarPeticionInsert(int kernel) {
 void tomarPeticionCreate(int kernel) {
 	int *tamanioTabla = malloc(sizeof(int));
 	recv(kernel, tamanioTabla, sizeof(int), 0);
-	char *tabla = malloc(tamanioTabla);
-	recv(kernel, tabla, tamanioTabla, 0);
+	char *tabla = malloc(*tamanioTabla);
+	recv(kernel, tabla, *tamanioTabla, 0);
+	printf("tabla: %s\n", tabla);
+
 	int *tamanioConsistencia = malloc(sizeof(int));
 	recv(kernel, tamanioConsistencia, sizeof(int), 0);
-	char *consistencia = malloc(tamanioConsistencia);
-	recv(kernel, consistencia, tamanioConsistencia, 0);
+	char *consistencia = malloc(*tamanioConsistencia);
+	recv(kernel, consistencia, *tamanioConsistencia, 0);
+	printf("consistencia: %s\n", consistencia);
+
 	int *tamanionumeroParticiones = malloc(sizeof(int));
 	recv(kernel, tamanionumeroParticiones, sizeof(int), 0);
-	char *numeroDeParticiones = malloc(tamanionumeroParticiones);
-	recv(kernel, numeroDeParticiones, tamanionumeroParticiones, 0);
-	char* tamanioTiempoCompactacion = malloc(sizeof(int));
+	char *numeroDeParticiones = malloc(*tamanionumeroParticiones);
+	recv(kernel, numeroDeParticiones, *tamanionumeroParticiones, 0);
+	printf("cantidad de particiones: %s\n", numeroDeParticiones);
+
+	int* tamanioTiempoCompactacion = malloc(sizeof(int));
 	recv(kernel, tamanioTiempoCompactacion, sizeof(int), 0);
-	char *tiempoCompactacion = malloc(tamanioTiempoCompactacion);
-	recv(kernel, tiempoCompactacion, tamanioTiempoCompactacion, 0);
+	char *tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
+	recv(kernel, tiempoCompactacion, *tamanioTiempoCompactacion, 0);
+	printf("tiempo de compactacion: %s\n", tiempoCompactacion);
+
 	realizarCreate(tabla, consistencia, numeroDeParticiones,
 			tiempoCompactacion);
 }
@@ -1112,8 +1130,11 @@ void tomarPeticionDrop(int kernel){
 
 void tratarKernel(int kernel) {
 	while (1) {
-		int *operacion = malloc(sizeof(int));
-		recv(kernel, operacion, sizeof(int), 0);
+		int *tamanio = malloc(sizeof(int));
+		read(kernel, tamanio, sizeof(int));
+		int *operacion = malloc(*tamanio);
+		read(kernel, operacion, sizeof(int));
+
 		switch (*operacion) {
 			case 0: //Select
 				tomarPeticionSelect(kernel);
@@ -1155,14 +1176,15 @@ void aceptar() {
 			pthread_t threadTratarCliente;
 			int32_t idThreadTratarCliente = pthread_create(&threadTratarCliente,
 					NULL, tratarKernel, cliente);
-			struct datosMemoria *unaMemoria = malloc(
+			/*struct datosMemoria *unaMemoria = malloc(
 					sizeof(struct datosMemoria*));
 			unaMemoria->direccionSocket = serverAddress;
 			unaMemoria->socket = cliente;
 			pthread_t threadCliente;
 			int32_t idThreadCliente = pthread_create(&threadCliente, NULL,
 					gossiping, cliente);
-			list_add(clientes, unaMemoria);
+			list_add(clientes, unaMemoria);*/
+			pthread_join(threadTratarCliente, NULL);
 		}
 	}
 }

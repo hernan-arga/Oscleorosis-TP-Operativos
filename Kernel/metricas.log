@@ -94,3 +94,1259 @@
 
 [INFO] 13:49:42:147 Kernel/(17625:17626): [13:49:42:147]	El promedio de tiempo de ejecucion para SELECT es 0.000000
 
+[INFO] 19:55:35:669 Kernel/(18694:18695): [19:55:35:669]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 19:55:35:672 Kernel/(18694:18695): [19:55:35:672]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 19:56:43:62 Kernel/(18741:18742): [19:56:43:62]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 19:56:43:76 Kernel/(18741:18742): [19:56:43:76]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 19:57:13:84 Kernel/(18741:18742): [19:57:13:84]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 19:57:13:85 Kernel/(18741:18742): [19:57:13:84]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 19:57:43:85 Kernel/(18741:18742): [19:57:43:85]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 19:57:43:85 Kernel/(18741:18742): [19:57:43:85]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 19:58:13:86 Kernel/(18741:18742): [19:58:13:86]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 19:58:13:87 Kernel/(18741:18742): [19:58:13:87]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 19:58:43:88 Kernel/(18741:18742): [19:58:43:88]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 19:58:43:88 Kernel/(18741:18742): [19:58:43:88]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 19:59:13:89 Kernel/(18741:18742): [19:59:13:89]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 19:59:13:92 Kernel/(18741:18742): [19:59:13:90]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 19:59:43:92 Kernel/(18741:18742): [19:59:43:92]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 19:59:43:93 Kernel/(18741:18742): [19:59:43:93]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:00:13:93 Kernel/(18741:18742): [20:00:13:93]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:00:13:95 Kernel/(18741:18742): [20:00:13:95]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:00:43:882 Kernel/(18741:18742): [20:00:43:882]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:00:43:882 Kernel/(18741:18742): [20:00:43:882]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:01:33:700 Kernel/(18990:18991): [20:01:33:700]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:01:33:703 Kernel/(18990:18991): [20:01:33:703]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:02:23:159 Kernel/(19042:19043): [20:02:23:159]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:02:23:179 Kernel/(19042:19043): [20:02:23:178]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:02:53:181 Kernel/(19042:19043): [20:02:53:181]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:02:53:181 Kernel/(19042:19043): [20:02:53:181]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:03:23:182 Kernel/(19042:19043): [20:03:23:182]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:03:23:183 Kernel/(19042:19043): [20:03:23:182]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:03:53:184 Kernel/(19042:19043): [20:03:53:184]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:03:53:185 Kernel/(19042:19043): [20:03:53:185]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:04:23:186 Kernel/(19042:19043): [20:04:23:186]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:04:23:188 Kernel/(19042:19043): [20:04:23:188]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:04:53:189 Kernel/(19042:19043): [20:04:53:189]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:04:53:189 Kernel/(19042:19043): [20:04:53:189]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:05:23:190 Kernel/(19042:19043): [20:05:23:190]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:05:23:191 Kernel/(19042:19043): [20:05:23:191]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:05:53:192 Kernel/(19042:19043): [20:05:53:192]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:05:53:192 Kernel/(19042:19043): [20:05:53:192]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:06:23:193 Kernel/(19042:19043): [20:06:23:193]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:06:23:193 Kernel/(19042:19043): [20:06:23:193]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:06:53:194 Kernel/(19042:19043): [20:06:53:194]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:06:53:194 Kernel/(19042:19043): [20:06:53:194]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:07:23:196 Kernel/(19042:19043): [20:07:23:195]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:07:23:198 Kernel/(19042:19043): [20:07:23:198]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:07:53:199 Kernel/(19042:19043): [20:07:53:199]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:07:53:199 Kernel/(19042:19043): [20:07:53:199]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:08:23:204 Kernel/(19042:19043): [20:08:23:204]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:08:23:204 Kernel/(19042:19043): [20:08:23:204]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 20:08:53:205 Kernel/(19042:19043): [20:08:53:205]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 20:08:53:205 Kernel/(19042:19043): [20:08:53:205]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 22:40:01:374 Kernel/(22467:22478): [22:40:01:374]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 22:40:01:374 Kernel/(22467:22478): [22:40:01:374]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 22:40:31:375 Kernel/(22467:22478): [22:40:31:375]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 22:40:31:375 Kernel/(22467:22478): [22:40:31:375]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 22:41:07:806 Kernel/(22467:22478): [22:41:07:806]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 22:41:07:806 Kernel/(22467:22478): [22:41:07:806]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 22:44:17:721 Kernel/(22555:22575): [22:44:17:721]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 22:44:17:722 Kernel/(22555:22575): [22:44:17:722]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 22:51:10:978 Kernel/(22795:22796): [22:51:10:978]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 22:51:10:979 Kernel/(22795:22796): [22:51:10:978]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 22:51:40:980 Kernel/(22795:22796): [22:51:40:979]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 22:51:40:980 Kernel/(22795:22796): [22:51:40:980]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 22:52:12:540 Kernel/(22840:22841): [22:52:12:540]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 22:52:12:541 Kernel/(22840:22841): [22:52:12:541]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 22:57:16:10 Kernel/(23001:23018): [22:57:16:9]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 22:57:16:10 Kernel/(23001:23018): [22:57:16:10]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 22:57:48:298 Kernel/(23001:23018): [22:57:48:298]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 22:57:48:299 Kernel/(23001:23018): [22:57:48:299]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 22:58:18:299 Kernel/(23001:23018): [22:58:18:299]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 22:58:18:300 Kernel/(23001:23018): [22:58:18:300]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:01:51:277 Kernel/(23152:23153): [23:01:51:277]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:01:51:278 Kernel/(23152:23153): [23:01:51:278]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:02:54:590 Kernel/(23215:23216): [23:02:54:590]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:02:54:591 Kernel/(23215:23216): [23:02:54:591]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:05:05:974 Kernel/(23283:23284): [23:05:05:974]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:05:05:974 Kernel/(23283:23284): [23:05:05:974]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:05:54:698 Kernel/(23318:23319): [23:05:54:698]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:05:54:698 Kernel/(23318:23319): [23:05:54:698]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:07:48:619 Kernel/(23391:23400): [23:07:48:618]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:07:48:619 Kernel/(23391:23400): [23:07:48:619]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:21:18:491 Kernel/(23744:23763): [23:21:18:490]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:21:18:491 Kernel/(23744:23763): [23:21:18:491]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:25:11:645 Kernel/(23891:23899): [23:25:11:645]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:25:11:645 Kernel/(23891:23899): [23:25:11:645]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:25:46:59 Kernel/(23891:23899): [23:25:46:59]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:25:46:59 Kernel/(23891:23899): [23:25:46:59]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:36:43:109 Kernel/(24198:24205): [23:36:43:109]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:36:43:118 Kernel/(24198:24205): [23:36:43:118]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:40:40:107 Kernel/(24339:24340): [23:40:40:107]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:40:40:124 Kernel/(24339:24340): [23:40:40:124]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:43:36:319 Kernel/(24405:24406): [23:43:36:319]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:43:36:320 Kernel/(24405:24406): [23:43:36:320]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:54:51:56 Kernel/(24670:24671): [23:54:51:56]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:54:51:64 Kernel/(24670:24671): [23:54:51:64]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:55:21:65 Kernel/(24670:24671): [23:55:21:65]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:55:21:65 Kernel/(24670:24671): [23:55:21:65]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 23:56:05:588 Kernel/(24800:24801): [23:56:05:588]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 23:56:05:589 Kernel/(24800:24801): [23:56:05:588]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:00:06:612 Kernel/(24969:24979): [00:00:06:612]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:00:06:612 Kernel/(24969:24979): [00:00:06:612]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:00:36:613 Kernel/(24969:24979): [00:00:36:613]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:00:36:613 Kernel/(24969:24979): [00:00:36:613]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:02:08:810 Kernel/(25041:25042): [00:02:08:810]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:02:08:810 Kernel/(25041:25042): [00:02:08:810]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:02:38:811 Kernel/(25041:25042): [00:02:38:811]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:02:38:811 Kernel/(25041:25042): [00:02:38:811]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:03:08:812 Kernel/(25041:25042): [00:03:08:812]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:03:08:812 Kernel/(25041:25042): [00:03:08:812]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:03:38:813 Kernel/(25041:25042): [00:03:38:813]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:03:38:814 Kernel/(25041:25042): [00:03:38:814]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:04:08:814 Kernel/(25041:25042): [00:04:08:814]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:04:08:815 Kernel/(25041:25042): [00:04:08:815]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:04:38:816 Kernel/(25041:25042): [00:04:38:815]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:04:38:816 Kernel/(25041:25042): [00:04:38:816]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:05:08:817 Kernel/(25041:25042): [00:05:08:816]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:05:08:817 Kernel/(25041:25042): [00:05:08:817]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:05:38:818 Kernel/(25041:25042): [00:05:38:818]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:05:38:818 Kernel/(25041:25042): [00:05:38:818]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:06:08:819 Kernel/(25041:25042): [00:06:08:819]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:06:08:819 Kernel/(25041:25042): [00:06:08:819]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:06:38:820 Kernel/(25041:25042): [00:06:38:820]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:06:38:820 Kernel/(25041:25042): [00:06:38:820]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:07:08:821 Kernel/(25041:25042): [00:07:08:821]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:07:08:821 Kernel/(25041:25042): [00:07:08:821]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:07:38:822 Kernel/(25041:25042): [00:07:38:822]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:07:38:822 Kernel/(25041:25042): [00:07:38:822]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:08:08:823 Kernel/(25041:25042): [00:08:08:823]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:08:08:823 Kernel/(25041:25042): [00:08:08:823]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:08:38:824 Kernel/(25041:25042): [00:08:38:824]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:08:38:824 Kernel/(25041:25042): [00:08:38:824]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:09:08:824 Kernel/(25041:25042): [00:09:08:824]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:09:08:824 Kernel/(25041:25042): [00:09:08:824]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:09:38:826 Kernel/(25041:25042): [00:09:38:826]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:09:38:827 Kernel/(25041:25042): [00:09:38:826]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:10:08:827 Kernel/(25041:25042): [00:10:08:827]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:10:08:827 Kernel/(25041:25042): [00:10:08:827]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 00:10:38:828 Kernel/(25041:25042): [00:10:38:828]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 00:10:38:829 Kernel/(25041:25042): [00:10:38:828]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 11:48:25:921 Kernel/(25041:25042): [11:48:25:921]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 11:48:25:923 Kernel/(25041:25042): [11:48:25:923]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 11:48:55:927 Kernel/(25041:25042): [11:48:55:927]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 11:48:55:927 Kernel/(25041:25042): [11:48:55:927]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 11:49:25:929 Kernel/(25041:25042): [11:49:25:928]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 11:49:25:929 Kernel/(25041:25042): [11:49:25:929]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 11:49:55:932 Kernel/(25041:25042): [11:49:55:932]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 11:49:55:932 Kernel/(25041:25042): [11:49:55:932]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 11:50:25:933 Kernel/(25041:25042): [11:50:25:933]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 11:50:25:933 Kernel/(25041:25042): [11:50:25:933]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 11:50:55:933 Kernel/(25041:25042): [11:50:55:933]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 11:50:55:933 Kernel/(25041:25042): [11:50:55:933]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 11:51:25:934 Kernel/(25041:25042): [11:51:25:934]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 11:51:25:934 Kernel/(25041:25042): [11:51:25:934]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 11:51:55:939 Kernel/(25041:25042): [11:51:55:939]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 11:51:55:940 Kernel/(25041:25042): [11:51:55:940]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 11:52:25:940 Kernel/(25041:25042): [11:52:25:940]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 11:52:25:941 Kernel/(25041:25042): [11:52:25:941]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 11:52:55:942 Kernel/(25041:25042): [11:52:55:942]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 11:52:55:942 Kernel/(25041:25042): [11:52:55:942]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 11:58:38:690 Kernel/(26003:26016): [11:58:38:690]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 11:58:38:701 Kernel/(26003:26016): [11:58:38:691]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 11:59:08:702 Kernel/(26003:26016): [11:59:08:702]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 11:59:08:702 Kernel/(26003:26016): [11:59:08:702]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:00:03:806 Kernel/(26003:26016): [12:00:03:806]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:00:03:806 Kernel/(26003:26016): [12:00:03:806]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:00:43:186 Kernel/(26003:26016): [12:00:43:186]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:00:43:186 Kernel/(26003:26016): [12:00:43:186]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:01:14:0 Kernel/(26003:26016): [12:01:14:0]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:01:14:1 Kernel/(26003:26016): [12:01:14:0]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:01:44:2 Kernel/(26003:26016): [12:01:44:2]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:01:44:2 Kernel/(26003:26016): [12:01:44:2]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:02:15:4 Kernel/(26003:26016): [12:02:15:4]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:02:15:4 Kernel/(26003:26016): [12:02:15:4]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:02:44:5 Kernel/(26003:26016): [12:02:44:5]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:02:44:6 Kernel/(26003:26016): [12:02:44:6]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:13:47:712 Kernel/(26427:26428): [12:13:47:712]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:13:47:713 Kernel/(26427:26428): [12:13:47:712]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:14:03:942 Kernel/(26439:26440): [12:14:03:942]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:14:03:942 Kernel/(26439:26440): [12:14:03:942]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:16:40:80 Kernel/(26498:26499): [12:16:40:80]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:16:40:80 Kernel/(26498:26499): [12:16:40:80]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:17:14:485 Kernel/(26521:26522): [12:17:14:485]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:17:14:485 Kernel/(26521:26522): [12:17:14:485]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:19:49:800 Kernel/(26642:26652): [12:19:49:800]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:19:49:800 Kernel/(26642:26652): [12:19:49:800]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:20:19:801 Kernel/(26642:26652): [12:20:19:801]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:20:19:801 Kernel/(26642:26652): [12:20:19:801]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:20:54:972 Kernel/(26642:26652): [12:20:54:972]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:20:54:972 Kernel/(26642:26652): [12:20:54:972]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:21:24:974 Kernel/(26642:26652): [12:21:24:974]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:21:24:975 Kernel/(26642:26652): [12:21:24:975]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:23:55:335 Kernel/(26766:26781): [12:23:55:335]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:23:55:335 Kernel/(26766:26781): [12:23:55:335]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:24:28:993 Kernel/(26766:26781): [12:24:28:993]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:24:28:994 Kernel/(26766:26781): [12:24:28:994]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:44:12:189 Kernel/(27022:27023): [12:44:12:189]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:44:12:189 Kernel/(27022:27023): [12:44:12:189]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:52:57:206 Kernel/(27229:27230): [12:52:57:206]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:52:57:211 Kernel/(27229:27230): [12:52:57:211]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:53:04:413 Kernel/(27236:27237): [12:53:04:413]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:53:04:413 Kernel/(27236:27237): [12:53:04:413]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:53:29:844 Kernel/(27261:27262): [12:53:29:844]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:53:29:844 Kernel/(27261:27262): [12:53:29:844]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:53:40:48 Kernel/(27278:27279): [12:53:40:48]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:53:40:49 Kernel/(27278:27279): [12:53:40:49]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:54:07:276 Kernel/(27300:27301): [12:54:07:276]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:54:07:277 Kernel/(27300:27301): [12:54:07:277]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 12:55:32:870 Kernel/(27346:27347): [12:55:32:870]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 12:55:32:887 Kernel/(27346:27347): [12:55:32:878]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:02:44:361 Kernel/(27501:27502): [13:02:44:361]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:02:44:361 Kernel/(27501:27502): [13:02:44:361]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:07:43:306 Kernel/(27697:27710): [13:07:43:305]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:07:43:306 Kernel/(27697:27710): [13:07:43:306]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:08:17:615 Kernel/(27697:27710): [13:08:17:615]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:08:17:615 Kernel/(27697:27710): [13:08:17:615]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:08:47:619 Kernel/(27697:27710): [13:08:47:618]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:08:47:619 Kernel/(27697:27710): [13:08:47:619]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:09:12:243 Kernel/(27750:27751): [13:09:12:243]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:09:12:244 Kernel/(27750:27751): [13:09:12:244]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:09:17:623 Kernel/(27697:27710): [13:09:17:623]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:09:17:625 Kernel/(27697:27710): [13:09:17:625]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:09:42:245 Kernel/(27750:27751): [13:09:42:245]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:09:42:245 Kernel/(27750:27751): [13:09:42:245]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:09:47:626 Kernel/(27697:27710): [13:09:47:626]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:09:47:626 Kernel/(27697:27710): [13:09:47:626]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:10:12:246 Kernel/(27750:27751): [13:10:12:246]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:10:12:246 Kernel/(27750:27751): [13:10:12:246]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:10:17:627 Kernel/(27697:27710): [13:10:17:627]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:10:17:629 Kernel/(27697:27710): [13:10:17:629]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:10:42:248 Kernel/(27750:27751): [13:10:42:248]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:10:42:248 Kernel/(27750:27751): [13:10:42:248]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:11:12:252 Kernel/(27750:27751): [13:11:12:252]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:11:12:252 Kernel/(27750:27751): [13:11:12:252]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:11:42:253 Kernel/(27750:27751): [13:11:42:253]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:11:42:254 Kernel/(27750:27751): [13:11:42:253]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:12:12:254 Kernel/(27750:27751): [13:12:12:254]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:12:12:254 Kernel/(27750:27751): [13:12:12:254]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:12:42:257 Kernel/(27750:27751): [13:12:42:257]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:12:42:257 Kernel/(27750:27751): [13:12:42:257]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:18:16:149 Kernel/(28050:28064): [13:18:16:149]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:18:16:149 Kernel/(28050:28064): [13:18:16:149]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:18:46:151 Kernel/(28050:28064): [13:18:46:150]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:18:46:151 Kernel/(28050:28064): [13:18:46:151]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:19:16:152 Kernel/(28050:28064): [13:19:16:152]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:19:16:152 Kernel/(28050:28064): [13:19:16:152]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:19:46:153 Kernel/(28050:28064): [13:19:46:153]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:19:46:153 Kernel/(28050:28064): [13:19:46:153]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:20:16:154 Kernel/(28050:28064): [13:20:16:154]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:20:16:154 Kernel/(28050:28064): [13:20:16:154]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:20:46:155 Kernel/(28050:28064): [13:20:46:155]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:20:46:156 Kernel/(28050:28064): [13:20:46:156]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:21:16:157 Kernel/(28050:28064): [13:21:16:157]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:21:16:157 Kernel/(28050:28064): [13:21:16:157]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:21:46:159 Kernel/(28050:28064): [13:21:46:158]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:21:46:159 Kernel/(28050:28064): [13:21:46:159]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:22:16:160 Kernel/(28050:28064): [13:22:16:160]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:22:16:160 Kernel/(28050:28064): [13:22:16:160]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:22:46:161 Kernel/(28050:28064): [13:22:46:161]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:22:46:162 Kernel/(28050:28064): [13:22:46:162]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:23:16:163 Kernel/(28050:28064): [13:23:16:163]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:23:16:163 Kernel/(28050:28064): [13:23:16:163]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:24:06:187 Kernel/(28152:28153): [13:24:06:187]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:24:06:187 Kernel/(28152:28153): [13:24:06:187]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:24:36:189 Kernel/(28152:28153): [13:24:36:189]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:24:36:189 Kernel/(28152:28153): [13:24:36:189]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:25:06:190 Kernel/(28152:28153): [13:25:06:190]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:25:06:191 Kernel/(28152:28153): [13:25:06:191]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:25:16:77 Kernel/(28191:28192): [13:25:16:77]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:25:16:77 Kernel/(28191:28192): [13:25:16:77]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:25:46:77 Kernel/(28191:28192): [13:25:46:77]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:25:46:78 Kernel/(28191:28192): [13:25:46:78]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:26:16:79 Kernel/(28191:28192): [13:26:16:79]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:26:16:80 Kernel/(28191:28192): [13:26:16:79]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:26:46:80 Kernel/(28191:28192): [13:26:46:80]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:26:46:80 Kernel/(28191:28192): [13:26:46:80]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:27:16:81 Kernel/(28191:28192): [13:27:16:81]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:27:16:81 Kernel/(28191:28192): [13:27:16:81]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:27:46:85 Kernel/(28191:28192): [13:27:46:85]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:27:46:85 Kernel/(28191:28192): [13:27:46:85]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:28:16:90 Kernel/(28191:28192): [13:28:16:90]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:28:16:91 Kernel/(28191:28192): [13:28:16:91]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:28:46:91 Kernel/(28191:28192): [13:28:46:91]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:28:46:92 Kernel/(28191:28192): [13:28:46:92]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:29:16:92 Kernel/(28191:28192): [13:29:16:92]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:29:16:93 Kernel/(28191:28192): [13:29:16:93]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:29:46:94 Kernel/(28191:28192): [13:29:46:94]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:29:46:94 Kernel/(28191:28192): [13:29:46:94]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:30:16:95 Kernel/(28191:28192): [13:30:16:95]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:30:16:95 Kernel/(28191:28192): [13:30:16:95]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:30:46:97 Kernel/(28191:28192): [13:30:46:97]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:30:46:97 Kernel/(28191:28192): [13:30:46:97]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:31:16:98 Kernel/(28191:28192): [13:31:16:98]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:31:16:98 Kernel/(28191:28192): [13:31:16:98]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:31:46:100 Kernel/(28191:28192): [13:31:46:100]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:31:46:100 Kernel/(28191:28192): [13:31:46:100]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:32:16:101 Kernel/(28191:28192): [13:32:16:101]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:32:16:101 Kernel/(28191:28192): [13:32:16:101]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:32:46:102 Kernel/(28191:28192): [13:32:46:102]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:32:46:103 Kernel/(28191:28192): [13:32:46:103]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:33:16:104 Kernel/(28191:28192): [13:33:16:104]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:33:16:104 Kernel/(28191:28192): [13:33:16:104]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:33:46:105 Kernel/(28191:28192): [13:33:46:105]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:33:46:105 Kernel/(28191:28192): [13:33:46:105]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:34:16:107 Kernel/(28191:28192): [13:34:16:106]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:34:16:107 Kernel/(28191:28192): [13:34:16:107]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:34:46:108 Kernel/(28191:28192): [13:34:46:108]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:34:46:108 Kernel/(28191:28192): [13:34:46:108]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:35:16:111 Kernel/(28191:28192): [13:35:16:110]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:35:16:111 Kernel/(28191:28192): [13:35:16:111]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:35:46:112 Kernel/(28191:28192): [13:35:46:112]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:35:46:116 Kernel/(28191:28192): [13:35:46:116]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:36:16:116 Kernel/(28191:28192): [13:36:16:116]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:36:16:116 Kernel/(28191:28192): [13:36:16:116]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:36:46:117 Kernel/(28191:28192): [13:36:46:117]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:36:46:117 Kernel/(28191:28192): [13:36:46:117]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:37:16:118 Kernel/(28191:28192): [13:37:16:118]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:37:16:119 Kernel/(28191:28192): [13:37:16:119]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:37:46:119 Kernel/(28191:28192): [13:37:46:119]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:37:46:120 Kernel/(28191:28192): [13:37:46:120]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:38:16:121 Kernel/(28191:28192): [13:38:16:121]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:38:16:121 Kernel/(28191:28192): [13:38:16:121]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:38:46:122 Kernel/(28191:28192): [13:38:46:122]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:38:46:123 Kernel/(28191:28192): [13:38:46:123]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:39:16:124 Kernel/(28191:28192): [13:39:16:124]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:39:16:124 Kernel/(28191:28192): [13:39:16:124]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:39:46:125 Kernel/(28191:28192): [13:39:46:125]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:39:46:125 Kernel/(28191:28192): [13:39:46:125]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:40:16:127 Kernel/(28191:28192): [13:40:16:127]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:40:16:127 Kernel/(28191:28192): [13:40:16:127]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:40:46:128 Kernel/(28191:28192): [13:40:46:128]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:40:46:129 Kernel/(28191:28192): [13:40:46:128]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:41:16:129 Kernel/(28191:28192): [13:41:16:129]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:41:16:130 Kernel/(28191:28192): [13:41:16:130]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:41:46:130 Kernel/(28191:28192): [13:41:46:130]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:41:46:130 Kernel/(28191:28192): [13:41:46:130]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:42:16:131 Kernel/(28191:28192): [13:42:16:131]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:42:16:132 Kernel/(28191:28192): [13:42:16:131]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:42:46:132 Kernel/(28191:28192): [13:42:46:132]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:42:46:133 Kernel/(28191:28192): [13:42:46:133]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:43:16:134 Kernel/(28191:28192): [13:43:16:134]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:43:16:134 Kernel/(28191:28192): [13:43:16:134]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:43:46:136 Kernel/(28191:28192): [13:43:46:135]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:43:46:136 Kernel/(28191:28192): [13:43:46:136]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:44:16:137 Kernel/(28191:28192): [13:44:16:137]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:44:16:137 Kernel/(28191:28192): [13:44:16:137]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:44:46:138 Kernel/(28191:28192): [13:44:46:138]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:44:46:138 Kernel/(28191:28192): [13:44:46:138]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:45:16:139 Kernel/(28191:28192): [13:45:16:139]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:45:16:140 Kernel/(28191:28192): [13:45:16:140]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:45:46:141 Kernel/(28191:28192): [13:45:46:140]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:45:46:141 Kernel/(28191:28192): [13:45:46:141]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:46:16:142 Kernel/(28191:28192): [13:46:16:142]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:46:16:142 Kernel/(28191:28192): [13:46:16:142]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:46:46:144 Kernel/(28191:28192): [13:46:46:144]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:46:46:144 Kernel/(28191:28192): [13:46:46:144]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:47:16:145 Kernel/(28191:28192): [13:47:16:145]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:47:16:145 Kernel/(28191:28192): [13:47:16:145]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:48:08:63 Kernel/(28635:28648): [13:48:08:63]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:48:08:64 Kernel/(28635:28648): [13:48:08:64]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:48:38:64 Kernel/(28635:28648): [13:48:38:64]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:48:38:65 Kernel/(28635:28648): [13:48:38:65]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 13:49:46:387 Kernel/(28635:28648): [13:49:46:387]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 13:49:46:387 Kernel/(28635:28648): [13:49:46:387]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 14:07:15:848 Kernel/(28971:28972): [14:07:15:848]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 14:07:15:848 Kernel/(28971:28972): [14:07:15:848]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 14:07:45:849 Kernel/(28971:28972): [14:07:45:849]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 14:07:45:849 Kernel/(28971:28972): [14:07:45:849]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 14:08:15:851 Kernel/(28971:28972): [14:08:15:851]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 14:08:15:851 Kernel/(28971:28972): [14:08:15:851]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 14:10:00:505 Kernel/(29099:29110): [14:10:00:505]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 14:10:00:505 Kernel/(29099:29110): [14:10:00:505]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 14:10:30:507 Kernel/(29099:29110): [14:10:30:506]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 14:10:30:507 Kernel/(29099:29110): [14:10:30:507]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 14:47:01:937 Kernel/(29890:29899): [14:47:01:936]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 14:47:01:937 Kernel/(29890:29899): [14:47:01:937]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 14:48:52:465 Kernel/(29941:29942): [14:48:52:465]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 14:48:52:466 Kernel/(29941:29942): [14:48:52:466]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:17:04:230 Kernel/(29941:29942): [15:17:04:230]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:17:04:231 Kernel/(29941:29942): [15:17:04:231]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:17:34:232 Kernel/(29941:29942): [15:17:34:232]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:17:34:232 Kernel/(29941:29942): [15:17:34:232]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:18:04:233 Kernel/(29941:29942): [15:18:04:233]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:18:04:233 Kernel/(29941:29942): [15:18:04:233]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:18:34:234 Kernel/(29941:29942): [15:18:34:234]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:18:34:234 Kernel/(29941:29942): [15:18:34:234]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:19:04:235 Kernel/(29941:29942): [15:19:04:235]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:19:04:236 Kernel/(29941:29942): [15:19:04:235]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:19:34:236 Kernel/(29941:29942): [15:19:34:236]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:19:34:237 Kernel/(29941:29942): [15:19:34:237]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:20:04:237 Kernel/(29941:29942): [15:20:04:237]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:20:04:238 Kernel/(29941:29942): [15:20:04:237]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:20:34:239 Kernel/(29941:29942): [15:20:34:239]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:20:34:239 Kernel/(29941:29942): [15:20:34:239]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:21:04:240 Kernel/(29941:29942): [15:21:04:240]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:21:04:240 Kernel/(29941:29942): [15:21:04:240]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:21:34:241 Kernel/(29941:29942): [15:21:34:241]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:21:34:242 Kernel/(29941:29942): [15:21:34:242]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:22:04:242 Kernel/(29941:29942): [15:22:04:242]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:22:04:243 Kernel/(29941:29942): [15:22:04:243]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:24:33:43 Kernel/(30141:30266): [15:24:33:43]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:24:33:43 Kernel/(30141:30266): [15:24:33:43]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:27:20:946 Kernel/(30374:30384): [15:27:20:946]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:27:20:946 Kernel/(30374:30384): [15:27:20:946]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:27:50:948 Kernel/(30374:30384): [15:27:50:948]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:27:50:948 Kernel/(30374:30384): [15:27:50:948]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:28:20:950 Kernel/(30374:30384): [15:28:20:950]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:28:20:950 Kernel/(30374:30384): [15:28:20:950]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:28:50:950 Kernel/(30374:30384): [15:28:50:950]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:28:50:951 Kernel/(30374:30384): [15:28:50:951]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:29:20:952 Kernel/(30374:30384): [15:29:20:951]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:29:20:952 Kernel/(30374:30384): [15:29:20:952]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:29:50:954 Kernel/(30374:30384): [15:29:50:954]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:29:50:954 Kernel/(30374:30384): [15:29:50:954]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:31:51:447 Kernel/(30519:30528): [15:31:51:447]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:31:51:447 Kernel/(30519:30528): [15:31:51:447]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:32:25:55 Kernel/(30519:30528): [15:32:25:54]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:32:25:55 Kernel/(30519:30528): [15:32:25:55]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:32:55:55 Kernel/(30519:30528): [15:32:55:55]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:32:55:55 Kernel/(30519:30528): [15:32:55:55]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:34:07:253 Kernel/(30600:30601): [15:34:07:253]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:34:07:258 Kernel/(30600:30601): [15:34:07:258]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:44:33:697 Kernel/(30812:30813): [15:44:33:697]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:44:33:697 Kernel/(30812:30813): [15:44:33:697]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:45:03:698 Kernel/(30812:30813): [15:45:03:698]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:45:03:698 Kernel/(30812:30813): [15:45:03:698]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:45:33:698 Kernel/(30812:30813): [15:45:33:698]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:45:33:699 Kernel/(30812:30813): [15:45:33:699]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:46:03:701 Kernel/(30812:30813): [15:46:03:701]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:46:03:701 Kernel/(30812:30813): [15:46:03:701]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:46:33:702 Kernel/(30812:30813): [15:46:33:702]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:46:33:702 Kernel/(30812:30813): [15:46:33:702]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:47:03:703 Kernel/(30812:30813): [15:47:03:703]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:47:03:703 Kernel/(30812:30813): [15:47:03:703]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:47:33:705 Kernel/(30812:30813): [15:47:33:704]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:47:33:705 Kernel/(30812:30813): [15:47:33:705]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:48:04:143 Kernel/(30899:30900): [15:48:04:143]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:48:04:143 Kernel/(30899:30900): [15:48:04:143]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:51:33:16 Kernel/(31043:31053): [15:51:33:16]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:51:33:16 Kernel/(31043:31053): [15:51:33:16]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:52:03:17 Kernel/(31043:31053): [15:52:03:17]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:52:03:17 Kernel/(31043:31053): [15:52:03:17]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:53:31:201 Kernel/(31043:31053): [15:53:31:201]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:53:31:202 Kernel/(31043:31053): [15:53:31:202]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:08:24:515 Kernel/(31367:31368): [16:08:24:515]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:08:24:515 Kernel/(31367:31368): [16:08:24:515]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:08:46:71 Kernel/(31385:31386): [16:08:46:70]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:08:46:71 Kernel/(31385:31386): [16:08:46:71]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:09:16:71 Kernel/(31385:31386): [16:09:16:71]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:09:16:72 Kernel/(31385:31386): [16:09:16:72]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:09:46:73 Kernel/(31385:31386): [16:09:46:73]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:09:46:73 Kernel/(31385:31386): [16:09:46:73]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:10:16:75 Kernel/(31385:31386): [16:10:16:74]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:10:16:75 Kernel/(31385:31386): [16:10:16:75]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:10:46:76 Kernel/(31385:31386): [16:10:46:76]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:10:46:76 Kernel/(31385:31386): [16:10:46:76]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:11:16:77 Kernel/(31385:31386): [16:11:16:77]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:11:16:77 Kernel/(31385:31386): [16:11:16:77]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:11:46:78 Kernel/(31385:31386): [16:11:46:78]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:11:46:79 Kernel/(31385:31386): [16:11:46:79]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:12:22:13 Kernel/(31514:31515): [16:12:22:12]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:12:22:43 Kernel/(31514:31515): [16:12:22:43]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:12:52:46 Kernel/(31514:31515): [16:12:52:46]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:12:52:46 Kernel/(31514:31515): [16:12:52:46]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:13:22:47 Kernel/(31514:31515): [16:13:22:47]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:13:22:47 Kernel/(31514:31515): [16:13:22:47]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:13:52:47 Kernel/(31514:31515): [16:13:52:47]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:13:52:48 Kernel/(31514:31515): [16:13:52:48]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:14:22:49 Kernel/(31514:31515): [16:14:22:49]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:14:22:49 Kernel/(31514:31515): [16:14:22:49]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:14:52:50 Kernel/(31514:31515): [16:14:52:50]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:14:52:50 Kernel/(31514:31515): [16:14:52:50]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:15:12:538 Kernel/(31576:31577): [16:15:12:538]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:15:12:539 Kernel/(31576:31577): [16:15:12:539]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:17:07:940 Kernel/(31640:31641): [16:17:07:940]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:17:07:941 Kernel/(31640:31641): [16:17:07:940]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:17:37:942 Kernel/(31640:31641): [16:17:37:942]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:17:37:942 Kernel/(31640:31641): [16:17:37:942]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:18:07:943 Kernel/(31640:31641): [16:18:07:943]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:18:07:943 Kernel/(31640:31641): [16:18:07:943]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:18:37:944 Kernel/(31640:31641): [16:18:37:944]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:18:37:944 Kernel/(31640:31641): [16:18:37:944]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:19:07:945 Kernel/(31640:31641): [16:19:07:945]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:19:07:946 Kernel/(31640:31641): [16:19:07:946]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:19:37:947 Kernel/(31640:31641): [16:19:37:947]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:19:37:947 Kernel/(31640:31641): [16:19:37:947]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:20:07:948 Kernel/(31640:31641): [16:20:07:948]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:20:07:948 Kernel/(31640:31641): [16:20:07:948]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:20:37:949 Kernel/(31640:31641): [16:20:37:949]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:20:37:951 Kernel/(31640:31641): [16:20:37:951]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:21:07:952 Kernel/(31640:31641): [16:21:07:952]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:21:07:952 Kernel/(31640:31641): [16:21:07:952]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:21:13:259 Kernel/(31726:31727): [16:21:13:259]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:21:13:259 Kernel/(31726:31727): [16:21:13:259]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:21:29:132 Kernel/(31749:31750): [16:21:29:132]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:21:29:132 Kernel/(31749:31750): [16:21:29:132]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:21:59:134 Kernel/(31749:31750): [16:21:59:134]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:21:59:134 Kernel/(31749:31750): [16:21:59:134]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:22:29:135 Kernel/(31749:31750): [16:22:29:135]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:22:29:135 Kernel/(31749:31750): [16:22:29:135]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:22:53:144 Kernel/(31785:31786): [16:22:53:144]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:22:53:144 Kernel/(31785:31786): [16:22:53:144]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:23:03:205 Kernel/(31803:31804): [16:23:03:205]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:23:03:205 Kernel/(31803:31804): [16:23:03:205]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:23:33:209 Kernel/(31803:31804): [16:23:33:209]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:23:33:210 Kernel/(31803:31804): [16:23:33:209]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:24:03:210 Kernel/(31803:31804): [16:24:03:210]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:24:03:210 Kernel/(31803:31804): [16:24:03:210]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:24:33:212 Kernel/(31803:31804): [16:24:33:212]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:24:33:213 Kernel/(31803:31804): [16:24:33:213]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:25:03:213 Kernel/(31803:31804): [16:25:03:213]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:25:03:214 Kernel/(31803:31804): [16:25:03:214]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:25:33:216 Kernel/(31803:31804): [16:25:33:216]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:25:33:217 Kernel/(31803:31804): [16:25:33:217]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:25:40:987 Kernel/(31934:31935): [16:25:40:987]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:25:40:988 Kernel/(31934:31935): [16:25:40:988]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:26:10:989 Kernel/(31934:31935): [16:26:10:988]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:26:10:989 Kernel/(31934:31935): [16:26:10:989]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:26:40:994 Kernel/(31934:31935): [16:26:40:994]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:26:40:994 Kernel/(31934:31935): [16:26:40:994]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:27:10:995 Kernel/(31934:31935): [16:27:10:995]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:27:10:995 Kernel/(31934:31935): [16:27:10:995]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:27:16:29 Kernel/(31996:31997): [16:27:16:29]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:27:16:46 Kernel/(31996:31997): [16:27:16:46]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:27:46:52 Kernel/(31996:31997): [16:27:46:52]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:27:46:52 Kernel/(31996:31997): [16:27:46:52]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:28:16:58 Kernel/(31996:31997): [16:28:16:58]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:28:16:58 Kernel/(31996:31997): [16:28:16:58]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:28:28:813 Kernel/(32047:32048): [16:28:28:813]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:28:28:828 Kernel/(32047:32048): [16:28:28:828]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:53:41:684 Kernel/(32355:32356): [16:53:41:684]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:53:41:685 Kernel/(32355:32356): [16:53:41:685]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:54:11:692 Kernel/(32355:32356): [16:54:11:691]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:54:11:692 Kernel/(32355:32356): [16:54:11:692]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:54:41:696 Kernel/(32355:32356): [16:54:41:696]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:54:41:696 Kernel/(32355:32356): [16:54:41:696]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:56:55:216 Kernel/(32495:32506): [16:56:55:216]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:56:55:216 Kernel/(32495:32506): [16:56:55:216]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:00:21:632 Kernel/(32582:32618): [17:00:21:632]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:00:21:632 Kernel/(32582:32618): [17:00:21:632]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:00:51:633 Kernel/(32582:32618): [17:00:51:633]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:00:51:633 Kernel/(32582:32618): [17:00:51:633]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:02:38:297 Kernel/(32746:32756): [17:02:38:297]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:02:38:297 Kernel/(32746:32756): [17:02:38:297]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:03:08:299 Kernel/(32746:32756): [17:03:08:299]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:03:08:299 Kernel/(32746:32756): [17:03:08:299]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:08:30:443 Kernel/(411:412): [17:08:30:442]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:08:30:443 Kernel/(411:412): [17:08:30:443]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:12:04:349 Kernel/(590:600): [17:12:04:348]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:12:04:349 Kernel/(590:600): [17:12:04:349]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:16:57:548 Kernel/(714:715): [17:16:57:547]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:16:57:548 Kernel/(714:715): [17:16:57:548]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:17:27:548 Kernel/(714:715): [17:17:27:548]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:17:27:548 Kernel/(714:715): [17:17:27:548]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:17:57:549 Kernel/(714:715): [17:17:57:549]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:17:57:550 Kernel/(714:715): [17:17:57:550]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:18:15:99 Kernel/(766:767): [17:18:15:99]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:18:15:99 Kernel/(766:767): [17:18:15:99]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:18:45:100 Kernel/(766:767): [17:18:45:100]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:18:45:100 Kernel/(766:767): [17:18:45:100]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:19:15:102 Kernel/(766:767): [17:19:15:102]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:19:15:103 Kernel/(766:767): [17:19:15:103]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:19:45:112 Kernel/(766:767): [17:19:45:112]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:19:45:112 Kernel/(766:767): [17:19:45:112]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:19:59:619 Kernel/(826:827): [17:19:59:619]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:19:59:619 Kernel/(826:827): [17:19:59:619]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:20:57:808 Kernel/(845:846): [17:20:57:807]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:20:57:808 Kernel/(845:846): [17:20:57:808]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:21:10:295 Kernel/(862:863): [17:21:10:295]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:21:10:296 Kernel/(862:863): [17:21:10:296]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:21:40:296 Kernel/(862:863): [17:21:40:296]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:21:40:298 Kernel/(862:863): [17:21:40:298]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:22:10:299 Kernel/(862:863): [17:22:10:299]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:22:10:299 Kernel/(862:863): [17:22:10:299]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:22:40:301 Kernel/(862:863): [17:22:40:300]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:22:40:301 Kernel/(862:863): [17:22:40:301]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:23:10:303 Kernel/(862:863): [17:23:10:303]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:23:10:303 Kernel/(862:863): [17:23:10:303]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:23:40:623 Kernel/(936:937): [17:23:40:623]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:23:40:623 Kernel/(936:937): [17:23:40:623]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:26:29:260 Kernel/(1047:1049): [17:26:29:260]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:26:29:260 Kernel/(1047:1049): [17:26:29:260]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:27:06:461 Kernel/(1089:1090): [17:27:06:460]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:27:06:461 Kernel/(1089:1090): [17:27:06:461]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:27:36:462 Kernel/(1089:1090): [17:27:36:462]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:27:36:462 Kernel/(1089:1090): [17:27:36:462]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:28:03:228 Kernel/(1140:1141): [17:28:03:228]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:28:03:228 Kernel/(1140:1141): [17:28:03:228]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:30:11:241 Kernel/(1217:1218): [17:30:11:241]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:30:11:241 Kernel/(1217:1218): [17:30:11:241]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:35:15:771 Kernel/(1344:1346): [17:35:15:771]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:35:15:774 Kernel/(1344:1346): [17:35:15:774]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:36:43:638 Kernel/(1417:1418): [17:36:43:634]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:36:43:639 Kernel/(1417:1418): [17:36:43:639]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:37:13:642 Kernel/(1417:1418): [17:37:13:642]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:37:13:643 Kernel/(1417:1418): [17:37:13:643]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:37:43:644 Kernel/(1417:1418): [17:37:43:643]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:37:43:644 Kernel/(1417:1418): [17:37:43:644]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:38:13:645 Kernel/(1417:1418): [17:38:13:644]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:38:13:645 Kernel/(1417:1418): [17:38:13:645]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:38:20:917 Kernel/(1504:1505): [17:38:20:917]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:38:20:918 Kernel/(1504:1505): [17:38:20:917]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:39:06:388 Kernel/(1555:1556): [17:39:06:388]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:39:06:388 Kernel/(1555:1556): [17:39:06:388]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:41:30:562 Kernel/(1653:1654): [17:41:30:561]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:41:30:562 Kernel/(1653:1654): [17:41:30:562]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:42:00:565 Kernel/(1653:1654): [17:42:00:565]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:42:00:566 Kernel/(1653:1654): [17:42:00:566]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:42:14:10 Kernel/(1692:1693): [17:42:14:10]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:42:14:15 Kernel/(1692:1693): [17:42:14:15]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:42:44:16 Kernel/(1692:1693): [17:42:44:16]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:42:44:16 Kernel/(1692:1693): [17:42:44:16]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:43:14:18 Kernel/(1692:1693): [17:43:14:17]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:43:14:18 Kernel/(1692:1693): [17:43:14:18]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:43:26:505 Kernel/(1730:1731): [17:43:26:505]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:43:26:505 Kernel/(1730:1731): [17:43:26:505]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:43:37:199 Kernel/(1742:1743): [17:43:37:199]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:43:37:199 Kernel/(1742:1743): [17:43:37:199]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:44:27:389 Kernel/(1783:1784): [17:44:27:389]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:44:27:390 Kernel/(1783:1784): [17:44:27:390]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:44:34:223 Kernel/(1806:1807): [17:44:34:223]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:44:34:224 Kernel/(1806:1807): [17:44:34:224]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:47:36:13 Kernel/(1894:1895): [17:47:36:13]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:47:36:13 Kernel/(1894:1895): [17:47:36:13]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:51:50:428 Kernel/(2069:2070): [17:51:50:428]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:51:50:428 Kernel/(2069:2070): [17:51:50:428]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:52:43:706 Kernel/(2097:2098): [17:52:43:706]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:52:43:711 Kernel/(2097:2098): [17:52:43:711]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 17:55:18:280 Kernel/(2179:2180): [17:55:18:279]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 17:55:18:280 Kernel/(2179:2180): [17:55:18:280]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
