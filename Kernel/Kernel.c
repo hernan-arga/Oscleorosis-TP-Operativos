@@ -41,7 +41,7 @@ struct Script {
 };
 
  struct datosMemoria{
-	int socket;
+	int32_t socket;
 	struct sockaddr_in direccionSocket;
  };
 
@@ -134,6 +134,7 @@ int n = 0;
 int32_t socketMemoriaPrincipal;
 t_log* g_logger;
 
+struct datosMemoria unaMemoriaStrongConsistency;
 struct datosMemoria* strongConsistency;
 t_list *hashConsistency;
 t_queue *eventualConsistency;
@@ -154,22 +155,23 @@ int main() {
 	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
 	//PRUEBA();
 	borrarTodosLosTemps();
-	operacion_gossiping(); //Le pide a la memoria principal, las ip de las memorias conectadas y las escribe en el archivo IP_MEMORIAS
 	pthread_t hiloEjecutarReady;
 	pthread_t atenderPeticionesConsola;
 	pthread_t describe;
 	pthread_t metrics;
+	pthread_t goissiping;
 	pthread_create(&metrics, NULL, (void*) logearMetrics, NULL);
 	pthread_create(&hiloEjecutarReady, NULL, (void*) ejecutarReady, NULL);
-	pthread_create(&atenderPeticionesConsola, NULL,
-			(void*) atenderPeticionesDeConsola, NULL);
+	pthread_create(&atenderPeticionesConsola, NULL,	(void*) atenderPeticionesDeConsola, NULL);
 	pthread_create(&hiloLevantarConexion, NULL, (void*)iniciarConexion, NULL);
+	pthread_create(&goissiping, NULL, (void*)operacion_gossiping, NULL);
 	pthread_create(&describe, NULL, (void*) refreshMetadata, NULL);
 	pthread_join(metrics, NULL);
 	pthread_join(describe, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	pthread_join(hiloEjecutarReady, NULL);
 	pthread_join(hiloLevantarConexion, NULL);
+	//pthread_join(goissiping, NULL);
 	return 0;
 }
 
@@ -927,7 +929,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				char* consistencia = parametros[2];
 
 				if (!strcmp(consistencia, "SC")) {
-					mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, strongConsistency->socket);
+					//strongConsistency->socket
+					mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, socketMemoriaPrincipal);
 				} else if (!strcmp(consistencia, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						char* cantidadDeParticiones = parametros[3];
@@ -1234,27 +1237,31 @@ void mandarInsert(char* tabla, char* key, char* value, int socketMemoria){
 
 void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones, char *tiempoCompactacion, int socketMemoria){
 	int peticion = 2;
-	void* buffer = malloc( strlen(tabla) + sizeof(int) + 2*sizeof(int) + 2*sizeof(int) + strlen(consistencia) + strlen(cantidadParticiones) + strlen(tiempoCompactacion));
-	memcpy(buffer, &peticion, sizeof(int));
+	void* buffer = malloc( strlen(tabla) + 6*sizeof(int) + strlen(consistencia) + strlen(cantidadParticiones) + strlen(tiempoCompactacion));
 
-	int tamanioTabla = strlen(tabla);
-	memcpy(buffer + 1*sizeof(int), &tamanioTabla, sizeof(int));
-	memcpy(buffer + 2*sizeof(int), tabla, strlen(tabla));
+	int tamanioPeticion = sizeof(int);
+	memcpy(buffer, &tamanioPeticion, sizeof(int));
+	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
-	int tamanioConsistencia = strlen(consistencia);
-	memcpy(buffer + 2*sizeof(int), &tamanioConsistencia, sizeof(int));
-	memcpy(buffer + 3*sizeof(int), &consistencia, tamanioConsistencia);
+	int tamanioTabla = strlen(tabla)+1;
+	memcpy(buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(buffer + 3*sizeof(int), tabla, tamanioTabla);
 
-	int tamanioCantidadParticiones = strlen(cantidadParticiones);
-		memcpy(buffer + 3*sizeof(int), &tamanioCantidadParticiones, sizeof(int));
-		memcpy(buffer + 4*sizeof(int), &cantidadParticiones, tamanioCantidadParticiones);
+	int tamanioConsistencia = strlen(consistencia)+1;
+	memcpy(buffer + 3*sizeof(int) + tamanioTabla, &tamanioConsistencia, sizeof(int));
+	memcpy(buffer + 4*sizeof(int) + tamanioTabla, consistencia, tamanioConsistencia);
 
-		int tamanioTiempoCompactacion = strlen(tiempoCompactacion);
-		memcpy(buffer + 4*sizeof(int), &tamanioTiempoCompactacion, sizeof(int));
-			memcpy(buffer + 5*sizeof(int), &tiempoCompactacion, tamanioTiempoCompactacion);
+	int tamanioCantidadParticiones = strlen(cantidadParticiones)+1;
+	memcpy(buffer + 4 * sizeof(int) + tamanioTabla + tamanioConsistencia, &tamanioCantidadParticiones, sizeof(int));
+	memcpy(buffer + 5 * sizeof(int) + tamanioTabla + tamanioConsistencia, cantidadParticiones,tamanioCantidadParticiones);
 
-			send(socketMemoria, buffer, sizeof(buffer), 0);
-
+	int tamanioTiempoCompactacion = strlen(tiempoCompactacion)+1;
+	memcpy(buffer + 5*sizeof(int) + tamanioTabla + tamanioConsistencia + tamanioCantidadParticiones, &tamanioTiempoCompactacion, sizeof(int));
+	memcpy(buffer + 6*sizeof(int) + tamanioTabla + tamanioConsistencia + tamanioCantidadParticiones, tiempoCompactacion, tamanioTiempoCompactacion);
+	send(socketMemoria, buffer, tamanioTabla + 6 * sizeof(int) + tamanioConsistencia
+				+ tamanioCantidadParticiones + tamanioTiempoCompactacion, 0);
+	//send(socketMemoria, buffer, tamanioTabla + 6 * sizeof(int) + tamanioConsistencia
+		//	+ tamanioCantidadParticiones + tamanioTiempoCompactacion, 0);
 }
 
 
@@ -1345,10 +1352,9 @@ void drop(char* nombre_tabla) {
 
 
  int32_t iniciarConexion(){
-	 char * IP = config_get_string_value(configuracion, "IP_MEMORIA");
+	 char * IP_MEMORIA = config_get_string_value(configuracion, "IP_MEMORIA");
 	 int PUERTO_MEMORIA = config_get_int_value(configuracion, "PUERTO_MEMORIA");
 
-	 int socketMemoriaPrincipal;
 	 socketMemoriaPrincipal = socket(AF_INET, SOCK_STREAM, 0);
 
 	 struct sockaddr_in direccion_server_memoria_kernel;
@@ -1356,11 +1362,25 @@ void drop(char* nombre_tabla) {
 	 direccion_server_memoria_kernel.sin_port = htons(PUERTO_MEMORIA);
 	 direccion_server_memoria_kernel.sin_addr.s_addr = INADDR_ANY;
 
+	 /*strongConsistency->direccionSocket.sin_family = AF_INET;
+	 strongConsistency->direccionSocket.sin_port = htons(PUERTO_MEMORIA);
+	 strongConsistency->direccionSocket.sin_addr.s_addr = INADDR_ANY;*/
+
+	 /*unaMemoriaStrongConsistency.direccionSocket.sin_family = AF_INET;
+	 unaMemoriaStrongConsistency.direccionSocket.sin_port = htons(PUERTO_MEMORIA);
+	 unaMemoriaStrongConsistency.direccionSocket.sin_addr.s_addr = INADDR_ANY;
+	 unaMemoriaStrongConsistency.socket = socketMemoriaPrincipal;
+	 strongConsistency = &unaMemoriaStrongConsistency;*/
+
 	 if(connect(socketMemoriaPrincipal, (struct sockaddr *) &direccion_server_memoria_kernel, sizeof(direccion_server_memoria_kernel)) == -1)
 	 {
 		 perror("Hubo un error en la conexion");
 		 return -1;
 	 }
+	 //strongConsistency->direccionSocket = direccion_server_memoria_kernel;
+	 //strongConsistency->socket = socketMemoriaPrincipal;
+	 send(socketMemoriaPrincipal, "1", 2, 0);
+
 
 	 char buffer[256];
 	 int leng = recv(socketMemoriaPrincipal, &buffer, sizeof(buffer), 0);

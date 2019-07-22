@@ -14,3 +14,40 @@
 [INFO] 00:53:42:287 MEMORIA/(16373:16393):  Se realizo drop en FS 
 [ERROR] 02:32:17:6 LFS/(20204:20211):  No se encontro la key : 57654
 [ERROR] 02:34:34:913 LFS/(20336:20343):  No se encontro la key : 24234
+[INFO] 21:21:06:974 LFS/(20490:20501):  Llego select con VALUE : OOF G
+À¶À¶
+[INFO] 21:32:53:589 LFS/(20788:20801):  Llego select con VALUE : OOF G
+À¶èÀ¶
+[INFO] 21:44:18:298 LFS/(21113:21126):  Llego select con VALUE : OOF G
+À¶ðÀ¶
+[INFO] 21:46:03:498 MEMORIA/(21113:21126):  Se realizo create en FS 
+[INFO] 21:55:23:5 LFS/(21334:21337):  Llego select con VALUE : OOF G
+À´èÀµ
+[INFO] 21:58:26:156 MEMORIA/(21334:21337):  Se realizo create en FS 
+[INFO] 22:00:11:455 MEMORIA/(21334:21337):  Se realizo drop en FS 
+[INFO] 22:02:36:1 LFS/(21465:21468):  Llego select con VALUE : OOF G
+À´ÈÀµ
+[INFO] 22:04:13:752 LFS/(21521:21524):  Llego select con VALUE : OOF G
+ ´ÈÀµ
+[INFO] 22:06:14:415 LFS/(21608:21622):  Llego select con VALUE : OOF G
+À¶ðÀ¶
+[INFO] 22:12:24:692 LFS/(21732:21745):  Llego select con VALUE : OOF G
+À¶èÀµ
+[INFO] 22:14:09:678 LFS/(21760:21763):  Llego select con VALUE : OOF G
+@µÈÀµ
+[INFO] 22:16:56:858 LFS/(21827:21840):  Llego select con VALUE : OOF G
+@·ðÀ¶
+[INFO] 22:19:37:684 LFS/(21917:21920):  Llego select con VALUE : OOF G
+À´è@¶
+[INFO] 22:20:06:668 MEMORIA/(21930:21933):  Se realizo create en FS 
+[INFO] 22:20:13:860 MEMORIA/(21930:21933):  Se realizo create en FS 
+[INFO] 22:21:06:266 MEMORIA/(21952:21955):  Se realizo create en FS 
+[INFO] 22:21:10:295 MEMORIA/(21952:21955):  Se realizo drop en FS 
+[ERROR] 22:21:16:841 LFS/(21952:21955):  No se encontro la key : 1
+[INFO] 22:21:39:815 LFS/(21976:21979):  Llego select con VALUE : OOF G
+À´è@¶
+[INFO] 22:21:50:524 MEMORIA/(21976:21979):  Se realizo create en FS 
+[INFO] 22:30:29:664 LFS/(22211:22222):  Llego select con VALUE : OOF G
+À¶ðÀ¶
+[INFO] 17:52:49:860 MEMORIA/(2092:2104):  Se realizo create en FS 
+[INFO] 17:52:58:488 MEMORIA/(2092:2104):  Se realizo create en FS 
