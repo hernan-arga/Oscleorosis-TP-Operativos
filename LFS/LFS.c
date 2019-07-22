@@ -2840,8 +2840,9 @@ int32_t iniciarConexion() {
 	 read(sd, key, *tamanioKey);
 	 char* keyString = string_itoa(*key);
 
-	 printf("Haciendo Select");
 	 char *value = realizarSelect(tablaCortada, keyString);
+
+	 // serializo paquete
 	 if(value == NULL){
 		 int ok = 0;
 		 void* buffer = malloc(4);
@@ -2849,7 +2850,6 @@ int32_t iniciarConexion() {
 		 send(sd, buffer,4,0);
 	 }
 
-	 // serializo paquete
 	 void *buffer = malloc(strlen(value) + sizeof(int));
 	 int tamanio = strlen(value);
 	 memcpy(buffer, &tamanio, sizeof(int));

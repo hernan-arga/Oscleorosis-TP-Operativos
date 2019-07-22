@@ -289,7 +289,7 @@ char* realizarSelect(char* tabla, char* key) {
 			if (!strcmp(laKey, key)) {
 				char* value = malloc(tamanoValue);
 
-				memcpy(value,
+				memcpy(value, //esto esta mal, tamanoValue no existe, de donde sacar el tamano del value? se guarda?
 						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
 								+ sizeof(int) + sizeof(long int)),
 						*(frames + pag->numeroFrame));
@@ -381,7 +381,7 @@ char* realizarSelect(char* tabla, char* key) {
 	dictionary_put(tablaSegmentos, tabla, paginasp);
 
 	char* timeStamp = malloc(sizeof(long int));
-	sprintf(timeStamp, "%ld", pagp->timeStamp);
+	//sprintf(timeStamp, "%ld", pagp->timeStamp);
 
 	memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame), key,
 			sizeof(int));
@@ -532,6 +532,7 @@ char* pedirValue(char* tabla, char* laKey) {
 	//deserializo value
 	int *tamanioValue = malloc(sizeof(int));
 	recv(clienteFS, tamanioValue, sizeof(int), 0);
+
 	if (*tamanioValue == 0) {
 		char* mensajeALogear = malloc(
 				strlen(" No se encontro la key : ") + sizeof(key) + 1);
@@ -546,18 +547,19 @@ char* pedirValue(char* tabla, char* laKey) {
 	} else {
 		char *value = malloc(*tamanioValue);
 		recv(clienteFS, value, *tamanioValue, 0);
+		char *valueCortado = string_substring_until(value, *tamanioValue); //corto value
 
 		char* mensajeALogear = malloc(
-				strlen(" Llego select con VALUE : ") + strlen(value) + 1);
+				strlen(" Llego select con VALUE : ") + strlen(valueCortado) + 1);
 		strcpy(mensajeALogear, " Llego select con VALUE : ");
-		strcat(mensajeALogear, value);
+		strcat(mensajeALogear, valueCortado);
 		t_log* g_logger;
 		g_logger = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
-		return value;
+		return valueCortado;
 	}
 }
 
