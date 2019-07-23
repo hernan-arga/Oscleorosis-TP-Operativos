@@ -124,7 +124,7 @@ t_list * listaMetricas; // Lista con info. de los últimos INSERT y SELECT, se i
 t_queue* new;
 t_queue* ready;
 t_list * PIDs;
-t_list * listaDeMemorias;
+t_list *listaDeMemorias;
 //tablas_conocidas diccionario que tiene structs tabla
 t_dictionary *tablas_conocidas;
 t_dictionary *diccionarioDeTablasTemporal;
@@ -148,9 +148,12 @@ int main() {
 	metricasDeUltimos30Segundos = list_create();
 	configuracion = config_create("Kernel_config");
 	PIDs = list_create();
+	//Memorias
 	listaDeMemorias = list_create();
+	strongConsistency = (struct datosMemoria*)malloc(sizeof(struct datosMemoria));
 	hashConsistency = list_create();
 	eventualConsistency = queue_create();
+
 	tablas_conocidas = dictionary_create();
 	new = queue_create();
 	ready = queue_create();
@@ -159,22 +162,30 @@ int main() {
 	PRUEBA();
 
 	//Conecto a la memoria principal
-	strongConsistency = malloc(sizeof(struct datosMemoria));
+	struct datosMemoria* unaMemoria;
+	unaMemoria = (struct datosMemoria*)malloc(sizeof(struct datosMemoria));
 	char * IP_MEMORIA = config_get_string_value(configuracion, "IP_MEMORIA");
 	int PUERTO_MEMORIA = config_get_int_value(configuracion, "PUERTO_MEMORIA");
-	conectarUnaMemoria(strongConsistency, IP_MEMORIA, PUERTO_MEMORIA);
+	conectarUnaMemoria(unaMemoria, IP_MEMORIA, PUERTO_MEMORIA);
+
+	list_add(listaDeMemorias, (void*)unaMemoria);
+
+
+
+	/*struct datosMemoria* unaMemoria2;
+	list_add(listaDeMemorias, unaMemoria2);*/
 
 	borrarTodosLosTemps();
 	pthread_t hiloEjecutarReady;
 	pthread_t atenderPeticionesConsola;
 	pthread_t describe;
 	pthread_t metrics;
-	pthread_t goissiping;
+	//pthread_t goissiping;
 	pthread_create(&metrics, NULL, (void*) logearMetrics, NULL);
 	pthread_create(&hiloEjecutarReady, NULL, (void*) ejecutarReady, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,	(void*) atenderPeticionesDeConsola, NULL);
 	//pthread_create(&hiloLevantarConexion, NULL, (void*)iniciarConexion, NULL);
-	pthread_create(&goissiping, NULL, (void*)operacion_gossiping, NULL);
+	//pthread_create(&goissiping, NULL, (void*)operacion_gossiping, NULL);
 	pthread_create(&describe, NULL, (void*) refreshMetadata, NULL);
 	pthread_join(metrics, NULL);
 	pthread_join(describe, NULL);
@@ -601,8 +612,7 @@ void conectarseAMemoria(struct datosMemoria* unaMemoria){
 
 //TODO falta sockets acá
 void operacion_gossiping() {
-	//char * IP = config_get_string_value(configuracion, "IP_MEMORIA");
-	recv(socketMemoriaPrincipal, listaDeMemorias, sizeof(t_list*), 0);	//crear el socket memoria
+	recv(strongConsistency, listaDeMemorias, sizeof(t_list*), 0);
 	list_iterate(listaDeMemorias, (void*)conectarseAMemoria);
 	//list_iterate(listaDeMemorias, (void*)agregarAMiLista);	El enunciado dice que solo se hace goissiping al iniciar el kernel
 }
@@ -1127,8 +1137,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			else {
 				int numeroMemoria = atoi(parametros[2]);
 				if (!strcmp(consistencia, "SC")) {
-					strongConsistency = list_get(listaDeMemorias,
-							numeroMemoria);
+					strongConsistency->direccionSocket = ((struct datosMemoria*)list_get(listaDeMemorias, numeroMemoria))->direccionSocket;//unaMemoria->direccionSocket;
+					strongConsistency->socket = ((struct datosMemoria*)list_get(listaDeMemorias, numeroMemoria))->socket;//unaMemoria->socket;
 				} else if (!strcmp(consistencia, "SHC")) {
 					list_add(hashConsistency,
 							list_get(listaDeMemorias, numeroMemoria));
