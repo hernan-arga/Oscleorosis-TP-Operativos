@@ -49,3 +49,15 @@
 [INFO] 14:57:03:989 MEMORIA/(14527:14533):  Se realizo create en el FS : TABLA4
 [INFO] 14:58:43:143 MEMORIA/(14594:14600):  Se realizo create en el FS : TABLA5
 [INFO] 14:59:27:916 MEMORIA/(14619:14625):  Se realizo create en el FS : TABLA6
+[ERROR] 15:09:45:824 MEMORIA/(14029:14038):  No se pudo realizar create en el FS 
+[ERROR] 15:12:47:940 MEMORIA/(14207:14215):  No se pudo realizar create en el FS 
+[INFO] 15:14:33:699 MEMORIA/(14310:14318):  Se realizo create en el FS : TABLA3e
+[INFO] 15:19:57:764 MEMORIA/(14484:14496):  Se realizo create en el FS : TABLA90 con SC 2 6969
+[ERROR] 15:25:25:692 MEMORIA/(14784:14795):  No se pudo realizar create en el FS 
+[INFO] 15:42:12:804 MEMORIA/(15294:15304):  Se realizo create en el FS : TABLA e
+[ERROR] 15:44:52:279 MEMORIA/(15463:15475):  No se pudo realizar create en el FS 
+[INFO] 15:48:29:539 MEMORIA/(15701:15712):  Se realizo create en el FS : TABLA9e
+[ERROR] 16:01:02:499 MEMORIA/(16257:16268):  No se pudo realizar create en el FS 
+[INFO] 16:28:18:905 MEMORIA/(16806:16818):  Se realizo create en el FS : TABLA222 con SC 2 56
+[ERROR] 16:29:59:876 MEMORIA/(16806:16818):  No se pudo realizar create en el FS 
+[INFO] 16:31:33:473 MEMORIA/(16806:16818):  Se realizo create en el FS : TABLA45 con SC 2 90

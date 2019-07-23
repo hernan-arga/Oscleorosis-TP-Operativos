@@ -585,7 +585,7 @@ void realizarPeticion(char** parametros) {
 			 int respuesta = create(tabla, consistencia, cantidadParticiones, tiempoCompactacion);
 
 			 if(respuesta == 1){
-				 char* mensajeALogear = malloc(strlen(" Se realizo create : ") + 1);
+				 char* mensajeALogear = malloc(strlen(" Se realizo create : ") + 2*strlen("  con ") + strlen(tabla)+ strlen(consistencia) + strlen(cantidadParticiones) + strlen(tiempoCompactacion) + 1);
 				 strcpy(mensajeALogear, " Se realizo create : ");
 				 strcat(mensajeALogear, tabla);
 				 strcat(mensajeALogear, " con ");
@@ -1615,8 +1615,8 @@ int asignarBloque() {
 		return bloqueEncontrado;
 	}
 
-	printf("No se encontro bloque disponible\n");
-	exit(-1);
+	//printf("No se encontro bloque disponible\n");
+	//exit(-1);
 }
 
 void crearArchivoDeBloquesVacio(char* directorioBinario, int bloqueEncontrado) {

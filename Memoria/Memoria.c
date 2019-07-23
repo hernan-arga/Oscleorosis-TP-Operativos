@@ -740,8 +740,7 @@ void realizarCreate(char* tabla, char* tipoConsistencia,
 	read(clienteFS, ok, *tamanioRespuesta);
 
 	if (*ok == 0) {
-		char* mensajeALogear = malloc(
-				strlen(" No se pudo realizar create en el FS ") + 1);
+		char* mensajeALogear = malloc( strlen(" No se pudo realizar create en el FS ") + 1);
 		strcpy(mensajeALogear, " No se pudo realizar create en el FS ");
 		t_log* g_logger;
 		g_logger = log_create("./logs.log", "MEMORIA", 1, LOG_LEVEL_ERROR);
@@ -750,7 +749,7 @@ void realizarCreate(char* tabla, char* tipoConsistencia,
 		free(mensajeALogear);
 	}
 	if (*ok == 1) {
-		char* mensajeALogear = malloc(strlen(" Se realizo create en el FS ") + 1);
+		char* mensajeALogear = malloc( strlen(" Se realizo create en el FS : ") + 2*strlen("  con ") + strlen(tabla)+ strlen(tipoConsistencia) + strlen(numeroParticiones) + strlen(tiempoCompactacion) + 1);
 		strcpy(mensajeALogear, " Se realizo create en el FS : ");
 		strcat(mensajeALogear, tabla);
 		strcat(mensajeALogear, " con ");
