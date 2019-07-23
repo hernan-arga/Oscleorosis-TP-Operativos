@@ -2,8 +2,8 @@
 /*
  * FALTANTES POR PRIORIDADES :
  *
- * - MANEJO DE ERRORES : probar las respuestas de errores en tod fs (ej select de tabla q no existe -> LEER PRUEBAS)
- *  - ver problema de mandar dos select (rompe el segundo)
+ * - ABRIL : VER MANEJO ERROR CREATE
+ * - ver problema de mandar dos select (rompe el segundo)
  * - sockets memoria- kernel
  * - SEMAFOROS: ¿por q se bloquea en las terminales y no en el ecplipse? -> condicion de carrera
  * - cambiar las operaciones de fs segun si las mandan por consola o memoria
@@ -13,6 +13,7 @@
  *
  *	HECHO:
  *	- recortar todos los char* en serializacion
+ *	 - MANEJO DE ERRORES : probar las respuestas de errores en tod fs (ej select de tabla q no existe -> LEER PRUEBAS)
  */
 
 
@@ -125,7 +126,7 @@ void serializarDescribe(char* tabla, metadataTabla* metadata, void* buffer, int*
 
 void drop(char*);
 
-void insert(char*, char*, char*, char*);
+int insert(char*, char*, char*, char*);
 int existeUnaListaDeDatosADumpear();
 
 char* realizarSelect(char*, char*);
@@ -466,10 +467,33 @@ void realizarPeticion(char** parametros) {
 			//dameSemaforo(tablaMayusculas, &semaforoTabla);
 			//sem_wait(semaforoTabla);
 				//Seccion critica
-			insert(tabla, key, valor, timestamp);
-
+			int respuesta = insert(tabla, key, valor, timestamp);
 			//sem_post(semaforoTabla);
 
+			if(respuesta == 0){
+				char* mensajeALogear = malloc( strlen(" No existe tabla con el nombre : ") + strlen(tabla) + 1);
+				strcpy(mensajeALogear, " No existe tabla con el nombre : ");
+				strcat(mensajeALogear, tabla);
+				t_log* g_logger;
+				g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_ERROR);
+				log_error(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
+			}
+			if(respuesta == 1){
+				char* mensajeALogear = malloc( strlen(" Se realizo INSERT en tabla : ") + strlen(tabla) + 1);
+				strcpy(mensajeALogear, " Se realizo INSERT en tabla : ");
+				strcat(mensajeALogear, tabla);
+				strcat(mensajeALogear, " / KEY : ");
+				strcat(mensajeALogear, key);
+				strcat(mensajeALogear, " / VALUE : ");
+				strcat(mensajeALogear, valor);
+				t_log* g_logger;
+				g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
+				log_info(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
+			}
 
 		} else if (parametrosValidos(3, parametros, (void *) criterioInsert)) {
 			char *tabla = parametros[1];
@@ -491,9 +515,36 @@ void realizarPeticion(char** parametros) {
 			//dameSemaforo(tablaMayusculas, &semaforoTabla);
 			//sem_wait(semaforoTabla);
 				//Seccion critica
-				insert(tabla, key, valor, timestamp);
+				int respuesta = insert(tabla, key, valor, timestamp);
 			//sem_post(semaforoTabla);
+
+				if(respuesta == 0){
+					char* mensajeALogear = malloc( strlen(" No existe tabla con el nombre : ") + strlen(tabla) + 1);
+					strcpy(mensajeALogear, " No existe tabla con el nombre : ");
+					strcat(mensajeALogear, tabla);
+					t_log* g_logger;
+					g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_ERROR);
+					log_error(g_logger, mensajeALogear);
+					log_destroy(g_logger);
+					free(mensajeALogear);
+				}
+				if(respuesta == 1){
+					char* mensajeALogear = malloc( strlen(" Se realizo INSERT en tabla : ") + strlen(tabla) + 1);
+					strcpy(mensajeALogear, " Se realizo INSERT en tabla : ");
+					strcat(mensajeALogear, tabla);
+					strcat(mensajeALogear, " / KEY : ");
+					strcat(mensajeALogear, key);
+					strcat(mensajeALogear, " / VALUE : ");
+					strcat(mensajeALogear, valor);
+					t_log* g_logger;
+					g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
+					log_info(g_logger, mensajeALogear);
+					log_destroy(g_logger);
+					free(mensajeALogear);
+				}
+
 		}
+
 		break;
 	case CREATE:
 		printf("Seleccionaste Create\n");
@@ -716,26 +767,14 @@ void actualizarTiempoDeRetardo() {
 	//no se destruye el configLFS porque se levanta de todos lados
 }
 
-void insert(char* tabla, char* key, char* valor, char* timestamp) {
+int insert(char* tabla, char* key, char* valor, char* timestamp) {
 	//Puedo modificar en tiempo de ejecucion el retardo
 	//actualizarTiempoDeRetardo();
 	//sleep(structConfiguracionLFS.RETARDO);
 
 	string_to_upper(tabla);
 	if (!existeLaTabla(tabla)) {
-		char* mensajeALogear = malloc(
-				strlen(" No existe tabla con el nombre : ")
-						+ strlen(tabla) + 1);
-		strcpy(mensajeALogear, " No existe tabla con el nombre : ");
-		strcat(mensajeALogear, tabla);
-		t_log* g_logger;
-		g_logger = log_create(
-				string_from_format("%s/erroresInsert.log",
-						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
-				LOG_LEVEL_ERROR);
-		log_error(g_logger, mensajeALogear);
-		log_destroy(g_logger);
-		free(mensajeALogear);
+		return 0;
 	} else {
 		t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 		p_registro->timestamp = atoi(timestamp);
@@ -746,43 +785,13 @@ void insert(char* tabla, char* key, char* valor, char* timestamp) {
 			t_list* listaDeStructs = list_create();
 			list_add(listaDeStructs, p_registro);
 			dictionary_put(memtable, tabla, listaDeStructs);
-
-			char* mensajeALogear = malloc(100 + strlen(string_itoa(p_registro->key)) +  strlen(string_itoa(p_registro->timestamp)));
-			strcpy(mensajeALogear, "  /  SE CREO LA TABLA : ");
-			strcat(mensajeALogear, tabla);
-			strcat(mensajeALogear, "  /  TIMESTAMP : ");
-			strcat(mensajeALogear, string_itoa(p_registro->timestamp));
-			strcat(mensajeALogear, "  /  KEY : ");
-			strcat(mensajeALogear, string_itoa(p_registro->key));
-			strcat(mensajeALogear, "  /  VALUE : ");
-			strcat(mensajeALogear, p_registro->value);
-			t_log* g_logger;
-			g_logger = log_create(string_from_format("%sinsert.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,LOG_LEVEL_INFO);
-			log_info(g_logger, mensajeALogear);
-			log_destroy(g_logger);
-			free(mensajeALogear);
-
 		} else {
 			t_list* listaDeStructs = dictionary_get(memtable, tabla);
 			list_add(listaDeStructs, p_registro);
 			dictionary_remove(memtable, tabla);
 			dictionary_put(memtable, tabla, listaDeStructs);
-
-			char* mensajeALogear = malloc(100 + strlen(string_itoa(p_registro->key)) +  strlen(string_itoa(p_registro->timestamp)));
-			strcpy(mensajeALogear, "  /  TABLA A DUMPEAR : ");
-			strcat(mensajeALogear, tabla);
-			strcat(mensajeALogear, "  /  TIMESTAMP : ");
-			strcat(mensajeALogear, string_itoa(p_registro->timestamp));
-			strcat(mensajeALogear, "  /  KEY : ");
-			strcat(mensajeALogear, string_itoa(p_registro->key));
-			strcat(mensajeALogear, "  /  VALUE : ");
-			strcat(mensajeALogear, p_registro->value);
-			t_log* g_logger;
-			g_logger = log_create(string_from_format("%sinsert.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,LOG_LEVEL_INFO);
-			log_info(g_logger, mensajeALogear);
-			log_destroy(g_logger);
-			free(mensajeALogear);
 		}
+		return 1;
 	}
 }
 
@@ -2934,20 +2943,20 @@ int32_t iniciarConexion() {
 	 recv(sd, tamanioValue, sizeof(int), 0);
  	 char *value = malloc(*tamanioValue);
 	 recv(sd, value, *tamanioValue, 0);
+	 char *valueCortado = string_substring_until(value, *tamanioValue);
 
 	 int timestampActual = time(NULL);
 	 char* timestamp = string_itoa(timestampActual);
 
-	 insert(tablaCortada, keyString, value, timestamp);
+	 int respuesta = insert(tablaCortada, keyString, valueCortado, timestamp);
 
-	 // serializo respuesta ok
-	 void* buffer = malloc(2 * sizeof(int));
-	 int ok = 1;
-	 int tamanioOk = sizeof(int);
-	 memcpy(buffer, &tamanioOk, sizeof(int));
-	 memcpy(buffer + sizeof(int), &ok, sizeof(int));
+	 // serializo respuesta . respuesta = 1 es OK
+	char* buffer = malloc(2 * sizeof(int));
+	int tamanioRespuesta = sizeof(int);
+	memcpy(buffer, &tamanioRespuesta, sizeof(int));
+	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
 
-	 send(sd, buffer, 2 * sizeof(int), 0);
+	send(sd, buffer, 2 * sizeof(int), 0);
  }
 
 
