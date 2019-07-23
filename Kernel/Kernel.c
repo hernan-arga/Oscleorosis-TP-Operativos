@@ -134,11 +134,12 @@ int n = 0;
 int32_t socketMemoriaPrincipal;
 t_log* g_logger;
 
+//Necesito el struct para conectarme y el puntero para manejarlo en las listas y diccionarios
 struct datosMemoria unaMemoriaStrongConsistency;
 struct datosMemoria* strongConsistency;
-
 t_list *hashConsistency;
 t_queue *eventualConsistency;
+
 struct metricas * unRegistro;
 pthread_t hiloLevantarConexion;
 
@@ -740,7 +741,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				//Aca lo manda por sockets a la memoria correspondiente y en caso de error modifica la variable huboError
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
 					//strongConsistency->socket
-					char *value = pedirValue(tabla, key, socketMemoriaPrincipal);
+					char *value = pedirValue(tabla, key, strongConsistency->socket);
 					printf("El value es: %s\n", value);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
@@ -772,7 +773,6 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		else {
 			*huboError = 1;
 		}
-
 		break;
 
 	case INSERT:
@@ -825,7 +825,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						tabla);
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
 					//strongConsistency->socket
-					mandarInsert(tabla, key, value, socketMemoriaPrincipal);
+					mandarInsert(tabla, key, value, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						char* key = parametros[2];
@@ -980,7 +980,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		if (parametrosValidos(0, parametros,
 				(void *) criterioDescribeTodasLasTablas)) {
 			//strongConsistency->socket
-			diccionarioDeTablasTemporal = pedirDiccionarioGlobal(socketMemoriaPrincipal);
+			diccionarioDeTablasTemporal = pedirDiccionarioGlobal(strongConsistency->socket);
 			//dictionary_iterator(diccionarioDeTablasTemporal, (void*)actualizarDiccionarioDeTablas); actualizo el propio
 			//dictionary_iterator(tablas_conocidas, (void*)quitarDelDiccionarioDeTablasLaTablaBorrada);
 			//dictionary_destroy(diccionarioDeTablasTemporal);
@@ -994,7 +994,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
 			//strongConsistency->socket
-			struct tabla *metadata = pedirDescribeUnaTabla( tabla, socketMemoriaPrincipal);
+			struct tabla *metadata = pedirDescribeUnaTabla( tabla, strongConsistency->socket);
 			//actualizarDiccionarioDeTablas(tabla, metadata);
 			if (es_request) {
 				describeUnaTabla(tabla);
@@ -1039,7 +1039,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						tabla);
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
 					//strongConsistency->socket
-					mandarDrop(tabla, socketMemoriaPrincipal);
+					mandarDrop(tabla, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						int max = list_size(hashConsistency) - 1;
