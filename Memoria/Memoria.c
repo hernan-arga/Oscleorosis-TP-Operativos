@@ -1185,6 +1185,7 @@ void aceptar() {
 			int32_t idThreadTratarCliente = pthread_create(&threadTratarCliente,
 					NULL, tratarCliente, cliente);
 		} else {
+			printf("BIEN\n");
 			pthread_t threadTratarCliente;
 			int32_t idThreadTratarCliente = pthread_create(&threadTratarCliente,
 					NULL, tratarKernel, cliente);

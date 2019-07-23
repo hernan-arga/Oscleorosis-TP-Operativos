@@ -136,6 +136,7 @@ t_log* g_logger;
 
 struct datosMemoria unaMemoriaStrongConsistency;
 struct datosMemoria* strongConsistency;
+
 t_list *hashConsistency;
 t_queue *eventualConsistency;
 struct metricas * unRegistro;
@@ -930,7 +931,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 
 				if (!strcmp(consistencia, "SC")) {
 					//strongConsistency->socket
-					mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, socketMemoriaPrincipal);
+					mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, strongConsistency->socket);
 				} else if (!strcmp(consistencia, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						char* cantidadDeParticiones = parametros[3];
@@ -1376,48 +1377,57 @@ void drop(char* nombre_tabla) {
 	 char * IP_MEMORIA = config_get_string_value(configuracion, "IP_MEMORIA");
 	 int PUERTO_MEMORIA = config_get_int_value(configuracion, "PUERTO_MEMORIA");
 
-	 socketMemoriaPrincipal = socket(AF_INET, SOCK_STREAM, 0);
+	 //socketMemoriaPrincipal = socket(AF_INET, SOCK_STREAM, 0);
 
-	 struct sockaddr_in direccion_server_memoria_kernel;
+	 /*struct sockaddr_in direccion_server_memoria_kernel;
 	 direccion_server_memoria_kernel.sin_family = AF_INET;
 	 direccion_server_memoria_kernel.sin_port = htons(PUERTO_MEMORIA);
-	 direccion_server_memoria_kernel.sin_addr.s_addr = INADDR_ANY;
+	 direccion_server_memoria_kernel.sin_addr.s_addr = INADDR_ANY;*/
 
 	 /*strongConsistency->direccionSocket.sin_family = AF_INET;
 	 strongConsistency->direccionSocket.sin_port = htons(PUERTO_MEMORIA);
 	 strongConsistency->direccionSocket.sin_addr.s_addr = INADDR_ANY;*/
+	 unaMemoriaStrongConsistency.socket = socket(AF_INET, SOCK_STREAM, 0);
 
-	 /*unaMemoriaStrongConsistency.direccionSocket.sin_family = AF_INET;
+	 unaMemoriaStrongConsistency.direccionSocket.sin_family = AF_INET;
 	 unaMemoriaStrongConsistency.direccionSocket.sin_port = htons(PUERTO_MEMORIA);
-	 unaMemoriaStrongConsistency.direccionSocket.sin_addr.s_addr = INADDR_ANY;
-	 unaMemoriaStrongConsistency.socket = socketMemoriaPrincipal;
-	 strongConsistency = &unaMemoriaStrongConsistency;*/
+	 unaMemoriaStrongConsistency.direccionSocket.sin_addr.s_addr = inet_addr(IP_MEMORIA);
 
-	 if(connect(socketMemoriaPrincipal, (struct sockaddr *) &direccion_server_memoria_kernel, sizeof(direccion_server_memoria_kernel)) == -1)
+	 if(connect(unaMemoriaStrongConsistency.socket, (struct sockaddr *) &unaMemoriaStrongConsistency.direccionSocket, sizeof(unaMemoriaStrongConsistency.direccionSocket)) == -1)
 	 {
 		 perror("Hubo un error en la conexion");
 		 return -1;
 	 }
+
+	 strongConsistency = &unaMemoriaStrongConsistency;
+
+	 /*if(connect(socketMemoriaPrincipal, (struct sockaddr *) &direccion_server_memoria_kernel, sizeof(direccion_server_memoria_kernel)) == -1)
+	 {
+		 perror("Hubo un error en la conexion");
+		 return -1;
+	 }*/
 	 //strongConsistency->direccionSocket = direccion_server_memoria_kernel;
 	 //strongConsistency->socket = socketMemoriaPrincipal;
-	 send(socketMemoriaPrincipal, "1", 2, 0);
+
+	 //Mando un numero distinto de cero a memoria para que sepa que se conecto kernel
+	 send(unaMemoriaStrongConsistency.socket, "1", 2, 0);
 
 
-	 char buffer[256];
-	 int leng = recv(socketMemoriaPrincipal, &buffer, sizeof(buffer), 0);
+	 /*char buffer[256];
+	 int leng = recv(unaMemoriaStrongConsistency.socket, &buffer, sizeof(buffer), 0);
 	 buffer[leng] = '\0';
 
-	 printf("RECIBI INFORMACION DE LA MEMORIA: %s\n", buffer);
+	 printf("RECIBI INFORMACION DE LA MEMORIA: %s\n", buffer);*/
 
 	 //Mandar Mensajes
-	 while (1) {
+	 /*while (1) {
 		 char* mensaje = malloc(1000);
 		 fgets(mensaje, 1024, stdin);
 		 send(socketMemoriaPrincipal, mensaje, strlen(mensaje), 0);
 		 free(mensaje);
-	 }
+	 }*/
 
-	 close(socketMemoriaPrincipal);
+	 //close(socketMemoriaPrincipal);
 
 	 return 0;
 }

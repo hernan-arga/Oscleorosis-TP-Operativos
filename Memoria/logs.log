@@ -22,4 +22,6 @@
 _TIME
 [INFO] 17:53:55:387 LFS/(6998:7010):  Llego select con VALUE : winnerBIN
 
-[INFO] 18:00:42:305 LFS/(7460:7471):  Llego select con VALUE : winnerBIN
+[INFO] 18:00:42:305 LFS/(7460:7471):  Llego select con VALUE : winnerBIN[INFO] 21:29:25:78 MEMORIA/(7708:7720):  Se realizo create en FS 
+[INFO] 21:46:19:635 MEMORIA/(7930:8035):  Se realizo create en FS 
+[INFO] 21:59:06:971 MEMORIA/(8099:8188):  Se realizo create en FS 
