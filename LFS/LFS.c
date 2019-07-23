@@ -2950,7 +2950,7 @@ int32_t iniciarConexion() {
 
 	 int respuesta = insert(tablaCortada, keyString, valueCortado, timestamp);
 
-	 // serializo respuesta . respuesta = 1 es OK
+	// serializo respuesta . respuesta = 1 es OK
 	char* buffer = malloc(2 * sizeof(int));
 	int tamanioRespuesta = sizeof(int);
 	memcpy(buffer, &tamanioRespuesta, sizeof(int));

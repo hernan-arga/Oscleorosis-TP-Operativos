@@ -651,11 +651,11 @@ void ejecutarJournaling() {
 				send(clienteFS, buffer,
 						6 * sizeof(int) + strlen(tabla) + strlen(value), 0);
 
-				// Deserializo respuesta OK
-				int* tamanioOk = malloc(sizeof(int));
-				read(clienteFS, tamanioOk, sizeof(int));
-				int* ok = malloc(*tamanioOk);
-				read(clienteFS, ok, *tamanioOk);
+				// Deserializo respuesta
+				int* tamanioRespuesta = malloc(sizeof(int));
+				read(clienteFS, tamanioRespuesta, sizeof(int));
+				int* ok = malloc(*tamanioRespuesta);
+				read(clienteFS, ok, *tamanioRespuesta);
 
 				if (*ok == 0) {
 					char* mensajeALogear = malloc(
@@ -663,7 +663,7 @@ void ejecutarJournaling() {
 					strcpy(mensajeALogear,
 							" No se pudo realizar insert en FS ");
 					t_log* g_logger;
-					g_logger = log_create("./errores.log", "MEMORIA", 1,
+					g_logger = log_create("./logs.log", "MEMORIA", 1,
 							LOG_LEVEL_ERROR);
 					log_error(g_logger, mensajeALogear);
 					log_destroy(g_logger);
@@ -777,18 +777,6 @@ void realizarDrop(char* tabla) {
 		free(elemento);
 	}
 
-	char* mensaje = malloc(sizeof(int) + sizeof(int) + sizeof(tabla));
-
-	strcpy(mensaje, "5");
-
-	char* num = malloc(sizeof(int));
-	sprintf(num, "%d", strlen(tabla));
-
-	strcat(mensaje, num);
-	free(num);
-
-	strcat(mensaje, tabla);
-
 	// Serializo peticion y tabla
 	void* buffer = malloc(strlen(tabla) + 3 * sizeof(int));
 
@@ -814,7 +802,7 @@ void realizarDrop(char* tabla) {
 				strlen(" No se pudo realizar drop en FS ") + 1);
 		strcpy(mensajeALogear, " No se pudo realizar drop en FS ");
 		t_log* g_logger;
-		g_logger = log_create("./errores.log", "MEMORIA", 1, LOG_LEVEL_ERROR);
+		g_logger = log_create("./logs.log", "MEMORIA", 1, LOG_LEVEL_ERROR);
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
@@ -828,7 +816,6 @@ void realizarDrop(char* tabla) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	}
-	free(mensaje);
 
 	sem_post(&sem2);
 }
