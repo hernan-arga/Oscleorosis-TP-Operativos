@@ -49,3 +49,5 @@
 [INFO] 14:57:03:989 MEMORIA/(14527:14533):  Se realizo create en el FS : TABLA4
 [INFO] 14:58:43:143 MEMORIA/(14594:14600):  Se realizo create en el FS : TABLA5
 [INFO] 14:59:27:916 MEMORIA/(14619:14625):  Se realizo create en el FS : TABLA6
+[ERROR] 15:05:02:728 LFS/(14698:14715):  No se encontro la key : 0
+[INFO] 15:10:18:95 MEMORIA/(14775:14781):  Se realizo create en el FS : TABLA1

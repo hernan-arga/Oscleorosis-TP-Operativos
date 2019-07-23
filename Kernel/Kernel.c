@@ -1278,7 +1278,7 @@ void mandarInsert(char* tabla, char* key, char* value, int socketMemoria){
 
 void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones, char *tiempoCompactacion, int socketMemoria){
 	int peticion = 2;
-	void* buffer = malloc( strlen(tabla) + 6*sizeof(int) + strlen(consistencia) + strlen(cantidadParticiones) + strlen(tiempoCompactacion));
+	void* buffer = malloc( strlen(tabla)+1 + 6*sizeof(int) + strlen(consistencia)+1 + strlen(cantidadParticiones)+1 + strlen(tiempoCompactacion)+1);
 
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
