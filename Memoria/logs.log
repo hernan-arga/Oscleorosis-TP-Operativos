@@ -1,27 +1,8 @@
-[INFO] 22:09:25:558 LFS/(10382:10389):  Llego select con VALUE : winnerBIN
 
-[INFO] 22:10:20:884 LFS/(10464:10471):  Llego select con VALUE : winnerBIN
+[ERROR] 00:08:41:350 LFS/(6087:6099):  No se encontro la key : 0
+[INFO] 00:55:01:473 LFS/(7228:7237):  Llego select con VALUE : winnerBIN
 
-[INFO] 22:11:50:327 LFS/(10558:10565):  Llego select con VALUE : winnerBIN
+[INFO] 02:04:59:359 LFS/(8415:8424):  Llego select con VALUE : winnerBIN
 
-[INFO] 22:15:20:412 LFS/(10690:10725):  Llego select con VALUE : winnerBIN
-
-[INFO] 22:17:25:588 LFS/(10867:10875):  Llego select con VALUE : winnerBIN
-
-[INFO] 23:22:37:475 LFS/(12613:12624):  Llego select con VALUE : winnerBIN
-
-[ERROR] 00:12:20:185 MEMORIA/(15164:15187):  Se realizo create en FS 
-[INFO] 00:53:42:287 MEMORIA/(16373:16393):  Se realizo drop en FS 
-[ERROR] 02:32:17:6 LFS/(20204:20211):  No se encontro la key : 57654
-[ERROR] 02:34:34:913 LFS/(20336:20343):  No se encontro la key : 24234
-[INFO] 17:36:23:311 LFS/(6169:6187):  Llego select con VALUE : winnerBIN
-À¶
-[INFO] 17:41:16:889 LFS/(6487:6494):  Llego select con VALUE : winnerBIN
-
-[INFO] 17:47:16:965 LFS/(6748:6761):  Llego select con VALUE : winnerBIN
-_TIME
-[INFO] 17:53:55:387 LFS/(6998:7010):  Llego select con VALUE : winnerBIN
-
-[INFO] 18:00:42:305 LFS/(7460:7471):  Llego select con VALUE : winnerBIN[INFO] 21:29:25:78 MEMORIA/(7708:7720):  Se realizo create en FS 
-[INFO] 21:46:19:635 MEMORIA/(7930:8035):  Se realizo create en FS 
-[INFO] 21:59:06:971 MEMORIA/(8099:8188):  Se realizo create en FS 
+[ERROR] 02:10:08:789 LFS/(8415:8424):  No se encontro la key : 3
+[ERROR] 02:11:54:733 MEMORIA/(8682:8690):  No se pudo realizar create en el FS 

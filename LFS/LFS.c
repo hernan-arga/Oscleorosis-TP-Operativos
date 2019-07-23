@@ -5,13 +5,17 @@
  * - MANEJO DE ERRORES : probar las respuestas de errores en tod fs (ej select de tabla q no existe -> LEER PRUEBAS)
  *  - ver problema de mandar dos select (rompe el segundo)
  * - sockets memoria- kernel
- * - recortar todos los char* en serializacion
  * - SEMAFOROS: ¿por q se bloquea en las terminales y no en el ecplipse? -> condicion de carrera
  * - cambiar las operaciones de fs segun si las mandan por consola o memoria
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
  * - CAMBIAR LOS PRINTF A LOGS (en todos los modulos!!!!) PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA (si alcanza el tiempo)
  *
+ *
+ *	HECHO:
+ *	- recortar todos los char* en serializacion
  */
+
+
 
 #include <stdio.h>
 #include <string.h> //strlen
@@ -126,7 +130,7 @@ int existeUnaListaDeDatosADumpear();
 
 char* realizarSelect(char*, char*);
 
-void create(char*, char*, char*, char*);
+int create(char*, char*, char*, char*);
 void crearMetadata(char*, char*, char*, char*);
 void crearBinarios(char*, int);
 int asignarBloque();
@@ -527,9 +531,35 @@ void realizarPeticion(char** parametros) {
 			 printf("create: %i\n", value);*/
 					//sem_wait(semaforoTabla);
 			//seccion critica
-			create(tabla, consistencia, cantidadParticiones,
-					tiempoCompactacion);
-					//sem_post(semaforoTabla);
+			 int respuesta = create(tabla, consistencia, cantidadParticiones, tiempoCompactacion);
+
+			 if(respuesta == 1){
+				 char* mensajeALogear = malloc(strlen(" Se realizo create : ") + 1);
+				 strcpy(mensajeALogear, " Se realizo create : ");
+				 strcat(mensajeALogear, tabla);
+				 strcat(mensajeALogear, " con ");
+				 strcat(mensajeALogear, consistencia);
+				 strcat(mensajeALogear, " ");
+				 strcat(mensajeALogear, cantidadParticiones);
+				 strcat(mensajeALogear, " ");
+				 strcat(mensajeALogear, tiempoCompactacion);
+				 t_log* g_logger;
+				 g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
+				 log_info(g_logger, mensajeALogear);
+				 log_destroy(g_logger);
+				 free(mensajeALogear);
+			 }
+			 if(respuesta == 0){
+				char* mensajeALogear = malloc( strlen("Error: ya existe una tabla con el nombre ") + strlen(tabla) + 1);
+				strcpy(mensajeALogear, "Error: ya existe una tabla con el nombre ");
+				strcat(mensajeALogear, tabla);
+				t_log* g_logger;
+				g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_ERROR);
+				log_error(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
+			 }
+			//sem_post(semaforoTabla);
 			/*sem_getvalue(semaforoTabla, &value);
 			 printf("create: %i\n", value);*/
 			//sem_unlink(tabla);
@@ -1502,26 +1532,13 @@ void renombrarTodosLosTMPATMPC(char* tablaPath) {
 	closedir(directorio);
 }
 
-void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
+int create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 		char* tiempoDeCompactacion) {
 	actualizarTiempoDeRetardo();
 	sleep(structConfiguracionLFS.RETARDO);
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
-		char* mensajeALogear = malloc(
-				strlen("Error: ya existe una tabla con el nombre ")
-						+ strlen(tabla) + 1);
-		strcpy(mensajeALogear, "Error: ya existe una tabla con el nombre ");
-		strcat(mensajeALogear, tabla);
-		t_log* g_logger;
-		//Si uso LOG_LEVEL_ERROR no lo imprime ni lo escribe
-		g_logger = log_create(
-				string_from_format("%serroresCreate.log",
-						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
-				LOG_LEVEL_INFO);
-		log_error(g_logger, mensajeALogear);
-		log_destroy(g_logger);
-		free(mensajeALogear);
+		return 0;
 	} else {
 		char* path = malloc(
 				strlen(
@@ -1549,6 +1566,8 @@ void create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 		free(metadataPath);
 		levantarHiloCompactacion(path);
 		free(path);
+
+		return 1;
 	}
 }
 
@@ -2275,13 +2294,12 @@ char* realizarSelect(char* tabla, char* key) {
 			strcat(mensajeALogear, key);
 			t_log* g_logger;
 			g_logger = log_create(
-					string_from_format("%serroresSelect.log",
+					string_from_format("%slogs.log",
 							structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
 					LOG_LEVEL_ERROR);
 			log_error(g_logger, mensajeALogear);
 			log_destroy(g_logger);
 			free(mensajeALogear);
-
 			return NULL;
 		} else { // o sea, si existe la key en algun lugar
 
@@ -2290,18 +2308,18 @@ char* realizarSelect(char* tabla, char* key) {
 					&& (timestampActualMayorBloques
 							>= timestampActualMayorTemporalesC)
 					&& (timestampActualMayorBloques >= timestampMayorMemtable)) {
-				printf("%s\n", valueDeTimestampActualMayorBloques);
+				//printf("%s\n", valueDeTimestampActualMayorBloques);
 				string_append(&valueFinal, valueDeTimestampActualMayorBloques);
 
 				char* mensajeALogear = malloc( 100 + strlen(tabla) + strlen(string_itoa(timestampActualMayorBloques)) + strlen(valueDeTimestampActualMayorBloques) + 1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
-				strcat(mensajeALogear, " / Mayor timestamp en BLOQUE : ");
+				strcat(mensajeALogear, " / En bloque con timestamp : ");
 				strcat(mensajeALogear, string_itoa(timestampActualMayorBloques));
 				strcat(mensajeALogear, " / Value : ");
 				strcat(mensajeALogear, valueDeTimestampActualMayorBloques);
 				t_log* g_logger;
-				g_logger = log_create( string_from_format("%sselect.log",structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0, LOG_LEVEL_INFO);
+				g_logger = log_create( string_from_format("%slogs.log",structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0, LOG_LEVEL_INFO);
 				log_info(g_logger, mensajeALogear);
 				log_destroy(g_logger);
 				free(mensajeALogear);
@@ -2312,7 +2330,7 @@ char* realizarSelect(char* tabla, char* key) {
 					&& (timestampActualMayorTemporales
 							>= timestampActualMayorTemporalesC)
 					&& (timestampActualMayorTemporales >= timestampMayorMemtable)) {
-				printf("%s\n", valueDeTimestampActualMayorTemporales);
+				//printf("%s\n", valueDeTimestampActualMayorTemporales);
 				string_append(&valueFinal,
 						valueDeTimestampActualMayorTemporales);
 
@@ -2320,14 +2338,14 @@ char* realizarSelect(char* tabla, char* key) {
 				char* mensajeALogear = malloc( 120 + strlen(tabla) + strlen(string_itoa(timestampActualMayorTemporales)) + strlen(valueDeTimestampActualMayorTemporales) + 1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
-				strcat(mensajeALogear, " / Mayor timestamp en TMP : ");
+				strcat(mensajeALogear, " / En TMP con timestamp : ");
 				strcat(mensajeALogear,
 						string_itoa(timestampActualMayorTemporales));
 				strcat(mensajeALogear, " / Value : ");
 				strcat(mensajeALogear, valueDeTimestampActualMayorTemporales);
 				t_log* g_logger;
 				g_logger = log_create(
-						string_from_format("%sselect.log",
+						string_from_format("%slogs.log",
 								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
 						LOG_LEVEL_INFO);
 				log_info(g_logger, mensajeALogear);
@@ -2342,21 +2360,21 @@ char* realizarSelect(char* tabla, char* key) {
 							>= timestampActualMayorBloques)
 					&& (timestampActualMayorTemporalesC
 							>= timestampMayorMemtable)) {
-				printf("%s\n", valueDeTimestampActualMayorTemporalesC);
+				//printf("%s\n", valueDeTimestampActualMayorTemporalesC);
 				string_append(&valueFinal,
 						valueDeTimestampActualMayorTemporalesC);
 
 				char* mensajeALogear = malloc( 120 + strlen(tabla) + strlen(string_itoa(timestampActualMayorTemporalesC)) + strlen(valueDeTimestampActualMayorTemporalesC) + 1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
-				strcat(mensajeALogear, " / Mayor timestamp en TMPC : ");
+				strcat(mensajeALogear, " / En TMPC con timestamp : ");
 				strcat(mensajeALogear,
 						string_itoa(timestampActualMayorTemporalesC));
 				strcat(mensajeALogear, " / Value : ");
 				strcat(mensajeALogear, valueDeTimestampActualMayorTemporalesC);
 				t_log* g_logger;
 				g_logger = log_create(
-						string_from_format("%sselect.log",
+						string_from_format("%slogs.log",
 								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
 						LOG_LEVEL_INFO);
 				log_info(g_logger, mensajeALogear);
@@ -2369,21 +2387,21 @@ char* realizarSelect(char* tabla, char* key) {
 					&& (timestampMayorMemtable >= timestampActualMayorTemporales)
 					&& (timestampMayorMemtable
 							>= timestampActualMayorTemporalesC)) {
-				printf("%s\n", arrayPorKeyDeseadaMemtable[0]->value);
+				//printf("%s\n", arrayPorKeyDeseadaMemtable[0]->value);
 				string_append(&valueFinal,
 						arrayPorKeyDeseadaMemtable[0]->value);
 
 				char* mensajeALogear = malloc( 120 + strlen(tabla) + strlen(string_itoa(timestampMayorMemtable)) + strlen(arrayPorKeyDeseadaMemtable[0]->value) + 1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
-				strcat(mensajeALogear, " / Mayor timestamp en MEMTABLE : ");
+				strcat(mensajeALogear, " / En MEMTABLE con timestamp : ");
 				strcat(mensajeALogear,
 						string_itoa(timestampMayorMemtable));
 				strcat(mensajeALogear, " / Value : ");
 				strcat(mensajeALogear, arrayPorKeyDeseadaMemtable[0]->value);
 				t_log* g_logger;
 				g_logger = log_create(
-						string_from_format("%sselect.log",
+						string_from_format("%slogs.log",
 								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
 						LOG_LEVEL_INFO);
 				log_info(g_logger, mensajeALogear);
@@ -2412,14 +2430,14 @@ char* realizarSelect(char* tabla, char* key) {
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
 		g_logger = log_create(
-				string_from_format("%serroresSelect.log",
+				string_from_format("%slogs.log",
 						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
 				LOG_LEVEL_ERROR);
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
+		return NULL;
 	}
-	return NULL;
 }
 
 void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
@@ -2849,13 +2867,14 @@ int32_t iniciarConexion() {
 		 memcpy(buffer, &ok, 4);
 		 send(sd, buffer,4,0);
 	 }
+	 else{
+		 void *buffer = malloc(strlen(value) + sizeof(int));
+		 int tamanio = strlen(value);
+		 memcpy(buffer, &tamanio, sizeof(int));
+		 memcpy(buffer + sizeof(int), value, tamanio);
 
-	 void *buffer = malloc(strlen(value) + sizeof(int));
-	 int tamanio = strlen(value);
-	 memcpy(buffer, &tamanio, sizeof(int));
-	 memcpy(buffer + sizeof(int), value, tamanio);
-
-	 send(sd, buffer, strlen(value)+sizeof(int), 0);
+		 send(sd, buffer, strlen(value)+sizeof(int), 0);
+	 }
  }
 
 
@@ -2877,20 +2896,21 @@ int32_t iniciarConexion() {
 	 read(sd, tamanioNumeroParticiones, sizeof(int));
 	 char* numeroParticiones = malloc(*tamanioNumeroParticiones);
 	 read(sd, numeroParticiones, *tamanioNumeroParticiones);
+	 char *numeroParticionesCortado = string_substring_until(numeroParticiones, *tamanioNumeroParticiones);
 
 	 int* tamanioTiempoCompactacion = malloc(sizeof(int));
 	 read(sd, tamanioTiempoCompactacion, sizeof(int));
 	 char* 	tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
 	 read(sd, tiempoCompactacion, *tamanioTiempoCompactacion);
+	 char *tiempoCompactacionCortado = string_substring_until(tiempoCompactacion, *tamanioTiempoCompactacion);
 
-	 create(tablaCortada, tipoConsistenciaCortada, numeroParticiones, tiempoCompactacion);
+	 int respuesta = create(tablaCortada, tipoConsistenciaCortada, numeroParticionesCortado, tiempoCompactacionCortado);
 
-	 // serializo respuesta ok
-	 void* buffer = malloc(2*sizeof(int));
-	 int ok = 1;
-	 int tamanioOk = sizeof(int);
-	 memcpy(buffer, &tamanioOk, sizeof(int));
-	 memcpy(buffer + sizeof(int), &ok, sizeof(int));
+	 // serializo respuesta . respuesta = 1 es OK
+	 char* buffer = malloc(2 * sizeof(int));
+	 int tamanioRespuesta = sizeof(int);
+	 memcpy(buffer, &tamanioRespuesta, sizeof(int));
+	 memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
 
 	 send(sd, buffer, 2*sizeof(int), 0);
  }

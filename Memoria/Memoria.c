@@ -196,14 +196,14 @@ void realizarComando(char** comando) {
 	char* value;
 	switch (accion) {
 	case SELECT:
-		printf("SELECT");
+		//printf("SELECT");
 		tabla = comando[1];
 		key = comando[2];
 		realizarSelect(tabla, key);
 		break;
 
 	case INSERT:
-		printf("INSERT");
+		//printf("INSERT");
 		tabla = comando[1];
 		key = comando[2];
 		value = comando[3];
@@ -211,7 +211,7 @@ void realizarComando(char** comando) {
 		break;
 
 	case CREATE:
-		printf("CREATE");
+		//printf("CREATE");
 		tabla = comando[1];
 		char* tipoConsistencia = comando[2];
 		char* numeroParticiones = comando[3];
@@ -223,31 +223,31 @@ void realizarComando(char** comando) {
 		//Describe recibe un diccionario con (nombreTabla - struct(con la info de la metadata)
 
 	case DESCRIBE:
-		printf("\nDESCRIBE");
+		//printf("\nDESCRIBE");
 
 		if (comando[1] == NULL) {
-			printf("GLOBAL");
+			//printf("GLOBAL");
 			realizarDescribeGolbal();
 		} else {
-			printf("Normal");
+			//printf("Normal");
 			tabla = comando[1];
 			realizarDescribe(tabla);
 		}
 		break;
 
 	case DROP:
-		printf("\nDROP");
+		//printf("\nDROP");
 		tabla = comando[1];
 		realizarDrop(tabla);
 		break;
 
 	case JOURNAL:
-		printf("\nJOURNAL");
+		//printf("\nJOURNAL");
 		ejecutarJournaling();
 		break;
 
 	case OPERACIONINVALIDA:
-		printf("OPERACION INVALIDA");
+		//printf("OPERACION INVALIDA");
 		break;
 	}
 }
@@ -727,38 +727,38 @@ void realizarCreate(char* tabla, char* tipoConsistencia,
 			numeroParticiones, tamanioParticiones);
 
 	int tamanioCompactacion = strlen(tiempoCompactacion);
-	memcpy(
-			buffer + 5 * sizeof(int) + strlen(tabla) + strlen(tipoConsistencia)
-					+ tamanioParticiones, &tamanioCompactacion, sizeof(int));
-	memcpy(
-			buffer + 6 * sizeof(int) + strlen(tabla) + strlen(tipoConsistencia)
-					+ tamanioParticiones, tiempoCompactacion,
-			tamanioCompactacion);
+	memcpy( buffer + 5 * sizeof(int) + strlen(tabla) + strlen(tipoConsistencia) + tamanioParticiones, &tamanioCompactacion, sizeof(int));
+	memcpy( buffer + 6 * sizeof(int) + strlen(tabla) + strlen(tipoConsistencia)	+ tamanioParticiones, tiempoCompactacion, tamanioCompactacion);
 
-	send(clienteFS, buffer,
-			strlen(tabla) + 6 * sizeof(int) + strlen(tipoConsistencia)
-					+ strlen(numeroParticiones) + strlen(tiempoCompactacion),
+	send(clienteFS, buffer, strlen(tabla) + 6 * sizeof(int) + strlen(tipoConsistencia) + strlen(numeroParticiones) + strlen(tiempoCompactacion),
 			0);
 
-	// Deserializo respuesta OK
-	int* tamanioOk = malloc(sizeof(int));
-	read(clienteFS, tamanioOk, sizeof(int));
-	int* ok = malloc(*tamanioOk);
-	read(clienteFS, ok, *tamanioOk);
+	// Deserializo respuesta
+	int* tamanioRespuesta = malloc(sizeof(int));
+	read(clienteFS, tamanioRespuesta, sizeof(int));
+	int* ok = malloc(*tamanioRespuesta);
+	read(clienteFS, ok, *tamanioRespuesta);
 
 	if (*ok == 0) {
 		char* mensajeALogear = malloc(
-				strlen(" No se pudo realizar create en FS ") + 1);
-		strcpy(mensajeALogear, " No se pudo realizar create en FS ");
+				strlen(" No se pudo realizar create en el FS ") + 1);
+		strcpy(mensajeALogear, " No se pudo realizar create en el FS ");
 		t_log* g_logger;
-		g_logger = log_create("./errores.log", "MEMORIA", 1, LOG_LEVEL_ERROR);
+		g_logger = log_create("./logs.log", "MEMORIA", 1, LOG_LEVEL_ERROR);
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	}
 	if (*ok == 1) {
-		char* mensajeALogear = malloc(strlen(" Se realizo create en FS ") + 1);
-		strcpy(mensajeALogear, " Se realizo create en FS ");
+		char* mensajeALogear = malloc(strlen(" Se realizo create en el FS ") + 1);
+		strcpy(mensajeALogear, " Se realizo create en el FS : ");
+		strcat(mensajeALogear, tabla);
+		strcat(mensajeALogear, " con ");
+		strcat(mensajeALogear, tipoConsistencia);
+		strcat(mensajeALogear, " ");
+		strcat(mensajeALogear, numeroParticiones);
+		strcat(mensajeALogear, " ");
+		strcat(mensajeALogear, tiempoCompactacion);
 		t_log* g_logger;
 		g_logger = log_create("./logs.log", "MEMORIA", 1, LOG_LEVEL_INFO);
 		log_info(g_logger, mensajeALogear);
