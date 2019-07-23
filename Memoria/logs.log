@@ -61,3 +61,10 @@
 [INFO] 16:28:18:905 MEMORIA/(16806:16818):  Se realizo create en el FS : TABLA222 con SC 2 56
 [ERROR] 16:29:59:876 MEMORIA/(16806:16818):  No se pudo realizar create en el FS 
 [INFO] 16:31:33:473 MEMORIA/(16806:16818):  Se realizo create en el FS : TABLA45 con SC 2 90
+[ERROR] 15:05:02:728 LFS/(14698:14715):  No se encontro la key : 0
+[INFO] 15:10:18:95 MEMORIA/(14775:14781):  Se realizo create en el FS : TABLA1
+[INFO] 15:16:47:393 MEMORIA/(14841:14859):  Se realizo create en el FS : TABLA1
+[INFO] 15:17:36:379 MEMORIA/(14882:14888):  Se realizo create en el FS : TABLA1
+[INFO] 15:18:32:543 MEMORIA/(14913:14919):  Se realizo create en el FS : TABLA1
+[INFO] 15:19:53:863 MEMORIA/(14938:14944):  Se realizo create en el FS : TABLA1
+[INFO] 15:20:37:784 MEMORIA/(14964:14970):  Se realizo create en el FS : TABLA1
