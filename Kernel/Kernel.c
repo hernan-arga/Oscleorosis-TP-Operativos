@@ -96,7 +96,7 @@ void mostrarInserts();
 void mostrarSelects();
 void memoryLoad();
 void metrics(int);
-int32_t iniciarConexion();
+int32_t conectarUnaMemoria(struct datosMemoria *, char*, int);
 
 void drop(char*);
 void describeTodasLasTablas();
@@ -135,13 +135,13 @@ int32_t socketMemoriaPrincipal;
 t_log* g_logger;
 
 //Necesito el struct para conectarme y el puntero para manejarlo en las listas y diccionarios
-struct datosMemoria unaMemoriaStrongConsistency;
+//struct datosMemoria unaMemoriaStrongConsistency;
 struct datosMemoria* strongConsistency;
 t_list *hashConsistency;
 t_queue *eventualConsistency;
 
 struct metricas * unRegistro;
-pthread_t hiloLevantarConexion;
+//pthread_t hiloLevantarConexion;
 
 int main() {
 	listaMetricas = list_create();
@@ -158,6 +158,12 @@ int main() {
 
 	PRUEBA();
 
+	//Conecto a la memoria principal
+	strongConsistency = malloc(sizeof(struct datosMemoria));
+	char * IP_MEMORIA = config_get_string_value(configuracion, "IP_MEMORIA");
+	int PUERTO_MEMORIA = config_get_int_value(configuracion, "PUERTO_MEMORIA");
+	conectarUnaMemoria(strongConsistency, IP_MEMORIA, PUERTO_MEMORIA);
+
 	borrarTodosLosTemps();
 	pthread_t hiloEjecutarReady;
 	pthread_t atenderPeticionesConsola;
@@ -167,14 +173,14 @@ int main() {
 	pthread_create(&metrics, NULL, (void*) logearMetrics, NULL);
 	pthread_create(&hiloEjecutarReady, NULL, (void*) ejecutarReady, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,	(void*) atenderPeticionesDeConsola, NULL);
-	pthread_create(&hiloLevantarConexion, NULL, (void*)iniciarConexion, NULL);
+	//pthread_create(&hiloLevantarConexion, NULL, (void*)iniciarConexion, NULL);
 	pthread_create(&goissiping, NULL, (void*)operacion_gossiping, NULL);
 	pthread_create(&describe, NULL, (void*) refreshMetadata, NULL);
 	pthread_join(metrics, NULL);
 	pthread_join(describe, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	pthread_join(hiloEjecutarReady, NULL);
-	pthread_join(hiloLevantarConexion, NULL);
+	//pthread_join(hiloLevantarConexion, NULL);
 	//pthread_join(goissiping, NULL);
 	return 0;
 }
@@ -1373,9 +1379,8 @@ void drop(char* nombre_tabla) {
 }
 
 
- int32_t iniciarConexion(){
-	 char * IP_MEMORIA = config_get_string_value(configuracion, "IP_MEMORIA");
-	 int PUERTO_MEMORIA = config_get_int_value(configuracion, "PUERTO_MEMORIA");
+ int32_t conectarUnaMemoria(struct datosMemoria *unaMemoria, char* IP_MEMORIA, int PUERTO_MEMORIA){
+
 
 	 //socketMemoriaPrincipal = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -1387,19 +1392,19 @@ void drop(char* nombre_tabla) {
 	 /*strongConsistency->direccionSocket.sin_family = AF_INET;
 	 strongConsistency->direccionSocket.sin_port = htons(PUERTO_MEMORIA);
 	 strongConsistency->direccionSocket.sin_addr.s_addr = INADDR_ANY;*/
-	 unaMemoriaStrongConsistency.socket = socket(AF_INET, SOCK_STREAM, 0);
+	 unaMemoria->socket = socket(AF_INET, SOCK_STREAM, 0);
 
-	 unaMemoriaStrongConsistency.direccionSocket.sin_family = AF_INET;
-	 unaMemoriaStrongConsistency.direccionSocket.sin_port = htons(PUERTO_MEMORIA);
-	 unaMemoriaStrongConsistency.direccionSocket.sin_addr.s_addr = inet_addr(IP_MEMORIA);
+	 unaMemoria->direccionSocket.sin_family = AF_INET;
+	 unaMemoria->direccionSocket.sin_port = htons(PUERTO_MEMORIA);
+	 unaMemoria->direccionSocket.sin_addr.s_addr = inet_addr(IP_MEMORIA);
 
-	 if(connect(unaMemoriaStrongConsistency.socket, (struct sockaddr *) &unaMemoriaStrongConsistency.direccionSocket, sizeof(unaMemoriaStrongConsistency.direccionSocket)) == -1)
+	 if(connect(unaMemoria->socket, (struct sockaddr *) &unaMemoria->direccionSocket, sizeof(unaMemoria->direccionSocket)) == -1)
 	 {
 		 perror("Hubo un error en la conexion");
 		 return -1;
 	 }
 
-	 strongConsistency = &unaMemoriaStrongConsistency;
+	// strongConsistency = &unaMemoriaStrongConsistency;
 
 	 /*if(connect(socketMemoriaPrincipal, (struct sockaddr *) &direccion_server_memoria_kernel, sizeof(direccion_server_memoria_kernel)) == -1)
 	 {
@@ -1410,7 +1415,7 @@ void drop(char* nombre_tabla) {
 	 //strongConsistency->socket = socketMemoriaPrincipal;
 
 	 //Mando un numero distinto de cero a memoria para que sepa que se conecto kernel
-	 send(unaMemoriaStrongConsistency.socket, "1", 2, 0);
+	 send(unaMemoria->socket, "1", 2, 0);
 
 
 	 /*char buffer[256];

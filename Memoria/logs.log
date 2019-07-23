@@ -14,3 +14,4 @@
 [ERROR] 03:04:04:557 MEMORIA/(10650:10658):  No se pudo realizar create en el FS 
 [ERROR] 03:16:49:385 MEMORIA/(11285:11298):  No se pudo realizar create en el FS 
 [ERROR] 03:20:29:316 MEMORIA/(11402:11415):  No se pudo realizar create en el FS 
+[INFO] 11:17:15:154 MEMORIA/(9945:9959):  Se realizo create en el FS : TABLA1
