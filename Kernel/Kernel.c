@@ -72,8 +72,8 @@ int cantidadValidaParametros(char**, int);
 int esUnNumero(char*);
 int esUnTipoDeConsistenciaValida(char*);
 int get_PID();
-int IP_en_lista(char*);
-void agregarAMiLista(struct datosMemoria * unaMemoria);
+/*int IP_en_lista(char*);
+void agregarAMiLista(struct datosMemoria * unaMemoria);*/
 int numeroSinUsar();
 void operacion_gossiping();
 int parametrosValidos(int, char**, int (*criterioTiposCorrectos)(char**, int));
@@ -97,13 +97,13 @@ void mostrarSelects();
 void memoryLoad();
 void metrics(int);
 int32_t conectarUnaMemoria(struct datosMemoria *, char*, int);
+int32_t conectarMemoriaRecibida(struct datosMemoria*);
 
 void drop(char*);
 void describeTodasLasTablas();
 void describeUnaTabla(char*);
 void actualizarDiccionarioDeTablas(char *, struct tabla *);
 void quitarDelDiccionarioDeTablasLaTablaBorrada(char *);
-void conectarseAMemoria(struct datosMemoria* unaMemoria);
 void logearMetrics();
 
 void borrarTodosLosTemps();
@@ -134,8 +134,7 @@ int n = 0;
 int32_t socketMemoriaPrincipal;
 t_log* g_logger;
 
-//Necesito el struct para conectarme y el puntero para manejarlo en las listas y diccionarios
-//struct datosMemoria unaMemoriaStrongConsistency;
+struct datosMemoria* memoriaPrincipal;
 struct datosMemoria* strongConsistency;
 t_list *hashConsistency;
 t_queue *eventualConsistency;
@@ -162,13 +161,12 @@ int main() {
 	PRUEBA();
 
 	//Conecto a la memoria principal
-	struct datosMemoria* unaMemoria;
-	unaMemoria = (struct datosMemoria*)malloc(sizeof(struct datosMemoria));
+	memoriaPrincipal = (struct datosMemoria*)malloc(sizeof(struct datosMemoria));
 	char * IP_MEMORIA = config_get_string_value(configuracion, "IP_MEMORIA");
 	int PUERTO_MEMORIA = config_get_int_value(configuracion, "PUERTO_MEMORIA");
-	conectarUnaMemoria(unaMemoria, IP_MEMORIA, PUERTO_MEMORIA);
+	conectarUnaMemoria(memoriaPrincipal, IP_MEMORIA, PUERTO_MEMORIA);
 
-	list_add(listaDeMemorias, (void*)unaMemoria);
+	list_add(listaDeMemorias, (void*)memoriaPrincipal);
 
 
 
@@ -587,13 +585,13 @@ int get_PID() {
 	return PID;
 }
 //FIXME
-int IP_en_lista(char* ip_memoria) {
+/*int IP_en_lista(char* ip_memoria) {
 	bool _IP_presente(struct datosMemoria * unaMemoria) {
 		//return !strcmp(unaMemoria->direccionSocket.sin_addr.s_addr, ip_memoria);
 		return unaMemoria->direccionSocket.sin_addr.s_addr == atoi(ip_memoria);
 	}
 	return (list_find(listaDeMemorias, (void*) _IP_presente) != NULL);
-}
+}*/
 
 //NOTA: numeroSinUsar devuelve numeros para asignar nombres distintos a archivos temporales
 int numeroSinUsar() {
@@ -603,26 +601,32 @@ int numeroSinUsar() {
 }
 
 
-void conectarseAMemoria(struct datosMemoria* unaMemoria){
-	connect(unaMemoria->socket, (struct sockaddr *) &unaMemoria->direccionSocket, sizeof(unaMemoria->direccionSocket));
-	char *mensaje = malloc(2);
-	strcpy(mensaje, "1");
-	send(unaMemoria->socket, mensaje, 2, 0);
-}
-
-//TODO falta sockets acá
 void operacion_gossiping() {
-	recv(strongConsistency, listaDeMemorias, sizeof(t_list*), 0);
-	list_iterate(listaDeMemorias, (void*)conectarseAMemoria);
-	//list_iterate(listaDeMemorias, (void*)agregarAMiLista);	El enunciado dice que solo se hace goissiping al iniciar el kernel
+	int *tamanioMemoriasRecibidas = malloc(sizeof(int));
+	read(memoriaPrincipal->socket, tamanioMemoriasRecibidas, sizeof(int));
+	t_list *memoriasRecibidas = list_create();
+	recv(memoriaPrincipal->socket, memoriasRecibidas, sizeof(t_list*), 0);
+	list_iterate(listaDeMemorias, (void*)conectarMemoriaRecibida);
+	list_add_all(listaDeMemorias, memoriasRecibidas);
 }
 
+//En esta funcion la IP, el puerto y el socket ya fueron llenados
+int32_t conectarMemoriaRecibida(struct datosMemoria* unaMemoria){
+	if(connect(unaMemoria->socket, (struct sockaddr *) &unaMemoria->direccionSocket, sizeof(unaMemoria->direccionSocket)) == -1)
+	{
+		perror("Hubo un error en la conexion");
+		return -1;
+	}
+	//Mando un numero distinto de cero a memoria para que sepa que se conecto kernel
+	send(unaMemoria->socket, "1", 2, 0);
+	return 0;
+}
 
-void agregarAMiLista(struct datosMemoria * unaMemoria) {
+/*void agregarAMiLista(struct datosMemoria * unaMemoria) {
 	if (!IP_en_lista(string_itoa(unaMemoria->direccionSocket.sin_addr.s_addr))) {
 		list_add(listaDeMemorias, unaMemoria);
 	}
-}
+}*/
 
 //huboError se activa en 1 en caso de error
 void tomar_peticion(char* mensaje, int es_request, int *huboError) {
@@ -811,14 +815,6 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				free(mensajeALogear);
 			}
 
-			/*if (cantidadDeParametrosUsados == 4) {
-				char* timestamp = parametros[4];
-				if (!esUnNumero(timestamp)) {
-					printf("El timestamp debe ser un numero.\n");
-				}
-				return esUnNumero(key) && esUnNumero(timestamp)
-						&& dictionary_has_key(tablas_conocidas, tabla);
-			}*/
 			return esUnNumero(key)
 					&& dictionary_has_key(tablas_conocidas, tabla);
 		}
@@ -866,48 +862,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				*huboError = 0;
 			}
 
-		} /*else if (parametrosValidos(3, parametros, (void *) criterioInsert)) { //fixme borrar esto
-			printf("Envio el comando INSERT a memoria");
-
-			if (es_request) {
-				char* nombre_archivo = tempSinAsignar();
-				FILE* temp = fopen(nombre_archivo, "w");
-				fprintf(temp, "%s %s %s %s", "INSERT", parametros[1],
-						parametros[2], parametros[3]);
-				fclose(temp);
-				planificador(nombre_archivo);
-			} else {
-				printf("Hasta aca funciona");
-				clock_t tiempoInsert = clock();
-				//Aca lo manda por sockets y en caso de error modifica la variable huboError
-				//:xxx: IPMemoria me lo manda el gossiping
-				generarMetrica(tiempoInsert,1,IPMemoria);
-				char *tabla = parametros[1];
-				struct tabla *unaTabla = dictionary_get(tablas_conocidas,
-						tabla);
-				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
-					//Mando directo a strongConsistency
-				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
-					if (list_size(hashConsistency) != 0) {
-						char* key = parametros[2];
-						int numeroMemoria = funcionHash(atoi(key));
-						//Mando por socket a char *IP = list_get(hashConsistency, numeroMemoria);
-					} else {
-						//Mando directo a strongConsistency
-					}
-				} else { //EC
-					if (queue_size(eventualConsistency) != 0) {
-						char* memoriaRandom = queue_pop(eventualConsistency);
-						//Mando por socket a eventualConsistency
-						queue_push(eventualConsistency, memoriaRandom);
-					} else {
-						//Mando directo a strongConsistency
-					}
-				}*/
-
-				//*huboError = 0;
-			//}
-		else {
+		} else {
 			*huboError = 1;
 		}
 		break;
@@ -925,10 +880,21 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				printf("El tiempo de compactacion debe ser un numero.\n");
 			}
 
+			if (dictionary_has_key(tablas_conocidas, tabla)) {
+				char *mensajeALogear = string_new();
+				string_append(&mensajeALogear,
+					"Ya existe la tabla: ");
+				string_append(&mensajeALogear, tabla);
+				g_logger = log_create("./erroresCreate", "KERNEL", 1,
+				LOG_LEVEL_ERROR);
+				log_error(g_logger, mensajeALogear);
+				free(mensajeALogear);
+			}
 
 			return esUnNumero(cantidadParticiones)
 					&& esUnNumero(tiempoCompactacion)
-					&& esUnTipoDeConsistenciaValida(consistencia);
+					&& esUnTipoDeConsistenciaValida(consistencia)
+					&& !dictionary_has_key(tablas_conocidas, tabla);
 		}
 		if (parametrosValidos(4, parametros, (void *) criterioCreate)) {
 			printf("Enviando CREATE a memoria.\n");

@@ -2518,3 +2518,107 @@
 
 [INFO] 15:10:50:515 Kernel/(14780:14782): [15:10:50:515]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
 
+[INFO] 15:16:18:226 Kernel/(14858:14860): [15:16:18:226]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:16:18:227 Kernel/(14858:14860): [15:16:18:227]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:16:18:227 Kernel/(14858:14860): [15:16:18:227]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:16:18:227 Kernel/(14858:14860): [15:16:18:227]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:16:48:234 Kernel/(14858:14860): [15:16:48:234]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:16:48:234 Kernel/(14858:14860): [15:16:48:234]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:16:48:234 Kernel/(14858:14860): [15:16:48:234]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:16:48:234 Kernel/(14858:14860): [15:16:48:234]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:17:10:549 Kernel/(14887:14889): [15:17:10:549]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:17:10:550 Kernel/(14887:14889): [15:17:10:550]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:17:10:550 Kernel/(14887:14889): [15:17:10:550]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:17:10:550 Kernel/(14887:14889): [15:17:10:550]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:17:40:550 Kernel/(14887:14889): [15:17:40:550]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:17:40:551 Kernel/(14887:14889): [15:17:40:551]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:17:40:551 Kernel/(14887:14889): [15:17:40:551]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:17:40:551 Kernel/(14887:14889): [15:17:40:551]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:17:53:693 Kernel/(14918:14920): [15:17:53:693]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:17:53:693 Kernel/(14918:14920): [15:17:53:693]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:17:53:694 Kernel/(14918:14920): [15:17:53:693]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:17:53:694 Kernel/(14918:14920): [15:17:53:694]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:18:23:694 Kernel/(14918:14920): [15:18:23:694]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:18:23:695 Kernel/(14918:14920): [15:18:23:695]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:18:23:695 Kernel/(14918:14920): [15:18:23:695]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:18:23:695 Kernel/(14918:14920): [15:18:23:695]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:18:52:49 Kernel/(14943:14945): [15:18:52:24]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:18:52:49 Kernel/(14943:14945): [15:18:52:49]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:18:52:49 Kernel/(14943:14945): [15:18:52:49]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:18:52:49 Kernel/(14943:14945): [15:18:52:49]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:19:22:50 Kernel/(14943:14945): [15:19:22:50]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:19:22:51 Kernel/(14943:14945): [15:19:22:51]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:19:22:51 Kernel/(14943:14945): [15:19:22:51]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:19:22:51 Kernel/(14943:14945): [15:19:22:51]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:19:52:52 Kernel/(14943:14945): [15:19:52:52]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:19:52:53 Kernel/(14943:14945): [15:19:52:53]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:19:52:54 Kernel/(14943:14945): [15:19:52:54]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:19:52:54 Kernel/(14943:14945): [15:19:52:54]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:20:07:974 Kernel/(14969:14971): [15:20:07:974]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:20:07:974 Kernel/(14969:14971): [15:20:07:974]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:20:07:974 Kernel/(14969:14971): [15:20:07:974]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:20:07:985 Kernel/(14969:14971): [15:20:07:985]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:20:37:986 Kernel/(14969:14971): [15:20:37:986]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 15:20:37:986 Kernel/(14969:14971): [15:20:37:986]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 15:20:37:986 Kernel/(14969:14971): [15:20:37:986]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 15:20:37:986 Kernel/(14969:14971): [15:20:37:986]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 16:05:20:47 Kernel/(15762:15763): [16:05:20:47]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:05:20:54 Kernel/(15762:15763): [16:05:20:54]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:05:20:58 Kernel/(15762:15763): [16:05:20:58]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 16:05:20:68 Kernel/(15762:15763): [16:05:20:67]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 16:05:50:70 Kernel/(15762:15763): [16:05:50:70]	El promedio de tiempo de ejecucion para INSERT es 0.000000
+
+[INFO] 16:05:50:71 Kernel/(15762:15763): [16:05:50:71]	El promedio de tiempo de ejecucion para SELECT es 0.000000
+
+[INFO] 16:05:50:71 Kernel/(15762:15763): [16:05:50:71]	La cantidad de INSERTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
+[INFO] 16:05:50:71 Kernel/(15762:15763): [16:05:50:71]	La cantidad de SELECTS de la memoria con IP  es 0, respecto de 0 operaciones totales.
+
