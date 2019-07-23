@@ -1,12 +1,14 @@
 // FS
 /*
  * FALTANTES POR PRIORIDADES :
- *
- * - ABRIL : VER MANEJO ERROR CREATE
+
+abril : manejo errores drop
+loguear en mm
+decribe general serializar
+
  * - ver problema de mandar dos select (rompe el segundo)
  * - sockets memoria- kernel
  * - SEMAFOROS: ¿por q se bloquea en las terminales y no en el ecplipse? -> condicion de carrera
- * - cambiar las operaciones de fs segun si las mandan por consola o memoria
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
  * - CAMBIAR LOS PRINTF A LOGS (en todos los modulos!!!!) PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA (si alcanza el tiempo)
  *
@@ -14,6 +16,7 @@
  *	HECHO:
  *	- recortar todos los char* en serializacion
  *	 - MANEJO DE ERRORES : probar las respuestas de errores en tod fs (ej select de tabla q no existe -> LEER PRUEBAS)
+ *	  - cambiar las operaciones de fs segun si las mandan por consola o memoria
  */
 
 

@@ -68,3 +68,5 @@
 [INFO] 15:18:32:543 MEMORIA/(14913:14919):  Se realizo create en el FS : TABLA1
 [INFO] 15:19:53:863 MEMORIA/(14938:14944):  Se realizo create en el FS : TABLA1
 [INFO] 15:20:37:784 MEMORIA/(14964:14970):  Se realizo create en el FS : TABLA1
+[INFO] 17:10:35:378 LFS/(18082:18094):  Llego select con VALUE : winnerBIN
+
