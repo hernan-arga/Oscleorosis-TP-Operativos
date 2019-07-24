@@ -173,6 +173,7 @@ int main() {
 	int PUERTO_MEMORIA = config_get_int_value(configuracion, "PUERTO_MEMORIA");
 	conectarUnaMemoria(memoriaPrincipal, IP_MEMORIA, PUERTO_MEMORIA);
 
+	memoriaPrincipal->MEMORY_NUMBER = 1;
 	list_add(listaDeMemorias, (void*)memoriaPrincipal);
 
 
@@ -203,7 +204,7 @@ int main() {
 
 void PRUEBA(){
 	struct tabla * unaTabla = malloc(sizeof(struct tabla *));
-	unaTabla->CONSISTENCY = "SC";
+	unaTabla->CONSISTENCY = "SHC";
 	unaTabla->COMPACTION_TIME = 10;
 	unaTabla->PARTITIONS = 2;
 	actualizarDiccionarioDeTablas("TABLA1", unaTabla);
@@ -1096,9 +1097,9 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
 						//le sumo 1 por la manera en que se enumeran las memorias
-						int max = list_size(hashConsistency)+1;
-						int numeroMemoria = rand() % max;
-
+						int max = list_size(hashConsistency);
+						int numeroMemoria = (rand() % max)+1;
+						//printf("MEMORIA: %i\n", numeroMemoria);
 						int esLaMemoriaBuscada(struct datosMemoria* unaMemoria){
 							return unaMemoria->MEMORY_NUMBER == numeroMemoria;
 						}
@@ -1134,7 +1135,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 
 		else {
 			//strongConsistency->socket
-			mandarJournal(socketMemoriaPrincipal); ///revisar a quien se lo mando
+			list_iterate(listaDeMemorias, (void*)mandarJournal); ///revisar a quien se lo mando
 		}
 		break;
 	case ADD:
@@ -1192,6 +1193,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				if (!strcmp(consistencia, "SC")) {
 					strongConsistency->direccionSocket = ((struct datosMemoria*)list_find(listaDeMemorias, (void*)esLaMemoriaBuscada))->direccionSocket;//unaMemoria->direccionSocket;
 					strongConsistency->socket = ((struct datosMemoria*)list_find(listaDeMemorias, (void*)esLaMemoriaBuscada))->socket;//unaMemoria->socket;
+					strongConsistency->MEMORY_NUMBER = ((struct datosMemoria*)list_find(listaDeMemorias, (void*)esLaMemoriaBuscada))->MEMORY_NUMBER;
 				} else if (!strcmp(consistencia, "SHC")) {
 					list_add(hashConsistency,
 							list_find(listaDeMemorias, (void*)esLaMemoriaBuscada));
