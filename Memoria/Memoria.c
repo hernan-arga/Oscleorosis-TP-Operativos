@@ -1005,10 +1005,9 @@ void conectarseAFS() {
 	//serverAddressFS.sin_port = htons(4093);
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
 
-	connect(clienteFS, (struct sockaddr *) &serverAddressFS,
-			sizeof(serverAddressFS));
+	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
 	
-	int *tamanioValue = malloc(sizeof(int);
+	int *tamanioValue = malloc(sizeof(int));
 	recv(clienteFS, tamanioValue, sizeof(int), 0);
 
 	memcpy(&tamanoValue, tamanioValue, sizeof(int));
