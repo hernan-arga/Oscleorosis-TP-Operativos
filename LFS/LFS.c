@@ -1024,7 +1024,6 @@ void levantarHilosCompactacionParaTodasLasTablas() {
 		}
 	}
 	closedir(directorio);
-
 }
 
 void verificarCompactacion(char *pathTabla) {
@@ -2782,6 +2781,7 @@ int32_t iniciarConexion() {
 
 			int tamanioValue = structConfiguracionLFS.TAMANIO_VALUE;
 			void* buffer = malloc( sizeof(int) );
+
 			memcpy(buffer, &tamanioValue, sizeof(int));
 
 			//send new connection greeting message
@@ -2860,6 +2860,7 @@ int32_t iniciarConexion() {
 	 char* keyString = string_itoa(*key);
 
 	 char *value = realizarSelect(tablaCortada, keyString);
+	 printf("%s\n", value);
 
 	 // serializo paquete
 	 if(value == NULL){
@@ -2873,7 +2874,6 @@ int32_t iniciarConexion() {
 		 int tamanio = strlen(value);
 		 memcpy(buffer, &tamanio, sizeof(int));
 		 memcpy(buffer + sizeof(int), value, tamanio);
-
 		 send(sd, buffer, strlen(value)+sizeof(int), 0);
 	 }
  }
