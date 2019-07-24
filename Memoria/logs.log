@@ -70,3 +70,19 @@
 [INFO] 15:20:37:784 MEMORIA/(14964:14970):  Se realizo create en el FS : TABLA1
 [INFO] 17:10:35:378 LFS/(18082:18094):  Llego select con VALUE : winnerBIN
 
+[ERROR] 18:25:56:813 MEMORIA/(19151:19170):  No se pudo realizar create en el FS 
+[ERROR] 18:26:14:328 MEMORIA/(19151:19155):  No se pudo realizar create en el FS 
+[ERROR] 18:26:22:681 MEMORIA/(19151:19155):  No se pudo realizar create en el FS 
+[INFO] 18:28:29:360 MEMORIA/(19151:19155):  Se realizo create en el FS : TABLA89 con SC 2 10
+[INFO] 18:28:37:483 MEMORIA/(19151:19155):  Se realizo create en el FS : TABLA con 90 SC 2
+[INFO] 18:28:59:175 MEMORIA/(19151:19155):  Se realizo create en el FS : TABLA91 con SC 2 10
+[ERROR] 18:29:06:575 MEMORIA/(19151:19155):  No se pudo realizar create en el FS 
+[INFO] 20:09:21:838 MEMORIA/(4137:4141):  Se realizo create en el FS : TABLA35 con SC 2 10
+[INFO] 20:09:31:707 MEMORIA/(4137:4141):  Se realizo create en el FS : TABLA36 con SC 2 10
+[INFO] 20:10:26:147 LFS/(4137:4141):  Llego select con VALUE : OOF G
+@´
+[INFO] 20:11:23:491 MEMORIA/(4324:4328):  Se realizo drop en FS 
+[INFO] 20:11:30:211 MEMORIA/(4324:4328):  Se realizo drop en FS 
+[INFO] 20:12:47:889 MEMORIA/(4324:4336):  Se realizo create en el FS : TABLA35 con SC 2 10
+[INFO] 20:13:15:800 MEMORIA/(4324:4336):  Se realizo drop en FS 
+[ERROR] 23:08:43:494 LFS/(4437:4443):  No se encontro la key : 0

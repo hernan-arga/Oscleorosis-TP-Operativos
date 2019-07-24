@@ -56,6 +56,7 @@ typedef struct {
 struct datosMemoria {
 	int socket;
 	struct sockaddr_in direccionSocket;
+	int32_t MEMORY_NUMBER;
 };
 
 t_dictionary* tablaSegmentos;
@@ -986,6 +987,7 @@ void serServidor() {
 		struct datosMemoria *unaMemoria = malloc(sizeof(struct datosMemoria*));
 		unaMemoria->socket = cliente;
 		unaMemoria->direccionSocket = direccionCliente;
+		unaMemoria->MEMORY_NUMBER = t_archivoConfiguracion.MEMORY_NUMBER;
 		list_add(clientes, unaMemoria);
 
 		pthread_t threadCliente;
