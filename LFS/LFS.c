@@ -484,7 +484,7 @@ void realizarPeticion(char** parametros) {
 				free(mensajeALogear);
 			}
 			if(respuesta == 1){
-				char* mensajeALogear = malloc( strlen(" Se realizo INSERT en tabla : ") + strlen(tabla) + 1);
+				char* mensajeALogear = malloc( strlen(" Se realizo INSERT en tabla :  / KEY :  / VALUE : ") + strlen(tabla) + strlen(key) + strlen(valor) + 1);
 				strcpy(mensajeALogear, " Se realizo INSERT en tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / KEY : ");
@@ -504,7 +504,7 @@ void realizarPeticion(char** parametros) {
 			//le saco las comillas al valor
 			char *valor = string_substring(parametros[3], 1,
 					string_length(parametros[3]) - 2);
-			//¿El timestamp nesecita conversion? esto esta en segundos y no hay tipo de dato que banque los milisegundos por el tamanio
+			//¿El timestamp necesita conversion? esto esta en segundos y no hay tipo de dato que banque los milisegundos por el tamanio
 			long int timestampActual = (long int) time(NULL);
 			char* timestamp = string_itoa(timestampActual);
 
@@ -532,7 +532,7 @@ void realizarPeticion(char** parametros) {
 					free(mensajeALogear);
 				}
 				if(respuesta == 1){
-					char* mensajeALogear = malloc( strlen(" Se realizo INSERT en tabla : ") + strlen(tabla) + 1);
+					char* mensajeALogear = malloc( strlen(" Se realizo INSERT en tabla :  / KEY :  / VALUE : ") + strlen(tabla) + strlen(key) + strlen(valor) + 1);
 					strcpy(mensajeALogear, " Se realizo INSERT en tabla : ");
 					strcat(mensajeALogear, tabla);
 					strcat(mensajeALogear, " / KEY : ");
@@ -574,7 +574,7 @@ void realizarPeticion(char** parametros) {
 			char* tablaMayusculas = string_new();
 			string_append(&tablaMayusculas, tabla);
 			string_to_upper(tablaMayusculas);
-			sem_t *semaforoTabla;
+			//sem_t *semaforoTabla;
 			//close y unlink por si ya estaba abierto el semaforo
 			//sem_close(semaforoTabla);
 			//sem_unlink(tablaMayusculas);
@@ -625,7 +625,14 @@ void realizarPeticion(char** parametros) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
 			if (!existeLaTabla(tabla)) {
-				printf("La tabla a borrar no existe\n");
+				char* mensajeALogear = malloc( strlen("No existe una tabla con el nombre ") + strlen(tabla) + 1);
+				strcpy(mensajeALogear, "No existe una tabla con el nombre ");
+				strcat(mensajeALogear, tabla);
+				t_log* g_logger;
+				g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_ERROR);
+				log_error(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
 			}
 			return existeLaTabla(tabla);
 		}
@@ -1763,7 +1770,7 @@ int existeLaTabla(char* nombreDeTabla) {
 
 void drop(char* tabla) {
 	actualizarTiempoDeRetardo();
-	sleep(structConfiguracionLFS.RETARDO);
+	//sleep(structConfiguracionLFS.RETARDO);
 	char *path = string_new();
 	string_append(&path,
 			string_from_format("%sTables/",
@@ -1773,7 +1780,6 @@ void drop(char* tabla) {
 	//printf("%s\n\n", path);
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
-		//printf("- %s\n", directorioALeer->d_name);
 		//Elimino todito lo que tiene adentro la tabla
 		if (!((directorioALeer->d_type) == DT_DIR)) {
 			char *archivoABorrar = string_new();
@@ -3050,14 +3056,20 @@ int32_t iniciarConexion() {
 	read(sd, tabla, *tamanioTabla);
 	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
- 	drop(tablaCortada);
-
- 	// serializo respuesta ok
-	void* buffer = malloc(2 * sizeof(int));
-	int ok = 1;
-	int tamanioOk = sizeof(int);
-	memcpy(buffer, &tamanioOk, sizeof(int));
-	memcpy(buffer + sizeof(int), &ok, sizeof(int));
+	int respuesta;
+	if (!existeLaTabla(tablaCortada)) {
+		// respuesta = 0 es ERROR
+	 	 respuesta = 0;
+ 	} else{
+ 		drop(tablaCortada);
+ 		// respuesta = 1 es OK
+ 		respuesta = 1;
+ 	}
+	// serializo respuesta
+	char* buffer = malloc(2 * sizeof(int));
+	int tamanioRespuesta = sizeof(int);
+	memcpy(buffer, &tamanioRespuesta, sizeof(int));
+	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
 
 	send(sd, buffer, 2 * sizeof(int), 0);
  }

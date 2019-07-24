@@ -1,72 +1,4 @@
-
-[ERROR] 00:08:41:350 LFS/(6087:6099):  No se encontro la key : 0
-[INFO] 00:55:01:473 LFS/(7228:7237):  Llego select con VALUE : winnerBIN
-
-[INFO] 02:04:59:359 LFS/(8415:8424):  Llego select con VALUE : winnerBIN
-
-[ERROR] 02:10:08:789 LFS/(8415:8424):  No se encontro la key : 3
-[ERROR] 02:11:54:733 MEMORIA/(8682:8690):  No se pudo realizar create en el FS 
-[ERROR] 02:38:56:368 MEMORIA/(9595:9603):  No se pudo realizar create en el FS 
-[ERROR] 02:40:10:68 MEMORIA/(9648:9657):  No se pudo realizar create en el FS 
-[ERROR] 02:48:10:429 MEMORIA/(9941:9949):  No se pudo realizar create en el FS 
-[ERROR] 02:51:16:91 MEMORIA/(10101:10112):  No se pudo realizar create en el FS 
-[ERROR] 03:01:59:657 MEMORIA/(10582:10590):  No se pudo realizar create en el FS 
-[ERROR] 03:04:04:557 MEMORIA/(10650:10658):  No se pudo realizar create en el FS 
-[ERROR] 03:16:49:385 MEMORIA/(11285:11298):  No se pudo realizar create en el FS 
-[ERROR] 03:20:29:316 MEMORIA/(11402:11415):  No se pudo realizar create en el FS 
-[INFO] 11:17:15:154 MEMORIA/(9945:9959):  Se realizo create en el FS : TABLA1
-[INFO] 11:45:48:492 MEMORIA/(10379:10386):  Se realizo create en el FS : TABLA1
-[ERROR] 11:48:46:890 LFS/(10444:10450):  No se encontro la key : 0
-[ERROR] 11:50:27:596 LFS/(10482:10493):  No se encontro la key : 0
-[ERROR] 11:51:14:576 LFS/(10517:10523):  No se encontro la key : 0
-[INFO] 12:12:52:64 MEMORIA/(11122:11138):  Se realizo create en el FS : TABLA1
-[ERROR] 12:17:29:724 LFS/(11319:11330):  No se encontro la key : 0
-[ERROR] 12:23:30:988 LFS/(11414:11426):  No se encontro la key : 0
-[INFO] 12:27:49:749 MEMORIA/(11508:11519):  Se realizo create en el FS : TABLA1
-[INFO] 12:43:15:433 MEMORIA/(11672:11683):  Se realizo create en el FS : TABLA1
-[INFO] 12:44:35:544 MEMORIA/(11732:11738):  Se realizo create en el FS : TABLA1
-[ERROR] 12:45:27:628 LFS/(11766:11777):  No se encontro la key : 0
-[INFO] 12:49:45:118 MEMORIA/(11940:11951):  Se realizo create en el FS : TABLA1
-[INFO] 13:07:44:173 MEMORIA/(12423:12439):  Se realizo create en el FS : TABLA1
-[INFO] 13:12:01:169 MEMORIA/(12459:12465):  Se realizo create en el FS : TABLA1
-[INFO] 13:21:30:676 MEMORIA/(12649:12655):  Se realizo create en el FS : TABLA1
-[INFO] 13:38:54:286 MEMORIA/(12937:12948):  Se realizo create en el FS : TABLA1
-[INFO] 13:40:45:143 MEMORIA/(13022:13033):  Se realizo create en el FS : TABLA1
-[INFO] 13:42:50:300 MEMORIA/(13078:13089):  Se realizo create en el FS : TABLA1
-[INFO] 14:29:41:735 MEMORIA/(13455:13467):  Se realizo create en el FS : TABLA1
-[INFO] 14:30:12:275 MEMORIA/(13487:13493):  Se realizo create en el FS : TABLA1
-[INFO] 14:32:25:519 MEMORIA/(13572:13583):  Se realizo create en el FS : TABLA1
-[INFO] 14:34:14:686 MEMORIA/(13668:13684):  Se realizo create en el FS : TABLA1
-[INFO] 14:35:24:196 MEMORIA/(13720:13731):  Se realizo create en el FS : TABLA1
-[INFO] 14:39:00:722 MEMORIA/(13876:13887):  Se realizo create en el FS : TABLA1
-[INFO] 14:40:57:622 MEMORIA/(13941:13968):  Se realizo create en el FS : TABLA1
-[INFO] 14:41:20:67 MEMORIA/(13986:13997):  Se realizo create en el FS : TABLA1
-[INFO] 14:43:28:115 MEMORIA/(14082:14093):  Se realizo create en el FS : TABLA1
-[INFO] 14:46:30:255 MEMORIA/(14180:14191):  Se realizo create en el FS : TABLA1
-[INFO] 14:48:23:346 MEMORIA/(14240:14251):  Se realizo create en el FS : TABLA1
-[ERROR] 14:55:17:497 LFS/(14463:14474):  No se encontro la key : 0
-[INFO] 14:56:05:171 MEMORIA/(14493:14505):  Se realizo create en el FS : TABLA1
-[INFO] 14:57:03:989 MEMORIA/(14527:14533):  Se realizo create en el FS : TABLA4
-[INFO] 14:58:43:143 MEMORIA/(14594:14600):  Se realizo create en el FS : TABLA5
-[INFO] 14:59:27:916 MEMORIA/(14619:14625):  Se realizo create en el FS : TABLA6
-[ERROR] 15:09:45:824 MEMORIA/(14029:14038):  No se pudo realizar create en el FS 
-[ERROR] 15:12:47:940 MEMORIA/(14207:14215):  No se pudo realizar create en el FS 
-[INFO] 15:14:33:699 MEMORIA/(14310:14318):  Se realizo create en el FS : TABLA3e
-[INFO] 15:19:57:764 MEMORIA/(14484:14496):  Se realizo create en el FS : TABLA90 con SC 2 6969
-[ERROR] 15:25:25:692 MEMORIA/(14784:14795):  No se pudo realizar create en el FS 
-[INFO] 15:42:12:804 MEMORIA/(15294:15304):  Se realizo create en el FS : TABLA e
-[ERROR] 15:44:52:279 MEMORIA/(15463:15475):  No se pudo realizar create en el FS 
-[INFO] 15:48:29:539 MEMORIA/(15701:15712):  Se realizo create en el FS : TABLA9e
-[ERROR] 16:01:02:499 MEMORIA/(16257:16268):  No se pudo realizar create en el FS 
-[INFO] 16:28:18:905 MEMORIA/(16806:16818):  Se realizo create en el FS : TABLA222 con SC 2 56
-[ERROR] 16:29:59:876 MEMORIA/(16806:16818):  No se pudo realizar create en el FS 
-[INFO] 16:31:33:473 MEMORIA/(16806:16818):  Se realizo create en el FS : TABLA45 con SC 2 90
-[ERROR] 15:05:02:728 LFS/(14698:14715):  No se encontro la key : 0
-[INFO] 15:10:18:95 MEMORIA/(14775:14781):  Se realizo create en el FS : TABLA1
-[INFO] 15:16:47:393 MEMORIA/(14841:14859):  Se realizo create en el FS : TABLA1
-[INFO] 15:17:36:379 MEMORIA/(14882:14888):  Se realizo create en el FS : TABLA1
-[INFO] 15:18:32:543 MEMORIA/(14913:14919):  Se realizo create en el FS : TABLA1
-[INFO] 15:19:53:863 MEMORIA/(14938:14944):  Se realizo create en el FS : TABLA1
-[INFO] 15:20:37:784 MEMORIA/(14964:14970):  Se realizo create en el FS : TABLA1
-[INFO] 17:10:35:378 LFS/(18082:18094):  Llego select con VALUE : winnerBIN
-
+[ERROR] 20:48:28:956 MEMORIA/(21748:21759):  No se pudo realizar drop en FS de tabla : TABLA990
+[ERROR] 21:02:42:483 MEMORIA/(22815:22828):  No se pudo realizar drop en FS de tabla : TABLA990
+[INFO] 21:11:27:77 MEMORIA/(23512:23523):  Se realizo drop en FS de : TABLA90
+[INFO] 21:13:45:908 MEMORIA/(23754:23762):  Se realizo drop en FS de : TABLA99
