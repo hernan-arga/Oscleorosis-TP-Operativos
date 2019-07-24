@@ -1007,13 +1007,11 @@ void conectarseAFS() {
 
 	connect(clienteFS, (struct sockaddr *) &serverAddressFS,
 			sizeof(serverAddressFS));
+	
+	int *tamanioValue = malloc(sizeof(int);
+	recv(clienteFS, tamanioValue, sizeof(int), 0);
 
-	int *tamaniodelTamanioValue = malloc(sizeof(int));
-	recv(clienteFS, tamaniodelTamanioValue, sizeof(int), 0);
-	int *tamanioValue = malloc(*tamaniodelTamanioValue);
-	recv(clienteFS, tamanioValue, *tamaniodelTamanioValue, 0);
-
-	memcpy(&tamanoValue, &tamanioValue, sizeof(tamanioValue));
+	memcpy(&tamanoValue, tamanioValue, sizeof(int));
 
 	sem_post(&sem);
 }
