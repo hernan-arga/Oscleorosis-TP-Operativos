@@ -15,3 +15,20 @@
 [ERROR] 11:46:04:619 LFS/(10064:10070):  No se encontro la key : 0
 [INFO] 11:48:06:500 MEMORIA/(10102:10108):  Se realizo drop en FS de : TABLA1
 [INFO] 12:00:35:52 MEMORIA/(10288:10304):  Se realizo drop en FS de : TABLA1
+[ERROR] 12:22:00:446 LFS/(10646:10657):  No se encontro la key : 0
+[ERROR] 12:23:28:790 LFS/(10779:10795):  No se encontro la key : 0
+[ERROR] 12:58:48:80 LFS/(11854:11865):  No se encontro la key : 0
+[ERROR] 12:59:35:464 LFS/(11896:11903):  No se encontro la key : 0
+[ERROR] 13:01:01:641 LFS/(11973:11984):  No se encontro la key : 0
+[ERROR] 13:04:41:86 LFS/(12082:12088):  No se encontro la key : 0
+[ERROR] 13:05:53:69 LFS/(12157:12163):  No se encontro la key : 0
+[ERROR] 13:09:26:989 LFS/(12292:12303):  No se encontro la key : 0
+[ERROR] 13:10:01:598 LFS/(12346:12352):  No se encontro la key : 0
+[ERROR] 13:10:45:605 LFS/(12393:12399):  No se encontro la key : 0
+[ERROR] 13:13:00:42 LFS/(12483:12500):  No se encontro la key : 0
+[ERROR] 13:14:07:915 LFS/(12558:12569):  No se encontro la key : 0
+[ERROR] 13:14:41:434 LFS/(12595:12601):  No se encontro la key : 0
+[ERROR] 13:17:42:422 LFS/(12708:12719):  No se encontro la key : 0
+[ERROR] 13:21:51:28 LFS/(12832:12843):  No se encontro la key : 0
+[ERROR] 13:23:14:900 LFS/(12903:12914):  No se encontro la key : 0
+[ERROR] 13:24:23:300 LFS/(12954:12966):  No se encontro la key : 0

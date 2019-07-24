@@ -611,32 +611,35 @@ int numeroSinUsar() {
 
 
 void operacion_gossiping() {
-	int *tamanioMemoriasRecibidas = malloc(sizeof(int));
-	read(memoriaPrincipal->socket, tamanioMemoriasRecibidas, sizeof(int));
-	t_list *memoriasRecibidas = list_create();
-	recv(memoriaPrincipal->socket, memoriasRecibidas, sizeof(t_list*), 0);
-	list_iterate(memoriasRecibidas, (void*)evaluarMemoriaRecibida);
+	while(1){
+		int *tamanioMemoriasRecibidas = malloc(sizeof(int));
+		read(memoriaPrincipal->socket, tamanioMemoriasRecibidas, sizeof(int));
+		t_list *memoriasRecibidas = list_create();
+		recv(memoriaPrincipal->socket, memoriasRecibidas, sizeof(t_list*), 0);
+		list_iterate(memoriasRecibidas, (void*)evaluarMemoriaRecibida);
 
-	//Me fijo las memorias que se desconectaron
-	void evaluarMemoriaConocida(struct datosMemoria *memoriaConocida){
-		int seDesconectoLaMemoria(struct datosMemoria *memoriaConocida){
-			int esLaMemoriaConocida(struct datosMemoria *memoriaRecibida){
-				//Revisar de que manera se puede verificar que sean la misma memoria
-				return memoriaRecibida->MEMORY_NUMBER == memoriaConocida->MEMORY_NUMBER;
+		//Me fijo las memorias que se desconectaron
+		void evaluarMemoriaConocida(struct datosMemoria *memoriaConocida){
+			int seDesconectoLaMemoria(struct datosMemoria *memoriaConocida){
+				int esLaMemoriaConocida(struct datosMemoria *memoriaRecibida){
+					//Revisar de que manera se puede verificar que sean la misma memoria
+					return memoriaRecibida->MEMORY_NUMBER == memoriaConocida->MEMORY_NUMBER;
+				}
+
+				return !list_any_satisfy(memoriasRecibidas, (void*)esLaMemoriaConocida);
 			}
 
-			return !list_any_satisfy(memoriasRecibidas, (void*)esLaMemoriaConocida);
+			if(seDesconectoLaMemoria(memoriaConocida)){
+				quitarMemoriaDeSC(memoriaConocida);
+				quitarMemoriaDe1Lista(memoriaConocida, hashConsistency);
+				quitarMemoriaDe1Lista(memoriaConocida, eventualConsistency);
+			}
 		}
 
-		if(seDesconectoLaMemoria(memoriaConocida)){
-			quitarMemoriaDeSC(memoriaConocida);
-			quitarMemoriaDe1Lista(memoriaConocida, hashConsistency);
-			quitarMemoriaDe1Lista(memoriaConocida, eventualConsistency);
-		}
+		list_iterate(listaDeMemorias, (void*)evaluarMemoriaConocida);
+		//free(memoriasRecibidas);
+		sleep(120);
 	}
-
-	list_iterate(listaDeMemorias, (void*)evaluarMemoriaConocida);
-
 }
 
 void evaluarMemoriaRecibida(struct datosMemoria* memoriaRecibida){
@@ -1047,9 +1050,15 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				(void *) criterioDescribeUnaTabla)) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
-			//strongConsistency->socket
 			struct tabla *metadata = pedirDescribeUnaTabla( tabla, strongConsistency->socket);
-			//actualizarDiccionarioDeTablas(tabla, metadata);
+
+			/*printf("%s: \n", tabla);
+			printf("Particiones: %i\n", metadata->PARTITIONS);
+			printf("Consistencia: %s\n", metadata->CONSISTENCY);
+			printf("Tiempo de compactacion: %i\n\n",
+					metadata->COMPACTION_TIME);*/
+
+			actualizarDiccionarioDeTablas(tabla, metadata);
 			if (es_request) {
 				describeUnaTabla(tabla);
 			}
@@ -1301,9 +1310,30 @@ struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria){
 
 	send(socketMemoria, buffer, 3*sizeof(int) + tamanioTabla, 0);
 
-	struct tabla *unaTabla;
-	recv(socketMemoria, unaTabla, sizeof(struct tabla*), 0);
-	return unaTabla;
+	//Deserializo
+	int *tamanioConsistencia = malloc(sizeof(int));
+	read(socketMemoria, tamanioConsistencia, sizeof(int));
+	char *tipoConsistencia = malloc(*tamanioConsistencia);
+	read(socketMemoria, tipoConsistencia, *tamanioConsistencia);
+
+	int* tamanioNumeroParticiones = malloc(sizeof(int));
+	read(socketMemoria, tamanioNumeroParticiones, sizeof(int));
+	int* numeroParticiones = malloc(*tamanioNumeroParticiones);
+	read(socketMemoria, numeroParticiones, *tamanioNumeroParticiones);
+
+	int* tamanioTiempoCompactacion = malloc(sizeof(int));
+	read(socketMemoria, tamanioTiempoCompactacion, sizeof(int));
+	int* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
+	read(socketMemoria, tiempoCompactacion, *tamanioTiempoCompactacion);
+	// aca ya tengo toda la metadata, falta guardarla en struct
+
+	struct tabla* data = malloc(8 + 4);    // 2 int = 2*4 bytes
+	data->CONSISTENCY = malloc(*tamanioConsistencia);
+	memcpy(&data->PARTITIONS, numeroParticiones, sizeof(int));
+	memcpy(data->CONSISTENCY, tipoConsistencia,	*tamanioConsistencia);
+	memcpy(&data->COMPACTION_TIME, tiempoCompactacion, sizeof(int));
+
+	return data;
 }
 
 void mandarInsert(char* tabla, char* key, char* value, int socketMemoria){

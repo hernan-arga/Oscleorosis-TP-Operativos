@@ -1107,8 +1107,25 @@ void tomarPeticionDescribe1Tabla(int kernel){
 	recv(kernel, tabla, *tamanioTabla, 0);
 	//printf("tabla: %s\n", tabla);
 
-	metadataTabla* unaMetadata = realizarDescribe(tabla);
-	send(kernel, unaMetadata, sizeof(unaMetadata), 0);
+	metadataTabla* metadata = realizarDescribe(tabla);
+
+	// serializo paquete
+	int tamanioBuffer = strlen(metadata->consistencia)+1 + 5*sizeof(int);
+	void* buffer = malloc(tamanioBuffer);
+
+	int tamanioMetadataConsistency = strlen(metadata->consistencia)+1;
+	memcpy(buffer, &tamanioMetadataConsistency, sizeof(int));
+	memcpy(buffer + sizeof(int), metadata->consistencia, tamanioMetadataConsistency);
+
+	int tamanioParticiones = sizeof(int);
+	memcpy(buffer + sizeof(int) + tamanioMetadataConsistency, &tamanioParticiones, sizeof(int));
+	memcpy(buffer + 2*sizeof(int) + tamanioMetadataConsistency, &metadata->particiones, sizeof(int));
+
+	int tamanioCompactacion = sizeof(int);
+	memcpy(buffer + 3*sizeof(int) + tamanioMetadataConsistency, &tamanioCompactacion, sizeof(int));
+	memcpy(buffer + 4*sizeof(int) + tamanioMetadataConsistency, &metadata->tiempoCompactacion, sizeof(int));
+
+	send(kernel, buffer, tamanioBuffer, 0);
 }
 
 void tomarPeticionDescribeGlobal(int kernel){
