@@ -1204,7 +1204,7 @@ void tratarKernel(int kernel) {
 		}
 
 	}
-}}
+}
 
 void aceptar() {
 	while (1) {
