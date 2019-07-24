@@ -2669,10 +2669,10 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 			// sem_post(semaforoTabla);
 
 			 //Para probar que funciona esta wea
-			 /* metadataTabla *metadata;
-			  metadata = (metadataTabla *)dictionary_get(diccionarioDescribe, "TABLA98");
-			  printf("%i", metadata->COMPACTION_TIME);
-			  printf("%i", metadata->PARTITIONS); */
+			  /*metadataTabla *metadata2;
+			  metadata2 = (metadataTabla *)dictionary_get(diccionarioDescribe, directorioALeer->d_name);
+			  printf("--%i", metadata2->COMPACTION_TIME);
+			  printf("--%i", metadata2->PARTITIONS);*/
 
 
 		}
