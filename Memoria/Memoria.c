@@ -98,7 +98,7 @@ void ejecutarJournaling();
 void realizarCreate(char* tabla, char* tipoConsistencia,
 		char* numeroParticiones, char* tiempoCompactacion);
 void realizarDrop(char* tabla);
-t_dictionary *realizarDescribeGolbal();
+void realizarDescribeGlobal();
 metadataTabla* realizarDescribe(char* tabla);
 void consola();
 void serServidor();
@@ -227,7 +227,7 @@ void realizarComando(char** comando) {
 
 		if (comando[1] == NULL) {
 			//printf("GLOBAL");
-			realizarDescribeGolbal();
+			realizarDescribeGlobal();
 		} else {
 			//printf("Normal");
 			tabla = comando[1];
@@ -843,8 +843,7 @@ metadataTabla* realizarDescribe(char* tabla) {
 	read(clienteFS, tamanioConsistencia, sizeof(int));
 	char *tipoConsistencia = malloc(*tamanioConsistencia);
 	read(clienteFS, tipoConsistencia, *tamanioConsistencia);
-	char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia,
-			*tamanioConsistencia);
+	char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia, *tamanioConsistencia);
 
 	int* tamanioNumeroParticiones = malloc(sizeof(int));
 	read(clienteFS, tamanioNumeroParticiones, sizeof(int));
@@ -865,10 +864,6 @@ metadataTabla* realizarDescribe(char* tabla) {
 			strlen(tipoConsistenciaCortada));
 	memcpy(&data->tiempoCompactacion, tiempoCompactacion, sizeof(int));
 
-	printf("\nTabla: %s", tabla);
-	printf("\nParticiones: %d", data->particiones);
-	printf("\nConsistencia: %s", data->consistencia);
-	printf("\nTiempo Compactacion: %d", data->tiempoCompactacion);
 
 	//free(metadata);
 
@@ -876,60 +871,59 @@ metadataTabla* realizarDescribe(char* tabla) {
 	return data;
 }
 
-t_dictionary *realizarDescribeGolbal() {
-	sem_wait(&sem2);
+void realizarDescribeGlobal() {
+//	sem_wait(&sem2); todo esto bloquea, lo comento
 
-	char* mensaje = malloc(sizeof(int));
-	strcpy(mensaje, "4");
+	// serializo peticion
+	void* buffer = malloc(2 * sizeof(int));
+	int peticion = 6;
+	int tamanioPeticion = sizeof(int);
+	memcpy(buffer, &tamanioPeticion, sizeof(int));
+	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+	send(clienteFS, buffer, 2 * sizeof(int), 0);
 
-	//Deserializo diccionario :
-	// entrada : tabla
-	// valor : metadata (consistencia[char*], particiones[int], compactacion[int])
-
-	char *tamanioTabla = malloc(sizeof(int));
+	// deserializo
+	int *tamanioTabla = malloc(sizeof(int));
 	read(clienteFS, tamanioTabla, sizeof(int));
-	char *tabla = malloc(atoi(tamanioTabla));
-	read(clienteFS, tabla, atoi(tamanioTabla));
+	while(*tamanioTabla != 0){
+		char *tabla = malloc(*tamanioTabla);
+		read(clienteFS, tabla, *tamanioTabla);
+		char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
-	void *tamanioConsistencia = malloc(sizeof(int));
-	read(clienteFS, tamanioConsistencia, sizeof(int));
-	void *tipoConsistencia = malloc(atoi(tamanioConsistencia));
-	read(clienteFS, tipoConsistencia, (int) tamanioConsistencia);
+		int *tamanioConsistencia = malloc(sizeof(int));
+		read(clienteFS, tamanioConsistencia, sizeof(int));
+		char *tipoConsistencia = malloc(*tamanioConsistencia);
+		read(clienteFS, tipoConsistencia, *tamanioConsistencia);
+		char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia, *tamanioConsistencia);
 
-	char *tamanioNumeroParticiones = malloc(sizeof(int));
-	read(clienteFS, tamanioNumeroParticiones, sizeof(int));
-	void *numeroParticiones = malloc((int) tamanioNumeroParticiones);
-	read(clienteFS, numeroParticiones, (int) tamanioNumeroParticiones);
+		int* tamanioNumeroParticiones = malloc(sizeof(int));
+		read(clienteFS, tamanioNumeroParticiones, sizeof(int));
+		int* numeroParticiones = malloc(*tamanioNumeroParticiones);
+		read(clienteFS, numeroParticiones, *tamanioNumeroParticiones);
 
-	void *tamanioTiempoCompactacion = malloc(sizeof(int));
-	read(clienteFS, tamanioTiempoCompactacion, sizeof(int));
-	void *tiempoCompactacion = malloc((int) tamanioTiempoCompactacion);
-	read(clienteFS, tiempoCompactacion, (int) tamanioTiempoCompactacion);
+		int* tamanioTiempoCompactacion = malloc(sizeof(int));
+		read(clienteFS, tamanioTiempoCompactacion, sizeof(int));
+		int* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
+		read(clienteFS, tiempoCompactacion, *tamanioTiempoCompactacion);
 
-	// lo guardo en un diccionario
-	//todo
+		char* mensajeALogear = malloc( strlen(" [DESCRIBE GLOBAL]:    ") + strlen(tablaCortada) + strlen(tipoConsistenciaCortada) + 2*sizeof(int) + 1);
+		strcpy(mensajeALogear, " [DESCRIBE GLOBAL]: ");
+		strcat(mensajeALogear, tablaCortada);
+		strcat(mensajeALogear, " ");
+		strcat(mensajeALogear, tipoConsistenciaCortada);
+		strcat(mensajeALogear, " ");
+		strcat(mensajeALogear, string_itoa(*numeroParticiones));
+		strcat(mensajeALogear, " ");
+		strcat(mensajeALogear, string_itoa(*tiempoCompactacion));
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "MEMORIA", 1, LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
 
-	free(mensaje);
-
-	mensaje = malloc(sizeof(t_dictionary));
-
-	t_dictionary* tablas = mensaje;
-
-	void mostrar(char* tabla, void* metadata) {
-		metadataTabla* data = metadata;
-
-		printf("\nTabla: %s", tabla);
-		printf("\nParticiones: %d", data->particiones);
-		printf("\nConsistencia: %s", data->consistencia);
-		printf("\nTiempo Compactacion: %d", data->tiempoCompactacion);
+		read(clienteFS, tamanioTabla, sizeof(int));
 	}
-
-	dictionary_iterator(tablas, mostrar);
-
-	free(mensaje);
-
 	sem_post(&sem2);
-	return tablas;
 }
 
 void consola() {
@@ -1116,8 +1110,8 @@ void tomarPeticionDescribe1Tabla(int kernel){
 }
 
 void tomarPeticionDescribeGlobal(int kernel){
-	t_dictionary *unDiccionario = realizarDescribeGolbal();
-	send(kernel, unDiccionario, sizeof(unDiccionario), 0);
+	realizarDescribeGlobal();
+	//send(kernel, unDiccionario, sizeof(unDiccionario), 0);
 }
 
 void tomarPeticionDrop(int kernel){

@@ -103,7 +103,7 @@ t_dictionary *binariosParaCompactar;
 t_dictionary *diccionarioDeSemaforos;
 
 metadataTabla describeUnaTabla(char *, int);
-t_dictionary *describeTodasLasTablas(int);
+void describeTodasLasTablas(int);
 void dump();
 void dumpPorTabla(char*);
 int contarLosDigitos(int);
@@ -1549,7 +1549,7 @@ void renombrarTodosLosTMPATMPC(char* tablaPath) {
 int create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 		char* tiempoDeCompactacion) {
 	actualizarTiempoDeRetardo();
-	sleep(structConfiguracionLFS.RETARDO);
+	// sleep(structConfiguracionLFS.RETARDO);
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
 		return 0;
@@ -2591,7 +2591,7 @@ int estaEntreComillas(char* valor) {
 
 metadataTabla describeUnaTabla(char *tabla, int seImprimePorPantalla) {
 	actualizarTiempoDeRetardo();
-	sleep(structConfiguracionLFS.RETARDO);
+	// sleep(structConfiguracionLFS.RETARDO);
 	char* pathTabla = string_new();
 	string_append(&pathTabla,
 			string_from_format("%sTables",
@@ -2637,7 +2637,7 @@ metadataTabla describeUnaTabla(char *tabla, int seImprimePorPantalla) {
 	exit(-1);
 }
 
-t_dictionary *describeTodasLasTablas(int seImprimePorPantalla) {
+void describeTodasLasTablas(int seImprimePorPantalla) {
 	//Podria conservar la estructura en vez de borrar lo que tengo adentro pero tendria que ir fijandome que los valores que
 	//tenga adentro el diccionario todavia sean validos, entonces es mas facil borrar tod y hacer describe desde 0
 	dictionary_clean(diccionarioDescribe);
@@ -2657,28 +2657,31 @@ t_dictionary *describeTodasLasTablas(int seImprimePorPantalla) {
 			char *tabla = string_new();
 			string_append(&tabla, directorioALeer->d_name);
 			//la key del diccionario esta en mayusculas para cada tabla
-			dameSemaforo(tabla, &semaforoTabla);
-			sem_wait(semaforoTabla);
+			// dameSemaforo(tabla, &semaforoTabla); todo anda mal semaforo
+			// sem_wait(semaforoTabla);
 
 			structMetadata = describeUnaTabla(directorioALeer->d_name,
 					seImprimePorPantalla);
+			metadataTabla * metadata = &structMetadata;
 			dictionary_put(diccionarioDescribe, directorioALeer->d_name,
-					&structMetadata);
+					metadata); // ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-			sem_post(semaforoTabla);
+			// sem_post(semaforoTabla);
 
-			/* Para probar que funciona esta wea
-			 *
-			 * metadataTabla *metadata;
-			 * metadata = (metadataTabla *)dictionary_get(diccionarioDescribe, directorioALeer->d_name);
-			 * printf("%i", metadata->COMPACTION_TIME);
-			 *
-			 */
+			 //Para probar que funciona esta wea
+			 /* metadataTabla *metadata;
+			  metadata = (metadataTabla *)dictionary_get(diccionarioDescribe, "TABLA98");
+			  printf("%i", metadata->COMPACTION_TIME);
+			  printf("%i", metadata->PARTITIONS); */
+
+
 		}
 	}
-	closedir(directorio);
-	return diccionarioDescribe;
+	metadataTabla *metadata = dictionary_get(diccionarioDescribe, "TABLA");
 
+	metadataTabla *metadataQ = dictionary_get(diccionarioDescribe, "TABLA1");
+	metadataTabla *metadata3 = dictionary_get(diccionarioDescribe, "TABLA98");
+	closedir(directorio);
 }
 
 int32_t iniciarConexion() {
@@ -2831,6 +2834,10 @@ int32_t iniciarConexion() {
 					//Drop
 					tomarPeticionDrop(sd);
 					break;
+				case 6:
+					//Describe global
+					tomarPeticionDescribeTodasLasTablas(sd);
+					break;
 				default:
 					break;
 				}
@@ -2977,13 +2984,10 @@ int32_t iniciarConexion() {
 
 
  void tomarPeticionDescribeTodasLasTablas(int sd){
-	t_dictionary *diccionario = describeTodasLasTablas(0);
+	describeTodasLasTablas(0);
 
 	DIR *directorio = opendir(string_from_format("%sTables", structConfiguracionLFS.PUNTO_MONTAJE));
 	struct dirent *directorioALeer;
-
-	void * buffer = 0;
-	int i = 0;
 
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Busco la metadata de todas las tablas (evaluo que no ingrese a los directorios "." y ".."
@@ -2991,39 +2995,35 @@ int32_t iniciarConexion() {
 			char *tabla = string_new();
 			string_append(&tabla, directorioALeer->d_name);
 
-			metadataTabla *metadata;
-			metadata = (metadataTabla *)dictionary_get(diccionario, directorioALeer->d_name);
+			metadataTabla *metadata = dictionary_get(diccionarioDescribe, tabla);
 
-			serializarDescribe(tabla, metadata, &buffer, &i);
+			void * buffer = malloc( strlen(tabla) + sizeof(int) + strlen(metadata->CONSISTENCY) + 2*sizeof(int) + 3*sizeof(int) );
+
+			int tamanioTabla = strlen(tabla);
+			memcpy(buffer, &tamanioTabla, sizeof(int));
+			memcpy(buffer + sizeof(int), tabla, strlen(tabla));
+
+			int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
+			memcpy(buffer + sizeof(int) + strlen(tabla), &tamanioMetadataConsistency, sizeof(int));
+			memcpy(buffer + 2 * sizeof(int) + strlen(tabla), metadata->CONSISTENCY, strlen(metadata->CONSISTENCY));
+
+			int tamanioParticiones = sizeof(int);
+			memcpy(buffer + 2 * sizeof(int) + strlen(tabla) + strlen(metadata->CONSISTENCY), &tamanioParticiones, sizeof(int));
+			memcpy(buffer + 3 * sizeof(int) + strlen(tabla) + strlen(metadata->CONSISTENCY), &metadata->PARTITIONS, sizeof(int));
+
+			int tamanioCompactacion = sizeof(int);
+			memcpy(buffer + 4 * sizeof(int) + strlen(tabla) + strlen(metadata->CONSISTENCY), &tamanioCompactacion, sizeof(int));
+			memcpy(buffer + 5 * sizeof(int) + strlen(tabla) + strlen(metadata->CONSISTENCY), &metadata->COMPACTION_TIME, sizeof(int));
+
+			send(sd, buffer, strlen(tabla) + strlen(metadata->CONSISTENCY) + 6*sizeof(int), 0);
 		}
 	}
-	send(sd, buffer, sizeof(buffer), 0);
-	closedir(directorio);
- }
+		char* buffer = malloc(4);
+		int respuesta = 0;
+		memcpy(buffer, &respuesta, sizeof(int));
 
- void serializarDescribe(char* tabla, metadataTabla* metadata, void* buffer, int* i){
- 	// serializo paquete
-	// primer sizeof para la tabla, segundo para datos de la metadata, tercero para longitudes de la metadata
-	buffer = malloc( *i + strlen(tabla) + sizeof(int) + strlen(metadata->CONSISTENCY) + 2*sizeof(int) + 3*sizeof(int));
-
-	int tamanioTabla = strlen(tabla);
-	memcpy(&buffer + *i, &tamanioTabla, sizeof(int));
-	memcpy(&buffer + *i + sizeof(int), &tabla, strlen(tabla));
-	// hasta aca el buffer tiene tod para la tabla, falta tod para la metadata
-
-	int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
-	memcpy(&buffer+ +*i + sizeof(int) + strlen(tabla), &tamanioMetadataConsistency, sizeof(int));
-	memcpy(&buffer + *i + 2*sizeof(int)+ strlen(tabla), &metadata->CONSISTENCY, strlen(metadata->CONSISTENCY));
-
-	int tamanioParticiones = sizeof(int);
-	memcpy(&buffer + *i + 2*sizeof(int) + strlen(tabla) + strlen(metadata->CONSISTENCY), &tamanioParticiones, sizeof(int));
-	memcpy(&buffer + *i + 3 * sizeof(int)+ strlen(tabla) + strlen(metadata->CONSISTENCY),&metadata->PARTITIONS, sizeof(int));
-
-	int tamanioCompactacion = sizeof(int);
-	memcpy(&buffer + *i + 4 * sizeof(int)+ strlen(tabla) + strlen(metadata->CONSISTENCY),&tamanioCompactacion, sizeof(int));
-	memcpy(&buffer + *i + 5 * sizeof(int)+ strlen(tabla) + strlen(metadata->CONSISTENCY), &metadata->COMPACTION_TIME, sizeof(int));
-
-	(*i)++;
+		send(sd, buffer, sizeof(int), 0);
+		closedir(directorio);
  }
 
 
