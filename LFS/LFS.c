@@ -672,6 +672,10 @@ void realizarPeticion(char** parametros) {
 			//Los semaforos para esta funcion estan adentro de esta cuando llama a describeUnaTabla
 			//el 1 es para que imprima por pantalla
 			describeTodasLasTablas(1);
+			/*metadataTabla *metadata = dictionary_get(diccionarioDescribe, "TABLA1");
+			printf("--CONSISTENCIA: %i\n", metadata->COMPACTION_TIME);
+			printf("--PARTICIONES: %i\n", metadata->PARTITIONS);
+			printf("--CONSISTENCIA: %s\n", metadata->CONSISTENCY);*/
 		}
 		if (parametrosValidos(1, parametros,
 				(void *) criterioDescribeUnaTabla)) {
@@ -2662,7 +2666,10 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 
 			structMetadata = describeUnaTabla(directorioALeer->d_name,
 					seImprimePorPantalla);
-			metadataTabla * metadata = &structMetadata;
+			metadataTabla * metadata = malloc(sizeof(metadata));
+			metadata->COMPACTION_TIME = structMetadata.COMPACTION_TIME;
+			metadata->CONSISTENCY = structMetadata.CONSISTENCY;
+			metadata->PARTITIONS = structMetadata.PARTITIONS;
 			dictionary_put(diccionarioDescribe, directorioALeer->d_name,
 					metadata); // ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
@@ -2677,10 +2684,10 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 
 		}
 	}
-	metadataTabla *metadata = dictionary_get(diccionarioDescribe, "TABLA");
+	/*metadataTabla *metadata = dictionary_get(diccionarioDescribe, "TABLA");
 
 	metadataTabla *metadataQ = dictionary_get(diccionarioDescribe, "TABLA1");
-	metadataTabla *metadata3 = dictionary_get(diccionarioDescribe, "TABLA98");
+	metadataTabla *metadata3 = dictionary_get(diccionarioDescribe, "TABLA98");*/
 	closedir(directorio);
 }
 
