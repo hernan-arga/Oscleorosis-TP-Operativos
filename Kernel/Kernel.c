@@ -1,9 +1,11 @@
-// KERNEL
-/*TAREA xd:
- * Sockets e Hilos
- * Parser para Metrics, Journal, Describe, Drop
- * Tablas
- * Criterios
+/* Falta:
+ *
+ * Si memoria esta haciendo Journaling esperar
+ * Sincronizar con semaforos
+ * Conectar el goissiping con memoria cada x tiempo para levantar las memorias
+ * Describe global para pedir las tablas del FS
+ * Agregar las tablas que se conectaron y las que no borrarlas
+ *
  */
 #include<stdio.h>
 #include<stdlib.h>
@@ -43,6 +45,7 @@ struct Script {
  struct datosMemoria{
 	int32_t socket;
 	struct sockaddr_in direccionSocket;
+	int32_t MEMORY_NUMBER;
  };
 
 struct tabla {
@@ -117,6 +120,10 @@ void mandarCreate(char *, char *, char *, char *, int);
 t_dictionary *pedirDiccionarioGlobal(int socketMemoria);
 
 
+void evaluarMemoriaRecibida(struct datosMemoria*);
+void quitarMemoriaDeSC(struct datosMemoria *);
+void quitarMemoriaDe1Lista(struct datosMemoria *, t_list *);
+
 void PRUEBA();
 
 t_list * metricasDeUltimos30Segundos;
@@ -137,7 +144,7 @@ t_log* g_logger;
 struct datosMemoria* memoriaPrincipal;
 struct datosMemoria* strongConsistency;
 t_list *hashConsistency;
-t_queue *eventualConsistency;
+t_list *eventualConsistency;
 
 struct metricas * unRegistro;
 //pthread_t hiloLevantarConexion;
@@ -151,7 +158,7 @@ int main() {
 	listaDeMemorias = list_create();
 	strongConsistency = (struct datosMemoria*)malloc(sizeof(struct datosMemoria));
 	hashConsistency = list_create();
-	eventualConsistency = queue_create();
+	eventualConsistency = list_create();
 
 	tablas_conocidas = dictionary_create();
 	new = queue_create();
@@ -248,14 +255,15 @@ void metrics(int opcion) {
 
 void logearMetrics() {
 	while (1) {
-		metrics(1);
+		//metrics(1);
 		sleep(30);
 	}
 
 }
 
 int funcionHash(int key) {
-	return key % list_size(hashConsistency);
+	//Le sumo 1 al resto porque no tengo memoria 0 por ej
+	return (key % list_size(hashConsistency))+1;
 }
 
 void memoryLoad(int opcion) {
@@ -606,8 +614,56 @@ void operacion_gossiping() {
 	read(memoriaPrincipal->socket, tamanioMemoriasRecibidas, sizeof(int));
 	t_list *memoriasRecibidas = list_create();
 	recv(memoriaPrincipal->socket, memoriasRecibidas, sizeof(t_list*), 0);
-	list_iterate(listaDeMemorias, (void*)conectarMemoriaRecibida);
-	list_add_all(listaDeMemorias, memoriasRecibidas);
+	list_iterate(memoriasRecibidas, (void*)evaluarMemoriaRecibida);
+
+	//Me fijo las memorias que se desconectaron
+	void evaluarMemoriaConocida(struct datosMemoria *memoriaConocida){
+		int seDesconectoLaMemoria(struct datosMemoria *memoriaConocida){
+			int esLaMemoriaConocida(struct datosMemoria *memoriaRecibida){
+				//Revisar de que manera se puede verificar que sean la misma memoria
+				return memoriaRecibida->MEMORY_NUMBER == memoriaConocida->MEMORY_NUMBER;
+			}
+
+			return !list_any_satisfy(memoriasRecibidas, (void*)esLaMemoriaConocida);
+		}
+
+		if(seDesconectoLaMemoria(memoriaConocida)){
+			quitarMemoriaDeSC(memoriaConocida);
+			quitarMemoriaDe1Lista(memoriaConocida, hashConsistency);
+			quitarMemoriaDe1Lista(memoriaConocida, eventualConsistency);
+		}
+	}
+
+	list_iterate(listaDeMemorias, (void*)evaluarMemoriaConocida);
+
+}
+
+void evaluarMemoriaRecibida(struct datosMemoria* memoriaRecibida){
+	int yaSeEncuentraLaMemoria(struct datosMemoria* memoriaConocida){
+		//Fijarse porque se pueden comparar
+		return memoriaConocida->MEMORY_NUMBER == memoriaRecibida->MEMORY_NUMBER;
+	}
+	if(list_any_satisfy(listaDeMemorias, (void*)yaSeEncuentraLaMemoria)){
+		list_add(listaDeMemorias, memoriaRecibida);
+	}
+}
+
+int sonLaMismaMemoria(struct datosMemoria *memoria1, struct datosMemoria *memoria2){
+	return memoria1->MEMORY_NUMBER == memoria2->MEMORY_NUMBER;
+}
+
+void quitarMemoriaDeSC(struct datosMemoria *unaMemoria){
+	if(sonLaMismaMemoria(unaMemoria, strongConsistency)){
+		free(strongConsistency);
+		strongConsistency = (struct datosMemoria*)malloc(sizeof(struct datosMemoria));
+	}
+}
+
+void quitarMemoriaDe1Lista(struct datosMemoria *unaMemoria, t_list *unaLista){
+	int esLaMemoria(struct datosMemoria *unaMemoriaConocida){
+		return unaMemoriaConocida->MEMORY_NUMBER == unaMemoria->MEMORY_NUMBER;
+	}
+	list_remove_by_condition(unaLista, (void*)esLaMemoria);
 }
 
 //En esta funcion la IP, el puerto y el socket ya fueron llenados
@@ -767,7 +823,12 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					if (list_size(hashConsistency) != 0) {
 						char* key = parametros[2];
 						int numeroMemoria = funcionHash(atoi(key));
-						struct datosMemoria *unaMemoria = list_get(hashConsistency, numeroMemoria);
+
+						int esLaMemoriaBuscada(struct datosMemoria* unaMemoria){
+							return unaMemoria->MEMORY_NUMBER == numeroMemoria;
+						}
+						struct datosMemoria *unaMemoria = list_find(hashConsistency, (void*)esLaMemoriaBuscada);
+
 						char * value = pedirValue(tabla, key, unaMemoria->socket);
 						printf("El value es: %s\n", value);
 					} else {
@@ -775,11 +836,11 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						printf("El value es: %s\n", value);
 					}
 				} else { //EC
-					if (queue_size(eventualConsistency) != 0) {
-						struct datosMemoria *unaMemoria = queue_pop(eventualConsistency);
+					if (list_size(eventualConsistency) != 0) {
+						struct datosMemoria *unaMemoria = list_remove(eventualConsistency, 0);
 						char* value = pedirValue(tabla, key, unaMemoria->socket);
 						printf("El value es: %s\n", value);
-						queue_push(eventualConsistency, unaMemoria);
+						list_add(eventualConsistency, unaMemoria);
 					} else {
 						char *value = pedirValue(tabla, key, strongConsistency->socket);
 						printf("El value es: %s\n", value);
@@ -842,7 +903,12 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					if (list_size(hashConsistency) != 0) {
 						char* key = parametros[2];
 						int numeroMemoria = funcionHash(atoi(key));
-						struct datosMemoria *unaMemoria = list_get(hashConsistency, numeroMemoria);
+
+						int esLaMemoriaBuscada(struct datosMemoria* unaMemoria){
+							return unaMemoria->MEMORY_NUMBER == numeroMemoria;
+						}
+						struct datosMemoria *unaMemoria = list_find(hashConsistency, (void*)esLaMemoriaBuscada);
+
 						clock_t tiempoInsert = clock();
 						generarMetrica(tiempoInsert,1,unaMemoria->direccionSocket.sin_addr.s_addr);
 						mandarInsert(tabla, key, value, unaMemoria->socket);
@@ -850,10 +916,10 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						mandarInsert(tabla, key, value, strongConsistency->socket);
 					}
 				} else { //EC
-					if (queue_size(eventualConsistency) != 0) {
-						struct datosMemoria *memoriaRandom = queue_pop(eventualConsistency);
+					if (list_size(eventualConsistency) != 0) {
+						struct datosMemoria *memoriaRandom = list_remove(eventualConsistency, 0);
 						mandarInsert(tabla, key, value, memoriaRandom->socket);
-						queue_push(eventualConsistency, memoriaRandom);
+						list_add(eventualConsistency, memoriaRandom);
 					} else {
 						mandarInsert(tabla, key, value, strongConsistency->socket);
 					}
@@ -919,16 +985,21 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						char* cantidadDeParticiones = parametros[3];
 						int numeroMemoria = funcionHash(
 								atoi(cantidadDeParticiones));
-						struct datosMemoria *unaMemoria = list_get(hashConsistency, numeroMemoria);
+
+						int esLaMemoriaBuscada(struct datosMemoria* unaMemoria){
+							return unaMemoria->MEMORY_NUMBER == numeroMemoria;
+						}
+						struct datosMemoria *unaMemoria = list_find(hashConsistency, (void*)esLaMemoriaBuscada);
+
 						mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, unaMemoria->socket);
 					} else {
 						mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, strongConsistency->socket);
 					}
 				} else { //EC
-					if (queue_size(eventualConsistency) != 0) {
-						struct datosMemoria* memoriaRandom = queue_pop(eventualConsistency);
+					if (list_size(eventualConsistency) != 0) {
+						struct datosMemoria* memoriaRandom = list_remove(eventualConsistency, 0);
 						mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, memoriaRandom->socket);
-						queue_push(eventualConsistency, memoriaRandom);
+						list_add(eventualConsistency, memoriaRandom);
 					} else {
 						mandarCreate(tabla, consistencia, cantidadParticiones, tiempoCompactacion, strongConsistency->socket);
 					}
@@ -1024,18 +1095,24 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					mandarDrop(tabla, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
-						int max = list_size(hashConsistency) - 1;
-						int memoriaRandom = rand() % max;
-						struct datosMemoria* unaMemoria = list_get(hashConsistency, memoriaRandom);
+						//le sumo 1 por la manera en que se enumeran las memorias
+						int max = list_size(hashConsistency)+1;
+						int numeroMemoria = rand() % max;
+
+						int esLaMemoriaBuscada(struct datosMemoria* unaMemoria){
+							return unaMemoria->MEMORY_NUMBER == numeroMemoria;
+						}
+						struct datosMemoria *unaMemoria = list_find(hashConsistency, (void*)esLaMemoriaBuscada);
+
 						mandarDrop(tabla, unaMemoria->socket);
 					} else {
 						mandarDrop(tabla, strongConsistency->socket);
 					}
 				} else { //EC
-					if (queue_size(eventualConsistency) != 0) {
-						struct datosMemoria *memoriaRandom = queue_pop(eventualConsistency);
+					if (list_size(eventualConsistency) != 0) {
+						struct datosMemoria *memoriaRandom = list_remove(eventualConsistency, 0);
 						mandarDrop(tabla, memoriaRandom->socket);
-						queue_push(eventualConsistency, memoriaRandom);
+						list_add(eventualConsistency, memoriaRandom);
 					} else {
 						mandarDrop(tabla, strongConsistency->socket);
 					}
@@ -1080,13 +1157,18 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				printf(
 						"El segundo parametro tiene que ser un numero de memoria valido.\n");
 			}
-			if (atoi(numeroMemoria) >= list_size(listaDeMemorias)) {
+
+			int seEncuentraLaMemoria(struct datosMemoria* unaMemoria){
+				return atoi(numeroMemoria) == unaMemoria->MEMORY_NUMBER;
+			}
+			if (!list_any_satisfy(listaDeMemorias, (void*)seEncuentraLaMemoria)) {
 				printf("No existe tal memoria.\n");
 			}
+
 			return !strcmp(memoria, "MEMORY") && !strcmp(to, "TO")
 					&& esUnTipoDeConsistenciaValida(consistencia)
 					&& esUnNumero(numeroMemoria)
-					&& atoi(numeroMemoria) < list_size(listaDeMemorias);
+					&& list_any_satisfy(listaDeMemorias, (void*)seEncuentraLaMemoria);
 		}
 		if (parametrosValidos(4, parametros, (void *) criterioAdd)) {
 			char *consistencia = parametros[4];
@@ -1102,15 +1184,20 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 
 			else {
 				int numeroMemoria = atoi(parametros[2]);
+
+				int esLaMemoriaBuscada(struct datosMemoria* unaMemoria){
+					return numeroMemoria == unaMemoria->MEMORY_NUMBER;
+				}
+
 				if (!strcmp(consistencia, "SC")) {
-					strongConsistency->direccionSocket = ((struct datosMemoria*)list_get(listaDeMemorias, numeroMemoria))->direccionSocket;//unaMemoria->direccionSocket;
-					strongConsistency->socket = ((struct datosMemoria*)list_get(listaDeMemorias, numeroMemoria))->socket;//unaMemoria->socket;
+					strongConsistency->direccionSocket = ((struct datosMemoria*)list_find(listaDeMemorias, (void*)esLaMemoriaBuscada))->direccionSocket;//unaMemoria->direccionSocket;
+					strongConsistency->socket = ((struct datosMemoria*)list_find(listaDeMemorias, (void*)esLaMemoriaBuscada))->socket;//unaMemoria->socket;
 				} else if (!strcmp(consistencia, "SHC")) {
 					list_add(hashConsistency,
-							list_get(listaDeMemorias, numeroMemoria));
+							list_find(listaDeMemorias, (void*)esLaMemoriaBuscada));
 				} else if (!strcmp(consistencia, "EC")) {
-					queue_push(eventualConsistency,
-							list_get(listaDeMemorias, numeroMemoria));
+					list_add(eventualConsistency,
+							list_find(listaDeMemorias, (void*)esLaMemoriaBuscada));
 				}
 			}
 		*huboError = 0;
@@ -1528,9 +1615,3 @@ void pasar_a_ready(t_queue * colaAnterior) {
 	queue_push(ready, proceso);
 	printf("El script %s fue trasladado a Ready\n", proceso->peticiones);
 }
-
-//void gossiping()
-
-//TAREA:
-//Crear un planificador de RR con quantum configurable y que sea capaz de parsear los archivos LQL
-//Lista de programas activos con PID cada uno, si alguno se termina de correr, el PID vuelve a estar libre para que otro programa entrante lo ocupe.*/
