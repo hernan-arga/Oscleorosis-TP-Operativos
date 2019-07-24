@@ -2,11 +2,12 @@
 /*
  * FALTANTES POR PRIORIDADES :
 
-abril : manejo errores drop
 loguear en mm
 decribe general serializar
 
+
  * - ver problema de mandar dos select (rompe el segundo)
+ * - ver sleep, ver semaforos
  * - sockets memoria- kernel
  * - SEMAFOROS: ¿por q se bloquea en las terminales y no en el ecplipse? -> condicion de carrera
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
@@ -15,8 +16,9 @@ decribe general serializar
  *
  *	HECHO:
  *	- recortar todos los char* en serializacion
- *	 - MANEJO DE ERRORES : probar las respuestas de errores en tod fs (ej select de tabla q no existe -> LEER PRUEBAS)
- *	  - cambiar las operaciones de fs segun si las mandan por consola o memoria
+ *	- MANEJO DE ERRORES : probar las respuestas de errores en tod fs (ej select de tabla q no existe -> LEER PRUEBAS)
+ *	- cambiar las operaciones de fs segun si las mandan por consola o memoria
+ *	- drop manejo de errores
  */
 
 
@@ -82,15 +84,13 @@ typedef struct {
 } binarioCompactacion;
 
 
- int32_t iniciarConexion();
- void tomarPeticionSelect(int sd);
- void tomarPeticionCreate(int sd);
- void tomarPeticionInsert(int sd);
- void tomarPeticionDrop(int sd);
- void tomarPeticionDescribePorTabla(int sd);
- void tomarPeticionDescribeTodasLasTablas(int sd);
-
-
+int32_t iniciarConexion();
+void tomarPeticionSelect(int sd);
+void tomarPeticionCreate(int sd);
+void tomarPeticionInsert(int sd);
+void tomarPeticionDrop(int sd);
+void tomarPeticionDescribePorTabla(int sd);
+void tomarPeticionDescribeTodasLasTablas(int sd);
 void atenderPeticionesDeConsola();
 void dameSemaforo(char *tabla, sem_t **semaforoTabla);
 void levantarHiloCompactacion(char *);
@@ -110,7 +110,6 @@ int contarLosDigitos(int);
 void crearArchivoDeBloquesConRegistros(int, char*);
 void crearArchivoConBloques(char*, char*, int);
 int cuantosDumpeosHuboEnLaTabla(char *);
-
 void compactacion(char*);
 void verificarCompactacion(char *);
 void actualizarRegistros(char *);
@@ -126,21 +125,15 @@ void actualizarBin(char *);
 void liberarBloques(char *);
 void desasignarBloqueDelBitarray(int);
 void serializarDescribe(char* tabla, metadataTabla* metadata, void* buffer, int* i);
-
 void drop(char*);
-
 int insert(char*, char*, char*, char*);
 int existeUnaListaDeDatosADumpear();
-
 char* realizarSelect(char*, char*);
-
 int create(char*, char*, char*, char*);
 void crearMetadata(char*, char*, char*, char*);
 void crearBinarios(char*, int);
 int asignarBloque();
 void crearArchivoDeBloquesVacio(char*, int);
-
-//Funciones Auxiliares
 int existeCarpeta(char*);
 int existeLaTabla(char*);
 void tomarPeticion(char*);
@@ -388,10 +381,8 @@ void realizarPeticion(char** parametros) {
 	OPERACION instruccion = tipoDePeticion(peticion);
 	switch (instruccion) {
 	case SELECT:
-		printf("Seleccionaste Select\n");
-		//Defino de que manera van a ser validos los parametros del select y luego paso el puntero de dicha funcion.
-		//Los parametros son validos si el segundo (la key) es un numero, y la cantidadDeParametrosUsados solo se pasa para hacer
-		//polimorfica la funcion criterioTiposCorrectos.
+		;
+		//printf("Seleccionaste Select\n");
 		int criterioSelect(char** parametros, int cantidadDeParametrosUsados) {
 			char* key = parametros[2];
 			if (!esUnNumero(key)) {
@@ -423,7 +414,8 @@ void realizarPeticion(char** parametros) {
 		break;
 
 	case INSERT:
-		printf("Seleccionaste Insert\n");
+		;
+		//printf("Seleccionaste Insert\n");
 		int criterioInsert(char** parametros, int cantidadDeParametrosUsados) {
 			char* key = parametros[2];
 			char* value = parametros[3];
@@ -484,7 +476,7 @@ void realizarPeticion(char** parametros) {
 				free(mensajeALogear);
 			}
 			if(respuesta == 1){
-				char* mensajeALogear = malloc( strlen(" Se realizo INSERT en tabla : ") + strlen(tabla) + 1);
+				char* mensajeALogear = malloc( strlen(" Se realizo INSERT en tabla :  / KEY :  / VALUE : ") + strlen(tabla) + strlen(key) + strlen(valor) + 1);
 				strcpy(mensajeALogear, " Se realizo INSERT en tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / KEY : ");
@@ -504,7 +496,7 @@ void realizarPeticion(char** parametros) {
 			//le saco las comillas al valor
 			char *valor = string_substring(parametros[3], 1,
 					string_length(parametros[3]) - 2);
-			//¿El timestamp nesecita conversion? esto esta en segundos y no hay tipo de dato que banque los milisegundos por el tamanio
+			//¿El timestamp necesita conversion? esto esta en segundos y no hay tipo de dato que banque los milisegundos por el tamanio
 			long int timestampActual = (long int) time(NULL);
 			char* timestamp = string_itoa(timestampActual);
 
@@ -532,7 +524,7 @@ void realizarPeticion(char** parametros) {
 					free(mensajeALogear);
 				}
 				if(respuesta == 1){
-					char* mensajeALogear = malloc( strlen(" Se realizo INSERT en tabla : ") + strlen(tabla) + 1);
+					char* mensajeALogear = malloc( strlen(" Se realizo INSERT en tabla :  / KEY :  / VALUE : ") + strlen(tabla) + strlen(key) + strlen(valor) + 1);
 					strcpy(mensajeALogear, " Se realizo INSERT en tabla : ");
 					strcat(mensajeALogear, tabla);
 					strcat(mensajeALogear, " / KEY : ");
@@ -550,7 +542,8 @@ void realizarPeticion(char** parametros) {
 
 		break;
 	case CREATE:
-		printf("Seleccionaste Create\n");
+		;
+		//printf("Seleccionaste Create\n");
 		int criterioCreate(char** parametros, int cantidadDeParametrosUsados) {
 			char* tiempoCompactacion = parametros[4];
 			char* cantidadParticiones = parametros[3];
@@ -574,7 +567,7 @@ void realizarPeticion(char** parametros) {
 			char* tablaMayusculas = string_new();
 			string_append(&tablaMayusculas, tabla);
 			string_to_upper(tablaMayusculas);
-			sem_t *semaforoTabla;
+			//sem_t *semaforoTabla;
 			//close y unlink por si ya estaba abierto el semaforo
 			//sem_close(semaforoTabla);
 			//sem_unlink(tablaMayusculas);
@@ -620,12 +613,20 @@ void realizarPeticion(char** parametros) {
 		}
 		break;
 	case DROP:
-		printf("Seleccionaste Drop\n");
+		;
+		//printf("Seleccionaste Drop\n");
 		int criterioDrop(char** parametros, int cantidadDeParametrosUsados) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
 			if (!existeLaTabla(tabla)) {
-				printf("La tabla a borrar no existe\n");
+				char* mensajeALogear = malloc( strlen("No existe una tabla con el nombre ") + strlen(tabla) + 1);
+				strcpy(mensajeALogear, "No existe una tabla con el nombre ");
+				strcat(mensajeALogear, tabla);
+				t_log* g_logger;
+				g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_ERROR);
+				log_error(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
 			}
 			return existeLaTabla(tabla);
 		}
@@ -647,7 +648,8 @@ void realizarPeticion(char** parametros) {
 		}
 		break;
 	case DESCRIBE:
-		printf("Seleccionaste Describe\n");
+		;
+		//printf("Seleccionaste Describe\n");
 		int criterioDescribeTodasLasTablas(char** parametros,
 				int cantidadDeParametrosUsados) {
 			char* tabla = parametros[1];
@@ -1763,24 +1765,20 @@ int existeLaTabla(char* nombreDeTabla) {
 
 void drop(char* tabla) {
 	actualizarTiempoDeRetardo();
-	sleep(structConfiguracionLFS.RETARDO);
+	//sleep(structConfiguracionLFS.RETARDO);
 	char *path = string_new();
 	string_append(&path,
 			string_from_format("%sTables/",
 					structConfiguracionLFS.PUNTO_MONTAJE));
 	string_append(&path, tabla);
 	DIR *directorio = opendir(path);
-	//printf("%s\n\n", path);
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
-		//printf("- %s\n", directorioALeer->d_name);
-		//Elimino todito lo que tiene adentro la tabla
 		if (!((directorioALeer->d_type) == DT_DIR)) {
 			char *archivoABorrar = string_new();
 			string_append(&archivoABorrar, path);
 			string_append(&archivoABorrar, "/");
 			string_append(&archivoABorrar, directorioALeer->d_name);
-			//printf("!!%s\n", archivoABorrar);
 			remove(archivoABorrar);
 		}
 	}
@@ -1796,7 +1794,6 @@ int existeCarpeta(char *nombreCarpeta) {
 	}
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
-		//Evaluo si de todas las carpetas dentro de TABAS existe alguna que tenga el mismo nombre
 		if ((directorioALeer->d_type) == DT_DIR
 				&& !strcmp((directorioALeer->d_name), nombreCarpeta)) {
 			closedir(directorio);
@@ -2687,11 +2684,9 @@ t_dictionary *describeTodasLasTablas(int seImprimePorPantalla) {
 int32_t iniciarConexion() {
 	int opt = 1;
 	int master_socket, addrlen, new_socket, client_socket[30], max_clients = 30,
-			activity, i, valread, sd;
+			activity, i, sd;
 	int max_sd;
 	struct sockaddr_in address;
-
-	char buffer[1025]; //data buffer of 1K
 
 	//set of socket descriptors
 	fd_set readfds;
@@ -2789,17 +2784,6 @@ int32_t iniciarConexion() {
 			memcpy(buffer + sizeof(int), &tamanioValue, sizeof(int));
 
 			//send new connection greeting message
-			/*
-			int* var = malloc(4);
-			*var=1;
-			send(new_socket, &var, sizeof(int), 0);
-			send(new_socket, &var, sizeof(int), 0);
-			send(new_socket, &var, sizeof(int), 0);
-			send(new_socket, &var, sizeof(int), 0);
-			send(new_socket, &var, sizeof(int), 0);
-			send(new_socket, &var, sizeof(int), 0);
-			send(new_socket, &var, sizeof(int), 0);*/
-
 			send(new_socket, buffer, 2*sizeof(int), 0);
 
 			//add new socket to array of sockets
@@ -3050,14 +3034,20 @@ int32_t iniciarConexion() {
 	read(sd, tabla, *tamanioTabla);
 	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
- 	drop(tablaCortada);
-
- 	// serializo respuesta ok
-	void* buffer = malloc(2 * sizeof(int));
-	int ok = 1;
-	int tamanioOk = sizeof(int);
-	memcpy(buffer, &tamanioOk, sizeof(int));
-	memcpy(buffer + sizeof(int), &ok, sizeof(int));
+	int respuesta;
+	if (!existeLaTabla(tablaCortada)) {
+		// respuesta = 0 es ERROR
+	 	 respuesta = 0;
+ 	} else{
+ 		drop(tablaCortada);
+ 		// respuesta = 1 es OK
+ 		respuesta = 1;
+ 	}
+	// serializo respuesta
+	char* buffer = malloc(2 * sizeof(int));
+	int tamanioRespuesta = sizeof(int);
+	memcpy(buffer, &tamanioRespuesta, sizeof(int));
+	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
 
 	send(sd, buffer, 2 * sizeof(int), 0);
  }

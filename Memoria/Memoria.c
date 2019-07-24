@@ -791,16 +791,17 @@ void realizarDrop(char* tabla) {
 
 	send(clienteFS, buffer, strlen(tabla) + 3 * sizeof(int), 0);
 
-	// Deserializo respuesta OK
-	int* tamanioOk = malloc(sizeof(int));
-	read(clienteFS, tamanioOk, sizeof(int));
-	int* ok = malloc(*tamanioOk);
-	read(clienteFS, ok, *tamanioOk);
+	// Deserializo respuesta
+	int* tamanioRespuesta = malloc(sizeof(int));
+	read(clienteFS, tamanioRespuesta, sizeof(int));
+	int* ok = malloc(*tamanioRespuesta);
+	read(clienteFS, ok, *tamanioRespuesta);
 
 	if (*ok == 0) {
 		char* mensajeALogear = malloc(
-				strlen(" No se pudo realizar drop en FS ") + 1);
-		strcpy(mensajeALogear, " No se pudo realizar drop en FS ");
+				strlen(" No se pudo realizar drop en FS de : ") + strlen(tabla) + 1);
+		strcpy(mensajeALogear, " No se pudo realizar drop en FS de : ");
+		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
 		g_logger = log_create("./logs.log", "MEMORIA", 1, LOG_LEVEL_ERROR);
 		log_error(g_logger, mensajeALogear);
@@ -808,8 +809,9 @@ void realizarDrop(char* tabla) {
 		free(mensajeALogear);
 	}
 	if (*ok == 1) {
-		char* mensajeALogear = malloc(strlen(" Se realizo drop en FS ") + 1);
-		strcpy(mensajeALogear, " Se realizo drop en FS ");
+		char* mensajeALogear = malloc(strlen(" Se realizo drop en FS de : ") + strlen(tabla) + 1);
+		strcpy(mensajeALogear, " Se realizo drop en FS de : ");
+		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
 		g_logger = log_create("./logs.log", "MEMORIA", 1, LOG_LEVEL_INFO);
 		log_info(g_logger, mensajeALogear);
