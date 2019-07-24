@@ -330,8 +330,6 @@ char* realizarSelect(char* tabla, char* key) {
 			char* value = malloc(tamanoValue);
 			value = pedirValue(tabla, key);
 
-			log_info(logy, value);
-
 			if (value == NULL) {
 				return 0;
 			}
@@ -586,7 +584,7 @@ void ejecutarJournaling() {
 		for (int i = 0; i < list_size(paginas); i++) {
 			pagina* pag = list_get(paginas, i);
 			if (pag->modificado) {
-				char* unaKey = malloc(sizeof(int));
+				int* unaKey = malloc(sizeof(int));
 				memcpy(unaKey,
 						(memoriaPrincipal + pag->numeroFrame * tamanoFrame),
 						sizeof(int));
@@ -595,7 +593,7 @@ void ejecutarJournaling() {
 				memcpy(value,
 						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
 								+ sizeof(int) + sizeof(long int)),
-						*(frames + pag->numeroFrame));
+						*(frames + pag->numeroFrame)+1);
 
 				// Serializo peticion, tabla, key, value (el timestamp lo agrega el fs y siempre es el ACTUAL)
 				char* buffer = malloc(
@@ -659,6 +657,9 @@ void ejecutarJournaling() {
 			}
 		}
 	}
+
+	dictionary_iterator(tablaSegmentos, journal);
+
 	for (int i = 0; i < 1000 / tamanoFrame; i++) {
 		*(frames + i) = 0;
 	}
