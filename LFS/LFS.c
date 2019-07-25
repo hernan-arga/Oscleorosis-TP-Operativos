@@ -203,7 +203,7 @@ int main(int argc, char *argv[]) {
 	diccionarioDescribe = malloc(4000);
 	diccionarioDescribe = dictionary_create();
 
-	listaDeSemaforos = list_create();
+	//listaDeSemaforos = list_create();
 	//ponerActivasTodasLasTablas();
 	//activarOtrosSemaforos();
 
@@ -847,7 +847,7 @@ int insert(char* tabla, char* key, char* valor, char* timestamp) {
 	if (!existeLaTabla(tabla)) {
 		return 0;
 	} else {
-		pthread_mutex_lock(&SEMAFOROMEMTABLE);
+		//pthread_mutex_lock(&SEMAFOROMEMTABLE);
 
 		t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 		p_registro->timestamp = atoi(timestamp);
@@ -865,7 +865,7 @@ int insert(char* tabla, char* key, char* valor, char* timestamp) {
 			dictionary_put(memtable, tabla, listaDeStructs);
 		}
 
-		pthread_mutex_unlock(&SEMAFOROMEMTABLE);
+		//pthread_mutex_unlock(&SEMAFOROMEMTABLE);
 		return 1;
 	}
 }
@@ -893,8 +893,8 @@ void dump() {
 
 void dumpPorTabla(char* tabla) {
 	if (existeLaTabla(tabla)) {
-		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-		pthread_mutex_lock(&unSemaforo->mutexDrop);
+		//semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+		//pthread_mutex_lock(&unSemaforo->mutexDrop);
 
 		//Tomo el tamanio por bloque de mi LFS
 		char *metadataPath = string_from_format("%sMetadata/metadata.bin",
@@ -999,7 +999,7 @@ void dumpPorTabla(char* tabla) {
 		//antes de eliminarlo de la memtable lo pongo en el diccionario de tablasQueTienenTMPs porque sino se borra el string tambien
 		//dictionary_put(tablasQueTienenTMPs, tabla, tablaPath);
 
-		pthread_mutex_unlock(&unSemaforo->mutexDrop);
+		//pthread_mutex_unlock(&unSemaforo->mutexDrop);
 	}
 	//Si no existe no hago nada, solo la elimino de la memtable
 	dictionary_remove(memtable, tabla);
@@ -2607,13 +2607,10 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			p_registro->value = malloc(strlen(arrayLinea[2]));
 			strcpy(p_registro->value, arrayLinea[2]);
 			vectorStructs[i] = malloc(8);
-			memcpy(&vectorStructs[i]->key, &p_registro->key,
-					sizeof(p_registro->key));
-			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
-					sizeof(p_registro->timestamp));
-			vectorStructs[i]->value = malloc(arrayLinea[2]);
-			memcpy(vectorStructs[i]->value, p_registro->value,
-					strlen(p_registro->value));
+			memcpy(&vectorStructs[i]->key, &p_registro->key, sizeof(p_registro->key));
+			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp, sizeof(p_registro->timestamp));
+			vectorStructs[i]->value = malloc(strlen(arrayLinea[2]));
+			memcpy(vectorStructs[i]->value, p_registro->value,strlen(p_registro->value));
 			i++;
 			(*cant)++;
 		}
