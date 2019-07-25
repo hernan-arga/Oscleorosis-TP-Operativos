@@ -620,6 +620,14 @@ int numeroSinUsar() {
 
 void operacion_gossiping() {
 	while(1){
+		void* buffer = malloc(sizeof(int));
+
+		int peticion = 8;
+		int tamanioPeticion = sizeof(int);
+		memcpy(buffer, &tamanioPeticion, sizeof(int));
+		memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+		send(memoriaPrincipal, buffer, 2*sizeof(int), 0);
+
 		int *tamanioMemoriasRecibidas = malloc(sizeof(int));
 		read(memoriaPrincipal->socket, tamanioMemoriasRecibidas, sizeof(int));
 		t_list *memoriasRecibidas = list_create();
@@ -1284,7 +1292,7 @@ void mandarDrop(char *tabla, int socketMemoria){
 void mandarJournal(int socketMemoria){
 	void* buffer = malloc(sizeof(int));
 
-	int peticion = 6;
+	int peticion = 7;
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
@@ -1297,7 +1305,7 @@ t_dictionary *pedirDiccionarioGlobal(int socketMemoria){
 
 	void* buffer = malloc(sizeof(int));
 
-	int peticion = 4;
+	int peticion = 6;
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
@@ -1349,7 +1357,7 @@ t_dictionary *pedirDiccionarioGlobal(int socketMemoria){
 struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria){
 	void* buffer = malloc(sizeof(int) + sizeof(int) +strlen(tabla));
 
-	int peticion = 3;
+	int peticion = 4;
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
@@ -1389,7 +1397,7 @@ struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria){
 void mandarInsert(char* tabla, char* key, char* value, int socketMemoria){
 	void* buffer = malloc(strlen(tabla)+1 + strlen(key)+1 + strlen(value)+1 + 5*sizeof(int));
 
-	int peticion = 1;
+	int peticion = 2;
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
@@ -1412,7 +1420,7 @@ void mandarInsert(char* tabla, char* key, char* value, int socketMemoria){
 }
 
 void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones, char *tiempoCompactacion, int socketMemoria){
-	int peticion = 2;
+	int peticion = 3;
 	void* buffer = malloc(strlen(tabla)+1 + 6*sizeof(int) + strlen(consistencia)+1 + strlen(cantidadParticiones)+1 + strlen(tiempoCompactacion)+1);
 
 	int tamanioPeticion = sizeof(int);
@@ -1443,7 +1451,7 @@ char* pedirValue(char* tabla, char* laKey, int socketMemoria)
 {
 	void* buffer = malloc( strlen(tabla)+1 + 4*sizeof(int));
 
-	int peticion = 0;
+	int peticion = 1;
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));

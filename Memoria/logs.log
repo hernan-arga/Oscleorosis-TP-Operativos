@@ -1,0 +1,24 @@
+[ERROR] 16:57:21:121 LFS/(8371:8373):  No se encontro la key : -1256191472
+[ERROR] 17:20:38:931 MEMORIA/(8566:8569):  No se pudo realizar create en el FS 
+[ERROR] 17:20:45:155 MEMORIA/(8566:8569):  No se pudo realizar drop en FS de : TABLA4
+[INFO] 17:21:48:939 MEMORIA/(8600:8603):  [DESCRIBE GLOBAL]: TABLA1 SC 2 10
+[INFO] 17:21:48:941 MEMORIA/(8600:8603):  [DESCRIBE GLOBAL]: TABLA2 SHC 2 10
+[INFO] 17:21:48:944 MEMORIA/(8600:8603):  [DESCRIBE GLOBAL]: TABLA3 EC 2 15
+[ERROR] 17:26:58:284 MEMORIA/(8733:8736):  Se realizo insert en FS 
+[ERROR] 17:27:52:737 MEMORIA/(8772:8775):  Se realizo insert en FS 
+[ERROR] 17:33:37:31 MEMORIA/(8869:8872):  Se realizo insert en FS 
+[ERROR] 17:42:29:582 MEMORIA/(9136:9147):  Se realizo insert en FS 
+[ERROR] 17:43:37:792 MEMORIA/(9237:9240):  Se realizo insert en FS 
+[ERROR] 17:49:14:781 MEMORIA/(9391:9394):  Se realizo insert en FS 
+[INFO] 18:07:12:196 MEMORIA/(9660:9662):  Se realizo drop en FS de : TABLA1
+[INFO] 18:08:12:71 MEMORIA/(9766:9768):  Se realizo drop en FS de : TABLA1
+[ERROR] 18:08:19:7 MEMORIA/(9766:9768):  No se pudo realizar drop en FS de : TABLA1
+[INFO] 18:09:21:415 MEMORIA/(9788:9790):  Se realizo create en el FS : TABLA2 con SC 2 10
+[ERROR] 18:10:22:135 MEMORIA/(9828:9831):  No se pudo realizar create en el FS 
+[INFO] 18:10:25:917 MEMORIA/(9828:9831):  Se realizo drop en FS de : TABLA1
+[INFO] 18:21:33:98 MEMORIA/(10038:10041):  Se realizo create en el FS : TABLA1 con SC 2 10
+[INFO] 18:21:37:50 MEMORIA/(10038:10041):  Se realizo drop en FS de : TABLA1
+[INFO] 18:22:00:813 MEMORIA/(10038:10041):  Se realizo create en el FS : TABLA1 con SC 2 10
+[INFO] 18:22:03:180 MEMORIA/(10038:10041):  Se realizo drop en FS de : TABLA1
+[INFO] 18:22:31:327 MEMORIA/(10038:10041):  Se realizo create en el FS : TABLA1 con SC 2 10
+[ERROR] 18:24:12:41 MEMORIA/(10038:10041):  Se realizo insert en FS 
