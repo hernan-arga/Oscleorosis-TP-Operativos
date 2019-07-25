@@ -1398,9 +1398,8 @@ void conectar() {
 			connect(clienteSeed, (struct sockaddr *) &direccionCliente,
 					sizeof(direccionCliente));
 
-			pthread_t tGosiping;
-			int32_t idTGosiping = pthread_create(&tGosiping, NULL, gossiping,
-					clienteSeed);
+			//pthread_t tGosiping;
+			//int32_t idTGosiping = pthread_create(&tGosiping, NULL, gossiping,	clienteSeed);
 
 			i++;
 		}
