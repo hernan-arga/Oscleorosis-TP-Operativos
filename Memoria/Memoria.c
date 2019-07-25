@@ -556,7 +556,7 @@ char* pedirValue(char* tabla, char* laKey) {
 		strcpy(mensajeALogear, " Llego select con VALUE : ");
 		strcat(mensajeALogear, valueCortado);
 		t_log* g_logger;
-		g_logger = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+		g_logger = log_create("./logs.log", "Memoria", 1, LOG_LEVEL_INFO);
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
@@ -853,8 +853,7 @@ metadataTabla* realizarDescribe(char* tabla) {
 	data->consistencia = malloc(strlen(tipoConsistenciaCortada));
 
 	memcpy(&data->particiones, numeroParticiones, sizeof(int));
-	memcpy(data->consistencia, tipoConsistenciaCortada,
-			strlen(tipoConsistenciaCortada));
+	memcpy(data->consistencia, tipoConsistenciaCortada,	strlen(tipoConsistenciaCortada) +1);
 	memcpy(&data->tiempoCompactacion, tiempoCompactacion, sizeof(int));
 
 	printf("Particiones: %d\n", data->particiones);
