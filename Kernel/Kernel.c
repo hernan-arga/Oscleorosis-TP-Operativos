@@ -1261,14 +1261,14 @@ void mandarDrop(char *tabla, int socketMemoria){
 	void* buffer = malloc(sizeof(int) + sizeof(int) +strlen(tabla));
 	int peticion = 5;
 	int tamanioPeticion = sizeof(int);
-		memcpy(buffer, &tamanioPeticion, sizeof(int));
-		memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+	memcpy(buffer, &tamanioPeticion, sizeof(int));
+	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
-		int tamanioTabla = strlen(tabla)+1;
-		memcpy(buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
-		memcpy(buffer + 3*sizeof(int), tabla, tamanioTabla);
+	int tamanioTabla = strlen(tabla)+1;
+	memcpy(buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(buffer + 3*sizeof(int), tabla, tamanioTabla);
 
-		send(socketMemoria, buffer, 3*sizeof(int)+tamanioTabla, 0);
+	send(socketMemoria, buffer, 3*sizeof(int)+tamanioTabla, 0);
 }
 
 void mandarJournal(int socketMemoria){

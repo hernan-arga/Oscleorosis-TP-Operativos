@@ -1,15 +1,12 @@
 // FS
 /*
- * FALTANTES POR PRIORIDADES :
-
-loguear en mm
-decribe general serializar
-
+ * FALTANTES:
 
  * - ver problema de mandar dos select (rompe el segundo)
+ *
  * - ver sleep, ver semaforos
- * - sockets memoria- kernel
  * - SEMAFOROS: ¿por q se bloquea en las terminales y no en el ecplipse? -> condicion de carrera
+ *
  * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
  * - CAMBIAR LOS PRINTF A LOGS (en todos los modulos!!!!) PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA (si alcanza el tiempo)
  *
@@ -19,6 +16,7 @@ decribe general serializar
  *	- MANEJO DE ERRORES : probar las respuestas de errores en tod fs (ej select de tabla q no existe -> LEER PRUEBAS)
  *	- cambiar las operaciones de fs segun si las mandan por consola o memoria
  *	- drop manejo de errores
+ *	- sockets mm-kernel
  */
 
 
@@ -2323,7 +2321,7 @@ char* realizarSelect(char* tabla, char* key) {
 				//printf("%s\n", valueDeTimestampActualMayorBloques);
 				string_append(&valueFinal, valueDeTimestampActualMayorBloques);
 
-				char* mensajeALogear = malloc( 100 + strlen(tabla) + strlen(string_itoa(timestampActualMayorBloques)) + strlen(valueDeTimestampActualMayorBloques) + 1);
+				char* mensajeALogear = malloc( strlen(" Se selecciono tabla :  / En bloque con timestamp :  / Value : ") + strlen(tabla) + strlen(string_itoa(timestampActualMayorBloques)) + strlen(valueDeTimestampActualMayorBloques));
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / En bloque con timestamp : ");
@@ -2530,7 +2528,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 			t_registro p_registro2;
 			p_registro = &p_registro2;
-			char** arrayLinea = malloc(strlen(line) + 1);
+			char** arrayLinea = malloc(strlen(line));
 			arrayLinea = string_split(line, ";");
 			int timestamp = atoi(arrayLinea[0]);
 			int key = atoi(arrayLinea[1]);
@@ -2538,12 +2536,12 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			p_registro->key = key;
 			p_registro->value = malloc(strlen(arrayLinea[2]));
 			strcpy(p_registro->value, arrayLinea[2]);
-			vectorStructs[i] = malloc(12);
+			vectorStructs[i] = malloc(8);
 			memcpy(&vectorStructs[i]->key, &p_registro->key,
 					sizeof(p_registro->key));
 			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
 					sizeof(p_registro->timestamp));
-			vectorStructs[i]->value = malloc(strlen(p_registro->value));
+			vectorStructs[i]->value = malloc(arrayLinea[2]);
 			memcpy(vectorStructs[i]->value, p_registro->value,
 					strlen(p_registro->value));
 			i++;
