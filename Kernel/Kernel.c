@@ -4,8 +4,9 @@
  * Sincronizar con semaforos
  * Conectar el goissiping con memoria cada x tiempo para levantar las memorias
  * Describe global para pedir las tablas del FS
- * Agregar las tablas que se conectaron y las que no borrarlas
+ * Agregar las tablas que se conectaron y las que no borrarlas (hecho probar que funcione)
  *
+ *¿Esta bien que el describe se mande siempre a strongConsistency? - preguntar
  */
 #include<stdio.h>
 #include<stdlib.h>

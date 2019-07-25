@@ -45,6 +45,24 @@
 [INFO] 16:20:33:423 MEMORIA/(4485:4493):  [DESCRIBE GLOBAL]: TABLA45 SC 2 90
 [INFO] 16:20:33:424 MEMORIA/(4485:4493):  [DESCRIBE GLOBAL]: TABLA222 SC 2 56
 [INFO] 16:20:33:424 MEMORIA/(4485:4493):  [DESCRIBE GLOBAL]: TABLA78 SC 2 33
+<<<<<<< HEAD
 [ERROR] 23:47:50:974 LFS/(10786:10840):  No se encontro la key : 0
 [ERROR] 23:50:47:77 LFS/(10979:11033):  No se encontro la key : 0
 [ERROR] 23:56:40:212 LFS/(11202:11271):  No se encontro la key : 0
+=======
+[ERROR] 18:22:53:893 MEMORIA/(4157:4160):  No se pudo realizar drop en FS de : TABLA1
+[INFO] 18:43:49:753 MEMORIA/(4725:4729):  Se realizo drop en FS de : TABLA1
+[INFO] 18:44:22:594 MEMORIA/(4742:4746):  Se realizo drop en FS de : TABLA1
+[INFO] 18:44:40:832 MEMORIA/(4742:4746):  Se realizo create en el FS : TABLA1 con SC 2 10
+[INFO] 18:44:45:527 MEMORIA/(4742:4746):  Se realizo drop en FS de : TABLA1
+[INFO] 18:46:03:598 MEMORIA/(4790:4793):  Se realizo drop en FS de : TABLA1
+[INFO] 18:46:07:670 MEMORIA/(4790:4793):  Se realizo drop en FS de : TABLA2
+[INFO] 18:46:10:688 MEMORIA/(4790:4793):  Se realizo drop en FS de : TABLA3
+[INFO] 18:46:14:394 MEMORIA/(4790:4793):  Se realizo drop en FS de : TABLA4
+[INFO] 18:46:19:170 MEMORIA/(4790:4793):  Se realizo drop en FS de : TABLA5
+[INFO] 18:46:23:161 MEMORIA/(4790:4793):  Se realizo drop en FS de : TABLA6
+[INFO] 18:46:26:973 MEMORIA/(4790:4793):  Se realizo drop en FS de : TABLA7
+[INFO] 18:46:35:112 MEMORIA/(4790:4793):  Se realizo create en el FS : TABLA1 con SC 2 10
+[INFO] 18:46:52:674 MEMORIA/(4790:4793):  Se realizo drop en FS de : TABLA1
+[INFO] 18:48:09:498 MEMORIA/(4790:4793):  Se realizo create en el FS : TABLA1 con SC 2 10
+>>>>>>> origin/master
