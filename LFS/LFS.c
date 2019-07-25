@@ -664,11 +664,11 @@ void realizarPeticion(char** parametros) {
 				 				structConfiguracionLFS.PUNTO_MONTAJE));
 				 string_append(&pathTabla, tablaMayusculas);
 				 levantarHiloCompactacion(pathTabla);
-				 semaforoDeTabla *unSemaforo = malloc(sizeof(semaforoDeTabla));
+				 /*semaforoDeTabla *unSemaforo = malloc(sizeof(semaforoDeTabla));
 				 unSemaforo->tabla = tablaMayusculas;
 				 pthread_mutex_init(&unSemaforo->mutexDrop, NULL);
 				 pthread_mutex_init(&unSemaforo->mutexTablaParticion, NULL);
-				 list_add(listaDeSemaforos, unSemaforo);
+				 list_add(listaDeSemaforos, unSemaforo);*/
 			 }
 			 if(respuesta == 0){
 				char* mensajeALogear = malloc( strlen("Error: ya existe una tabla con el nombre ") + strlen(tabla) + 1);
@@ -708,11 +708,11 @@ void realizarPeticion(char** parametros) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
 
-			semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-			pthread_mutex_lock(&unSemaforo->mutexDrop);
+			/*semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+			pthread_mutex_lock(&unSemaforo->mutexDrop);*/
 			drop(tabla);
-			pthread_mutex_unlock(&unSemaforo->mutexDrop);
-			borrarSemaforo(tabla);
+			/*pthread_mutex_unlock(&unSemaforo->mutexDrop);
+			borrarSemaforo(tabla);*/
 
 		}
 		break;
@@ -1120,7 +1120,9 @@ void verificarCompactacion(char *pathTabla) {
 
 		//semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 		//pthread_mutex_lock(&unSemaforo->mutexDrop);	//Semaforo para bloquear el drop
-		compactacion(pathTabla);	//Seccion Critica
+		if(existeLaTabla(tabla)){	//por si se borro mientras se bloqueaba la tabla
+			compactacion(pathTabla);	//Seccion Critica
+		}
 		//pthread_mutex_unlock(&unSemaforo->mutexDrop);
 		free(metadataTabla);
 		config_destroy(configTabla);
@@ -1190,10 +1192,10 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 	liberarBloques(tmpc);
 	remove(tmpc);
 
-	semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-	pthread_mutex_lock(&unSemaforo->mutexTablaParticion);
+	//semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+	//pthread_mutex_lock(&unSemaforo->mutexTablaParticion);
 	list_iterate(binariosAfectados, (void*) actualizarBin);	//Seccion Critica
-	pthread_mutex_unlock(&unSemaforo->mutexTablaParticion);
+	//pthread_mutex_unlock(&unSemaforo->mutexTablaParticion);
 
 	list_clean(binariosAfectados);
 	fin = time(NULL);
@@ -1607,9 +1609,9 @@ void renombrarTodosLosTMPATMPC(char* tablaPath) {
 			string_append(&viejoNombre, archivoALeer->d_name);
 			string_append(&nuevoNombre, viejoNombre);
 			string_append(&nuevoNombre, "c");
-			pthread_mutex_lock(&SEMAFORODETMPC);
+			//pthread_mutex_lock(&SEMAFORODETMPC);
 			rename(viejoNombre, nuevoNombre);	//Seccion Critica
-			pthread_mutex_unlock(&SEMAFORODETMPC);
+			//pthread_mutex_unlock(&SEMAFORODETMPC);
 
 			//printf("%s\n", nuevoNombre);
 		}
