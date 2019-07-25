@@ -22,3 +22,7 @@
 [INFO] 18:22:03:180 MEMORIA/(10038:10041):  Se realizo drop en FS de : TABLA1
 [INFO] 18:22:31:327 MEMORIA/(10038:10041):  Se realizo create en el FS : TABLA1 con SC 2 10
 [ERROR] 18:24:12:41 MEMORIA/(10038:10041):  Se realizo insert en FS 
+[INFO] 18:30:34:247 MEMORIA/(10205:10207):  Se realizo create en el FS : TABLA2 con SC 2 10
+[INFO] 18:31:04:805 MEMORIA/(10205:10207):  Se realizo drop en FS de : TABLA1
+[INFO] 18:31:24:908 MEMORIA/(10205:10208):  Se realizo create en el FS : TABLA1 con SC 2 10
+[INFO] 18:59:51:824 MEMORIA/(10891:10893):  Se realizo drop en FS de : TABLA2

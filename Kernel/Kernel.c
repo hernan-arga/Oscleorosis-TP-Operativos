@@ -70,7 +70,7 @@ typedef enum {
 } OPERACION;
 
 
-t_dictionary* diccionarioTemporal;
+//t_dictionary* diccionarioTemporal;
 
 OPERACION tipo_de_peticion(char*);
 int cantidadDeElementosDePunteroDePunterosDeChar(char**);
@@ -172,12 +172,12 @@ int main() {
 	ready = queue_create();
 	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
 
-	PRUEBA();
+	//PRUEBA();
 	multiprocesamiento = config_get_int_value(configuracion, "MULTIPROCESAMIENTO");
 	iniciarSemaforos();
 
-	diccionarioTemporal = malloc(3000);
-	diccionarioTemporal = dictionary_create();
+	//diccionarioDeTablasTemporal = malloc(3000);
+	diccionarioDeTablasTemporal = dictionary_create();
 
 	//Conecto a la memoria principal
 	//memoriaPrincipal = (struct datosMemoria*)malloc(sizeof(struct datosMemoria));
@@ -924,8 +924,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						tabla);
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
 					//strongConsistency->socket
-					printf("HOLA\n");
-					printf("SC socket: %d\n", strongConsistency->socket);
+					//printf("HOLA\n");
+					//printf("SC socket: %d\n", strongConsistency->socket);
 					mandarInsert(tabla, key, value, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
@@ -1001,6 +1001,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				planificador(nombre_archivo);
 			} else {
 				char* tabla = parametros[1];
+				string_to_upper(tabla);
 				char* tiempoCompactacion = parametros[4];
 				char* cantidadParticiones = parametros[3];
 				char* consistencia = parametros[2];
@@ -1033,6 +1034,11 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					}
 				}
 				*huboError = 0;
+				struct tabla *unaTabla = malloc(sizeof(struct tabla));
+				unaTabla->COMPACTION_TIME = atoi(tiempoCompactacion);
+				unaTabla->CONSISTENCY = consistencia;
+				unaTabla->PARTITIONS = atoi(cantidadParticiones);
+				dictionary_put(tablas_conocidas, tabla, unaTabla);
 			}
 		}
 		else{
@@ -1061,10 +1067,9 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		if (parametrosValidos(0, parametros,
 				(void *) criterioDescribeTodasLasTablas)) {
 			//strongConsistency->socket
-			guardarDiccionarioGlobal(strongConsistency->socket);
-			//dictionary_iterator(diccionarioDeTablasTemporal, (void*)actualizarDiccionarioDeTablas); actualizo el propio
-			//dictionary_iterator(tablas_conocidas, (void*)quitarDelDiccionarioDeTablasLaTablaBorrada);
-			//dictionary_destroy(diccionarioDeTablasTemporal);
+			guardarDiccionarioGlobal(strongConsistency->socket);	//Pido las nuevas tablas y las guardo en el diccionario temporal
+			dictionary_iterator(diccionarioDeTablasTemporal, (void*)actualizarDiccionarioDeTablas); //actualizo el propio
+			dictionary_iterator(tablas_conocidas, (void*)quitarDelDiccionarioDeTablasLaTablaBorrada);
 			*huboError = 0;
 			if (es_request) {
 				describeTodasLasTablas();
@@ -1112,8 +1117,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		if (parametrosValidos(1, parametros, (void *) criterioDrop)) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
-			drop(tabla);
 			*huboError = 0;
+			dictionary_remove(tablas_conocidas, tabla);
 			if (es_request) {
 				char* nombre_archivo = tempSinAsignar();
 				FILE* temp = fopen(nombre_archivo, "w");
@@ -1307,7 +1312,7 @@ void mandarJournal(int socketMemoria){
 }
 
 void guardarDiccionarioGlobal(int socketMemoria){
-	dictionary_clean(diccionarioTemporal);
+	dictionary_clean(diccionarioDeTablasTemporal);
 
 	void* buffer = malloc(sizeof(int));
 
@@ -1325,26 +1330,26 @@ void guardarDiccionarioGlobal(int socketMemoria){
 		char *tabla = malloc(*tamanioTabla);
 		read(socketMemoria, tabla, *tamanioTabla);
 		char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
-		printf("%s\n", tablaCortada);
+		//printf("%s\n", tablaCortada);
 
 		int *tamanioConsistencia = malloc(sizeof(int));
 		read(socketMemoria, tamanioConsistencia, sizeof(int));
 		char *tipoConsistencia = malloc(*tamanioConsistencia);
 		read(socketMemoria, tipoConsistencia, *tamanioConsistencia);
 		char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia, *tamanioConsistencia);
-		printf("%s\n", tipoConsistenciaCortada);
+		//printf("%s\n", tipoConsistenciaCortada);
 
 		int* tamanioNumeroParticiones = malloc(sizeof(int));
 		read(socketMemoria, tamanioNumeroParticiones, sizeof(int));
 		int* numeroParticiones = malloc(*tamanioNumeroParticiones);
 		read(socketMemoria, numeroParticiones, *tamanioNumeroParticiones);
-		printf("%i\n", numeroParticiones);
+		//printf("%i\n", *numeroParticiones);
 
 		int* tamanioTiempoCompactacion = malloc(sizeof(int));
 		read(socketMemoria, tamanioTiempoCompactacion, sizeof(int));
 		int* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
 		read(socketMemoria, tiempoCompactacion, *tamanioTiempoCompactacion);
-		printf("%i\n", tiempoCompactacion);
+		//printf("%i\n", *tiempoCompactacion);
 
 		char* mensajeALogear = malloc( strlen(" [DESCRIBE GLOBAL]:    ") + strlen(tablaCortada) + strlen(tipoConsistenciaCortada) + 2*sizeof(int) + 1);
 		strcpy(mensajeALogear, " [DESCRIBE GLOBAL]: ");
@@ -1367,11 +1372,11 @@ void guardarDiccionarioGlobal(int socketMemoria){
 		memcpy(&data->PARTITIONS, numeroParticiones, sizeof(int));
 		memcpy(data->CONSISTENCY, tipoConsistenciaCortada,	*tamanioConsistencia);
 		memcpy(&data->COMPACTION_TIME, tiempoCompactacion, sizeof(int));
-		dictionary_put(diccionarioTemporal, tablaCortada, data);
+		dictionary_put(diccionarioDeTablasTemporal, tablaCortada, data);
 
 		/* para probar que funciona
 		struct tabla* metadata2;
-		metadata2 = dictionary_get(diccionarioTemporal, tablaCortada);
+		metadata2 = dictionary_get(diccionarioDeTablasTemporal, tablaCortada);
 		printf("--%i", metadata2->COMPACTION_TIME);
 		printf("--%i", metadata2->PARTITIONS);
 		printf("--%s", metadata2->CONSISTENCY);
@@ -1549,13 +1554,9 @@ void describeUnaTabla(char* tabla) {
 }
 
 void describeTodasLasTablas() {
-
+	dictionary_iterator(tablas_conocidas, (void*)describeUnaTabla);
 }
 
-//TODO socket para dropear la tabla en memoria y borrar la tabla de mi lista de tablas conocidas.
-void drop(char* nombre_tabla) {
-
-}
 
 
  int32_t conectarUnaMemoria(struct datosMemoria *unaMemoria, char* IP_MEMORIA, int PUERTO_MEMORIA){
