@@ -41,7 +41,6 @@ typedef struct {
 
 typedef struct {
 	int32_t PUERTO;
-	char* IP_FS;
 	int32_t PUERTO_FS;
 	int32_t RETARDO_MEM;
 	int32_t RETARDO_FS;
@@ -53,11 +52,11 @@ typedef struct {
 	char** PUERTO_SEEDS;
 } archivoConfiguracion;
 
-struct datosMemoria {
+typedef struct {
 	int socket;
 	struct sockaddr_in direccionSocket;
 	int32_t MEMORY_NUMBER;
-};
+} datosMemoria;
 
 t_dictionary* tablaSegmentos;
 char* memoriaPrincipal;
@@ -104,12 +103,10 @@ void realizarDrop(char* tabla);
 void realizarDescribeGlobal();
 metadataTabla* realizarDescribe(char* tabla);
 void consola();
-void serServidor();
+int serServidor();
 void conectarseAFS();
-void tratarKernel(int kernel);
 void gossiping(int cliente);
-void tratarCliente(int cliente);
-void aceptar();
+void conectar();
 
 void tomarPeticionSelect(int);
 void tomarPeticionInsert(int);
@@ -119,8 +116,10 @@ void tomarPeticionDescribeGlobal(int);
 void tomarPeticionDrop(int);
 
 int main(int argc, char *argv[]) {
+
 	sem_init(&sem, 1, 0);
-	sem_init(&sem2, 1, 1);
+
+	clientes = list_create();
 
 	config = config_create(argv[1]);
 
@@ -146,23 +145,14 @@ int main(int argc, char *argv[]) {
 	pthread_t threadFS;
 	int32_t idThreadFS = pthread_create(&threadFS, NULL, conectarseAFS, NULL);
 
-	pthread_t threadSerServidor;
-	int32_t idThreadSerServidor = pthread_create(&threadSerServidor, NULL,
-			serServidor, NULL);
+	sem_wait(&sem);
 
-	//pthread_t threadKernel;
-	//int32_t idThreadKernel = pthread_create(&threadKernel, NULL, (void*)aceptar, NULL);
+	pthread_t threadSerServidor;
+	int32_t idThreadSerServidor = pthread_create(&threadSerServidor, NULL, serServidor, NULL);
 
 	tablaSegmentos = dictionary_create();
 
-	printf("%d", t_archivoConfiguracion.PUERTO);
-
 	memoriaPrincipal = malloc(t_archivoConfiguracion.TAM_MEM);
-	//memoriaPrincipal = malloc(1000);
-
-	sem_wait(&sem);
-
-	//tamanoValue = 100;
 
 	tamanoFrame = sizeof(int) + sizeof(long int) + tamanoValue;
 	//Key , TimeStamp, Value
@@ -170,18 +160,20 @@ int main(int argc, char *argv[]) {
 	int tablaFrames[t_archivoConfiguracion.TAM_MEM / tamanoFrame];
 	frames = tablaFrames;
 
-	for (int i = 0; i < t_archivoConfiguracion.TAM_MEM / tamanoFrame; i++) {
+	for (int i = 0; i < t_archivoConfiguracion.TAM_MEM / tamanoFrame; i++)
+	{
 		*(frames + i) = 0;
 	}
 
 	pthread_t threadConsola;
-	int32_t idthreadConsola = pthread_create(&threadConsola, NULL, consola,
-			NULL);
+	int32_t idthreadConsola = pthread_create(&threadConsola, NULL, consola,	NULL);
+
+	pthread_t tConectar;
+	int32_t idTConectar = pthread_create(&tConectar, NULL, conectar, NULL);
 
 	pthread_join(threadConsola, NULL);
 	pthread_join(threadSerServidor, NULL);
 	pthread_join(threadFS, NULL);
-	//pthread_join(aceptar, NULL);
 }
 
 void analizarInstruccion(char* instruccion) {
@@ -210,6 +202,12 @@ void realizarComando(char** comando) {
 		tabla = comando[1];
 		key = comando[2];
 		value = comando[3];
+		int i = 4;
+		while(comando[i] != NULL)
+		{
+			string_append_with_format(&value," %s", comando[i]);
+			i++;
+		}
 		realizarInsert(tabla, key, value);
 		break;
 
@@ -700,7 +698,6 @@ void ejecutarJournaling() {
 
 void realizarCreate(char* tabla, char* tipoConsistencia,
 		char* numeroParticiones, char* tiempoCompactacion) {
-	sem_wait(&sem2);
 
 	// Serializo Peticion, Tabla y Metadata
 	char* buffer = malloc(
@@ -766,12 +763,9 @@ void realizarCreate(char* tabla, char* tipoConsistencia,
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	}
-
-	sem_post(&sem2);
 }
 
 void realizarDrop(char* tabla) {
-	sem_wait(&sem2);
 
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
 		void* elemento = dictionary_remove(tablaSegmentos, tabla);
@@ -819,12 +813,9 @@ void realizarDrop(char* tabla) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 	}
-
-	sem_post(&sem2);
 }
 
 metadataTabla* realizarDescribe(char* tabla) {
-	sem_wait(&sem2);
 
 	// Serializo peticion y tabla
 	void* buffer = malloc(strlen(tabla) + 3 * sizeof(int));
@@ -871,8 +862,6 @@ metadataTabla* realizarDescribe(char* tabla) {
 	printf("Consistencia: %s\n", data->consistencia);
 
 	//free(metadata);
-
-	sem_post(&sem2);
 	return data;
 }
 
@@ -928,7 +917,6 @@ void realizarDescribeGlobal() {
 
 		read(clienteFS, tamanioTabla, sizeof(int));
 	}
-	sem_post(&sem2);
 }
 
 void consola() {
@@ -947,57 +935,251 @@ void consola() {
 	}
 }
 
-void serServidor() {
-	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_addr.s_addr = INADDR_ANY;
-	serverAddress.sin_port = htons(t_archivoConfiguracion.PUERTO);
-	//serverAddress.sin_port = htons(4092);
+int serServidor() {
+	int opt = 1;
+		int master_socket, addrlen, new_socket, client_socket[30], max_clients = 30,
+				activity, i, sd;
+		int max_sd;
+		struct sockaddr_in address;
 
-	server = socket(AF_INET, SOCK_STREAM, 0);
+		//set of socket descriptors
+		fd_set readfds;
 
-	setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &activado, sizeof(activado));
+		//initialise all client_socket[] to 0 so not checked
+		for (i = 0; i < max_clients; i++) {
+			client_socket[i] = 0;
+		}
 
-	if (bind(server, (void*) &serverAddress, sizeof(serverAddress)) != 0) {
-		perror("Fallo el bind");
-	}
-	printf("Estoy escuchando\n");
-	listen(server, 100);
+		//create a master socket
+		if ((master_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+			perror("socket failed");
+			exit(EXIT_FAILURE);
+		}
 
-	pthread_t threadKernel;
-	int32_t idThreadKernel = pthread_create(&threadKernel, NULL, (void*)aceptar, NULL);
+		//set master socket to allow multiple connections ,
+		//this is just a good habit, it will work without this
+		if (setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *) &opt,
+				sizeof(opt)) < 0) {
+			perror("setsockopt");
+			exit(EXIT_FAILURE);
+		}
 
-	//conectarseAKernel();
-	int i = 0;
-	while (t_archivoConfiguracion.PUERTO_SEEDS[i] != NULL) {
-		int cliente = socket(AF_INET, SOCK_STREAM, 0);
-		direccionCliente.sin_family = AF_INET;
-		direccionCliente.sin_port = htons(
-				atoi(t_archivoConfiguracion.PUERTO_SEEDS[i]));
-		direccionCliente.sin_addr.s_addr = atoi(
-				t_archivoConfiguracion.IP_SEEDS[i]);
+		//type of socket created
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = INADDR_ANY;
+		address.sin_port = htons(t_archivoConfiguracion.PUERTO);
 
-		connect(cliente, (struct sockaddr *) &direccionCliente,
-				sizeof(direccionCliente));
-		//Mandar un 0 para q se sepa si es memoria o kernel
+		//bind the socket to localhost port 8888
+		if (bind(master_socket, (struct sockaddr *) &address, sizeof(address))
+				< 0) {
+			perror("Bind fallo en el FS");
+			return 1;
+		}
 
-		char* buffer = malloc(1);
-		strcpy(buffer, "0");
+		datosMemoria* unMem = malloc(sizeof(datosMemoria));
 
-		send(cliente, &buffer, strlen(buffer), 0);
-		struct datosMemoria *unaMemoria = malloc(sizeof(struct datosMemoria*));
-		unaMemoria->socket = cliente;
-		unaMemoria->direccionSocket = direccionCliente;
-		unaMemoria->MEMORY_NUMBER = t_archivoConfiguracion.MEMORY_NUMBER;
-		list_add(clientes, unaMemoria);
+		unMem->MEMORY_NUMBER = t_archivoConfiguracion.MEMORY_NUMBER;
+		unMem->direccionSocket = address;
+		unMem->socket = master_socket;
 
-		pthread_t threadCliente;
-		int32_t idThreadCliente = pthread_create(&threadCliente, NULL,
-				gossiping, cliente);
+		list_add(clientes, unMem);
 
-		i++;
-	}
+		printf("Escuchando en el puerto: %d \n", t_archivoConfiguracion.PUERTO);
+		printf("El puerto del address es: %d\n", address.sin_port);
 
-	pthread_join(threadKernel, NULL);
+		listen(master_socket, 100);
+
+		//accept the incoming connection
+		addrlen = sizeof(address);
+		puts("Esperando conexiones ...\n");
+
+		while (1) {
+			//clear the socket set
+			FD_ZERO(&readfds);
+
+			//add master socket to set
+			FD_SET(master_socket, &readfds);
+			max_sd = master_socket;
+
+			//add child sockets to set
+			for (i = 0; i < max_clients; i++) {
+				//socket descriptor
+				sd = client_socket[i];
+
+				//if valid socket descriptor then add to read list
+				if (sd > 0)
+					FD_SET(sd, &readfds);
+
+				//highest file descriptor number, need it for the select function
+				if (sd > max_sd)
+					max_sd = sd;
+			}
+
+			//wait for an activity on one of the sockets , timeout is NULL ,
+			//so wait indefinitely
+			activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
+
+			if ((activity < 0) && (errno != EINTR)) {
+				printf("select error");
+			}
+
+			//If something happened on the master socket ,
+			//then its an incoming connection
+			if (FD_ISSET(master_socket, &readfds)) {
+				new_socket = accept(master_socket, (struct sockaddr *) &address,
+						(socklen_t*) &addrlen);
+				if (new_socket < 0) {
+					perror("accept");
+					exit(EXIT_FAILURE);
+				}
+
+				//inform user of socket number - used in send and receive commands
+				printf("Nueva Conexion , socket fd: %d , ip: %s , puerto: %d 	\n",
+						new_socket, inet_ntoa(address.sin_addr),
+						ntohs(address.sin_port));
+
+				//add new socket to array of sockets
+				for (i = 0; i < max_clients; i++) {
+					//if position is empty
+					if (client_socket[i] == 0) {
+						client_socket[i] = new_socket;
+						printf("Agregado a la lista de sockets como: %d\n", i);
+
+						break;
+					}
+				}
+			}
+
+			//else its some IO operation on some other socket
+			for (i = 0; i < max_clients; i++) {
+				sd = client_socket[i];
+
+				if (FD_ISSET(sd, &readfds)) {
+					//Check if it was for closing , and also read the
+					//incoming message
+					int *tamanio = malloc(sizeof(int));
+					read(sd, tamanio, sizeof(int));
+					int *operacion = malloc(*tamanio);
+					read(sd, operacion, sizeof(int));
+
+					switch (*operacion) {
+					case 1:
+						//Select
+						printf("Kernel pidio un Select\n");
+						tomarPeticionSelect(sd);
+						break;
+					case 2:
+						//Insert
+						printf("Kernel pidio un Insert\n");
+						tomarPeticionInsert(sd);
+						break;
+					case 3:
+						//Create
+						printf("Kernel pidio un Create\n");
+						tomarPeticionCreate(sd);
+						break;
+					case 4:
+						//Describe
+						printf("Kernel pidio un Describe\n");
+						tomarPeticionDescribe1Tabla(sd);
+						break;
+					case 5:
+						//Drop
+						printf("Kernel pidio un Drop\n");
+						tomarPeticionDrop(sd);
+						break;
+					case 6:
+						//Describe global
+						printf("Kernel pidio un Describe Global\n");
+						tomarPeticionDescribeGlobal(sd);
+						break;
+					case 7:
+						//Journal
+						printf("Kernel pidio un Journal\n");
+						break;
+					case 8:
+						//Gossiping
+						printf("Se pidio un Gossiping\n");
+
+						int* socket = malloc(sizeof(int));
+						recv(sd, socket, sizeof(int), 0);
+
+						while (*socket != 0) {
+							struct sockaddr_in *direccion = malloc(
+									sizeof(struct sockaddr_in));
+							recv(sd, direccion, sizeof(struct sockaddr_in), 0);
+
+							int32_t* num = malloc(sizeof(int));
+							recv(sd, num, sizeof(int32_t), 0);
+
+							printf("Num: %d\n", *num);
+							printf("Puerto: %d\n", direccion->sin_port);
+
+							datosMemoria* unaM = malloc(sizeof(datosMemoria));
+
+							unaM->MEMORY_NUMBER = *num;
+							unaM->direccionSocket = *direccion;
+							unaM->socket = *socket;
+
+							bool estaEnLaLista(datosMemoria* elemento) {
+								return elemento->MEMORY_NUMBER == *num;
+							}
+
+							if (!list_any_satisfy(clientes, estaEnLaLista)) {
+								list_add(clientes, unaM);
+							}
+
+							free(direccion);
+							free(num);
+							free(socket);
+
+							socket = malloc(sizeof(int));
+							recv(sd, socket, sizeof(int), 0);
+
+						}
+						int i = 0;
+						char* buffer;
+
+						while (i < list_size(clientes)) {
+							datosMemoria* unaM = list_get(clientes, i);
+
+							buffer = malloc(
+									sizeof(int) + sizeof(struct sockaddr_in)
+											+ sizeof(int32_t));
+
+							memcpy(buffer, &unaM->socket, sizeof(int));
+							memcpy(buffer + sizeof(int), &unaM->direccionSocket,
+									sizeof(struct sockaddr_in));
+							memcpy(
+									buffer + sizeof(int)
+											+ sizeof(struct sockaddr_in),
+									&unaM->MEMORY_NUMBER, sizeof(int32_t));
+
+							send(sd, buffer,
+									sizeof(int) + sizeof(struct sockaddr_in)
+											+ sizeof(int32_t), 0);
+
+							free(buffer);
+
+							i++;
+						}
+
+						buffer = malloc(sizeof(int));
+						int* fin = 0;
+
+						memcpy(buffer, &fin, sizeof(int));
+
+						send(sd, buffer, sizeof(int), 0);
+
+						free(buffer);
+
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
 }
 
 void conectarseAFS() {
@@ -1202,81 +1384,109 @@ void tomarPeticionDrop(int kernel){
 	realizarDrop(tabla);
 }
 
-void tratarKernel(int kernel) {
-	while (1) {
-		int *tamanio = malloc(sizeof(int));
-		read(kernel, tamanio, sizeof(int));
-		int *operacion = malloc(*tamanio);
-		read(kernel, operacion, sizeof(int));
-		switch (*operacion) {
-			case 0: //Select
-				tomarPeticionSelect(kernel);
-				break;
-			case 1: //Insert
-				tomarPeticionInsert(kernel);
-				break;
-			case 2: //create
-				tomarPeticionCreate(kernel);
-				break;
-			case 3: //Describe una tabla
-				tomarPeticionDescribe1Tabla(kernel);
-				break;
-			case 4: //Describe Global
-				tomarPeticionDescribeGlobal(kernel);
-				break;
-			case 5: //Drop
-				tomarPeticionDrop(kernel);
-				break;
-			case 6: //JOURNAL
-				ejecutarJournaling();
-				break;
+void conectar() {
+	int i = 0;
+		printf("HOLA");
+		//printf("%s\n", t_archivoConfiguracion.PUERTO_SEEDS[i]);
+		while (t_archivoConfiguracion.PUERTO_SEEDS[i] != NULL) {
+			int32_t clienteSeed = socket(AF_INET, SOCK_STREAM, 0);
+			direccionCliente.sin_family = AF_INET;
+			direccionCliente.sin_port = htons(
+					atoi(t_archivoConfiguracion.PUERTO_SEEDS[i]));
+			direccionCliente.sin_addr.s_addr = INADDR_ANY;
 
+			connect(clienteSeed, (struct sockaddr *) &direccionCliente,
+					sizeof(direccionCliente));
+
+			pthread_t tGosiping;
+			int32_t idTGosiping = pthread_create(&tGosiping, NULL, gossiping,
+					clienteSeed);
+
+			i++;
 		}
-
-	}
-}
-
-void aceptar() {
-	while (1) {
-		int cliente = accept(server, (void*) &serverAddress, &tamanoDireccion);
-		char* buf = malloc(2);
-
-		recv(cliente, buf, 2, 0);
-
-		if (atoi(buf) == 0) {
-			pthread_t threadTratarCliente;
-			int32_t idThreadTratarCliente = pthread_create(&threadTratarCliente,
-					NULL, tratarCliente, cliente);
-		} else {
-			printf("BIEN\n");
-			pthread_t threadTratarCliente;
-			int32_t idThreadTratarCliente = pthread_create(&threadTratarCliente,
-					NULL, tratarKernel, cliente);
-			/*struct datosMemoria *unaMemoria = malloc(
-					sizeof(struct datosMemoria*));
-			unaMemoria->direccionSocket = serverAddress;
-			unaMemoria->socket = cliente;
-			pthread_t threadCliente;
-			int32_t idThreadCliente = pthread_create(&threadCliente, NULL,
-					gossiping, cliente);
-			list_add(clientes, unaMemoria);*/
-			pthread_join(threadTratarCliente, NULL);
-		}
-	}
 }
 
 void gossiping(int cliente) {
 	while (1) {
-		sleep(t_archivoConfiguracion.RETARDO_GOSSIPING);
-		send(cliente, clientes, sizeof(clientes), 0);
-	}
-}
 
-void tratarCliente(int cliente) {
-	while (1) {
-		t_list* lista;
-		recv(cliente, lista, sizeof(lista), 0);
-		list_add_all(clientes, lista);
-	}
+			sleep(t_archivoConfiguracion.RETARDO_GOSSIPING);
+
+			char* buffer = malloc(2 * sizeof(int));
+
+			int peticion = 8;
+			int tamanioPeticion = sizeof(int);
+			memcpy(buffer, &tamanioPeticion, sizeof(int));
+			memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+
+			send(cliente, buffer, 2 * sizeof(int), 0);
+
+			free(buffer);
+
+			int i = 0;
+			while (i < list_size(clientes)) {
+				datosMemoria* unaM = list_get(clientes, i);
+
+				buffer = malloc(
+						sizeof(int) + sizeof(struct sockaddr_in) + sizeof(int32_t));
+
+				memcpy(buffer, &unaM->socket, sizeof(int));
+				memcpy(buffer + sizeof(int), &unaM->direccionSocket,
+						sizeof(struct sockaddr_in));
+				memcpy(buffer + sizeof(int) + sizeof(struct sockaddr_in),
+						&unaM->MEMORY_NUMBER, sizeof(int32_t));
+
+				send(cliente, buffer,
+						sizeof(int) + sizeof(struct sockaddr_in) + sizeof(int32_t),
+						0);
+
+				free(buffer);
+
+				i++;
+			}
+
+			buffer = malloc(sizeof(int));
+			int* fin = 0;
+
+			memcpy(buffer, &fin, sizeof(int));
+
+			send(cliente, buffer, sizeof(int), 0);
+
+			free(buffer);
+
+			int* socket = malloc(sizeof(int));
+			recv(cliente, socket, sizeof(int), 0);
+
+			while (*socket != 0) {
+				struct sockaddr_in *direccion = malloc(sizeof(struct sockaddr_in));
+				recv(cliente, direccion, sizeof(struct sockaddr_in), 0);
+
+				int32_t* num = malloc(sizeof(int));
+				recv(cliente, num, sizeof(int32_t), 0);
+
+				printf("Num: %d\n", *num);
+				printf("Puerto: %d\n", direccion->sin_port);
+
+				datosMemoria* unaM = malloc(sizeof(datosMemoria));
+
+				unaM->MEMORY_NUMBER = *num;
+				unaM->direccionSocket = *direccion;
+				unaM->socket = *socket;
+
+				bool estaEnLaLista(datosMemoria* elemento) {
+					return elemento->MEMORY_NUMBER == *num;
+				}
+
+				if (!list_any_satisfy(clientes, estaEnLaLista)) {
+					list_add(clientes, unaM);
+				}
+
+				free(direccion);
+				free(num);
+				free(socket);
+
+				socket = malloc(sizeof(int));
+				recv(cliente, socket, sizeof(int), 0);
+			}
+		}
 }
 
