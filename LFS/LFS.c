@@ -2856,7 +2856,6 @@ int32_t iniciarConexion() {
 
 			int tamanioValue = structConfiguracionLFS.TAMANIO_VALUE;
 			void* buffer = malloc( sizeof(int) );
-
 			memcpy(buffer, &tamanioValue, sizeof(int));
 
 			//send new connection greeting message
@@ -3106,7 +3105,7 @@ int32_t iniciarConexion() {
 	char *tabla = malloc(*tamanioTabla);
 	read(sd, tabla, *tamanioTabla);
 	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
-
+	printf("%s\n", tablaCortada);
 	int respuesta;
 	if (!existeLaTabla(tablaCortada)) {
 		// respuesta = 0 es ERROR

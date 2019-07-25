@@ -1284,6 +1284,8 @@ void mandarJournal(int socketMemoria){
 }
 
 t_dictionary *pedirDiccionarioGlobal(int socketMemoria){
+	t_dictionary *diccionarioTemporal = malloc(3000);
+
 	void* buffer = malloc(sizeof(int));
 
 	int peticion = 4;
@@ -1292,9 +1294,43 @@ t_dictionary *pedirDiccionarioGlobal(int socketMemoria){
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 	send(socketMemoria, buffer, 2*sizeof(int), 0);
 
-	t_dictionary *unDiccionario;
-	recv(socketMemoria, unDiccionario, sizeof(unDiccionario), 0);
-	return unDiccionario;
+	// deserializo lo que me devuelve memoria (que a su vez se lo mando el fs)
+	// deserializo
+	int *tamanioTabla = malloc(sizeof(int));
+	read(socketMemoria, tamanioTabla, sizeof(int));
+	while(*tamanioTabla != 0){
+		char *tabla = malloc(*tamanioTabla);
+		read(socketMemoria, tabla, *tamanioTabla);
+		char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
+
+		int *tamanioConsistencia = malloc(sizeof(int));
+		read(socketMemoria, tamanioConsistencia, sizeof(int));
+		char *tipoConsistencia = malloc(*tamanioConsistencia);
+		read(socketMemoria, tipoConsistencia, *tamanioConsistencia);
+		char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia, *tamanioConsistencia);
+
+		int* tamanioNumeroParticiones = malloc(sizeof(int));
+		read(socketMemoria, tamanioNumeroParticiones, sizeof(int));
+		int* numeroParticiones = malloc(*tamanioNumeroParticiones);
+		read(socketMemoria, numeroParticiones, *tamanioNumeroParticiones);
+
+		int* tamanioTiempoCompactacion = malloc(sizeof(int));
+		read(socketMemoria, tamanioTiempoCompactacion, sizeof(int));
+		int* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
+		read(socketMemoria, tiempoCompactacion, *tamanioTiempoCompactacion);
+
+		//lo guardo en el diccionario
+		struct tabla* data = malloc(8 + 4);    // 2 int = 2*4 bytes
+		data->CONSISTENCY = malloc(*tamanioConsistencia);
+		memcpy(&data->PARTITIONS, numeroParticiones, sizeof(int));
+		memcpy(data->CONSISTENCY, tipoConsistenciaCortada,	*tamanioConsistencia);
+		memcpy(&data->COMPACTION_TIME, tiempoCompactacion, sizeof(int));
+		dictionary_put(diccionarioTemporal, tablaCortada, data);
+
+		read(socketMemoria, tamanioTabla, sizeof(int));
+	}
+
+	return diccionarioTemporal;
 }
 
 struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria){
