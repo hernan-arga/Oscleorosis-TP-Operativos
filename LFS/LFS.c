@@ -85,7 +85,8 @@ typedef struct {
 
 typedef struct {
 	char *tabla;
-	pthread_mutex_t mutexTabla;
+	pthread_mutex_t mutexTablaParticion;
+	pthread_mutex_t mutexDrop;
 } semaforoDeTabla;
 
 int32_t iniciarConexion();
@@ -169,6 +170,7 @@ void registrarBloqueQueSeBorro(int);
 
 void ponerActivasTodasLasTablas();
 t_list *tomarTodasLasTablas();
+void borrarSemaforo(char *tablaADestruir);
 
 t_config* configLFS;
 configuracionLFS structConfiguracionLFS;
@@ -177,7 +179,8 @@ char *mmapDeBitmap;
 t_dictionary* diccionarioDescribe;
 pthread_t hiloLevantarConexion;
 
-
+pthread_mutex_t SEMAFORODETMPC;
+pthread_mutex_t SEMAFOROMEMTABLE;
 
 int main(int argc, char *argv[]) {
 	//tablasQueTienenTMPs = dictionary_create();
@@ -201,8 +204,9 @@ int main(int argc, char *argv[]) {
 	diccionarioDescribe = malloc(4000);
 	diccionarioDescribe = dictionary_create();
 
-	//listaDeSemaforos = list_create();
-	//ponerActivasTodasLasTablas();
+	listaDeSemaforos = list_create();
+	ponerActivasTodasLasTablas();
+	activarOtrosSemaforos();
 
 	//Se queda esperando a que termine el hilo de escuchar peticiones
 	pthread_join(hiloLevantarConexion, NULL);
@@ -213,13 +217,19 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
+void activarOtrosSemaforos(){
+	pthread_mutex_init(&SEMAFORODETMPC,NULL);
+	pthread_mutex_init(&SEMAFOROMEMTABLE, NULL);
+}
+
 void ponerActivasTodasLasTablas(){
 	semaforoDeTabla *unaTablaConSemaforo;
 	t_list *todasLasTablasDelFS = tomarTodasLasTablas();
 	for(int i=0; i<list_size(todasLasTablasDelFS); i++){
 		unaTablaConSemaforo = malloc(sizeof(semaforoDeTabla));
 		unaTablaConSemaforo->tabla = string_duplicate(list_get(todasLasTablasDelFS, i));
-		pthread_mutex_init(&(unaTablaConSemaforo->mutexTabla), NULL);
+		pthread_mutex_init(&(unaTablaConSemaforo->mutexTablaParticion), NULL);
+		pthread_mutex_init(&(unaTablaConSemaforo->mutexDrop), NULL);
 		list_add(listaDeSemaforos, unaTablaConSemaforo);
 	}
 	list_destroy_and_destroy_elements(todasLasTablasDelFS,free);
@@ -240,6 +250,24 @@ t_list *tomarTodasLasTablas(){
 	closedir(directorio);
 	return todasLasTablas;
 }
+
+void borrarSemaforo(char *tablaADestruir){
+	void destruirSemaforo(semaforoDeTabla *unSemaforo){
+		pthread_mutex_destroy(&((semaforoDeTabla*)unSemaforo)->mutexDrop);
+		pthread_mutex_destroy(&((semaforoDeTabla*)unSemaforo)->mutexTablaParticion);
+	}
+
+	semaforoDeTabla *unSemaforo;
+	for(int i = 0; i<list_size(listaDeSemaforos); i++){
+		unSemaforo = list_get(listaDeSemaforos, i);
+		if(!strcmp(tablaADestruir, unSemaforo->tabla)){
+			list_remove_and_destroy_element(listaDeSemaforos, i, destruirSemaforo);
+			return;
+		}
+	}
+
+}
+
 /*
 int main(int argc, char *argv[]) {
 	//tablasQueTienenTMPs = dictionary_create();
@@ -629,6 +657,19 @@ void realizarPeticion(char** parametros) {
 				 log_info(g_logger, mensajeALogear);
 				 log_destroy(g_logger);
 				 free(mensajeALogear);
+
+				 //Levanto hilo de compactacion y agrego semaforo para la tabla
+				 char *pathTabla = string_new();
+				 string_append(&pathTabla,
+				 		string_from_format("%sTables/",
+				 				structConfiguracionLFS.PUNTO_MONTAJE));
+				 string_append(&pathTabla, tablaMayusculas);
+				 levantarHiloCompactacion(pathTabla);
+				 semaforoDeTabla *unSemaforo = malloc(sizeof(semaforoDeTabla));
+				 unSemaforo->tabla = tablaMayusculas;
+				 pthread_mutex_init(&unSemaforo->mutexDrop, NULL);
+				 pthread_mutex_init(&unSemaforo->mutexTablaParticion, NULL);
+				 list_add(listaDeSemaforos, unSemaforo);
 			 }
 			 if(respuesta == 0){
 				char* mensajeALogear = malloc( strlen("Error: ya existe una tabla con el nombre ") + strlen(tabla) + 1);
@@ -668,16 +709,11 @@ void realizarPeticion(char** parametros) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
 
-			sem_t *semaforoTabla;
-			//dameSemaforo(tabla, &semaforoTabla);
-
-			//sem_wait(semaforoTabla);
-			//seccion critica
+			semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+			pthread_mutex_lock(&unSemaforo->mutexDrop);
 			drop(tabla);
-			/*sem_post(semaforoTabla);
-			sem_close(semaforoTabla);
-			sem_unlink(tabla);
-			dictionary_remove(diccionarioDeSemaforos, tabla);*/
+			pthread_mutex_unlock(&unSemaforo->mutexDrop);
+			borrarSemaforo(tabla);
 
 		}
 		break;
@@ -819,6 +855,8 @@ int insert(char* tabla, char* key, char* valor, char* timestamp) {
 	if (!existeLaTabla(tabla)) {
 		return 0;
 	} else {
+		pthread_mutex_lock(&SEMAFOROMEMTABLE);
+
 		t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 		p_registro->timestamp = atoi(timestamp);
 		p_registro->key = atoi(key);
@@ -834,6 +872,8 @@ int insert(char* tabla, char* key, char* valor, char* timestamp) {
 			dictionary_remove(memtable, tabla);
 			dictionary_put(memtable, tabla, listaDeStructs);
 		}
+
+		pthread_mutex_unlock(&SEMAFOROMEMTABLE);
 		return 1;
 	}
 }
@@ -860,10 +900,10 @@ void dump() {
 }
 
 void dumpPorTabla(char* tabla) {
-	/*char *tablaPath = string_from_format("%sTables/",
-	 structConfiguracionLFS.PUNTO_MONTAJE);
-	 string_append(&tablaPath, tabla);*/
 	if (existeLaTabla(tabla)) {
+		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+		pthread_mutex_lock(&unSemaforo->mutexDrop);
+
 		//Tomo el tamanio por bloque de mi LFS
 		char *metadataPath = string_from_format("%sMetadata/metadata.bin",
 				structConfiguracionLFS.PUNTO_MONTAJE);
@@ -966,6 +1006,8 @@ void dumpPorTabla(char* tabla) {
 				cantidadDeBytesADumpear);
 		//antes de eliminarlo de la memtable lo pongo en el diccionario de tablasQueTienenTMPs porque sino se borra el string tambien
 		//dictionary_put(tablasQueTienenTMPs, tabla, tablaPath);
+
+		pthread_mutex_unlock(&unSemaforo->mutexDrop);
 	}
 	//Si no existe no hago nada, solo la elimino de la memtable
 	dictionary_remove(memtable, tabla);
@@ -1058,7 +1100,6 @@ void levantarHilosCompactacionParaTodasLasTablas() {
 		}
 	}
 	closedir(directorio);
-
 }
 
 void verificarCompactacion(char *pathTabla) {
@@ -1084,10 +1125,10 @@ void verificarCompactacion(char *pathTabla) {
 		//printf("%i\n", tiempoCompactacion);
 		sleep(tiempoCompactacion);
 		//Con sleep tengo que meter un \n al final de un printf porque sino no imprime
-		//semaforoDeTabla unSemaforo = dameSemaforo(tabla);
-		//pthread_mutex_lock(&unSemaforo->mutexTabla);
-		compactacion(pathTabla);
-		//pthread_mutex_unlock(&unSemaforo->mutexTabla);
+		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+		pthread_mutex_lock(&unSemaforo->mutexDrop);	//Semaforo para bloquear el drop
+		compactacion(pathTabla);	//Seccion Critica
+		pthread_mutex_unlock(&unSemaforo->mutexDrop);
 		free(metadataTabla);
 		config_destroy(configTabla);
 	}
@@ -1102,11 +1143,10 @@ void compactacion(char* pathTabla) {
 	string_append(&tabla,
 			string_substring_from(pathTabla, strlen(pathDeMontajeDeLasTablas)));
 
-	//Me vuelvo a fijar que exista por si se borro mientras se accedia aca
-	if (existeLaTabla(tabla)) {
+
 		renombrarTodosLosTMPATMPC(pathTabla);
 		actualizarRegistros(pathTabla);
-	}
+
 	//dictionary_iterator(tablasQueTienenTMPs, (void*) actualizarRegistros);
 	//dictionary_clean(tablasQueTienenTMPs);
 }
@@ -1140,7 +1180,6 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 		i++;
 	}
 
-	sem_t *semaforoTabla;
 	char *tabla = string_new();
 	char *pathDeMontajeDeLasTablas = string_new();
 	string_append(&pathDeMontajeDeLasTablas,
@@ -1148,20 +1187,22 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 	string_append(&pathDeMontajeDeLasTablas, "Tables/");
 	string_append(&tabla,
 			string_substring_from(tablaPath, strlen(pathDeMontajeDeLasTablas)));
-	//dameSemaforo(tabla, &semaforoTabla);
-	//sem_wait(semaforoTabla);
+
 	//Temporizador para ver cuanto tiempo estuvo bloqueada la tabla para compactacion
 	time_t inicio;
 	time_t fin;
 	time_t delta;
 	inicio = time(NULL);
 
-	//Seccion critica aca
 	liberarBloques(tmpc);
 	remove(tmpc);
-	list_iterate(binariosAfectados, (void*) actualizarBin);
+
+	semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+	pthread_mutex_lock(&unSemaforo->mutexTablaParticion);
+	list_iterate(binariosAfectados, (void*) actualizarBin);	//Seccion Critica
+	pthread_mutex_unlock(&unSemaforo->mutexTablaParticion);
+
 	list_clean(binariosAfectados);
-	//sem_post(semaforoTabla);
 	fin = time(NULL);
 	delta = fin - inicio;
 	//printf("delta: %i\n", (int)delta);
@@ -1198,26 +1239,19 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
  printf("key:%s\n", key);
  }*/
 
-void dameSemaforo(char *tabla, sem_t **semaforoTabla) {
-	//Si se queda trabado en una tabla en particular descomentar lo de abajo, y ejecutar algun comando con la tabla
-	//para limpiar el semaforo
-	//sem_close(*semaforoTabla);
-	//sem_unlink(tabla);
-	/*if (!dictionary_has_key(diccionarioDeSemaforos, tabla)) {
-		*semaforoTabla = sem_open(tabla, O_CREAT, 0777, 1);
-		if (*semaforoTabla == SEM_FAILED) {
-			sem_close(*semaforoTabla);
-			sem_unlink(tabla);
-			printf("%s\n", tabla);
-			perror("Fallo al levantar el semaforo de la tabla");
-			exit(-1);
-		}
-		dictionary_put(diccionarioDeSemaforos, tabla, *semaforoTabla);
-		//printf("no existe\n");
+semaforoDeTabla* dameSemaforo(char *tabla) {
+	int existeSemaforo(void *unSemaforo){
+		return !strcmp(tabla, ((semaforoDeTabla*)unSemaforo)->tabla);
 	}
-	*semaforoTabla = dictionary_get(diccionarioDeSemaforos, tabla);*/
-	//return semaforoTabla;
+	return (semaforoDeTabla*)list_find(listaDeSemaforos, existeSemaforo);
 }
+
+/*int laTablaTieneSemaforo(char *tabla) {
+	int existeSemaforo(void *unSemaforo){
+		return !strcmp(tabla, ((semaforoDeTabla*)unSemaforo)->tabla);
+	}
+	return (semaforoDeTabla*)list_any_satisfy(listaDeSemaforos, existeSemaforo);
+}*/
 
 void actualizarBin(char *pathBin) {
 	//Libero los bloques del binario
@@ -1580,7 +1614,10 @@ void renombrarTodosLosTMPATMPC(char* tablaPath) {
 			string_append(&viejoNombre, archivoALeer->d_name);
 			string_append(&nuevoNombre, viejoNombre);
 			string_append(&nuevoNombre, "c");
-			rename(viejoNombre, nuevoNombre);
+			pthread_mutex_lock(&SEMAFORODETMPC);
+			rename(viejoNombre, nuevoNombre);	//Seccion Critica
+			pthread_mutex_unlock(&SEMAFORODETMPC);
+
 			//printf("%s\n", nuevoNombre);
 		}
 	}
@@ -2689,9 +2726,7 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Busco la metadata de todas las tablas (evaluo que no ingrese a los directorios "." y ".."
-		if ((directorioALeer->d_type) == DT_DIR
-				&& strcmp((directorioALeer->d_name), ".")
-				&& strcmp((directorioALeer->d_name), "..")) {
+		if ((directorioALeer->d_type) == DT_DIR	&& strcmp((directorioALeer->d_name), ".") && strcmp((directorioALeer->d_name), "..")) {
 			metadataTabla structMetadata;
 
 			sem_t *semaforoTabla;
@@ -2701,14 +2736,12 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 			// dameSemaforo(tabla, &semaforoTabla); todo anda mal semaforo
 			// sem_wait(semaforoTabla);
 
-			structMetadata = describeUnaTabla(directorioALeer->d_name,
-					seImprimePorPantalla);
+			structMetadata = describeUnaTabla(directorioALeer->d_name, seImprimePorPantalla);
 			metadataTabla * metadata = malloc(sizeof(metadata));
 			metadata->COMPACTION_TIME = structMetadata.COMPACTION_TIME;
 			metadata->CONSISTENCY = structMetadata.CONSISTENCY;
 			metadata->PARTITIONS = structMetadata.PARTITIONS;
-			dictionary_put(diccionarioDescribe, directorioALeer->d_name,
-					metadata); // ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+			dictionary_put(diccionarioDescribe, tabla, metadata); // ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 			// sem_post(semaforoTabla);
 
@@ -2717,8 +2750,6 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 			  metadata2 = (metadataTabla *)dictionary_get(diccionarioDescribe, directorioALeer->d_name);
 			  printf("--%i", metadata2->COMPACTION_TIME);
 			  printf("--%i", metadata2->PARTITIONS);*/
-
-
 		}
 	}
 	/*metadataTabla *metadata = dictionary_get(diccionarioDescribe, "TABLA");
@@ -2824,14 +2855,12 @@ int32_t iniciarConexion() {
 					ntohs(address.sin_port));
 
 			int tamanioValue = structConfiguracionLFS.TAMANIO_VALUE;
-			void* buffer = malloc( 2*sizeof(int) );
+			void* buffer = malloc( sizeof(int) );
 
-			int tamaniodelTamanioValue = sizeof(int);
-			memcpy(buffer, &tamaniodelTamanioValue,sizeof(int));
-			memcpy(buffer + sizeof(int), &tamanioValue, sizeof(int));
+			memcpy(buffer, &tamanioValue, sizeof(int));
 
 			//send new connection greeting message
-			send(new_socket, buffer, 2*sizeof(int), 0);
+			send(new_socket, buffer, sizeof(int), 0);
 
 			//add new socket to array of sockets
 			for (i = 0; i < max_clients; i++) {
@@ -2906,6 +2935,7 @@ int32_t iniciarConexion() {
 	 char* keyString = string_itoa(*key);
 
 	 char *value = realizarSelect(tablaCortada, keyString);
+	 printf("%s\n", value);
 
 	 // serializo paquete
 	 if(value == NULL){
@@ -2919,7 +2949,6 @@ int32_t iniciarConexion() {
 		 int tamanio = strlen(value);
 		 memcpy(buffer, &tamanio, sizeof(int));
 		 memcpy(buffer + sizeof(int), value, tamanio);
-
 		 send(sd, buffer, strlen(value)+sizeof(int), 0);
 	 }
  }

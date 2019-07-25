@@ -279,165 +279,142 @@ OPERACION tipoDePeticion(char* peticion) {
 }
 
 char* realizarSelect(char* tabla, char* key) {
-	sem_wait(&sem2);
-
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
-		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
+			t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
 
-		for (int i = 0; i < list_size(tablaPag); i++) {
-			pagina* pag = list_get(tablaPag, i);
+			for (int i = 0; i < list_size(tablaPag); i++) {
+				pagina* pag = list_get(tablaPag, i);
 
-			char* laKey = malloc(sizeof(int));
+				int* laKey = malloc(sizeof(int));
 
-			memcpy(laKey, (memoriaPrincipal + pag->numeroFrame * tamanoFrame),
-					sizeof(int));
+				memcpy(laKey, (memoriaPrincipal + pag->numeroFrame * tamanoFrame), sizeof(int));
 
-			if (!strcmp(laKey, key)) {
-				char* value = malloc(tamanoValue);
+				if (*laKey == atoi(key)) {
 
-				memcpy(value, //esto esta mal, tamanoValue no existe, de donde sacar el tamano del value? se guarda?
-						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
-								+ sizeof(int) + sizeof(long int)),
-						*(frames + pag->numeroFrame));
+					char* value = malloc(*(frames + pag->numeroFrame));
 
-				char* timeStamp = malloc(sizeof(long int));
-				long int timeS = (long int) time(NULL);
-				sprintf(timeStamp, "%d", timeS);
+					memcpy(value, (memoriaPrincipal + pag->numeroFrame * tamanoFrame + sizeof(int) + sizeof(long int)),	*(frames + pag->numeroFrame)+1);
 
-				memcpy(
-						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
-								+ sizeof(int)), timeStamp, sizeof(long int));
+					long int* timeStamp = malloc(sizeof(long int));
+					*timeStamp = (long int) time(NULL);
 
-				free(timeStamp);
+					memcpy((memoriaPrincipal + pag->numeroFrame * tamanoFrame + sizeof(int)), timeStamp, sizeof(long int));
 
-				printf("%s", value);
+					free(timeStamp);
 
-				pag->timeStamp = timeS;
+					printf("Value: %s\n", value);
 
-				//free(value);
+					pag->timeStamp = *timeStamp;
+
+					//free(value);
+					free(laKey);
+
+					return value;
+				}
 				free(laKey);
-
-				sem_post(&sem2);
-
-				return value;
 			}
-			free(laKey);
+
+			int frameNum = frameLibre();
+
+			long int* timeStamp = malloc(sizeof(long int));
+			*timeStamp = (long int) time(NULL);
+
+			pagina* pagp = malloc(sizeof(pagina));
+			pagp->modificado = false;
+			pagp->numeroFrame = frameNum;
+			pagp->numeroPag = list_size(tablaPag);
+			pagp->timeStamp = *timeStamp;
+
+			list_add(tablaPag, pagp);
+
+			char* value = malloc(tamanoValue);
+			value = pedirValue(tabla, key);
+
+			//log_info(logy, value);
+
+			if (value == NULL) {
+				return 0;
+			}
+
+			*(frames + frameNum) = strlen(value);
+
+			printf("Value: %s\n", value);
+
+			int* laKey = malloc(sizeof(int));
+			*laKey = atoi(key);
+
+			memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame), laKey, sizeof(int));
+			memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(long int)), value, strlen(value)+1);
+			memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int)), timeStamp, sizeof(long int));
+
+			free(timeStamp);
+			//free(value);
+
+			return value;
 		}
 
-		int frameNum = frameLibre();
-
-		pagina* pagp = malloc(sizeof(pagina));
-		pagp->modificado = false;
-		pagp->numeroFrame = frameNum;
-		pagp->numeroPag = list_size(tablaPag);
-		pagp->timeStamp = (long int) time(NULL);
-
-		list_add(tablaPag, pagp);
-
-		char* value = malloc(tamanoValue);
-		value = pedirValue(tabla, key);
+		char* value = pedirValue(tabla, key);
 
 		if (value == NULL) {
 			return 0;
 		}
 
+		int frameNum = frameLibre();
 		*(frames + frameNum) = strlen(value);
 
-		//printf("%s", value);
+		pagina* pagp = malloc(sizeof(pagina));
+		t_list* paginasp = list_create();
 
-		memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame), key,
-				sizeof(int));
-		memcpy(
-				(memoriaPrincipal + pagp->numeroFrame * tamanoFrame
-						+ sizeof(int) + sizeof(long int)), value,
-				strlen(value));
+		long int* timeStamp = malloc(sizeof(long int));
+		*timeStamp = (long int) time(NULL);
 
-		char* timeStamp = malloc(sizeof(long int));
-		sprintf(timeStamp, "%d", (long int) time(NULL));
+		pagp->modificado = false;
+		pagp->numeroFrame = frameNum;
+		pagp->numeroPag = 0;
+		pagp->timeStamp = *timeStamp;
 
-		memcpy(
-				(memoriaPrincipal + pagp->numeroFrame * tamanoFrame
-						+ sizeof(int)), timeStamp, sizeof(long int));
+		list_add(paginasp, pagp);
+		dictionary_put(tablaSegmentos, tabla, paginasp);
+
+		int* laKey = malloc(sizeof(int));
+		*laKey = atoi(key);
+
+		memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame), laKey, sizeof(int));
+		memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int)), timeStamp, sizeof(long int));
+		memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(long int)), value, strlen(value)+1);
 
 		free(timeStamp);
 		//free(value);
 
-		sem_post(&sem2);
 		return value;
 	}
 
-	char* value = pedirValue(tabla, key);
-
-	if (value == NULL) {
-		return 0;
-	}
-
-	int frameNum = frameLibre();
-	*(frames + frameNum) = strlen(value);
-
-	pagina* pagp = malloc(sizeof(pagina));
-	t_list* paginasp = list_create();
-
-	pagp->modificado = false;
-	pagp->numeroFrame = frameNum;
-	pagp->numeroPag = 0;
-	pagp->timeStamp = (long int) time(NULL);
-
-	list_add(paginasp, pagp);
-	dictionary_put(tablaSegmentos, tabla, paginasp);
-
-	char* timeStamp = malloc(sizeof(long int));
-	//sprintf(timeStamp, "%ld", pagp->timeStamp);
-
-	memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame), key,
-			sizeof(int));
-	memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int)),
-			timeStamp, sizeof(long int));
-	memcpy(
-			(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int)
-					+ sizeof(long int)), value, strlen(value));
-
-	free(timeStamp);
-	//free(value);
-
-	sem_post(&sem2);
-	return value;
-}
-
 int realizarInsert(char* tabla, char* key, char* value) {
-	sem_wait(&sem2);
-
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
 		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
 
 		for (int i = 0; i < list_size(tablaPag); i++) {
 			pagina* pagy = list_get(tablaPag, i);
 
-			char* laKey = malloc(sizeof(int));
+			int* laKey = malloc(sizeof(int));
 
-			memcpy(laKey, (memoriaPrincipal + pagy->numeroFrame * tamanoFrame),
-					sizeof(int));
+			memcpy(laKey, (memoriaPrincipal + pagy->numeroFrame * tamanoFrame),sizeof(int));
 
-			if (!strcmp(laKey, key)) {
-				char* timeStamp = malloc(sizeof(long int));
-				sprintf(timeStamp, "%d", (long int) time(NULL));
+			if (*laKey == atoi(key))
+			{
+				long int* timeStamp = malloc(sizeof(long int));
 
-				memcpy(
-						(memoriaPrincipal + (pagy->numeroFrame * tamanoFrame)
-								+ sizeof(int) + sizeof(long int)),
-						(const char*) value, strlen(value));
-				memcpy(
-						memoriaPrincipal + pagy->numeroFrame * tamanoFrame
-								+ sizeof(int), timeStamp, sizeof(long int));
+				*timeStamp = (long int) time(NULL);
+
+				memcpy((memoriaPrincipal + (pagy->numeroFrame * tamanoFrame) + sizeof(int) + sizeof(long int)), value, strlen(value)+1);
+				memcpy(memoriaPrincipal + pagy->numeroFrame * tamanoFrame + sizeof(int), timeStamp, sizeof(long int));
 
 				*(frames + pagy->numeroFrame) = strlen(value);
 
-				pagy->timeStamp = (long int) time(NULL);
+				pagy->timeStamp = *timeStamp;
 
 				free(laKey);
 				free(timeStamp);
-
-				sem_post(&sem2);
 
 				return 0;
 			}
@@ -446,60 +423,57 @@ int realizarInsert(char* tabla, char* key, char* value) {
 		int frameNum = frameLibre();
 		*(frames + frameNum) = strlen(value);
 
+		char* timeStamp = malloc(sizeof(long int));
+		*timeStamp = (long int) time(NULL);
+
 		pagina* pagp = malloc(sizeof(pagina));
 
 		pagp->modificado = true;
 		pagp->numeroFrame = frameNum;
 		pagp->numeroPag = list_size(tablaPag);
-		pagp->timeStamp = (long int) time(NULL);
+		pagp->timeStamp = *timeStamp;
 
 		list_add(tablaPag, pagp);
 
-		char* timeStamp = malloc(sizeof(long int));
-		sprintf(timeStamp, "%ld", pagp->timeStamp);
+		int* laKey = malloc(sizeof(int));
+		*laKey = atoi(key);
 
-		memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame, key,
-				sizeof(int));
-		memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int),
-				timeStamp, sizeof(long int));
-		memcpy(
-				memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int)
-						+ sizeof(long int), value, strlen(value));
+		memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame, laKey, sizeof(int));
+		memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int), timeStamp, sizeof(long int));
+		memcpy(	memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(long int), value, strlen(value)+1);
 
 		free(timeStamp);
 
-		sem_post(&sem2);
 		return 0;
 	}
 
 	int frameNum = frameLibre();
 	*(frames + frameNum) = strlen(value);
 
+	char* timeStamp = malloc(sizeof(long int));
+	*timeStamp = (long int) time(NULL);
+
 	pagina* pagp = malloc(sizeof(pagina));
 	pagp->modificado = true;
 	pagp->numeroFrame = frameNum;
 	pagp->numeroPag = 0;
-	pagp->timeStamp = (long int) time(NULL);
+	pagp->timeStamp = *timeStamp;
 
 	t_list* paginas = list_create();
 	list_add(paginas, pagp);
 
-	char* timeStamp = malloc(sizeof(long int));
-	sprintf(timeStamp, "%ld", pagp->timeStamp);
-
 	dictionary_put(tablaSegmentos, tabla, paginas);
 
-	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame, key,
-			sizeof(int));
-	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int),
-			timeStamp, sizeof(long int));
-	memcpy(
-			memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int)
-					+ sizeof(long int), value, strlen(value));
+	int* laKey = malloc(sizeof(int));
+	*laKey = atoi(key);
+
+	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame, laKey, sizeof(int));
+	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int), timeStamp, sizeof(long int));
+	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(long int), value, strlen(value)+1);
 
 	free(timeStamp);
 
-	sem_post(&sem2);
+	return 0;
 }
 
 int frameLibre() {
@@ -1000,20 +974,14 @@ void conectarseAFS() {
 	clienteFS = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddressFS.sin_family = AF_INET;
 	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
-	//TODO cambiar IP
-	//serverAddressFS.sin_addr.s_addr = atoi(t_archivoConfiguracion.IP_FS);
-	//serverAddressFS.sin_port = htons(4093);
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
 
-	connect(clienteFS, (struct sockaddr *) &serverAddressFS,
-			sizeof(serverAddressFS));
+	connect(clienteFS, (struct sockaddr *) &serverAddressFS, sizeof(serverAddressFS));
+	
+	int *tamanioValue = malloc(sizeof(int));
+	recv(clienteFS, tamanioValue, sizeof(int), 0);
 
-	int *tamaniodelTamanioValue = malloc(sizeof(int));
-	recv(clienteFS, tamaniodelTamanioValue, sizeof(int), 0);
-	int *tamanioValue = malloc(*tamaniodelTamanioValue);
-	recv(clienteFS, tamanioValue, *tamaniodelTamanioValue, 0);
-
-	memcpy(&tamanoValue, &tamanioValue, sizeof(tamanioValue));
+	memcpy(&tamanoValue, tamanioValue, sizeof(int));
 
 	sem_post(&sem);
 }
