@@ -27,3 +27,5 @@
 [INFO] 18:22:31:327 MEMORIA/(10038:10041):  Se realizo create en el FS : TABLA1 con SC 2 10
 [ERROR] 18:24:12:41 MEMORIA/(10038:10041):  Se realizo insert en FS 
 >>>>>>> origin/master
+[INFO] 20:08:57:975 Memoria/(32613:32623):  Llego select con VALUE : hola
+

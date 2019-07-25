@@ -2386,14 +2386,11 @@ char* realizarSelect(char* tabla, char* key) {
 		} else { // o sea, si existe la key en algun lugar
 
 			// si bloques tiene mayor timestamp que todos
-			if ((timestampActualMayorBloques >= timestampActualMayorTemporales)
-					&& (timestampActualMayorBloques
-							>= timestampActualMayorTemporalesC)
-					&& (timestampActualMayorBloques >= timestampMayorMemtable)) {
+			if ((timestampActualMayorBloques >= timestampActualMayorTemporales)	&& (timestampActualMayorBloques	>= timestampActualMayorTemporalesC) && (timestampActualMayorBloques >= timestampMayorMemtable)) {
 				//printf("%s\n", valueDeTimestampActualMayorBloques);
 				string_append(&valueFinal, valueDeTimestampActualMayorBloques);
 
-				char* mensajeALogear = malloc( strlen(" Se selecciono tabla :  / En bloque con timestamp :  / Value : ") + strlen(tabla) + strlen(string_itoa(timestampActualMayorBloques)) + strlen(valueDeTimestampActualMayorBloques));
+				char* mensajeALogear = malloc( strlen(" Se selecciono tabla :  / En bloque con timestamp :  / Value : ") + strlen(tabla) + strlen(string_itoa(timestampActualMayorBloques)) + strlen(valueDeTimestampActualMayorBloques) +1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / En bloque con timestamp : ");
@@ -2606,13 +2603,13 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			int key = atoi(arrayLinea[1]);
 			p_registro->timestamp = timestamp;
 			p_registro->key = key;
-			p_registro->value = malloc(strlen(arrayLinea[2]));
+			p_registro->value = malloc(strlen(arrayLinea[2]) +1);
 			strcpy(p_registro->value, arrayLinea[2]);
 			vectorStructs[i] = malloc(8);
 			memcpy(&vectorStructs[i]->key, &p_registro->key, sizeof(p_registro->key));
 			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp, sizeof(p_registro->timestamp));
 			vectorStructs[i]->value = malloc(strlen(arrayLinea[2]));
-			memcpy(vectorStructs[i]->value, p_registro->value,strlen(p_registro->value));
+			memcpy(vectorStructs[i]->value, p_registro->value,strlen(p_registro->value)+1);
 			i++;
 			(*cant)++;
 		}
