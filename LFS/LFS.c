@@ -97,7 +97,6 @@ void tomarPeticionDrop(int sd);
 void tomarPeticionDescribePorTabla(int sd);
 void tomarPeticionDescribeTodasLasTablas(int sd);
 void atenderPeticionesDeConsola();
-void dameSemaforo(char *tabla, sem_t **semaforoTabla);
 void levantarHiloCompactacion(char *);
 void levantarHilosCompactacionParaTodasLasTablas();
 void actualizarTiempoDeRetardo();
@@ -168,9 +167,11 @@ int estaEntreComillas(char*);
 void registrarBloqueQueCambio(int);
 void registrarBloqueQueSeBorro(int);
 
+semaforoDeTabla* dameSemaforo(char *tabla);
 void ponerActivasTodasLasTablas();
 t_list *tomarTodasLasTablas();
 void borrarSemaforo(char *tablaADestruir);
+void activarOtrosSemaforos();
 
 t_config* configLFS;
 configuracionLFS structConfiguracionLFS;
@@ -261,7 +262,7 @@ void borrarSemaforo(char *tablaADestruir){
 	for(int i = 0; i<list_size(listaDeSemaforos); i++){
 		unSemaforo = list_get(listaDeSemaforos, i);
 		if(!strcmp(tablaADestruir, unSemaforo->tabla)){
-			list_remove_and_destroy_element(listaDeSemaforos, i, destruirSemaforo);
+			list_remove_and_destroy_element(listaDeSemaforos, i, (void*)destruirSemaforo);
 			return;
 		}
 	}
@@ -751,15 +752,8 @@ void realizarPeticion(char** parametros) {
 				(void *) criterioDescribeUnaTabla)) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
-
-			sem_t *semaforoTabla;
-			//la key del diccionario esta en mayusculas para cada tabla
-			//dameSemaforo(tabla, &semaforoTabla);
-			//sem_wait(semaforoTabla);
-			//Seccion critica
 			//El 1 es para imprimir por pantalla
 			describeUnaTabla(tabla, 1);
-			//sem_post(semaforoTabla);
 		}
 		break;
 	default:
@@ -1243,7 +1237,7 @@ semaforoDeTabla* dameSemaforo(char *tabla) {
 	int existeSemaforo(void *unSemaforo){
 		return !strcmp(tabla, ((semaforoDeTabla*)unSemaforo)->tabla);
 	}
-	return (semaforoDeTabla*)list_find(listaDeSemaforos, existeSemaforo);
+	return (semaforoDeTabla*)list_find(listaDeSemaforos, (void*)existeSemaforo);
 }
 
 /*int laTablaTieneSemaforo(char *tabla) {
@@ -1698,8 +1692,8 @@ int asignarBloque() {
 		return bloqueEncontrado;
 	}
 
-	//printf("No se encontro bloque disponible\n");
-	//exit(-1);
+	printf("No se encontro bloque disponible\n");
+	exit(-1);
 }
 
 void crearArchivoDeBloquesVacio(char* directorioBinario, int bloqueEncontrado) {
