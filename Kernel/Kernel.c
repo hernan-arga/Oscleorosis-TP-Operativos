@@ -5,6 +5,7 @@
  * Conectar el goissiping con memoria cada x tiempo para levantar las memorias
  * Describe global para pedir las tablas del FS
  * Agregar las tablas que se conectaron y las que no borrarlas (hecho probar que funcione)
+ * Que memoria avise si hubo error en las request
  *
  *¿Esta bien que el describe se mande siempre a strongConsistency? - preguntar
  */
@@ -130,6 +131,7 @@ void quitarMemoriaDe1Lista(struct datosMemoria *, t_list *);
 
 void PRUEBA();
 
+int multiprocesamiento;
 t_list * metricasDeUltimos30Segundos;
 t_list * listaMetricas; // Lista con info. de los últimos INSERT y SELECT, se irán borrando si exceden los 30 segundos. Se considera el tiempo de ejecución, el tiempo que tardan mientras se están ejecutando.
 t_queue* new;
@@ -152,6 +154,7 @@ t_list *eventualConsistency;
 
 struct metricas * unRegistro;
 //pthread_t hiloLevantarConexion;
+sem_t MAXIMOPROCESAMIENTO;
 
 int main() {
 	listaMetricas = list_create();
@@ -170,6 +173,8 @@ int main() {
 	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
 
 	PRUEBA();
+	multiprocesamiento = config_get_int_value(configuracion, "MULTIPROCESAMIENTO");
+	iniciarSemaforos();
 
 	diccionarioTemporal = malloc(3000);
 	diccionarioTemporal = dictionary_create();
@@ -183,7 +188,6 @@ int main() {
 
 	memoriaPrincipal->MEMORY_NUMBER = 1;
 	list_add(listaDeMemorias, (void*)memoriaPrincipal);
-
 
 
 	/*struct datosMemoria* unaMemoria2;
@@ -208,6 +212,10 @@ int main() {
 	//pthread_join(hiloLevantarConexion, NULL);
 	//pthread_join(goissiping, NULL);
 	return 0;
+}
+
+void iniciarSemaforos(){
+	sem_init(&MAXIMOPROCESAMIENTO, 0, multiprocesamiento);
 }
 
 void PRUEBA(){
@@ -1309,22 +1317,26 @@ void guardarDiccionarioGlobal(int socketMemoria){
 		char *tabla = malloc(*tamanioTabla);
 		read(socketMemoria, tabla, *tamanioTabla);
 		char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
+		printf("%s\n", tablaCortada);
 
 		int *tamanioConsistencia = malloc(sizeof(int));
 		read(socketMemoria, tamanioConsistencia, sizeof(int));
 		char *tipoConsistencia = malloc(*tamanioConsistencia);
 		read(socketMemoria, tipoConsistencia, *tamanioConsistencia);
 		char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia, *tamanioConsistencia);
+		printf("%s\n", tipoConsistenciaCortada);
 
 		int* tamanioNumeroParticiones = malloc(sizeof(int));
 		read(socketMemoria, tamanioNumeroParticiones, sizeof(int));
 		int* numeroParticiones = malloc(*tamanioNumeroParticiones);
 		read(socketMemoria, numeroParticiones, *tamanioNumeroParticiones);
+		printf("%i\n", numeroParticiones);
 
 		int* tamanioTiempoCompactacion = malloc(sizeof(int));
 		read(socketMemoria, tamanioTiempoCompactacion, sizeof(int));
 		int* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
 		read(socketMemoria, tiempoCompactacion, *tamanioTiempoCompactacion);
+		printf("%i\n", tiempoCompactacion);
 
 		char* mensajeALogear = malloc( strlen(" [DESCRIBE GLOBAL]:    ") + strlen(tablaCortada) + strlen(tipoConsistenciaCortada) + 2*sizeof(int) + 1);
 		strcpy(mensajeALogear, " [DESCRIBE GLOBAL]: ");
@@ -1597,11 +1609,10 @@ void drop(char* nombre_tabla) {
 	 return 0;
 }
 
-
+//revisar esto si se puede mejorar
 void ejecutarReady() {
 	while (1) {
-		int multiprocesamiento = config_get_int_value(configuracion,
-				"MULTIPROCESAMIENTO");
+
 		if (enEjecucionActualmente < multiprocesamiento
 				&& !queue_is_empty(ready)) {
 			enEjecucionActualmente++;
@@ -1638,6 +1649,10 @@ void ejecutor(struct Script *ejecutando) {
 	int i = 0;
 	FILE * lql = fopen(ejecutando->peticiones, "r");
 	fseek(lql, ejecutando->posicionActual, 0);
+
+	/*char* lineaDeScript = string_new();
+	fread(caracter, sizeof(char), 1, lql);*/
+
 	while (i < quantum && !feof(lql) && !error) {
 		char* lineaDeScript = string_new();
 		fread(caracter, sizeof(char), 1, lql);
@@ -1646,23 +1661,26 @@ void ejecutor(struct Script *ejecutando) {
 			string_append(&lineaDeScript, caracter);
 			fread(caracter, sizeof(char), 1, lql);
 		}
+		//printf("\t%s\n", lineaDeScript);
 		tomar_peticion(lineaDeScript, 0, &error);
 		free(lineaDeScript);
 		i++;
 	}
+	//printf("\t%i\n", feof(lql));
 	//Si salio por quantum
-	if (i >= quantum && !error) {
+	if (i >= quantum && !error && !feof(lql)) {
 		printf("---Fin q---\n");
 		ejecutando->posicionActual = ftell(lql);
+
+		int sleepEjecucion = config_get_int_value(configuracion, "SLEEP_EJECUCION");
+		sleep(sleepEjecucion);
 		queue_push(ready, ejecutando);
 	} else {
+		sem_post(&MAXIMOPROCESAMIENTO);
 		printf("el script %s paso a exit\n", ejecutando->peticiones);
 	}
 	fclose(lql);
 	free(caracter);
-
-	int sleepEjecucion = config_get_int_value(configuracion, "SLEEP_EJECUCION");
-	sleep(sleepEjecucion);
 }
 
 char* tempSinAsignar() {
@@ -1708,6 +1726,7 @@ int PID_usada(int numPID) {
 
 void pasar_a_ready(t_queue * colaAnterior) {
 	//printf("\tTrasladando script a Ready\n");
+	sem_wait(&MAXIMOPROCESAMIENTO);
 	struct Script *proceso = queue_pop(colaAnterior);
 	queue_push(ready, proceso);
 	printf("El script %s fue trasladado a Ready\n", proceso->peticiones);
