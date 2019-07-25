@@ -66,3 +66,5 @@
 [INFO] 18:46:52:674 MEMORIA/(4790:4793):  Se realizo drop en FS de : TABLA1
 [INFO] 18:48:09:498 MEMORIA/(4790:4793):  Se realizo create en el FS : TABLA1 con SC 2 10
 >>>>>>> origin/master
+[ERROR] 01:20:25:806 LFS/(15783:15851):  No se encontro la key : -1247801904
+[ERROR] 01:27:21:218 LFS/(16296:16341):  No se encontro la key : -1247801888

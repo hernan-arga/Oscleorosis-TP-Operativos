@@ -2850,8 +2850,6 @@ int32_t iniciarConexion() {
 			int tamanioValue = structConfiguracionLFS.TAMANIO_VALUE;
 			void* buffer = malloc( sizeof(int) );
 			memcpy(buffer, &tamanioValue, sizeof(int));
-
-			//send new connection greeting message
 			send(new_socket, buffer, sizeof(int), 0);
 
 			//add new socket to array of sockets

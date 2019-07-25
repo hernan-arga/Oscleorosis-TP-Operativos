@@ -480,8 +480,6 @@ void atenderPeticionesDeConsola() {
 		//Aca no me interesa esta variable pero la necesita
 		int huboError;
 		do {
-			printf(
-					"Mis subprocesos estan a la espera de su mensaje, usuario.\n");
 			fgets(mensaje, 100, stdin);
 		} while (!strcmp(mensaje, "\n") || !strcmp(mensaje, " \n"));
 		tomar_peticion(mensaje, 1, &huboError);
@@ -1502,7 +1500,7 @@ void describeUnaTabla(char* tabla) {
 }
 
 void describeTodasLasTablas() {
-	dictionary_iterator(tablas_conocidas, (void*) describeUnaTabla);
+
 }
 
 //TODO socket para dropear la tabla en memoria y borrar la tabla de mi lista de tablas conocidas.
