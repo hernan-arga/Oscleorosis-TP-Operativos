@@ -68,3 +68,29 @@
 >>>>>>> origin/master
 [ERROR] 01:20:25:806 LFS/(15783:15851):  No se encontro la key : -1247801904
 [ERROR] 01:27:21:218 LFS/(16296:16341):  No se encontro la key : -1247801888
+[ERROR] 11:36:04:49 LFS/(9520:9526):  No se encontro la key : -1247801888
+[ERROR] 11:37:01:353 LFS/(9544:9560):  No se encontro la key : -1247801624
+[INFO] 11:37:32:692 MEMORIA/(9594:9598):  [DESCRIBE GLOBAL]: TABLA1 SC 2 10
+[INFO] 11:38:05:170 MEMORIA/(9594:9598):  Se realizo create en el FS : TABLA2 con SHC 2 10
+[INFO] 11:38:13:926 MEMORIA/(9594:9598):  Se realizo create en el FS : TABLA3 con EC 2 15
+[INFO] 11:38:16:205 MEMORIA/(9594:9598):  [DESCRIBE GLOBAL]: TABLA1 SC 2 10
+[INFO] 11:38:16:211 MEMORIA/(9594:9598):  [DESCRIBE GLOBAL]: TABLA2 SHC 2 10
+[INFO] 11:38:16:213 MEMORIA/(9594:9598):  [DESCRIBE GLOBAL]: TABLA3 EC 2 15
+[ERROR] 11:39:07:146 LFS/(9617:9623):  No se encontro la key : -1247801256
+[ERROR] 11:41:17:200 LFS/(9704:9715):  No se encontro la key : -1247801256
+[ERROR] 15:00:33:689 LFS/(5846:5852):  No se encontro la key : -1247801888
+[ERROR] 15:00:59:64 LFS/(5884:5890):  No se encontro la key : -1247801888
+[ERROR] 15:02:22:664 LFS/(5941:5949):  No se encontro la key : -1247801888
+[ERROR] 15:03:02:960 LFS/(6026:6072):  No se encontro la key : -1247801888
+[ERROR] 15:12:31:946 LFS/(6246:6338):  No se encontro la key : -1239413280
+[ERROR] 15:21:39:926 LFS/(6466:6515):  No se encontro la key : -1239413280
+[ERROR] 15:22:33:538 LFS/(6652:6658):  No se encontro la key : -1247801888
+[ERROR] 15:23:45:944 LFS/(6713:6719):  No se encontro la key : -1247801888
+[ERROR] 15:44:15:462 LFS/(7091:7104):  No se encontro la key : -1247801888
+[ERROR] 15:44:35:344 LFS/(7119:7125):  No se encontro la key : -1247801888
+[ERROR] 15:47:31:806 LFS/(7201:7214):  No se encontro la key : -1247801888
+[ERROR] 15:50:08:645 LFS/(7309:7315):  No se encontro la key : -1247801144
+[ERROR] 15:51:35:320 LFS/(7364:7370):  No se encontro la key : -1247801144
+[ERROR] 15:52:48:841 LFS/(7392:7398):  No se encontro la key : -1247801144
+[INFO] 15:53:36:947 MEMORIA/(7426:7432):  Se realizo drop en FS de : TABLA1
+[INFO] 16:01:10:833 MEMORIA/(7628:7632):  Se realizo create en el FS : TABLA1 con SC 2 10

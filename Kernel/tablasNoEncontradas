@@ -9,3 +9,6 @@
 [ERROR] 11:40:52:426 KERNEL/(9885:9889): No se tiene conocimiento de la tabla: TABLA878
 [ERROR] 01:22:43:280 KERNEL/(16167:16176): No se tiene conocimiento de la tabla: TABLA9999
 [ERROR] 01:24:52:978 KERNEL/(16324:16344): No se tiene conocimiento de la tabla: TABLA9999
+[ERROR] 16:03:45:62 KERNEL/(7658:7668): No se tiene conocimiento de la tabla: TABLA2
+[ERROR] 16:04:37:391 KERNEL/(7658:7674): No se tiene conocimiento de la tabla: TABLA2
+[ERROR] 16:30:25:399 KERNEL/(7992:8017): No se tiene conocimiento de la tabla: TABLA2
