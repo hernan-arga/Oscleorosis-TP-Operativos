@@ -204,8 +204,8 @@ int main(int argc, char *argv[]) {
 	diccionarioDescribe = dictionary_create();
 
 	listaDeSemaforos = list_create();
-	ponerActivasTodasLasTablas();
-	activarOtrosSemaforos();
+	//ponerActivasTodasLasTablas();
+	//activarOtrosSemaforos();
 
 	//Se queda esperando a que termine el hilo de escuchar peticiones
 	pthread_join(hiloLevantarConexion, NULL);
@@ -1117,10 +1117,11 @@ void verificarCompactacion(char *pathTabla) {
 		//printf("%i\n", tiempoCompactacion);
 		sleep(tiempoCompactacion);
 		//Con sleep tengo que meter un \n al final de un printf porque sino no imprime
-		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-		pthread_mutex_lock(&unSemaforo->mutexDrop);	//Semaforo para bloquear el drop
+
+		//semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+		//pthread_mutex_lock(&unSemaforo->mutexDrop);	//Semaforo para bloquear el drop
 		compactacion(pathTabla);	//Seccion Critica
-		pthread_mutex_unlock(&unSemaforo->mutexDrop);
+		//pthread_mutex_unlock(&unSemaforo->mutexDrop);
 		free(metadataTabla);
 		config_destroy(configTabla);
 	}
@@ -2597,7 +2598,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 			t_registro p_registro2;
 			p_registro = &p_registro2;
-			char** arrayLinea = malloc(strlen(line));
+			char** arrayLinea = malloc(strlen(line)+1);
 			arrayLinea = string_split(line, ";");
 			int timestamp = atoi(arrayLinea[0]);
 			int key = atoi(arrayLinea[1]);
