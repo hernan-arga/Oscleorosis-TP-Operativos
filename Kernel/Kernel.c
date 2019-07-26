@@ -128,6 +128,7 @@ void guardarDiccionarioGlobal(int socketMemoria);
 void evaluarMemoriaRecibida(struct datosMemoria*);
 void quitarMemoriaDeSC(struct datosMemoria *);
 void quitarMemoriaDe1Lista(struct datosMemoria *, t_list *);
+void iniciarSemaforos();
 
 void PRUEBA();
 
@@ -1066,8 +1067,18 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		}
 		if (parametrosValidos(0, parametros,
 				(void *) criterioDescribeTodasLasTablas)) {
-			//strongConsistency->socket
-			guardarDiccionarioGlobal(strongConsistency->socket);	//Pido las nuevas tablas y las guardo en el diccionario temporal
+			//De alguna manera tengo que verificar que la memoria este conectada
+			struct datosMemoria *unaMemoria;
+			do{
+				int max = list_size(listaDeMemorias);
+				int numeroMemoria = (rand() % max)+1;
+				int esLaMemoriaBuscada(struct datosMemoria* unaMemoria){
+					return unaMemoria->MEMORY_NUMBER == numeroMemoria;
+				}
+				unaMemoria = list_find(listaDeMemorias, (void*)esLaMemoriaBuscada);
+			}while(!laMemoriaEstaConectada(unaMemoria));
+
+			guardarDiccionarioGlobal(unaMemoria->socket);	//Pido las nuevas tablas y las guardo en el diccionario temporal
 			dictionary_iterator(diccionarioDeTablasTemporal, (void*)actualizarDiccionarioDeTablas); //actualizo el propio
 			dictionary_iterator(tablas_conocidas, (void*)quitarDelDiccionarioDeTablasLaTablaBorrada);
 			*huboError = 0;
@@ -1079,7 +1090,19 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				(void *) criterioDescribeUnaTabla)) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
-			struct tabla *metadata = pedirDescribeUnaTabla( tabla, strongConsistency->socket);
+
+			//De alguna manera tengo que verificar que la memoria este conectada
+			struct datosMemoria *unaMemoria;
+			do{
+				int max = list_size(listaDeMemorias);
+				int numeroMemoria = (rand() % max)+1;
+				int esLaMemoriaBuscada(struct datosMemoria* unaMemoria){
+					return unaMemoria->MEMORY_NUMBER == numeroMemoria;
+				}
+			unaMemoria = list_find(listaDeMemorias, (void*)esLaMemoriaBuscada);
+			}while(!laMemoriaEstaConectada(unaMemoria));
+
+			struct tabla *metadata = pedirDescribeUnaTabla( tabla, unaMemoria->socket);
 
 			/*printf("%s: \n", tabla);
 			printf("Particiones: %i\n", metadata->PARTITIONS);
@@ -1288,6 +1311,11 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		*huboError = 1;
 		printf("Error operacion invalida\n");
 	}
+}
+
+int laMemoriaEstaConectada(struct datosMemoria* unaMemoria){
+	//return getpeername(unaMemoria->socket, unaMemoria->direccionSocket, sizeof(unaMemoria->direccionSocket));
+	return 1;
 }
 
 
