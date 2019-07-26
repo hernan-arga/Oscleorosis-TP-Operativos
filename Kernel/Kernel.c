@@ -1480,33 +1480,58 @@ void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones, ch
 
 char* pedirValue(char* tabla, char* laKey, int socketMemoria)
 {
-	void* buffer = malloc( strlen(tabla)+1 + 4*sizeof(int));
+	int* key = malloc(sizeof(int));
+	*key = atoi(laKey);
+
+	char* buffer = malloc(strlen(tabla) + sizeof(int) + 2 * sizeof(int) + 2 * sizeof(int));
+	// primeros dos terminos para TABLA; anteultimo termino para KEY; ultimo para peticion
 
 	int peticion = 1;
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
-	int tamanioTabla = strlen(tabla)+1;
-	memcpy(buffer + 2*sizeof(int), &tamanioTabla, sizeof(int));
-	memcpy(buffer + 3*sizeof(int), tabla, tamanioTabla);
+	int tamanioTabla = strlen(tabla);
+	memcpy(buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
+	memcpy(buffer + 3 * sizeof(int), tabla, strlen(tabla));
 
-	int tamanioKey = strlen(laKey)+1;
-	memcpy(buffer + 3*sizeof(int) + tamanioTabla, &tamanioKey, sizeof(int));
-	memcpy(buffer + 4*sizeof(int) + tamanioTabla, laKey, tamanioKey);
+	int tamanioKey = sizeof(int);
+	memcpy(buffer + 3 * sizeof(int) + strlen(tabla), &tamanioKey, sizeof(int));
+	memcpy(buffer + 4 * sizeof(int) + strlen(tabla), key, sizeof(int));
 
-	send(socketMemoria, buffer, tamanioTabla + 4*sizeof(int) + tamanioKey, 0);
+	send(socketMemoria, buffer, strlen(tabla) + 5 * sizeof(int), 0);
 
 	//deserializo value
 	int *tamanioValue = malloc(sizeof(int));
 	recv(socketMemoria, tamanioValue, sizeof(int), 0);
 
-	char *value = malloc(*tamanioValue);
-	recv(socketMemoria, value, *tamanioValue, 0);
+	if (*tamanioValue == 0) {
+		char* mensajeALogear = malloc( strlen(" No se encontro ni en MM ni en FS la key : ") + sizeof(key) + 1);
+		strcpy(mensajeALogear, " No se encontro ni en MM ni en FS la key : ");
+		strcat(mensajeALogear, string_itoa(key));
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "Kernel", 1, LOG_LEVEL_ERROR);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+		perror("El value no estaba en el FS");
+		return NULL;
+	} else {
+		char *value = malloc(*tamanioValue);
+		recv(socketMemoria, value, *tamanioValue, 0);
+		char *valueCortado = string_substring_until(value, *tamanioValue); //corto value
 
-	//printf("%s", value);
-
-	return value;
+		char* mensajeALogear = malloc(strlen(" Llego select con VALUE : ") + strlen(valueCortado) + 1);
+		strcpy(mensajeALogear, " Llego select con VALUE : ");
+		strcat(mensajeALogear, valueCortado);
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "Kernel", 1, LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+		free(value);
+		return valueCortado;
+	}
 }
 
 
