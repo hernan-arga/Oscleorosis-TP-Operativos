@@ -1899,7 +1899,7 @@ char* realizarSelect(char* tabla, char* key) {
 				"PARTITIONS");
 
 		int particionQueContieneLaKey = (atoi(key)) % cantidadDeParticiones;
-		printf("La key esta en la particion %i\n", particionQueContieneLaKey);
+		printf("Si existe, la key deberia estar en la particion %i\n", particionQueContieneLaKey);
 		char* stringParticion = malloc(4);
 		stringParticion = string_itoa(particionQueContieneLaKey);
 
@@ -2608,8 +2608,8 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			vectorStructs[i] = malloc(8);
 			memcpy(&vectorStructs[i]->key, &p_registro->key, sizeof(p_registro->key));
 			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp, sizeof(p_registro->timestamp));
-			vectorStructs[i]->value = malloc(strlen(arrayLinea[2]));
-			memcpy(vectorStructs[i]->value, p_registro->value,strlen(p_registro->value)+1);
+			vectorStructs[i]->value = malloc(strlen(arrayLinea[2]) +1);
+			memcpy(vectorStructs[i]->value, p_registro->value, strlen(p_registro->value)+1);
 			i++;
 			(*cant)++;
 		}
@@ -2921,7 +2921,7 @@ int32_t iniciarConexion() {
 	 char* keyString = string_itoa(*key);
 
 	 char *value = realizarSelect(tablaCortada, keyString);
-	 printf("%s\n", value);
+	 //printf("%s\n", value);
 
 	 // serializo paquete
 	 if(value == NULL){
