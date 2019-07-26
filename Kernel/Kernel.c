@@ -1096,7 +1096,6 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		}
 		break;
 	case DESCRIBE:
-		;
 		//printf("Seleccionaste Describe\n");
 		int criterioDescribeTodasLasTablas(char** parametros,
 				int cantidadDeParametrosUsados) {
@@ -1122,11 +1121,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			struct datosMemoria *unaMemoria;
 			do{
 				int max = list_size(listaDeMemorias);
-				int numeroMemoria = (rand() % max)+1;
-				int esLaMemoriaBuscada(struct datosMemoria* unaMemoria){
-					return unaMemoria->MEMORY_NUMBER == numeroMemoria;
-				}
-				unaMemoria = list_find(listaDeMemorias, (void*)esLaMemoriaBuscada);
+				int numeroEnListaMemoria = (rand() % max)+1;
+				unaMemoria = list_get(listaDeMemorias, numeroEnListaMemoria);
 			}while(!laMemoriaEstaConectada(unaMemoria));
 
 			guardarDiccionarioGlobal(unaMemoria->socket);	//Pido las nuevas tablas y las guardo en el diccionario temporal
@@ -1146,11 +1142,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			struct datosMemoria *unaMemoria;
 			do{
 				int max = list_size(listaDeMemorias);
-				int numeroMemoria = (rand() % max)+1;
-				int esLaMemoriaBuscada(struct datosMemoria* unaMemoria){
-					return unaMemoria->MEMORY_NUMBER == numeroMemoria;
-				}
-			unaMemoria = list_find(listaDeMemorias, (void*)esLaMemoriaBuscada);
+				int numeroEnListaMemoria = (rand() % max)+1;
+				unaMemoria = list_get(listaDeMemorias, numeroEnListaMemoria);
 			}while(!laMemoriaEstaConectada(unaMemoria));
 
 			struct tabla *metadata = pedirDescribeUnaTabla( tabla, unaMemoria->socket);
@@ -1213,15 +1206,14 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					mandarDrop(tabla, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
 					if (list_size(hashConsistency) != 0) {
-						//le sumo 1 por la manera en que se enumeran las memorias
-						int max = list_size(hashConsistency);
-						int numeroMemoria = (rand() % max) + 1;
-						//printf("MEMORIA: %i\n", numeroMemoria);
-						int esLaMemoriaBuscada(struct datosMemoria* unaMemoria) {
-							return unaMemoria->MEMORY_NUMBER == numeroMemoria;
-						}
-						struct datosMemoria *unaMemoria = list_find(
-								hashConsistency, (void*) esLaMemoriaBuscada);
+						struct datosMemoria *unaMemoria;
+						do{
+							//le sumo 1 por la manera en que se enumeran las memorias
+							int max = list_size(hashConsistency);
+							int numeroMemoria = (rand() % max) + 1;
+							//printf("MEMORIA: %i\n", numeroMemoria);
+							unaMemoria = list_get(listaDeMemorias, numeroMemoria);
+						}while(!laMemoriaEstaConectada(unaMemoria));
 
 						mandarDrop(tabla, unaMemoria->socket);
 					} else {
@@ -1378,8 +1370,9 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 }
 
 int laMemoriaEstaConectada(struct datosMemoria* unaMemoria){
-	//return getpeername(unaMemoria->socket, unaMemoria->direccionSocket, sizeof(unaMemoria->direccionSocket));
-	return 1;
+	printf("x");
+	return getpeername(unaMemoria->socket, &unaMemoria->direccionSocket, sizeof(unaMemoria->direccionSocket));
+	//return 1;
 }
 
 
