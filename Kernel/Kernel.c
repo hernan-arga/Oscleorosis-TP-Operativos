@@ -1519,6 +1519,21 @@ struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria) {
 	read(socketMemoria, tiempoCompactacion, *tamanioTiempoCompactacion);
 	// aca ya tengo toda la metadata, falta guardarla en struct
 
+	char* mensajeALogear = malloc(	strlen(" [DESCRIBE x tabla]:  ") + strlen(tabla) + strlen(tipoConsistencia) + 2 * sizeof(int)	+ 1);
+	strcpy(mensajeALogear, " [DESCRIBE x tabla]:  ");
+	strcat(mensajeALogear, tabla);
+	strcat(mensajeALogear, " ");
+	strcat(mensajeALogear, tipoConsistencia);
+	strcat(mensajeALogear, " ");
+	strcat(mensajeALogear, string_itoa(*numeroParticiones));
+	strcat(mensajeALogear, " ");
+	strcat(mensajeALogear, string_itoa(*tiempoCompactacion));
+	t_log* g_logger;
+	g_logger = log_create("./logs.log", "KERNEL", 1, LOG_LEVEL_INFO);
+	log_info(g_logger, mensajeALogear);
+	log_destroy(g_logger);
+	free(mensajeALogear);
+
 	struct tabla* data = malloc(8 + 4);    // 2 int = 2*4 bytes
 	data->CONSISTENCY = malloc(*tamanioConsistencia);
 	memcpy(&data->PARTITIONS, numeroParticiones, sizeof(int));
