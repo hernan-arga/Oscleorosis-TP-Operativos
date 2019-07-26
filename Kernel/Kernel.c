@@ -1102,6 +1102,12 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		int criterioDrop(char** parametros, int cantidadDeParametrosUsados) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
+
+			/*void imprimirTabla(char *tabla){
+				printf("\t%s", tabla);
+			}
+			dictionary_iterator(tablas_conocidas, (void*)imprimirTabla);*/
+
 			if (!dictionary_has_key(tablas_conocidas, tabla)) {
 				char *mensajeALogear = string_new();
 				string_append(&mensajeALogear,
@@ -1118,7 +1124,6 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
 			*huboError = 0;
-			dictionary_remove(tablas_conocidas, tabla);
 			if (es_request) {
 				char* nombre_archivo = tempSinAsignar();
 				FILE* temp = fopen(nombre_archivo, "w");
@@ -1156,7 +1161,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						mandarDrop(tabla, strongConsistency->socket);
 					}
 				}
-
+				dictionary_remove(tablas_conocidas, tabla);
 			}
 		} else {
 			*huboError = 1;
@@ -1368,9 +1373,9 @@ void guardarDiccionarioGlobal(int socketMemoria){
 
 		//lo guardo en el diccionario
 		struct tabla* data = malloc(8 + 4);    // 2 int = 2*4 bytes
-		data->CONSISTENCY = malloc(*tamanioConsistencia);
+		data->CONSISTENCY = malloc(*tamanioConsistencia+1);
 		memcpy(&data->PARTITIONS, numeroParticiones, sizeof(int));
-		memcpy(data->CONSISTENCY, tipoConsistenciaCortada,	*tamanioConsistencia);
+		memcpy(data->CONSISTENCY, tipoConsistenciaCortada,	*tamanioConsistencia+1);
 		memcpy(&data->COMPACTION_TIME, tiempoCompactacion, sizeof(int));
 		dictionary_put(diccionarioDeTablasTemporal, tablaCortada, data);
 
