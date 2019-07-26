@@ -1733,11 +1733,12 @@ void quitarDelDiccionarioDeTablasLaTablaBorrada(char *tabla) {
 void describeUnaTabla(char* tabla) {
 	if (dictionary_has_key(tablas_conocidas, tabla)) {
 		struct tabla *metadataTabla = dictionary_get(tablas_conocidas, tabla);
-		printf("%s: \n", tabla);
+	/*	printf("%s: \n", tabla);
 		printf("Particiones: %i\n", metadataTabla->PARTITIONS);
 		printf("Consistencia: %s\n", metadataTabla->CONSISTENCY);
 		printf("Tiempo de compactacion: %i\n\n",
 				metadataTabla->COMPACTION_TIME);
+	*/
 	}
 
 }
