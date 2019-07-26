@@ -191,14 +191,14 @@ void realizarComando(char** comando) {
 	char* value;
 	switch (accion) {
 	case SELECT:
-		//printf("SELECT");
+		printf("SELECT\n");
 		tabla = comando[1];
 		key = comando[2];
 		realizarSelect(tabla, key);
 		break;
 
 	case INSERT:
-		//printf("INSERT");
+		printf("INSERT\n");
 		tabla = comando[1];
 		key = comando[2];
 		value = comando[3];
@@ -212,7 +212,7 @@ void realizarComando(char** comando) {
 		break;
 
 	case CREATE:
-		//printf("CREATE");
+		printf("CREATE\n");
 		tabla = comando[1];
 		char* tipoConsistencia = comando[2];
 		char* numeroParticiones = comando[3];
@@ -224,31 +224,31 @@ void realizarComando(char** comando) {
 		//Describe recibe un diccionario con (nombreTabla - struct(con la info de la metadata)
 
 	case DESCRIBE:
-		//printf("\nDESCRIBE");
+		printf("DESCRIBE");
 
 		if (comando[1] == NULL) {
-			//printf("GLOBAL");
+			printf("GLOBAL\n");
 			realizarDescribeGlobal();
 		} else {
-			//printf("Normal");
+			printf("NORMAL\n");
 			tabla = comando[1];
 			realizarDescribe(tabla);
 		}
 		break;
 
 	case DROP:
-		//printf("\nDROP");
+		printf("DROP\n");
 		tabla = comando[1];
 		realizarDrop(tabla);
 		break;
 
 	case JOURNAL:
-		//printf("\nJOURNAL");
+		printf("JOURNAL\n");
 		ejecutarJournaling();
 		break;
 
 	case OPERACIONINVALIDA:
-		//printf("OPERACION INVALIDA");
+		printf("OPERACION INVALIDA\n");
 		break;
 	}
 }
@@ -347,7 +347,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 			*(frames + frameNum) = strlen(value);
 
-			//printf("Value: %s\n", value);
+			printf("Value: %s\n", value);
 
 			int* laKey = malloc(sizeof(int));
 			*laKey = atoi(key);
@@ -1408,8 +1408,8 @@ void conectar() {
 			connect(clienteSeed, (struct sockaddr *) &direccionCliente,
 					sizeof(direccionCliente));
 
-			//pthread_t tGosiping;
-			//int32_t idTGosiping = pthread_create(&tGosiping, NULL, gossiping,	clienteSeed);
+			pthread_t tGosiping;
+			int32_t idTGosiping = pthread_create(&tGosiping, NULL, gossiping,	clienteSeed);
 
 			i++;
 		}
