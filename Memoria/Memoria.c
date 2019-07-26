@@ -97,9 +97,9 @@ int frameLibre();
 char* pedirValue(char* tabla, char* key);
 int ejecutarLRU();
 void ejecutarJournaling();
-void realizarCreate(char* tabla, char* tipoConsistencia,
+int realizarCreate(char* tabla, char* tipoConsistencia,
 		char* numeroParticiones, char* tiempoCompactacion);
-void realizarDrop(char* tabla);
+int realizarDrop(char* tabla);
 void realizarDescribeGlobal();
 metadataTabla* realizarDescribe(char* tabla);
 void consola();
@@ -726,7 +726,7 @@ void ejecutarJournaling() {
 	hizoJ = 1;
 }
 
-void realizarCreate(char* tabla, char* tipoConsistencia,
+int realizarCreate(char* tabla, char* tipoConsistencia,
 		char* numeroParticiones, char* tiempoCompactacion) {
 
 	// Serializo Peticion, Tabla y Metadata
@@ -784,6 +784,7 @@ void realizarCreate(char* tabla, char* tipoConsistencia,
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
+		return 0;
 	}
 	if (*ok == 1) {
 		char* mensajeALogear = malloc(
@@ -804,10 +805,11 @@ void realizarCreate(char* tabla, char* tipoConsistencia,
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
+		return 1;
 	}
 }
 
-void realizarDrop(char* tabla) {
+int realizarDrop(char* tabla) {
 
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
 		void* elemento = dictionary_remove(tablaSegmentos, tabla);
@@ -845,6 +847,7 @@ void realizarDrop(char* tabla) {
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
+		return 0;
 	}
 	if (*ok == 1) {
 		char* mensajeALogear = malloc(
@@ -856,6 +859,7 @@ void realizarDrop(char* tabla) {
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
+		return 1;
 	}
 }
 
@@ -1346,8 +1350,14 @@ void tomarPeticionCreate(int kernel) {
 	recv(kernel, tiempoCompactacion, *tamanioTiempoCompactacion, 0);
 	//printf("tiempo de compactacion: %s\n", tiempoCompactacion);
 
-	realizarCreate(tabla, consistencia, numeroDeParticiones,
-			tiempoCompactacion);
+	int respuesta = realizarCreate(tabla, consistencia, numeroDeParticiones, tiempoCompactacion);
+
+	char* buffer = malloc(2 * sizeof(int));
+	int tamanioRespuesta = sizeof(int);
+	memcpy(buffer, &tamanioRespuesta, sizeof(int));
+	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
+
+	send(kernel, buffer, 2 * sizeof(int), 0);
 }
 
 void tomarPeticionDescribe1Tabla(int kernel) {
@@ -1475,7 +1485,15 @@ void tomarPeticionDrop(int kernel) {
 	char *tabla = malloc(*tamanioTabla);
 	recv(kernel, tabla, *tamanioTabla, 0);
 	//printf("tabla: %s\n", tabla);
-	realizarDrop(tabla);
+
+	int respuesta = realizarDrop(tabla);
+
+	char* buffer = malloc(2 * sizeof(int));
+	int tamanioRespuesta = sizeof(int);
+	memcpy(buffer, &tamanioRespuesta, sizeof(int));
+	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
+
+	send(kernel, buffer, 2 * sizeof(int), 0);
 }
 
 void conectar() {

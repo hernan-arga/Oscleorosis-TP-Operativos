@@ -1368,6 +1368,34 @@ void mandarDrop(char *tabla, int socketMemoria) {
 	memcpy(buffer + 3 * sizeof(int), tabla, tamanioTabla);
 
 	send(socketMemoria, buffer, 3 * sizeof(int) + tamanioTabla, 0);
+
+	// Deserializo respuesta
+	int* tamanioRespuesta = malloc(sizeof(int));
+	read(socketMemoria, tamanioRespuesta, sizeof(int));
+	int* ok = malloc(*tamanioRespuesta);
+	read(socketMemoria, ok, *tamanioRespuesta);
+
+	if (*ok == 0) {
+		char* mensajeALogear = malloc(
+		strlen(" No se pudo realizar DROP de tabla : ") + strlen(tabla)	+ 1);
+		strcpy(mensajeALogear, " No se pudo realizar DROP de tabla : ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "Kernel", 1, LOG_LEVEL_ERROR);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+	if (*ok == 1) {
+		char* mensajeALogear = malloc( strlen(" Se realizo DROP de tabla : ") + strlen(tabla) + 1);
+		strcpy(mensajeALogear, " Se realizo DROP de tabla : ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "Kernel", 1, LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
 }
 
 void mandarJournal(int socketMemoria) {
@@ -1567,10 +1595,37 @@ void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones,
 			buffer + 6 * sizeof(int) + tamanioTabla + tamanioConsistencia
 					+ tamanioCantidadParticiones, tiempoCompactacion,
 			tamanioTiempoCompactacion);
-	send(socketMemoria, buffer,
-			tamanioTabla + 6 * sizeof(int) + tamanioConsistencia
-					+ tamanioCantidadParticiones + tamanioTiempoCompactacion,
-			0);
+	send(socketMemoria, buffer,	tamanioTabla + 6 * sizeof(int) + tamanioConsistencia + tamanioCantidadParticiones + tamanioTiempoCompactacion, 0);
+
+	// Deserializo respuesta
+	int* tamanioRespuesta = malloc(sizeof(int));
+	read(socketMemoria, tamanioRespuesta, sizeof(int));
+	int* ok = malloc(*tamanioRespuesta);
+	read(socketMemoria, ok, *tamanioRespuesta);
+
+	if (*ok == 0) {
+		char* mensajeALogear = malloc(
+				strlen(" No se pudo realizar create en FS de tabla : ") + strlen(tabla)	+ 1);
+		strcpy(mensajeALogear, " No se pudo realizar create en FS de tabla : ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "Kernel", 1, LOG_LEVEL_ERROR);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+	if (*ok == 1) {
+		char* mensajeALogear = malloc(
+				strlen(" Se realizo create en FS de : ") + strlen(tabla) + 1);
+		strcpy(mensajeALogear, " Se realizo create en FS de : ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "Kernel", 1, LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+
 }
 
 char* pedirValue(char* tabla, char* laKey, int socketMemoria) {

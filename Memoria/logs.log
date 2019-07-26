@@ -1,8 +1,1 @@
-[INFO] 22:21:25:581 Memoria/(3469:3479):  Llego select con VALUE : hola
-
-[INFO] 22:26:45:629 Memoria/(4397:4407):  Llego select con VALUE : hola
-
-[INFO] 00:00:56:836 Memoria/(6362:6369):  Llego select con VALUE : hola
-
-[INFO] 00:06:15:11 Memoria/(6561:6568):  Llego select con VALUE : hola
-[ERROR] 07:48:59:281 MEMORIA/(11842:11845):  No se pudo realizar insert en FS 
+[INFO] 19:28:50:245 MEMORIA/(4563:4570):  Se realizo create en el FS : TABLA7 con SC 1 1
