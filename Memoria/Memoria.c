@@ -342,12 +342,12 @@ char* realizarSelect(char* tabla, char* key) {
 			value = pedirValue(tabla, key);
 
 			if (value == NULL) {
-				return 0;
+				return NULL;
 			}
 
 			*(frames + frameNum) = strlen(value);
 
-			printf("Value: %s\n", value);
+			//printf("Value: %s\n", value);
 
 			int* laKey = malloc(sizeof(int));
 			*laKey = atoi(key);
@@ -365,7 +365,7 @@ char* realizarSelect(char* tabla, char* key) {
 		char* value = pedirValue(tabla, key);
 
 		if (value == NULL) {
-			return 0;
+			return NULL;
 		}
 
 		int frameNum = frameLibre();
@@ -539,7 +539,7 @@ char* pedirValue(char* tabla, char* laKey) {
 	if (*tamanioValue == 0) {
 		char* mensajeALogear = malloc( strlen(" No se encontro la key : ") + sizeof(key) + 1);
 		strcpy(mensajeALogear, " No se encontro la key : ");
-		strcat(mensajeALogear, string_itoa(key));
+		strcat(mensajeALogear, laKey);
 		t_log* g_logger;
 		g_logger = log_create("./logs.log", "LFS", 1, LOG_LEVEL_ERROR);
 		log_error(g_logger, mensajeALogear);
@@ -1198,25 +1198,36 @@ void conectarseAFS() {
 }
 
 void tomarPeticionSelect(int kernel) {
-	//Recibe lo que le manda el kernel
+	//deserializo lo que me pide el kernel
 	int *tamanioTabla = malloc(sizeof(int));
-	recv(kernel, tamanioTabla, sizeof(int), 0);
+	read(kernel, tamanioTabla, sizeof(int));
 	char *tabla = malloc(*tamanioTabla);
-	recv(kernel, tabla, *tamanioTabla, 0);
+	read(kernel, tabla, *tamanioTabla);
+	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
 	int *tamanioKey = malloc(sizeof(int));
-	recv(kernel, tamanioKey, sizeof(int), 0);
-	char *key = malloc(*tamanioKey);
-	recv(kernel, key, *tamanioKey, 0);
+	read(kernel, tamanioKey, sizeof(int));
+	int *key = malloc(*tamanioKey);
+	read(kernel, key, *tamanioKey);
+	char* keyString = string_itoa(*key);
 
-	//Se lo pide al FS
-	char* value = malloc(tamanoValue);
-	value = realizarSelect(tabla, key);
-	int tamanioValue = strlen(value);
-	char *buffer = malloc(sizeof(int) + strlen(value));
-	memcpy(buffer, &tamanioValue, sizeof(int));
-	memcpy(buffer + sizeof(int), value, strlen(value));
-	send(kernel, buffer, strlen(value), 0);
+	//Lo busca en memoria y sino la misma memoria se lo pide al FS
+	char* value = realizarSelect(tablaCortada, keyString);
+
+	//serializo y se lo mando al kernel
+	if(value == NULL){
+		int ok = 0;
+		void* buffer = malloc(4);
+		memcpy(buffer, &ok, 4);
+		send(kernel, buffer,4,0);
+	}
+	else{
+		void *buffer = malloc(strlen(value) + sizeof(int));
+		int tamanio = strlen(value);
+		memcpy(buffer, &tamanio, sizeof(int));
+		memcpy(buffer + sizeof(int), value, tamanio);
+		send(kernel, buffer, strlen(value)+sizeof(int), 0);
+	}
 	free(value);
 	free(key);
 	free(tamanioKey);
