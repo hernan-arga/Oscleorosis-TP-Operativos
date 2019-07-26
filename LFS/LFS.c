@@ -19,8 +19,6 @@
  *	- sockets mm-kernel
  */
 
-
-
 #include <stdio.h>
 #include <string.h> //strlen
 #include <stdlib.h>
@@ -126,7 +124,8 @@ void comparar1RegistroBinarioCon1NuevoRegistro(int, int, char *, char **, int *)
 void actualizarBin(char *);
 void liberarBloques(char *);
 void desasignarBloqueDelBitarray(int);
-void serializarDescribe(char* tabla, metadataTabla* metadata, void* buffer, int* i);
+void serializarDescribe(char* tabla, metadataTabla* metadata, void* buffer,
+		int* i);
 void drop(char*);
 int insert(char*, char*, char*, char*);
 int existeUnaListaDeDatosADumpear();
@@ -192,7 +191,7 @@ int main(int argc, char *argv[]) {
 	bitarrayBloques = bitarray_create(mmapDeBitmap,
 			tamanioEnBytesDelBitarray());
 	//verBitArray();
-	pthread_create(&hiloLevantarConexion, NULL, (void*)iniciarConexion, NULL);
+	pthread_create(&hiloLevantarConexion, NULL, (void*) iniciarConexion, NULL);
 	pthread_create(&hiloDump, NULL, (void*) dump, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
@@ -216,32 +215,36 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-void activarOtrosSemaforos(){
-	pthread_mutex_init(&SEMAFORODETMPC,NULL);
+void activarOtrosSemaforos() {
+	pthread_mutex_init(&SEMAFORODETMPC, NULL);
 	pthread_mutex_init(&SEMAFOROMEMTABLE, NULL);
 }
 
-void ponerActivasTodasLasTablas(){
+void ponerActivasTodasLasTablas() {
 	semaforoDeTabla *unaTablaConSemaforo;
 	t_list *todasLasTablasDelFS = tomarTodasLasTablas();
-	for(int i=0; i<list_size(todasLasTablasDelFS); i++){
+	for (int i = 0; i < list_size(todasLasTablasDelFS); i++) {
 		unaTablaConSemaforo = malloc(sizeof(semaforoDeTabla));
-		unaTablaConSemaforo->tabla = string_duplicate(list_get(todasLasTablasDelFS, i));
+		unaTablaConSemaforo->tabla = string_duplicate(
+				list_get(todasLasTablasDelFS, i));
 		pthread_mutex_init(&(unaTablaConSemaforo->mutexTablaParticion), NULL);
 		pthread_mutex_init(&(unaTablaConSemaforo->mutexDrop), NULL);
 		list_add(listaDeSemaforos, unaTablaConSemaforo);
 	}
-	list_destroy_and_destroy_elements(todasLasTablasDelFS,free);
+	list_destroy_and_destroy_elements(todasLasTablasDelFS, free);
 }
 
-t_list *tomarTodasLasTablas(){
+t_list *tomarTodasLasTablas() {
 	t_list *todasLasTablas = list_create();
 	DIR *directorio = opendir(
-	string_from_format("%sTables", structConfiguracionLFS.PUNTO_MONTAJE));
+			string_from_format("%sTables",
+					structConfiguracionLFS.PUNTO_MONTAJE));
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Evaluo si de todas las carpetas dentro de TABLAS existe alguna que tenga el mismo nombre
-		if ((directorioALeer->d_type) == DT_DIR	&& strcmp((directorioALeer->d_name), ".") && strcmp((directorioALeer->d_name), "..")) {
+		if ((directorioALeer->d_type) == DT_DIR
+				&& strcmp((directorioALeer->d_name), ".")
+				&& strcmp((directorioALeer->d_name), "..")) {
 			list_add(todasLasTablas, directorioALeer->d_name);
 			//printf("%s\n", directorioALeer->d_name);
 		}
@@ -250,17 +253,19 @@ t_list *tomarTodasLasTablas(){
 	return todasLasTablas;
 }
 
-void borrarSemaforo(char *tablaADestruir){
-	void destruirSemaforo(semaforoDeTabla *unSemaforo){
-		pthread_mutex_destroy(&((semaforoDeTabla*)unSemaforo)->mutexDrop);
-		pthread_mutex_destroy(&((semaforoDeTabla*)unSemaforo)->mutexTablaParticion);
+void borrarSemaforo(char *tablaADestruir) {
+	void destruirSemaforo(semaforoDeTabla *unSemaforo) {
+		pthread_mutex_destroy(&((semaforoDeTabla*) unSemaforo)->mutexDrop);
+		pthread_mutex_destroy(
+				&((semaforoDeTabla*) unSemaforo)->mutexTablaParticion);
 	}
 
 	semaforoDeTabla *unSemaforo;
-	for(int i = 0; i<list_size(listaDeSemaforos); i++){
+	for (int i = 0; i < list_size(listaDeSemaforos); i++) {
 		unSemaforo = list_get(listaDeSemaforos, i);
-		if(!strcmp(tablaADestruir, unSemaforo->tabla)){
-			list_remove_and_destroy_element(listaDeSemaforos, i, (void*)destruirSemaforo);
+		if (!strcmp(tablaADestruir, unSemaforo->tabla)) {
+			list_remove_and_destroy_element(listaDeSemaforos, i,
+					(void*) destruirSemaforo);
 			return;
 		}
 	}
@@ -268,38 +273,38 @@ void borrarSemaforo(char *tablaADestruir){
 }
 
 /*
-int main(int argc, char *argv[]) {
-	//tablasQueTienenTMPs = dictionary_create();
-	binariosParaCompactar = dictionary_create();
-	diccionarioDeSemaforos = dictionary_create();
-	pthread_t hiloLevantarConexion;
-	pthread_t hiloDump;
-	pthread_t atenderPeticionesConsola;
-	levantarConfiguracionLFS();
-	levantarFileSystem();
-	iniciarMmap();
-	bitarrayBloques = bitarray_create(mmapDeBitmap,
-			tamanioEnBytesDelBitarray());
-	//verBitArray();
-	pthread_create(&hiloLevantarConexion, NULL, (void*) iniciarConexion, NULL);
-	pthread_create(&hiloDump, NULL, (void*) dump, NULL);
-	pthread_create(&atenderPeticionesConsola, NULL,
-			(void*) atenderPeticionesDeConsola, NULL);
-	levantarHilosCompactacionParaTodasLasTablas();
-	memtable = malloc(4);
-	memtable = dictionary_create();
+ int main(int argc, char *argv[]) {
+ //tablasQueTienenTMPs = dictionary_create();
+ binariosParaCompactar = dictionary_create();
+ diccionarioDeSemaforos = dictionary_create();
+ pthread_t hiloLevantarConexion;
+ pthread_t hiloDump;
+ pthread_t atenderPeticionesConsola;
+ levantarConfiguracionLFS();
+ levantarFileSystem();
+ iniciarMmap();
+ bitarrayBloques = bitarray_create(mmapDeBitmap,
+ tamanioEnBytesDelBitarray());
+ //verBitArray();
+ pthread_create(&hiloLevantarConexion, NULL, (void*) iniciarConexion, NULL);
+ pthread_create(&hiloDump, NULL, (void*) dump, NULL);
+ pthread_create(&atenderPeticionesConsola, NULL,
+ (void*) atenderPeticionesDeConsola, NULL);
+ levantarHilosCompactacionParaTodasLasTablas();
+ memtable = malloc(4);
+ memtable = dictionary_create();
 
-	diccionarioDescribe = malloc(4000);
-	diccionarioDescribe = dictionary_create();
+ diccionarioDescribe = malloc(4000);
+ diccionarioDescribe = dictionary_create();
 
-	//Se queda esperando a que termine el hilo de escuchar peticiones
-	pthread_join(hiloLevantarConexion, NULL);
-	pthread_join(hiloDump, NULL);
-	pthread_join(atenderPeticionesConsola, NULL);
-	//Aca se destruye el bitarray?
-	//bitarray_destroy(bitarrayBloques);
-	return 0;
-} */
+ //Se queda esperando a que termine el hilo de escuchar peticiones
+ pthread_join(hiloLevantarConexion, NULL);
+ pthread_join(hiloDump, NULL);
+ pthread_join(atenderPeticionesConsola, NULL);
+ //Aca se destruye el bitarray?
+ //bitarray_destroy(bitarrayBloques);
+ return 0;
+ } */
 
 void atenderPeticionesDeConsola() {
 	while (1) {
@@ -307,7 +312,7 @@ void atenderPeticionesDeConsola() {
 		char* mensaje = malloc(1000);
 		do {
 			fgets(mensaje, 1000, stdin);
-		} while (!strcmp(mensaje, "\n")|| !strcmp(mensaje," \n"));
+		} while (!strcmp(mensaje, "\n") || !strcmp(mensaje, " \n"));
 		tomarPeticion(mensaje);
 		free(mensaje);
 		//verBitArray();
@@ -377,11 +382,10 @@ void tomarPeticion(char* mensaje) {
 	}
 	mensajeSeparadoConValue[i] = value;
 	if (value != NULL) {
-		if(posibleTimestamp != NULL){
+		if (posibleTimestamp != NULL) {
 			mensajeSeparadoConValue[i + 1] = posibleTimestamp;
 			mensajeSeparadoConValue[i + 2] = NULL;
-		}
-		else{
+		} else {
 			mensajeSeparadoConValue[i + 1] = NULL;
 		}
 	}
@@ -396,7 +400,8 @@ void tomarPeticion(char* mensaje) {
 }
 
 //Esta funcion esta para separar la peticion del value del insert
-void separarPorComillas(char* mensaje, char* *value, char* *noValue, char* *posibleTimestamp) {
+void separarPorComillas(char* mensaje, char* *value, char* *noValue,
+		char* *posibleTimestamp) {
 	char** mensajeSeparado;
 	mensajeSeparado = string_split(mensaje, "\"");
 	string_append(noValue, mensajeSeparado[0]);
@@ -407,19 +412,16 @@ void separarPorComillas(char* mensaje, char* *value, char* *noValue, char* *posi
 		string_append(value, "\"");
 
 		//Evaluo si existe el posibleTimestamp
-		if(mensajeSeparado[2] != NULL){
-			if(strcmp(mensajeSeparado[2], "\n")){
+		if (mensajeSeparado[2] != NULL) {
+			if (strcmp(mensajeSeparado[2], "\n")) {
 				string_trim(&mensajeSeparado[2]);
 				string_append(posibleTimestamp, mensajeSeparado[2]);
-			}
-			else{
+			} else {
 				*posibleTimestamp = NULL;
 			}
-		}
-		else{
+		} else {
 			*posibleTimestamp = NULL;
 		}
-
 
 	} else {
 		*value = NULL;
@@ -467,8 +469,8 @@ void realizarPeticion(char** parametros) {
 
 			//dameSemaforo(tablaMayusculas, &semaforoTabla);
 			//sem_wait(semaforoTabla);
-				//Seccion critica
-				realizarSelect(tabla, key);
+			//Seccion critica
+			realizarSelect(tabla, key);
 			//sem_post(semaforoTabla);
 		}
 
@@ -522,22 +524,32 @@ void realizarPeticion(char** parametros) {
 
 			//dameSemaforo(tablaMayusculas, &semaforoTabla);
 			//sem_wait(semaforoTabla);
-				//Seccion critica
+			//Seccion critica
 			int respuesta = insert(tabla, key, valor, timestamp);
 			//sem_post(semaforoTabla);
 
-			if(respuesta == 0){
-				char* mensajeALogear = malloc( strlen(" No existe tabla con el nombre : ") + strlen(tabla) + 1);
+			if (respuesta == 0) {
+				char* mensajeALogear = malloc(
+						strlen(" No existe tabla con el nombre : ")
+								+ strlen(tabla) + 1);
 				strcpy(mensajeALogear, " No existe tabla con el nombre : ");
 				strcat(mensajeALogear, tabla);
 				t_log* g_logger;
-				g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_ERROR);
+				g_logger = log_create(
+						string_from_format("%slogs.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						LOG_LEVEL_ERROR);
 				log_error(g_logger, mensajeALogear);
 				log_destroy(g_logger);
 				free(mensajeALogear);
 			}
-			if(respuesta == 1){
-				char* mensajeALogear = malloc( strlen(" Se realizo INSERT en tabla :  / KEY :  / VALUE : ") + strlen(tabla) + strlen(key) + strlen(valor) + 1);
+			if (respuesta == 1) {
+				char* mensajeALogear =
+						malloc(
+								strlen(
+										" Se realizo INSERT en tabla :  / KEY :  / VALUE : ")
+										+ strlen(tabla) + strlen(key)
+										+ strlen(valor) + 1);
 				strcpy(mensajeALogear, " Se realizo INSERT en tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / KEY : ");
@@ -545,7 +557,10 @@ void realizarPeticion(char** parametros) {
 				strcat(mensajeALogear, " / VALUE : ");
 				strcat(mensajeALogear, valor);
 				t_log* g_logger;
-				g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
+				g_logger = log_create(
+						string_from_format("%slogs.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						LOG_LEVEL_INFO);
 				log_info(g_logger, mensajeALogear);
 				log_destroy(g_logger);
 				free(mensajeALogear);
@@ -570,34 +585,47 @@ void realizarPeticion(char** parametros) {
 
 			//dameSemaforo(tablaMayusculas, &semaforoTabla);
 			//sem_wait(semaforoTabla);
-				//Seccion critica
-				int respuesta = insert(tabla, key, valor, timestamp);
+			//Seccion critica
+			int respuesta = insert(tabla, key, valor, timestamp);
 			//sem_post(semaforoTabla);
 
-				if(respuesta == 0){
-					char* mensajeALogear = malloc( strlen(" No existe tabla con el nombre : ") + strlen(tabla) + 1);
-					strcpy(mensajeALogear, " No existe tabla con el nombre : ");
-					strcat(mensajeALogear, tabla);
-					t_log* g_logger;
-					g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_ERROR);
-					log_error(g_logger, mensajeALogear);
-					log_destroy(g_logger);
-					free(mensajeALogear);
-				}
-				if(respuesta == 1){
-					char* mensajeALogear = malloc( strlen(" Se realizo INSERT en tabla :  / KEY :  / VALUE : ") + strlen(tabla) + strlen(key) + strlen(valor) + 1);
-					strcpy(mensajeALogear, " Se realizo INSERT en tabla : ");
-					strcat(mensajeALogear, tabla);
-					strcat(mensajeALogear, " / KEY : ");
-					strcat(mensajeALogear, key);
-					strcat(mensajeALogear, " / VALUE : ");
-					strcat(mensajeALogear, valor);
-					t_log* g_logger;
-					g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
-					log_info(g_logger, mensajeALogear);
-					log_destroy(g_logger);
-					free(mensajeALogear);
-				}
+			if (respuesta == 0) {
+				char* mensajeALogear = malloc(
+						strlen(" No existe tabla con el nombre : ")
+								+ strlen(tabla) + 1);
+				strcpy(mensajeALogear, " No existe tabla con el nombre : ");
+				strcat(mensajeALogear, tabla);
+				t_log* g_logger;
+				g_logger = log_create(
+						string_from_format("%slogs.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						LOG_LEVEL_ERROR);
+				log_error(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
+			}
+			if (respuesta == 1) {
+				char* mensajeALogear =
+						malloc(
+								strlen(
+										" Se realizo INSERT en tabla :  / KEY :  / VALUE : ")
+										+ strlen(tabla) + strlen(key)
+										+ strlen(valor) + 1);
+				strcpy(mensajeALogear, " Se realizo INSERT en tabla : ");
+				strcat(mensajeALogear, tabla);
+				strcat(mensajeALogear, " / KEY : ");
+				strcat(mensajeALogear, key);
+				strcat(mensajeALogear, " / VALUE : ");
+				strcat(mensajeALogear, valor);
+				t_log* g_logger;
+				g_logger = log_create(
+						string_from_format("%slogs.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						LOG_LEVEL_INFO);
+				log_info(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
+			}
 
 		}
 
@@ -633,53 +661,67 @@ void realizarPeticion(char** parametros) {
 			//sem_close(semaforoTabla);
 			//sem_unlink(tablaMayusculas);
 			//la key del diccionario esta en mayusculas para cada tabla
-					//dameSemaforo(tablaMayusculas, &semaforoTabla);
+			//dameSemaforo(tablaMayusculas, &semaforoTabla);
 			/*int value;
 			 sem_getvalue(semaforoTabla, &value);
 			 printf("create: %i\n", value);*/
-					//sem_wait(semaforoTabla);
+			//sem_wait(semaforoTabla);
 			//seccion critica
-			 int respuesta = create(tabla, consistencia, cantidadParticiones, tiempoCompactacion);
+			int respuesta = create(tabla, consistencia, cantidadParticiones,
+					tiempoCompactacion);
 
-			 if(respuesta == 1){
-				 char* mensajeALogear = malloc(strlen(" Se realizo create : ") + 2*strlen("  con ") + strlen(tabla)+ strlen(consistencia) + strlen(cantidadParticiones) + strlen(tiempoCompactacion) + 1);
-				 strcpy(mensajeALogear, " Se realizo create : ");
-				 strcat(mensajeALogear, tabla);
-				 strcat(mensajeALogear, " con ");
-				 strcat(mensajeALogear, consistencia);
-				 strcat(mensajeALogear, " ");
-				 strcat(mensajeALogear, cantidadParticiones);
-				 strcat(mensajeALogear, " ");
-				 strcat(mensajeALogear, tiempoCompactacion);
-				 t_log* g_logger;
-				 g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
-				 log_info(g_logger, mensajeALogear);
-				 log_destroy(g_logger);
-				 free(mensajeALogear);
+			if (respuesta == 1) {
+				char* mensajeALogear = malloc(
+						strlen(" Se realizo create : ") + 2 * strlen("  con ")
+								+ strlen(tabla) + strlen(consistencia)
+								+ strlen(cantidadParticiones)
+								+ strlen(tiempoCompactacion) + 1);
+				strcpy(mensajeALogear, " Se realizo create : ");
+				strcat(mensajeALogear, tabla);
+				strcat(mensajeALogear, " con ");
+				strcat(mensajeALogear, consistencia);
+				strcat(mensajeALogear, " ");
+				strcat(mensajeALogear, cantidadParticiones);
+				strcat(mensajeALogear, " ");
+				strcat(mensajeALogear, tiempoCompactacion);
+				t_log* g_logger;
+				g_logger = log_create(
+						string_from_format("%slogs.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						LOG_LEVEL_INFO);
+				log_info(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
 
-				 //Levanto hilo de compactacion y agrego semaforo para la tabla
-				 char *pathTabla = string_new();
-				 string_append(&pathTabla,
-				 		string_from_format("%sTables/",
-				 				structConfiguracionLFS.PUNTO_MONTAJE));
-				 string_append(&pathTabla, tablaMayusculas);
-				 levantarHiloCompactacion(pathTabla);
-				 /*semaforoDeTabla *unSemaforo = malloc(sizeof(semaforoDeTabla));
+				//Levanto hilo de compactacion y agrego semaforo para la tabla
+				char *pathTabla = string_new();
+				string_append(&pathTabla,
+						string_from_format("%sTables/",
+								structConfiguracionLFS.PUNTO_MONTAJE));
+				string_append(&pathTabla, tablaMayusculas);
+				levantarHiloCompactacion(pathTabla);
+				/*semaforoDeTabla *unSemaforo = malloc(sizeof(semaforoDeTabla));
 				 unSemaforo->tabla = tablaMayusculas;
 				 pthread_mutex_init(&unSemaforo->mutexDrop, NULL);
 				 pthread_mutex_init(&unSemaforo->mutexTablaParticion, NULL);
 				 list_add(listaDeSemaforos, unSemaforo);*/
-			 }
-			 if(respuesta == 0){
-				char* mensajeALogear = malloc( strlen("Error: ya existe una tabla con el nombre ") + strlen(tabla) + 1);
-				strcpy(mensajeALogear, "Error: ya existe una tabla con el nombre ");
+			}
+			if (respuesta == 0) {
+				char* mensajeALogear = malloc(
+						strlen("Error: ya existe una tabla con el nombre ")
+								+ strlen(tabla) + 1);
+				strcpy(mensajeALogear,
+						"Error: ya existe una tabla con el nombre ");
 				strcat(mensajeALogear, tabla);
 				t_log* g_logger;
-				g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_ERROR);
+				g_logger = log_create(
+						string_from_format("%slogs.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						LOG_LEVEL_ERROR);
 				log_error(g_logger, mensajeALogear);
 				log_destroy(g_logger);
 				free(mensajeALogear);
-			 }
+			}
 			//sem_post(semaforoTabla);
 			/*sem_getvalue(semaforoTabla, &value);
 			 printf("create: %i\n", value);*/
@@ -693,11 +735,16 @@ void realizarPeticion(char** parametros) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
 			if (!existeLaTabla(tabla)) {
-				char* mensajeALogear = malloc( strlen("No existe una tabla con el nombre ") + strlen(tabla) + 1);
+				char* mensajeALogear = malloc(
+						strlen("No existe una tabla con el nombre ")
+								+ strlen(tabla) + 1);
 				strcpy(mensajeALogear, "No existe una tabla con el nombre ");
 				strcat(mensajeALogear, tabla);
 				t_log* g_logger;
-				g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_ERROR);
+				g_logger = log_create(
+						string_from_format("%slogs.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+						LOG_LEVEL_ERROR);
 				log_error(g_logger, mensajeALogear);
 				log_destroy(g_logger);
 				free(mensajeALogear);
@@ -709,10 +756,10 @@ void realizarPeticion(char** parametros) {
 			string_to_upper(tabla);
 
 			/*semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-			pthread_mutex_lock(&unSemaforo->mutexDrop);*/
+			 pthread_mutex_lock(&unSemaforo->mutexDrop);*/
 			drop(tabla);
 			/*pthread_mutex_unlock(&unSemaforo->mutexDrop);
-			borrarSemaforo(tabla);*/
+			 borrarSemaforo(tabla);*/
 
 		}
 		break;
@@ -742,9 +789,9 @@ void realizarPeticion(char** parametros) {
 			//el 1 es para que imprima por pantalla
 			describeTodasLasTablas(1);
 			/*metadataTabla *metadata = dictionary_get(diccionarioDescribe, "TABLA1");
-			printf("--CONSISTENCIA: %i\n", metadata->COMPACTION_TIME);
-			printf("--PARTICIONES: %i\n", metadata->PARTITIONS);
-			printf("--CONSISTENCIA: %s\n", metadata->CONSISTENCY);*/
+			 printf("--CONSISTENCIA: %i\n", metadata->COMPACTION_TIME);
+			 printf("--PARTICIONES: %i\n", metadata->PARTITIONS);
+			 printf("--CONSISTENCIA: %s\n", metadata->CONSISTENCY);*/
 		}
 		if (parametrosValidos(1, parametros,
 				(void *) criterioDescribeUnaTabla)) {
@@ -1120,7 +1167,7 @@ void verificarCompactacion(char *pathTabla) {
 
 		//semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 		//pthread_mutex_lock(&unSemaforo->mutexDrop);	//Semaforo para bloquear el drop
-		if(existeLaTabla(tabla)){	//por si se borro mientras se bloqueaba la tabla
+		if (existeLaTabla(tabla)) {	//por si se borro mientras se bloqueaba la tabla
 			compactacion(pathTabla);	//Seccion Critica
 		}
 		//pthread_mutex_unlock(&unSemaforo->mutexDrop);
@@ -1138,9 +1185,8 @@ void compactacion(char* pathTabla) {
 	string_append(&tabla,
 			string_substring_from(pathTabla, strlen(pathDeMontajeDeLasTablas)));
 
-
-		renombrarTodosLosTMPATMPC(pathTabla);
-		actualizarRegistros(pathTabla);
+	renombrarTodosLosTMPATMPC(pathTabla);
+	actualizarRegistros(pathTabla);
 
 	//dictionary_iterator(tablasQueTienenTMPs, (void*) actualizarRegistros);
 	//dictionary_clean(tablasQueTienenTMPs);
@@ -1235,18 +1281,19 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
  }*/
 
 semaforoDeTabla* dameSemaforo(char *tabla) {
-	int existeSemaforo(void *unSemaforo){
-		return !strcmp(tabla, ((semaforoDeTabla*)unSemaforo)->tabla);
+	int existeSemaforo(void *unSemaforo) {
+		return !strcmp(tabla, ((semaforoDeTabla*) unSemaforo)->tabla);
 	}
-	return (semaforoDeTabla*)list_find(listaDeSemaforos, (void*)existeSemaforo);
+	return (semaforoDeTabla*) list_find(listaDeSemaforos,
+			(void*) existeSemaforo);
 }
 
 /*int laTablaTieneSemaforo(char *tabla) {
-	int existeSemaforo(void *unSemaforo){
-		return !strcmp(tabla, ((semaforoDeTabla*)unSemaforo)->tabla);
-	}
-	return (semaforoDeTabla*)list_any_satisfy(listaDeSemaforos, existeSemaforo);
-}*/
+ int existeSemaforo(void *unSemaforo){
+ return !strcmp(tabla, ((semaforoDeTabla*)unSemaforo)->tabla);
+ }
+ return (semaforoDeTabla*)list_any_satisfy(listaDeSemaforos, existeSemaforo);
+ }*/
 
 void actualizarBin(char *pathBin) {
 	//Libero los bloques del binario
@@ -1326,42 +1373,41 @@ void actualizarBin(char *pathBin) {
 
 }
 
-void registrarBloqueQueSeBorro(int bloqueEncontrado){
-	char* mensajeALogear =
-				malloc(strlen("Se desasigno el bloque: .bin")
-						+ contarLosDigitos((long int) bloqueEncontrado) * sizeof(int) + 1);
-		strcpy(mensajeALogear,
-				"Se desasigno el bloque: ");
-		strcat(mensajeALogear, string_itoa(bloqueEncontrado));
-		strcat(mensajeALogear, ".bin");
-		t_log* g_logger;
-		g_logger = log_create(
-				string_from_format("%sbloquesModificados.log",
-						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
-				LOG_LEVEL_INFO);
-		log_info(g_logger, mensajeALogear);
-		log_destroy(g_logger);
-		free(mensajeALogear);
+void registrarBloqueQueSeBorro(int bloqueEncontrado) {
+	char* mensajeALogear = malloc(
+			strlen("Se desasigno el bloque: .bin")
+					+ contarLosDigitos((long int) bloqueEncontrado)
+							* sizeof(int) + 1);
+	strcpy(mensajeALogear, "Se desasigno el bloque: ");
+	strcat(mensajeALogear, string_itoa(bloqueEncontrado));
+	strcat(mensajeALogear, ".bin");
+	t_log* g_logger;
+	g_logger = log_create(
+			string_from_format("%sbloquesModificados.log",
+					structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+			LOG_LEVEL_INFO);
+	log_info(g_logger, mensajeALogear);
+	log_destroy(g_logger);
+	free(mensajeALogear);
 }
 
-void registrarBloqueQueCambio(int bloqueEncontrado){
-	char* mensajeALogear =
-				malloc(strlen("Se modifico el bloque: .bin")
-						+ contarLosDigitos((long int) bloqueEncontrado) * sizeof(int) + 1);
-		strcpy(mensajeALogear,
-				"Se modifico el bloque: ");
-		strcat(mensajeALogear, string_itoa(bloqueEncontrado));
-		strcat(mensajeALogear, ".bin");
-		t_log* g_logger;
-		g_logger = log_create(
-				string_from_format("%sbloquesModificados.log",
-						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
-				LOG_LEVEL_INFO);
-		log_info(g_logger, mensajeALogear);
-		log_destroy(g_logger);
-		free(mensajeALogear);
+void registrarBloqueQueCambio(int bloqueEncontrado) {
+	char* mensajeALogear = malloc(
+			strlen("Se modifico el bloque: .bin")
+					+ contarLosDigitos((long int) bloqueEncontrado)
+							* sizeof(int) + 1);
+	strcpy(mensajeALogear, "Se modifico el bloque: ");
+	strcat(mensajeALogear, string_itoa(bloqueEncontrado));
+	strcat(mensajeALogear, ".bin");
+	t_log* g_logger;
+	g_logger = log_create(
+			string_from_format("%sbloquesModificados.log",
+					structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+			LOG_LEVEL_INFO);
+	log_info(g_logger, mensajeALogear);
+	log_destroy(g_logger);
+	free(mensajeALogear);
 }
-
 
 void liberarBloques(char *pathArchivo) {
 	t_config *configArchivo = config_create(pathArchivo);
@@ -1899,7 +1945,7 @@ char* realizarSelect(char* tabla, char* key) {
 				"PARTITIONS");
 
 		int particionQueContieneLaKey = (atoi(key)) % cantidadDeParticiones;
-		printf("La key esta en la particion %i\n", particionQueContieneLaKey);
+		printf("Si existe, la key deberia estar en la particion %i\n", particionQueContieneLaKey);
 		char* stringParticion = malloc(4);
 		stringParticion = string_itoa(particionQueContieneLaKey);
 
@@ -1917,7 +1963,8 @@ char* realizarSelect(char* tabla, char* key) {
 		strcat(pathParticionQueContieneKey, stringParticion);
 		strcat(pathParticionQueContieneKey, ".bin");
 		t_config *tamanioYBloques = config_create(pathParticionQueContieneKey);
-		char** vectorBloques = config_get_array_value(tamanioYBloques, "BLOCKS"); //devuelve vector de STRINGS
+		char** vectorBloques = config_get_array_value(tamanioYBloques,
+				"BLOCKS"); //devuelve vector de STRINGS
 
 		int m = 0;
 		while (vectorBloques[m] != NULL) {
@@ -1991,10 +2038,10 @@ char* realizarSelect(char* tabla, char* key) {
 				}
 			} // aca quedaria el vector ordenado por timestamp mayor
 			if (vectorStructs[0]->timestamp > timestampActualMayorBloques) {
-					timestampActualMayorBloques = vectorStructs[0]->timestamp;
-					strcpy(valueDeTimestampActualMayorBloques, "");
-					string_append(&valueDeTimestampActualMayorBloques,
-							vectorStructs[0]->value);
+				timestampActualMayorBloques = vectorStructs[0]->timestamp;
+				strcpy(valueDeTimestampActualMayorBloques, "");
+				string_append(&valueDeTimestampActualMayorBloques,
+						vectorStructs[0]->value);
 			}
 			fclose(archivoBloque);
 			free(pathBloque);
@@ -2313,24 +2360,25 @@ char* realizarSelect(char* tabla, char* key) {
 		t_list* listaRegistros = dictionary_get(memtable, tabla);
 
 		/*
-		char* mensajeALogear = malloc( 50 +  strlen(entradaTabla[0]->timestamp));
-		strcpy(mensajeALogear, "MEMTABLE : ");
-		strcat(mensajeALogear, &entradaTabla[0]->timestamp);
-		t_log* g_logger;
-		g_logger = log_create(
-				string_from_format("%sbloqueoEntreCompactacion.log",
-						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
-				LOG_LEVEL_INFO);
-		log_info(g_logger, mensajeALogear);
-		log_destroy(g_logger);
-		free(mensajeALogear);
-		*/
+		 char* mensajeALogear = malloc( 50 +  strlen(entradaTabla[0]->timestamp));
+		 strcpy(mensajeALogear, "MEMTABLE : ");
+		 strcat(mensajeALogear, &entradaTabla[0]->timestamp);
+		 t_log* g_logger;
+		 g_logger = log_create(
+		 string_from_format("%sbloqueoEntreCompactacion.log",
+		 structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+		 LOG_LEVEL_INFO);
+		 log_info(g_logger, mensajeALogear);
+		 log_destroy(g_logger);
+		 free(mensajeALogear);
+		 */
 
 		int cantIgualDeKeyEnMemtable = 0;
 		//creo nuevo array que va a tener solo los structs de la key que me pasaron por parametro
 		t_registro* arrayPorKeyDeseadaMemtable[100];
 
-		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, listaRegistros, atoi(key), &cantIgualDeKeyEnMemtable, tabla);
+		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, listaRegistros,
+				atoi(key), &cantIgualDeKeyEnMemtable, tabla);
 
 		int t = 0;
 		char* unValor;
@@ -2370,8 +2418,7 @@ char* realizarSelect(char* tabla, char* key) {
 				&& (timestampMayorMemtable == -1)
 				&& (timestampActualMayorTemporalesC == -1)) {
 			char* mensajeALogear = malloc(
-					strlen(" No existe la key numero : ") + strlen(key)
-							+ 1);
+					strlen(" No existe la key numero : ") + strlen(key) + 1);
 			strcpy(mensajeALogear, " No existe la key numero : ");
 			strcat(mensajeALogear, key);
 			t_log* g_logger;
@@ -2386,19 +2433,36 @@ char* realizarSelect(char* tabla, char* key) {
 		} else { // o sea, si existe la key en algun lugar
 
 			// si bloques tiene mayor timestamp que todos
-			if ((timestampActualMayorBloques >= timestampActualMayorTemporales)	&& (timestampActualMayorBloques	>= timestampActualMayorTemporalesC) && (timestampActualMayorBloques >= timestampMayorMemtable)) {
+			if ((timestampActualMayorBloques >= timestampActualMayorTemporales)
+					&& (timestampActualMayorBloques
+							>= timestampActualMayorTemporalesC)
+					&& (timestampActualMayorBloques >= timestampMayorMemtable)) {
 				//printf("%s\n", valueDeTimestampActualMayorBloques);
 				string_append(&valueFinal, valueDeTimestampActualMayorBloques);
 
-				char* mensajeALogear = malloc( strlen(" Se selecciono tabla :  / En bloque con timestamp :  / Value : ") + strlen(tabla) + strlen(string_itoa(timestampActualMayorBloques)) + strlen(valueDeTimestampActualMayorBloques) +1);
+				char* mensajeALogear =
+						malloc(
+								strlen(
+										" Se selecciono tabla :  / En bloque con timestamp :  / Value : ")
+										+ strlen(tabla)
+										+ strlen(
+												string_itoa(
+														timestampActualMayorBloques))
+										+ strlen(
+												valueDeTimestampActualMayorBloques)
+										+ 1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / En bloque con timestamp : ");
-				strcat(mensajeALogear, string_itoa(timestampActualMayorBloques));
+				strcat(mensajeALogear,
+						string_itoa(timestampActualMayorBloques));
 				strcat(mensajeALogear, " / Value : ");
 				strcat(mensajeALogear, valueDeTimestampActualMayorBloques);
 				t_log* g_logger;
-				g_logger = log_create( string_from_format("%slogs.log",structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0, LOG_LEVEL_INFO);
+				g_logger = log_create(
+						string_from_format("%slogs.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+						LOG_LEVEL_INFO);
 				log_info(g_logger, mensajeALogear);
 				log_destroy(g_logger);
 				free(mensajeALogear);
@@ -2413,8 +2477,13 @@ char* realizarSelect(char* tabla, char* key) {
 				string_append(&valueFinal,
 						valueDeTimestampActualMayorTemporales);
 
-
-				char* mensajeALogear = malloc( 120 + strlen(tabla) + strlen(string_itoa(timestampActualMayorTemporales)) + strlen(valueDeTimestampActualMayorTemporales) + 1);
+				char* mensajeALogear = malloc(
+						120 + strlen(tabla)
+								+ strlen(
+										string_itoa(
+												timestampActualMayorTemporales))
+								+ strlen(valueDeTimestampActualMayorTemporales)
+								+ 1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / En TMP con timestamp : ");
@@ -2443,7 +2512,15 @@ char* realizarSelect(char* tabla, char* key) {
 				string_append(&valueFinal,
 						valueDeTimestampActualMayorTemporalesC);
 
-				char* mensajeALogear = malloc( 120 + strlen(tabla) + strlen(string_itoa(timestampActualMayorTemporalesC)) + strlen(valueDeTimestampActualMayorTemporalesC) + 1);
+				char* mensajeALogear =
+						malloc(
+								120 + strlen(tabla)
+										+ strlen(
+												string_itoa(
+														timestampActualMayorTemporalesC))
+										+ strlen(
+												valueDeTimestampActualMayorTemporalesC)
+										+ 1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / En TMPC con timestamp : ");
@@ -2470,12 +2547,15 @@ char* realizarSelect(char* tabla, char* key) {
 				string_append(&valueFinal,
 						arrayPorKeyDeseadaMemtable[0]->value);
 
-				char* mensajeALogear = malloc( 120 + strlen(tabla) + strlen(string_itoa(timestampMayorMemtable)) + strlen(arrayPorKeyDeseadaMemtable[0]->value) + 1);
+				char* mensajeALogear = malloc(
+						120 + strlen(tabla)
+								+ strlen(string_itoa(timestampMayorMemtable))
+								+ strlen(arrayPorKeyDeseadaMemtable[0]->value)
+								+ 1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / En MEMTABLE con timestamp : ");
-				strcat(mensajeALogear,
-						string_itoa(timestampMayorMemtable));
+				strcat(mensajeALogear, string_itoa(timestampMayorMemtable));
 				strcat(mensajeALogear, " / Value : ");
 				strcat(mensajeALogear, arrayPorKeyDeseadaMemtable[0]->value);
 				t_log* g_logger;
@@ -2503,8 +2583,8 @@ char* realizarSelect(char* tabla, char* key) {
 		// SI NO ENCUENTRA LA TABLA (lo de abajo)
 	} else {
 		char* mensajeALogear = malloc(
-				strlen(" No existe una tabla con el nombre : ")
-						+ strlen(tabla) + 1);
+				strlen(" No existe una tabla con el nombre : ") + strlen(tabla)
+						+ 1);
 		strcpy(mensajeALogear, " No existe una tabla con el nombre : ");
 		strcat(mensajeALogear, tabla);
 		t_log* g_logger;
@@ -2530,9 +2610,8 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	FILE *proximoBloque = NULL;
 
 	if (charAnteriorBloque == NULL) {
-			//printf("no existe el bloque anterior \n");
-	}
-	else{
+		//printf("no existe el bloque anterior \n");
+	} else {
 		char* pathBloque = malloc(
 				strlen(
 						string_from_format("%sBloques/",
@@ -2597,28 +2676,30 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 			t_registro p_registro2;
 			p_registro = &p_registro2;
-			char** arrayLinea = malloc(strlen(line)+1);
+			char** arrayLinea = malloc(strlen(line) + 1);
 			arrayLinea = string_split(line, ";");
 			int timestamp = atoi(arrayLinea[0]);
 			int key = atoi(arrayLinea[1]);
 			p_registro->timestamp = timestamp;
 			p_registro->key = key;
-			p_registro->value = malloc(strlen(arrayLinea[2]) +1);
+			p_registro->value = malloc(strlen(arrayLinea[2]) + 1);
 			strcpy(p_registro->value, arrayLinea[2]);
 			vectorStructs[i] = malloc(8);
+
 			memcpy(&vectorStructs[i]->key, &p_registro->key, sizeof(p_registro->key));
 			memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp, sizeof(p_registro->timestamp));
-			vectorStructs[i]->value = malloc(strlen(arrayLinea[2]));
-			memcpy(vectorStructs[i]->value, p_registro->value,strlen(p_registro->value)+1);
+			vectorStructs[i]->value = malloc(strlen(arrayLinea[2]) +1);
+			memcpy(vectorStructs[i]->value, p_registro->value, strlen(p_registro->value)+1);
 			i++;
 			(*cant)++;
 		}
 	} // cierra el while
-	if(i==0){
+	if (i == 0) {
 		vectorStructs[i] = malloc(12);
 		t_registro* p_registro = malloc(12);
 		p_registro->timestamp = -1;
-		memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp, sizeof(p_registro->timestamp));
+		memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
+				sizeof(p_registro->timestamp));
 	}
 
 	if (anteriorBloque != NULL) {
@@ -2631,7 +2712,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 		t_list* entradaTabla, int laKey, int *cant, char* tabla) {
-	if(entradaTabla){
+	if (entradaTabla) {
 		while ((*cant) < list_size(entradaTabla)) {
 			t_registro* p_registro = list_get(entradaTabla, (*cant));
 			if (p_registro->key == laKey) {
@@ -2715,7 +2796,9 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Busco la metadata de todas las tablas (evaluo que no ingrese a los directorios "." y ".."
-		if ((directorioALeer->d_type) == DT_DIR	&& strcmp((directorioALeer->d_name), ".") && strcmp((directorioALeer->d_name), "..")) {
+		if ((directorioALeer->d_type) == DT_DIR
+				&& strcmp((directorioALeer->d_name), ".")
+				&& strcmp((directorioALeer->d_name), "..")) {
 			metadataTabla structMetadata;
 
 			sem_t *semaforoTabla;
@@ -2725,7 +2808,8 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 			// dameSemaforo(tabla, &semaforoTabla); todo anda mal semaforo
 			// sem_wait(semaforoTabla);
 
-			structMetadata = describeUnaTabla(directorioALeer->d_name, seImprimePorPantalla);
+			structMetadata = describeUnaTabla(directorioALeer->d_name,
+					seImprimePorPantalla);
 			metadataTabla * metadata = malloc(sizeof(metadata));
 			metadata->COMPACTION_TIME = structMetadata.COMPACTION_TIME;
 			metadata->CONSISTENCY = structMetadata.CONSISTENCY;
@@ -2734,24 +2818,24 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 
 			// sem_post(semaforoTabla);
 
-			 //Para probar que funciona esta wea
-			  /*metadataTabla *metadata2;
-			  metadata2 = (metadataTabla *)dictionary_get(diccionarioDescribe, directorioALeer->d_name);
-			  printf("--%i", metadata2->COMPACTION_TIME);
-			  printf("--%i", metadata2->PARTITIONS);*/
+			//Para probar que funciona esta wea
+			/*metadataTabla *metadata2;
+			 metadata2 = (metadataTabla *)dictionary_get(diccionarioDescribe, directorioALeer->d_name);
+			 printf("--%i", metadata2->COMPACTION_TIME);
+			 printf("--%i", metadata2->PARTITIONS);*/
 		}
 	}
 	/*metadataTabla *metadata = dictionary_get(diccionarioDescribe, "TABLA");
 
-	metadataTabla *metadataQ = dictionary_get(diccionarioDescribe, "TABLA1");
-	metadataTabla *metadata3 = dictionary_get(diccionarioDescribe, "TABLA98");*/
+	 metadataTabla *metadataQ = dictionary_get(diccionarioDescribe, "TABLA1");
+	 metadataTabla *metadata3 = dictionary_get(diccionarioDescribe, "TABLA98");*/
 	closedir(directorio);
 }
 
 int32_t iniciarConexion() {
 	int opt = 1;
 	int master_socket, addrlen, new_socket, client_socket[30], max_clients = 30,
-			activity, i, sd;
+			activity, i, sd, valread;
 	int max_sd;
 	struct sockaddr_in address;
 
@@ -2844,7 +2928,7 @@ int32_t iniciarConexion() {
 					ntohs(address.sin_port));
 
 			int tamanioValue = structConfiguracionLFS.TAMANIO_VALUE;
-			void* buffer = malloc( sizeof(int) );
+			void* buffer = malloc(sizeof(int));
 			memcpy(buffer, &tamanioValue, sizeof(int));
 			send(new_socket, buffer, sizeof(int), 0);
 
@@ -2868,42 +2952,58 @@ int32_t iniciarConexion() {
 				//Check if it was for closing , and also read the
 				//incoming message
 				int *tamanio = malloc(sizeof(int));
-				read(sd, tamanio, sizeof(int));
-				int *operacion = malloc(*tamanio);
-				read(sd, operacion, sizeof(int));
+				if ((valread = read(sd, tamanio, sizeof(int))) == 0) {
+					getpeername(sd, (struct sockaddr *) &address, (socklen_t *) &addrlen);
+					printf("Host disconected, ip: %s, port: %d\n",
+							inet_ntoa(address.sin_addr),
+							ntohs(address.sin_port));
+					close(sd);
+					client_socket[i] = 0;
+				} else {
+					int *operacion = malloc(*tamanio);
+					read(sd, operacion, sizeof(int));
 
-				switch (*operacion) {
-				case 1:
-					//Select
-					tomarPeticionSelect(sd);
-					break;
-				case 2:
-					//Insert
-					tomarPeticionInsert(sd);
-					break;
-				case 3:
-					//Create
-					tomarPeticionCreate(sd);
-					break;
-				case 4:
-					//Describe
-					tomarPeticionDescribePorTabla(sd);
-					break;
-				case 5:
-					//Drop
-					tomarPeticionDrop(sd);
-					break;
-				case 6:
-					//Describe global
-					tomarPeticionDescribeTodasLasTablas(sd);
-					break;
-				default:
-					break;
+					switch (*operacion) {
+					case 1:
+						//Select
+						tomarPeticionSelect(sd);
+						break;
+					case 2:
+						//Insert
+						tomarPeticionInsert(sd);
+						break;
+					case 3:
+						//Create
+						tomarPeticionCreate(sd);
+						break;
+					case 4:
+						//Describe
+						tomarPeticionDescribePorTabla(sd);
+						break;
+					case 5:
+						//Drop
+						tomarPeticionDrop(sd);
+						break;
+					case 6:
+						//Describe global
+						tomarPeticionDescribeTodasLasTablas(sd);
+						break;
+					default:
+						break;
+					}
 				}
 			}
 		}
 	}
 }
+
+void tomarPeticionSelect(int sd) {
+	// deserializo peticion de la memoria
+	int *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(*tamanioTabla);
+	read(sd, tabla, *tamanioTabla);
+	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
 
  void tomarPeticionSelect(int sd) {
@@ -2921,7 +3021,7 @@ int32_t iniciarConexion() {
 	 char* keyString = string_itoa(*key);
 
 	 char *value = realizarSelect(tablaCortada, keyString);
-	 printf("%s\n", value);
+	 //printf("%s\n", value);
 
 	 // serializo paquete
 	 if(value == NULL){
@@ -2939,69 +3039,37 @@ int32_t iniciarConexion() {
 	 }
  }
 
+void tomarPeticionCreate(int sd) {
+	// deserializo peticion de mm
+	int *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(*tamanioTabla);
+	read(sd, tabla, *tamanioTabla);
+	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
- void tomarPeticionCreate(int sd) {
-	 // deserializo peticion de mm
-	 int *tamanioTabla = malloc(sizeof(int));
-	 read(sd, tamanioTabla, sizeof(int));
-	 char *tabla = malloc(*tamanioTabla);
-	 read(sd, tabla, *tamanioTabla);
-	 char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
+	int *tamanioConsistencia = malloc(sizeof(int));
+	read(sd, tamanioConsistencia, sizeof(int));
+	char *tipoConsistencia = malloc(*tamanioConsistencia);
+	read(sd, tipoConsistencia, *tamanioConsistencia);
+	char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia,
+			*tamanioConsistencia);
 
-	 int *tamanioConsistencia = malloc(sizeof(int));
-	 read(sd, tamanioConsistencia, sizeof(int));
-	 char *tipoConsistencia = malloc(*tamanioConsistencia);
-	 read(sd, tipoConsistencia, *tamanioConsistencia);
-	 char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia, *tamanioConsistencia);
+	int* tamanioNumeroParticiones = malloc(sizeof(int));
+	read(sd, tamanioNumeroParticiones, sizeof(int));
+	char* numeroParticiones = malloc(*tamanioNumeroParticiones);
+	read(sd, numeroParticiones, *tamanioNumeroParticiones);
+	char *numeroParticionesCortado = string_substring_until(numeroParticiones,
+			*tamanioNumeroParticiones);
 
-	 int* tamanioNumeroParticiones = malloc(sizeof(int));
-	 read(sd, tamanioNumeroParticiones, sizeof(int));
-	 char* numeroParticiones = malloc(*tamanioNumeroParticiones);
-	 read(sd, numeroParticiones, *tamanioNumeroParticiones);
-	 char *numeroParticionesCortado = string_substring_until(numeroParticiones, *tamanioNumeroParticiones);
+	int* tamanioTiempoCompactacion = malloc(sizeof(int));
+	read(sd, tamanioTiempoCompactacion, sizeof(int));
+	char* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
+	read(sd, tiempoCompactacion, *tamanioTiempoCompactacion);
+	char *tiempoCompactacionCortado = string_substring_until(tiempoCompactacion,
+			*tamanioTiempoCompactacion);
 
-	 int* tamanioTiempoCompactacion = malloc(sizeof(int));
-	 read(sd, tamanioTiempoCompactacion, sizeof(int));
-	 char* 	tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
-	 read(sd, tiempoCompactacion, *tamanioTiempoCompactacion);
-	 char *tiempoCompactacionCortado = string_substring_until(tiempoCompactacion, *tamanioTiempoCompactacion);
-
-	 int respuesta = create(tablaCortada, tipoConsistenciaCortada, numeroParticionesCortado, tiempoCompactacionCortado);
-
-	 // serializo respuesta . respuesta = 1 es OK
-	 char* buffer = malloc(2 * sizeof(int));
-	 int tamanioRespuesta = sizeof(int);
-	 memcpy(buffer, &tamanioRespuesta, sizeof(int));
-	 memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
-
-	 send(sd, buffer, 2*sizeof(int), 0);
- }
-
-
- void tomarPeticionInsert(int sd) {
-	 // deserializo peticion de mm
-	 int *tamanioTabla = malloc(sizeof(int));
-	 read(sd, tamanioTabla, sizeof(int));
-	 char *tabla = malloc(*tamanioTabla);
-	 read(sd, tabla, *tamanioTabla);
-	 char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
-
-	 int *tamanioKey = malloc(sizeof(int));
-	 read(sd, tamanioKey, sizeof(int));
-	 int *key = malloc(*tamanioKey);
-	 read(sd, key, *tamanioKey);
-	 char* keyString = string_itoa(*key);
-
-	 int *tamanioValue = malloc(sizeof(int));
-	 recv(sd, tamanioValue, sizeof(int), 0);
- 	 char *value = malloc(*tamanioValue);
-	 recv(sd, value, *tamanioValue, 0);
-	 char *valueCortado = string_substring_until(value, *tamanioValue);
-
-	 int timestampActual = time(NULL);
-	 char* timestamp = string_itoa(timestampActual);
-
-	 int respuesta = insert(tablaCortada, keyString, valueCortado, timestamp);
+	int respuesta = create(tablaCortada, tipoConsistenciaCortada,
+			numeroParticionesCortado, tiempoCompactacionCortado);
 
 	// serializo respuesta . respuesta = 1 es OK
 	char* buffer = malloc(2 * sizeof(int));
@@ -3010,83 +3078,143 @@ int32_t iniciarConexion() {
 	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
 
 	send(sd, buffer, 2 * sizeof(int), 0);
- }
+}
 
-
- void tomarPeticionDescribePorTabla(int sd){
+void tomarPeticionInsert(int sd) {
+	// deserializo peticion de mm
 	int *tamanioTabla = malloc(sizeof(int));
 	read(sd, tamanioTabla, sizeof(int));
 	char *tabla = malloc(*tamanioTabla);
 	read(sd, tabla, *tamanioTabla);
 	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
-	 metadataTabla metadataPuntero = describeUnaTabla(tablaCortada, 0);
-	 metadataTabla* metadata = &metadataPuntero;
+	int *tamanioKey = malloc(sizeof(int));
+	read(sd, tamanioKey, sizeof(int));
+	int *key = malloc(*tamanioKey);
+	read(sd, key, *tamanioKey);
+	char* keyString = string_itoa(*key);
 
-	 // serializo paquete
-	 void* buffer = malloc( strlen(metadata->CONSISTENCY) + 2*sizeof(int) + 3*sizeof(int) ); //primeros dos terminos para datos, tercer termino para longitudes
+	int *tamanioValue = malloc(sizeof(int));
+	recv(sd, tamanioValue, sizeof(int), 0);
+	char *value = malloc(*tamanioValue);
+	recv(sd, value, *tamanioValue, 0);
+	char *valueCortado = string_substring_until(value, *tamanioValue);
 
-	 int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
-	 memcpy(buffer, &tamanioMetadataConsistency, sizeof(int));
-	 memcpy(buffer + sizeof(int), metadata->CONSISTENCY, strlen(metadata->CONSISTENCY));
+	int timestampActual = time(NULL);
+	char* timestamp = string_itoa(timestampActual);
 
-	 int tamanioParticiones = sizeof(int);
-	 memcpy(buffer + sizeof(int) + strlen(metadata->CONSISTENCY), &tamanioParticiones, sizeof(int));
-	 memcpy(buffer + 2*sizeof(int) + strlen(metadata->CONSISTENCY), &metadata->PARTITIONS, sizeof(int));
+	int respuesta = insert(tablaCortada, keyString, valueCortado, timestamp);
 
-	 int tamanioCompactacion = sizeof(int);
-	 memcpy(buffer + 3*sizeof(int) + strlen(metadata->CONSISTENCY), &tamanioCompactacion, sizeof(int));
-	 memcpy(buffer + 4*sizeof(int) + strlen(metadata->CONSISTENCY), &metadata->COMPACTION_TIME, sizeof(int));
+	// serializo respuesta . respuesta = 1 es OK
+	char* buffer = malloc(2 * sizeof(int));
+	int tamanioRespuesta = sizeof(int);
+	memcpy(buffer, &tamanioRespuesta, sizeof(int));
+	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
 
-	 send(sd, buffer, strlen(metadata->CONSISTENCY)+5*sizeof(int), 0);
- }
+	send(sd, buffer, 2 * sizeof(int), 0);
+}
 
+void tomarPeticionDescribePorTabla(int sd) {
+	int *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(*tamanioTabla);
+	read(sd, tabla, *tamanioTabla);
+	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
- void tomarPeticionDescribeTodasLasTablas(int sd){
+	metadataTabla metadataPuntero = describeUnaTabla(tablaCortada, 0);
+	metadataTabla* metadata = &metadataPuntero;
+
+	// serializo paquete
+	void* buffer = malloc(
+			strlen(metadata->CONSISTENCY) + 2 * sizeof(int) + 3 * sizeof(int)); //primeros dos terminos para datos, tercer termino para longitudes
+
+	int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
+	memcpy(buffer, &tamanioMetadataConsistency, sizeof(int));
+	memcpy(buffer + sizeof(int), metadata->CONSISTENCY,
+			strlen(metadata->CONSISTENCY));
+
+	int tamanioParticiones = sizeof(int);
+	memcpy(buffer + sizeof(int) + strlen(metadata->CONSISTENCY),
+			&tamanioParticiones, sizeof(int));
+	memcpy(buffer + 2 * sizeof(int) + strlen(metadata->CONSISTENCY),
+			&metadata->PARTITIONS, sizeof(int));
+
+	int tamanioCompactacion = sizeof(int);
+	memcpy(buffer + 3 * sizeof(int) + strlen(metadata->CONSISTENCY),
+			&tamanioCompactacion, sizeof(int));
+	memcpy(buffer + 4 * sizeof(int) + strlen(metadata->CONSISTENCY),
+			&metadata->COMPACTION_TIME, sizeof(int));
+
+	send(sd, buffer, strlen(metadata->CONSISTENCY) + 5 * sizeof(int), 0);
+}
+
+void tomarPeticionDescribeTodasLasTablas(int sd) {
 	describeTodasLasTablas(0);
 
-	DIR *directorio = opendir(string_from_format("%sTables", structConfiguracionLFS.PUNTO_MONTAJE));
+	DIR *directorio = opendir(
+			string_from_format("%sTables",
+					structConfiguracionLFS.PUNTO_MONTAJE));
 	struct dirent *directorioALeer;
 
 	while ((directorioALeer = readdir(directorio)) != NULL) {
 		//Busco la metadata de todas las tablas (evaluo que no ingrese a los directorios "." y ".."
-		if ((directorioALeer->d_type) == DT_DIR	&& strcmp((directorioALeer->d_name), ".") && strcmp((directorioALeer->d_name), "..")) {
+		if ((directorioALeer->d_type) == DT_DIR
+				&& strcmp((directorioALeer->d_name), ".")
+				&& strcmp((directorioALeer->d_name), "..")) {
 			char *tabla = string_new();
 			string_append(&tabla, directorioALeer->d_name);
 
-			metadataTabla *metadata = dictionary_get(diccionarioDescribe, tabla);
+			metadataTabla *metadata = dictionary_get(diccionarioDescribe,
+					tabla);
 
-			void * buffer = malloc( strlen(tabla) + sizeof(int) + strlen(metadata->CONSISTENCY) + 2*sizeof(int) + 3*sizeof(int) );
+			void * buffer = malloc(
+					strlen(tabla) + sizeof(int) + strlen(metadata->CONSISTENCY)
+							+ 2 * sizeof(int) + 3 * sizeof(int));
 
 			int tamanioTabla = strlen(tabla);
 			memcpy(buffer, &tamanioTabla, sizeof(int));
 			memcpy(buffer + sizeof(int), tabla, strlen(tabla));
 
 			int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
-			memcpy(buffer + sizeof(int) + strlen(tabla), &tamanioMetadataConsistency, sizeof(int));
-			memcpy(buffer + 2 * sizeof(int) + strlen(tabla), metadata->CONSISTENCY, strlen(metadata->CONSISTENCY));
+			memcpy(buffer + sizeof(int) + strlen(tabla),
+					&tamanioMetadataConsistency, sizeof(int));
+			memcpy(buffer + 2 * sizeof(int) + strlen(tabla),
+					metadata->CONSISTENCY, strlen(metadata->CONSISTENCY));
 
 			int tamanioParticiones = sizeof(int);
-			memcpy(buffer + 2 * sizeof(int) + strlen(tabla) + strlen(metadata->CONSISTENCY), &tamanioParticiones, sizeof(int));
-			memcpy(buffer + 3 * sizeof(int) + strlen(tabla) + strlen(metadata->CONSISTENCY), &metadata->PARTITIONS, sizeof(int));
+			memcpy(
+					buffer + 2 * sizeof(int) + strlen(tabla)
+							+ strlen(metadata->CONSISTENCY),
+					&tamanioParticiones, sizeof(int));
+			memcpy(
+					buffer + 3 * sizeof(int) + strlen(tabla)
+							+ strlen(metadata->CONSISTENCY),
+					&metadata->PARTITIONS, sizeof(int));
 
 			int tamanioCompactacion = sizeof(int);
-			memcpy(buffer + 4 * sizeof(int) + strlen(tabla) + strlen(metadata->CONSISTENCY), &tamanioCompactacion, sizeof(int));
-			memcpy(buffer + 5 * sizeof(int) + strlen(tabla) + strlen(metadata->CONSISTENCY), &metadata->COMPACTION_TIME, sizeof(int));
+			memcpy(
+					buffer + 4 * sizeof(int) + strlen(tabla)
+							+ strlen(metadata->CONSISTENCY),
+					&tamanioCompactacion, sizeof(int));
+			memcpy(
+					buffer + 5 * sizeof(int) + strlen(tabla)
+							+ strlen(metadata->CONSISTENCY),
+					&metadata->COMPACTION_TIME, sizeof(int));
 
-			send(sd, buffer, strlen(tabla) + strlen(metadata->CONSISTENCY) + 6*sizeof(int), 0);
+			send(sd, buffer,
+					strlen(tabla) + strlen(metadata->CONSISTENCY)
+							+ 6 * sizeof(int), 0);
 		}
 	}
-		char* buffer = malloc(4);
-		int respuesta = 0;
-		memcpy(buffer, &respuesta, sizeof(int));
+	char* buffer = malloc(4);
+	int respuesta = 0;
+	memcpy(buffer, &respuesta, sizeof(int));
 
-		send(sd, buffer, sizeof(int), 0);
-		closedir(directorio);
- }
+	send(sd, buffer, sizeof(int), 0);
+	closedir(directorio);
+}
 
-
- void tomarPeticionDrop(int sd){
+void tomarPeticionDrop(int sd) {
 	int *tamanioTabla = malloc(sizeof(int));
 	read(sd, tamanioTabla, sizeof(int));
 	char *tabla = malloc(*tamanioTabla);
@@ -3096,12 +3224,12 @@ int32_t iniciarConexion() {
 	int respuesta;
 	if (!existeLaTabla(tablaCortada)) {
 		// respuesta = 0 es ERROR
-	 	 respuesta = 0;
- 	} else{
- 		drop(tablaCortada);
- 		// respuesta = 1 es OK
- 		respuesta = 1;
- 	}
+		respuesta = 0;
+	} else {
+		drop(tablaCortada);
+		// respuesta = 1 es OK
+		respuesta = 1;
+	}
 	// serializo respuesta
 	char* buffer = malloc(2 * sizeof(int));
 	int tamanioRespuesta = sizeof(int);
@@ -3109,4 +3237,4 @@ int32_t iniciarConexion() {
 	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
 
 	send(sd, buffer, 2 * sizeof(int), 0);
- }
+}
