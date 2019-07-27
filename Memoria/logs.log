@@ -20,3 +20,84 @@
 [ERROR] 12:15:01:865 MEMORIA/(7208:7211):  Se realizo insert en FS 
 [INFO] 12:15:22:340 Memoria/(7208:7211):  Llego select con VALUE : MARCADOR
 
+[INFO] 13:26:02:909 MEMORIA/(8453:8455):  Se realizo create en el FS : TABLA1 con SC 2 10
+[INFO] 13:26:52:548 MEMORIA/(8458:8460):  Se realizo create en el FS : TABLA3 con EC 2 10
+[INFO] 13:31:34:659 MEMORIA/(8513:8515):  Se realizo create en el FS : TABLA4 con SC 2 10
+[INFO] 13:37:24:477 MEMORIA/(8627:8629):  Se realizo create en el FS : TABLA15 con SC 2 15
+[INFO] 13:45:18:939 MEMORIA/(8622:8624):  Se realizo drop en FS de : TABLA4
+[INFO] 13:49:12:714 MEMORIA/(8831:8833):  Se realizo drop en FS de : TABLA15
+[INFO] 14:27:16:282 MEMORIA/(3821:3823):  Se realizo drop en FS de : TABLA3
+[ERROR] 15:14:14:916 MEMORIA/(3924:3926):  No se pudo realizar drop en FS de : TABLA2
+[INFO] 15:25:10:324 MEMORIA/(3924:3926):  Se realizo create en el FS : TABLA4 con SC 2 10
+[INFO] 15:27:20:725 MEMORIA/(4267:4269):  Se realizo drop en FS de : TABLA4
+[INFO] 15:28:34:43 MEMORIA/(4303:4305):  Se realizo drop en FS de : TABLA1
+[INFO] 15:30:30:895 MEMORIA/(4303:4305):  Se realizo create en el FS : TABLA3 con SC 2 10
+[INFO] 15:33:51:823 MEMORIA/(4303:4305):  Se realizo create en el FS : TABLA2 con SC 2 10
+[INFO] 15:35:48:244 MEMORIA/(4303:4305):  Se realizo create en el FS : TABLA1 con SC 2 10
+[INFO] 15:40:13:351 MEMORIA/(4303:4305):  Se realizo create en el FS : TABLA8 con SC 2 10
+[INFO] 15:41:48:928 MEMORIA/(4303:4305):  Se realizo drop en FS de : TABLA1
+[INFO] 15:48:04:903 MEMORIA/(4303:4305):  Se realizo create en el FS : TABLA18 con SC 2 10
+[INFO] 15:51:52:176 MEMORIA/(4303:4305):  Se realizo create en el FS : TABLA33 con SC 2 10
+[INFO] 15:57:18:275 MEMORIA/(5079:5089):  Se realizo create en el FS : TABLA89 con SC 2 10
+[INFO] 15:59:23:955 MEMORIA/(5079:5089):  Se realizo create en el FS : TABLA99 con SC 2 10
+[INFO] 16:00:47:689 MEMORIA/(5079:5089):  Se realizo create en el FS : TABLA109 con SC 2 10
+[INFO] 16:01:55:522 MEMORIA/(5079:5089):  Se realizo create en el FS : TABLA189 con SC 2 10
+[INFO] 16:03:01:115 MEMORIA/(5079:5089):  Se realizo create en el FS : TABLA102 con SC 2 10
+[INFO] 16:04:20:808 MEMORIA/(5373:5375):  Se realizo create en el FS : TABLA1 con SC 2 10
+[INFO] 16:06:30:610 MEMORIA/(5373:5375):  Se realizo create en el FS : TABLA2 con SC 2 10
+[INFO] 16:07:56:695 MEMORIA/(5373:5375):  Se realizo create en el FS : TABLA3 con SC 2 10
+[INFO] 16:11:18:908 MEMORIA/(5373:5375):  Se realizo create en el FS : TABLA299 con SC 2 10
+[ERROR] 16:13:13:262 MEMORIA/(5373:5375):  No se pudo realizar create en el FS 
+[INFO] 16:14:08:565 MEMORIA/(5373:5375):  Se realizo create en el FS : TABLA90 con SC 2 10
+[ERROR] 16:16:51:727 MEMORIA/(5724:5726):  No se pudo realizar drop en FS de : TABLA888
+[INFO] 16:17:16:291 MEMORIA/(5724:5726):  Se realizo create en el FS : TABLA09 con SC 2 10
+[INFO] 16:17:28:659 MEMORIA/(5724:5726):  Se realizo create en el FS : TABLA010 con SC 2 10
+[INFO] 16:17:41:630 MEMORIA/(5724:5726):  Se realizo create en el FS : TABLA011 con SC 2 10
+[INFO] 16:17:49:634 MEMORIA/(5724:5726):  Se realizo drop en FS de : TABLA011
+[INFO] 16:18:27:948 MEMORIA/(5794:5796):  Se realizo create en el FS : TABLAY con SC 2 10
+[INFO] 16:18:35:124 MEMORIA/(5794:5796):  Se realizo create en el FS : TABLA123 con SC 2 10
+[INFO] 16:18:53:46 MEMORIA/(5794:5796):  Se realizo drop en FS de : TABLA299
+[INFO] 16:18:59:49 MEMORIA/(5794:5796):  Se realizo drop en FS de : TABLA1
+[INFO] 16:19:14:246 MEMORIA/(5794:5796):  Se realizo create en el FS : TABLA299 con SC 2 10
+[INFO] 16:20:38:512 MEMORIA/(5864:5866):  Se realizo create en el FS : TABLA1 con SC 2 10
+[INFO] 16:20:57:423 MEMORIA/(5864:5866):  Se realizo create en el FS : TABLA12 con SC 2 10
+[INFO] 16:21:01:954 MEMORIA/(5864:5866):  Se realizo drop en FS de : TABLA12
+[INFO] 16:22:44:917 MEMORIA/(5923:5925):  Se realizo create en el FS : TABLA4 con SC 2 10
+[INFO] 16:22:55:955 MEMORIA/(5923:5925):  Se realizo create en el FS : TABLA5 con SC 2 10
+[INFO] 16:23:04:158 MEMORIA/(5923:5925):  Se realizo create en el FS : TABLA6 con SC 2 10
+[INFO] 16:27:25:375 MEMORIA/(5923:5925):  Se realizo drop en FS de : TABLA299
+[INFO] 16:27:33:102 MEMORIA/(5923:5925):  Se realizo drop en FS de : TABLA6
+[INFO] 16:27:38:427 MEMORIA/(5923:5925):  Se realizo drop en FS de : TABLA5
+[INFO] 16:27:44:657 MEMORIA/(5923:5925):  Se realizo drop en FS de : TABLA1
+[INFO] 16:27:47:184 MEMORIA/(5923:5925):  Se realizo drop en FS de : TABLA2
+[INFO] 16:27:50:564 MEMORIA/(5923:5925):  Se realizo drop en FS de : TABLA3
+[INFO] 16:27:57:365 MEMORIA/(5923:5925):  Se realizo drop en FS de : TABLA010
+[INFO] 16:28:05:827 MEMORIA/(5923:5925):  Se realizo drop en FS de : TABLAY
+[INFO] 16:28:09:779 MEMORIA/(5923:5925):  Se realizo drop en FS de : TABLA90
+[INFO] 16:28:13:847 MEMORIA/(5923:5925):  Se realizo drop en FS de : TABLA4
+[INFO] 16:28:21:985 MEMORIA/(5923:5925):  Se realizo create en el FS : TABLA1 con EC 2 10
+[INFO] 16:30:08:761 MEMORIA/(5923:5925):  Se realizo create en el FS : TABLA2 con SC 2 10
+[INFO] 16:30:59:517 MEMORIA/(5923:5925):  Se realizo create en el FS : TABLA87 con SC 2 10
+[INFO] 16:31:18:807 MEMORIA/(5923:5925):  Se realizo create en el FS : TABLA99 con SC 2 10
+[INFO] 16:31:24:505 MEMORIA/(5923:5925):  Se realizo drop en FS de : TABLA99
+[INFO] 16:32:02:610 MEMORIA/(5923:5925):  Se realizo create en el FS : TABLA1234 con SC 2 10
+[INFO] 16:32:52:483 MEMORIA/(6152:6154):  Se realizo create en el FS : TABLA1000 con SC 2 10
+[INFO] 16:33:02:1 MEMORIA/(6152:6154):  Se realizo drop en FS de : TABLA09
+[INFO] 16:33:49:144 MEMORIA/(6152:6154):  Se realizo create en el FS : TABLA3 con SC 2 10
+[INFO] 16:34:00:569 MEMORIA/(6152:6154):  Se realizo create en el FS : TABLA con SHC 2 10
+[INFO] 16:34:05:711 MEMORIA/(6152:6154):  Se realizo drop en FS de : TABLA1
+[INFO] 16:35:43:432 MEMORIA/(6327:6329):  Se realizo create en el FS : TABLA5 con SC 2 10
+[INFO] 16:35:59:518 MEMORIA/(6327:6329):  Se realizo create en el FS : TABLA99 con SC 2 10
+[INFO] 16:36:42:654 MEMORIA/(6332:6334):  Se realizo create en el FS : TABLA109 con EC 2 10
+[INFO] 16:36:51:118 MEMORIA/(6332:6334):  Se realizo create en el FS : TABLA110 con EC 2 15
+[INFO] 16:37:16:823 MEMORIA/(6327:6329):  Se realizo drop en FS de : TABLA
+[INFO] 16:37:22:965 MEMORIA/(6332:6334):  Se realizo drop en FS de : TABLA110
+[INFO] 16:37:58:434 MEMORIA/(6332:6334):  Se realizo create en el FS : TABLA110 con EC 2 10
+[INFO] 16:39:05:122 MEMORIA/(6327:6329):  Se realizo drop en FS de : TABLA1234
+[INFO] 16:39:38:763 MEMORIA/(6327:6329):  Se realizo drop en FS de : TABLA3
+[INFO] 16:40:08:301 MEMORIA/(6332:6334):  Se realizo create en el FS : TABLA119 con SHC 2 10
+[INFO] 16:40:19:720 MEMORIA/(6332:6334):  Se realizo drop en FS de : TABLA119
+[INFO] 16:40:54:939 MEMORIA/(6327:6329):  Se realizo create en el FS : TABLA23 con SC 2 10
+[INFO] 16:41:28:943 MEMORIA/(6327:6329):  Se realizo create en el FS : TABLA3 con SC 2 10
+[INFO] 16:42:19:690 MEMORIA/(6332:6334):  Se realizo create en el FS : TABLA1 con EC 2 10
+[INFO] 16:42:45:806 MEMORIA/(6327:6329):  Se realizo drop en FS de : TABLA2

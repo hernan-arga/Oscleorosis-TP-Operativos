@@ -492,6 +492,7 @@ t_list * borrarObsoletos(clock_t tiempoActual) {
 
 void refreshMetadata() {
 	sem_wait(&PEDIRDESCRIBE);
+	sem_destroy(&PEDIRDESCRIBE);
 	while (1) {
 		//Aca no me interesa esta variable pero la necesita
 		sem_wait(&MEMORIAPRINCIPAL);
@@ -622,14 +623,7 @@ int get_PID() {
 	list_add(PIDs, &PID);
 	return PID;
 }
-//FIXME
-/*int IP_en_lista(char* ip_memoria) {
- bool _IP_presente(struct datosMemoria * unaMemoria) {
- //return !strcmp(unaMemoria->direccionSocket.sin_addr.s_addr, ip_memoria);
- return unaMemoria->direccionSocket.sin_addr.s_addr == atoi(ip_memoria);
- }
- return (list_find(listaDeMemorias, (void*) _IP_presente) != NULL);
- }*/
+
 
 //NOTA: numeroSinUsar devuelve numeros para asignar nombres distintos a archivos temporales
 int numeroSinUsar() {
@@ -706,7 +700,7 @@ void operacion_gossiping() {
 
 		list_iterate(listaDeMemorias, (void*)evaluarMemoriaConocida);
 		sem_post(&MEMORIAPRINCIPAL);
-		sleep(30);
+		sleep(60);
 	}
 }
 
@@ -748,6 +742,7 @@ int32_t conectarMemoriaRecibida(struct datosMemoria* unaMemoria) {
 	printf("\taddress: %i\n", unaMemoria->direccionSocket.sin_addr);
 	printf("\tfamily: %i\n", unaMemoria->direccionSocket.sin_family);*/
 
+	unaMemoria->socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (connect(unaMemoria->socket,
 			(struct sockaddr *) &unaMemoria->direccionSocket,
 			sizeof(unaMemoria->direccionSocket)) == -1) {
@@ -1144,6 +1139,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				unaTabla->CONSISTENCY = consistencia;
 				unaTabla->PARTITIONS = atoi(cantidadParticiones);
 				dictionary_put(tablas_conocidas, tabla, unaTabla);
+				//printf("\tX");
 			}
 		} else {
 			*huboError = 1;
@@ -1700,7 +1696,9 @@ void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones,
 
 	// Deserializo respuesta
 	int* tamanioRespuesta = malloc(sizeof(int));
+	//printf("aca\n");
 	read(socketMemoria, tamanioRespuesta, sizeof(int));
+	//printf("acano\n");
 	int* ok = malloc(*tamanioRespuesta);
 	read(socketMemoria, ok, *tamanioRespuesta);
 
@@ -1893,9 +1891,8 @@ int32_t conectarUnaMemoria(struct datosMemoria *unaMemoria, char* IP_MEMORIA,
 void ejecutarReady() {
 	while (1) {
 
-		if (enEjecucionActualmente < multiprocesamiento
-				&& !queue_is_empty(ready)) {
-			enEjecucionActualmente++;
+		if (!queue_is_empty(ready)) {
+			//enEjecucionActualmente++;
 			struct Script *unScript = queue_pop(ready);
 			//Creo los hilos de ejecucion bajo demanda
 			pthread_t hiloScript;
@@ -1903,7 +1900,7 @@ void ejecutarReady() {
 					(void*) unScript);
 			pthread_detach(hiloScript);
 			//ejecutor(unScript);
-			enEjecucionActualmente--;
+			//enEjecucionActualmente--;
 		}
 	}
 }
@@ -2005,6 +2002,9 @@ int PID_usada(int numPID) {
 
 void pasar_a_ready(t_queue * colaAnterior) {
 	//printf("\tTrasladando script a Ready\n");
+	/*int value;
+	sem_getvalue(&MAXIMOPROCESAMIENTO, &value);
+	printf("\tsemaforo: %i\n", value);*/
 	sem_wait(&MAXIMOPROCESAMIENTO);
 	struct Script *proceso = queue_pop(colaAnterior);
 	queue_push(ready, proceso);
