@@ -1397,6 +1397,34 @@ void mandarDrop(char *tabla, int socketMemoria){
 	memcpy(buffer + 3 * sizeof(int), tabla, tamanioTabla);
 
 	send(socketMemoria, buffer, 3 * sizeof(int) + tamanioTabla, 0);
+
+	// Deserializo respuesta
+	int* tamanioRespuesta = malloc(sizeof(int));
+	read(socketMemoria, tamanioRespuesta, sizeof(int));
+	int* ok = malloc(*tamanioRespuesta);
+	read(socketMemoria, ok, *tamanioRespuesta);
+
+	if (*ok == 0) {
+		char* mensajeALogear = malloc(
+		strlen(" No se pudo realizar DROP de tabla : ") + strlen(tabla)	+ 1);
+		strcpy(mensajeALogear, " No se pudo realizar DROP de tabla : ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "Kernel", 1, LOG_LEVEL_ERROR);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+	if (*ok == 1) {
+		char* mensajeALogear = malloc( strlen(" Se realizo DROP de tabla : ") + strlen(tabla) + 1);
+		strcpy(mensajeALogear, " Se realizo DROP de tabla : ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "Kernel", 1, LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
 }
 
 void mandarJournal(int socketMemoria) {
@@ -1520,6 +1548,21 @@ struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria) {
 	read(socketMemoria, tiempoCompactacion, *tamanioTiempoCompactacion);
 	// aca ya tengo toda la metadata, falta guardarla en struct
 
+	char* mensajeALogear = malloc(	strlen(" [DESCRIBE x tabla]:  ") + strlen(tabla) + strlen(tipoConsistencia) + 2 * sizeof(int)	+ 1);
+	strcpy(mensajeALogear, " [DESCRIBE x tabla]:  ");
+	strcat(mensajeALogear, tabla);
+	strcat(mensajeALogear, " ");
+	strcat(mensajeALogear, tipoConsistencia);
+	strcat(mensajeALogear, " ");
+	strcat(mensajeALogear, string_itoa(*numeroParticiones));
+	strcat(mensajeALogear, " ");
+	strcat(mensajeALogear, string_itoa(*tiempoCompactacion));
+	t_log* g_logger;
+	g_logger = log_create("./logs.log", "KERNEL", 1, LOG_LEVEL_INFO);
+	log_info(g_logger, mensajeALogear);
+	log_destroy(g_logger);
+	free(mensajeALogear);
+
 	struct tabla* data = malloc(8 + 4);    // 2 int = 2*4 bytes
 	data->CONSISTENCY = malloc(*tamanioConsistencia);
 	memcpy(&data->PARTITIONS, numeroParticiones, sizeof(int));
@@ -1596,10 +1639,37 @@ void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones,
 			buffer + 6 * sizeof(int) + tamanioTabla + tamanioConsistencia
 					+ tamanioCantidadParticiones, tiempoCompactacion,
 			tamanioTiempoCompactacion);
-	send(socketMemoria, buffer,
-			tamanioTabla + 6 * sizeof(int) + tamanioConsistencia
-					+ tamanioCantidadParticiones + tamanioTiempoCompactacion,
-			0);
+	send(socketMemoria, buffer,	tamanioTabla + 6 * sizeof(int) + tamanioConsistencia + tamanioCantidadParticiones + tamanioTiempoCompactacion, 0);
+
+	// Deserializo respuesta
+	int* tamanioRespuesta = malloc(sizeof(int));
+	read(socketMemoria, tamanioRespuesta, sizeof(int));
+	int* ok = malloc(*tamanioRespuesta);
+	read(socketMemoria, ok, *tamanioRespuesta);
+
+	if (*ok == 0) {
+		char* mensajeALogear = malloc(
+				strlen(" No se pudo realizar create en FS de tabla : ") + strlen(tabla)	+ 1);
+		strcpy(mensajeALogear, " No se pudo realizar create en FS de tabla : ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "Kernel", 1, LOG_LEVEL_ERROR);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+	if (*ok == 1) {
+		char* mensajeALogear = malloc(
+				strlen(" Se realizo create en FS de : ") + strlen(tabla) + 1);
+		strcpy(mensajeALogear, " Se realizo create en FS de : ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		g_logger = log_create("./logs.log", "Kernel", 1, LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+
 }
 
 char* pedirValue(char* tabla, char* laKey, int socketMemoria) {
@@ -1692,11 +1762,12 @@ void quitarDelDiccionarioDeTablasLaTablaBorrada(char *tabla) {
 void describeUnaTabla(char* tabla) {
 	if (dictionary_has_key(tablas_conocidas, tabla)) {
 		struct tabla *metadataTabla = dictionary_get(tablas_conocidas, tabla);
-		printf("%s: \n", tabla);
+	/*	printf("%s: \n", tabla);
 		printf("Particiones: %i\n", metadataTabla->PARTITIONS);
 		printf("Consistencia: %s\n", metadataTabla->CONSISTENCY);
 		printf("Tiempo de compactacion: %i\n\n",
 				metadataTabla->COMPACTION_TIME);
+	*/
 	}
 
 }
