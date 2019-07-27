@@ -1027,7 +1027,7 @@ int realizarDrop(char* tabla) {
 
 metadataTabla* realizarDescribe(char* tabla) {
 
-	sem_wati(&sem);
+	sem_wait(&sem);
 
 	// Serializo peticion y tabla
 	void* buffer = malloc(strlen(tabla) + 3 * sizeof(int));
