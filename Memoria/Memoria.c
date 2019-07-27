@@ -349,7 +349,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 		*(frames + frameNum) = strlen(value);
 
-		printf("Value: %s\n", value);
+		//printf("Value: %s\n", value);
 
 		int* laKey = malloc(sizeof(int));
 		*laKey = atoi(key);
