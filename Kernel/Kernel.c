@@ -159,6 +159,7 @@ sem_t PEDIRDESCRIBE;
 sem_t MEMORIAPRINCIPAL;
 
 int main() {
+
 	listaMetricas = list_create();
 	metricasDeUltimos30Segundos = list_create();
 	configuracion = config_create("Kernel_config");
@@ -173,7 +174,7 @@ int main() {
 	tablas_conocidas = dictionary_create();
 	new = queue_create();
 	ready = queue_create();
-	printf("\tKERNEL OPERATIVO Y EN FUNCIONAMIENTO.\n");
+	printf("\t\x1B[1;34m◢\x1B[0;34m KERNEL OPERATIVO Y EN FUNCIONAMIENTO\x1B[1;34m ◣ \x1B[0m \n");
 
 	//PRUEBA();
 	multiprocesamiento = config_get_int_value(configuracion,
