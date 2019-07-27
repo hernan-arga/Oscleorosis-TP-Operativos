@@ -899,7 +899,7 @@ int insert(char* tabla, char* key, char* valor, char* timestamp) {
 		t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
 		p_registro->timestamp = atoi(timestamp);
 		p_registro->key = atoi(key);
-		p_registro->value = malloc(strlen(valor));
+		p_registro->value = malloc(strlen(valor)+1); //todo OJOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO LE PUSE UN +1111!!!!!!!!!!!!
 		strcpy(p_registro->value, valor);
 		if (!existeUnaListaDeDatosADumpear(tabla)) {
 			t_list* listaDeStructs = list_create();

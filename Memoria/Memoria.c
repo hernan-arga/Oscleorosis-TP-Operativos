@@ -457,7 +457,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 
 		pagp->modificado = true;
 		pagp->numeroFrame = frameNum;
-		pagp->numeroPag = list_size(tablaPag);
+		pagp->numeroPag = list_size(tablaPag); //todo deberia haber un if que valide tablaPag y sino seria la tabla 0?
 		pagp->timeStamp = *timeStamp;
 
 		if (hizoJ == 1) {
@@ -519,7 +519,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 }
 
 int frameLibre() {
-	for (int i = 0; i < 1000 / tamanoFrame; i++) {
+	for (int i = 0; i < t_archivoConfiguracion.TAM_MEM / tamanoFrame; i++) {
 		if (*(frames + i) == 0) {
 			return i;
 		}
@@ -700,7 +700,7 @@ void ejecutarJournaling() {
 					t_log* g_logger;
 					g_logger = log_create("./logs.log", "MEMORIA", 1,
 							LOG_LEVEL_INFO);
-					log_error(g_logger, mensajeALogear);
+					log_info(g_logger, mensajeALogear);
 					log_destroy(g_logger);
 					free(mensajeALogear);
 				}
