@@ -132,8 +132,7 @@ unsigned long long getMicrotime();
 
 int main(int argc, char *argv[]) {
 
-	sem_init(&sem, 1, 0);
-	sem_init(&sem2, 1, 0);
+	sem_init(&sem, 1, 1);
 	pthread_mutex_init(&semaforoKernel,NULL);
 	pthread_mutex_init(&SEMAFORODECONEXIONFS,NULL);
 	pthread_mutex_init(&SEMAFORODETABLASEGMENTOS,NULL);
@@ -313,6 +312,8 @@ OPERACION tipoDePeticion(char* peticion) {
 
 char* realizarSelect(char* tabla, char* key) {
 
+	sem_wait(&sem);
+
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
 
 		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
@@ -351,7 +352,7 @@ char* realizarSelect(char* tabla, char* key) {
 				free(timeStamp);
 				free(laKey);
 
-
+				sem_post(&sem);
 
 				return value;
 			}
@@ -390,7 +391,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 		if (value == NULL) {
 
-
+			sem_post(&sem);
 			return NULL;
 		}
 
@@ -414,7 +415,7 @@ char* realizarSelect(char* tabla, char* key) {
 		free(timeStamp);
 		//free(value);
 
-
+		sem_post(&sem);
 		return value;
 	}
 
@@ -423,6 +424,7 @@ char* realizarSelect(char* tabla, char* key) {
 	//printf("Value: %s", value);
 
 	if (value == NULL) {
+		sem_post(&sem);
 		return NULL;
 	}
 
@@ -462,14 +464,14 @@ char* realizarSelect(char* tabla, char* key) {
 
 	//printf("Value: %s", value);
 
-
+	sem_post(&sem);
 
 	return value;
 }
 
 int realizarInsert(char* tabla, char* key, char* value) {
 
-
+	sem_wait(&sem);
 
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
 		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
@@ -504,7 +506,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 				free(laKey);
 				free(timeStamp);
 
-
+				sem_post(&sem);
 
 				return 0;
 			}
@@ -552,7 +554,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 
 		free(timeStamp);
 
-
+		sem_post(&sem);
 
 		return 0;
 	}
@@ -591,7 +593,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 
 	free(timeStamp);
 
-
+	sem_post(&sem);
 
 	return 0;
 }
@@ -603,6 +605,7 @@ int frameLibre() {
 		}
 	}
 	printf("Ejecutar LRU");
+
 	int frameLib = ejecutarLRU();
 
 	return frameLib;
@@ -701,7 +704,7 @@ int ejecutarLRU() {
 	dictionary_iterator(tablaSegmentos, elMenor);
 	if (timeStamp == 0) {
 
-
+		sem_post(&sem);
 
 		ejecutarJournaling();
 		numF = 0;
@@ -717,6 +720,7 @@ int ejecutarLRU() {
 
 void ejecutarJournaling() {
 
+	sem_wait(&sem);
 
 	void journal(char* tabla, void* valor) {
 		t_list* paginas = valor;
@@ -852,13 +856,13 @@ void ejecutarJournaling() {
 
 	hizoJ = 1;
 
-
+	sem_post(&sem);
 }
 
 int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones,
 		char* tiempoCompactacion) {
 
-
+	sem_wait(&sem);
 
 	// Serializo Peticion, Tabla y Metadata
 	char* buffer = malloc(
@@ -942,14 +946,19 @@ int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones,
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
+		sem_post(&sem);
+
 		return 1;
 	}
+
+	sem_post(&sem);
+
 	return 0;
 }
 
 int realizarDrop(char* tabla) {
 
-
+	sem_wait(&sem);
 
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
 		void* elemento = dictionary_remove(tablaSegmentos, tabla);
@@ -991,6 +1000,8 @@ int realizarDrop(char* tabla) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
+		sem_post(&sem);
+
 		return 0;
 	}
 	if (*ok == 1) {
@@ -1004,14 +1015,19 @@ int realizarDrop(char* tabla) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
+		sem_post(&sem);
+
 		return 1;
 	}
+
+	sem_post(&sem);
+
 	return 0;
 }
 
 metadataTabla* realizarDescribe(char* tabla) {
 
-
+	sem_wati(&sem);
 
 	// Serializo peticion y tabla
 	void* buffer = malloc(strlen(tabla) + 3 * sizeof(int));
@@ -1063,13 +1079,14 @@ metadataTabla* realizarDescribe(char* tabla) {
 
 	//free(metadata);
 
+	sem_post(&sem);
 
 	return data;
 }
 
 void realizarDescribeGlobal() {
 
-
+	sem_wait(&sem);
 
 	// serializo peticion
 	void* buffer = malloc(2 * sizeof(int));
@@ -1130,6 +1147,7 @@ void realizarDescribeGlobal() {
 	desconectarFS();
 	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
+	sem_post(&sem);
 }
 
 void consola() {
