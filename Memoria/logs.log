@@ -1,0 +1,22 @@
+[INFO] 23:53:47:542 MEMORIA/(7543:7550):  Se realizo drop en FS de : COSAS
+[INFO] 23:54:12:170 MEMORIA/(7543:7550):  Se realizo create en el FS : COSAS con EC 2 40000
+[INFO] 23:54:34:580 MEMORIA/(7543:7550):  Se realizo insert en FS 
+[INFO] 23:54:34:580 MEMORIA/(7543:7550):  Se realizo insert en FS 
+[INFO] 23:54:49:171 MEMORIA/(7543:7550):  Se realizo insert en FS 
+[INFO] 23:54:49:171 MEMORIA/(7543:7550):  Se realizo insert en FS 
+[INFO] 23:59:57:865 MEMORIA/(7745:7817):  Se realizo create en el FS : COSAS con EC 2 40000
+[INFO] 00:00:41:872 MEMORIA/(7745:7817):  Se realizo insert en FS 
+[INFO] 00:00:41:872 MEMORIA/(7745:7817):  Se realizo insert en FS 
+[INFO] 00:05:53:351 MEMORIA/(7745:7817):  Se realizo insert en FS 
+[INFO] 00:05:53:351 MEMORIA/(7745:7817):  Se realizo insert en FS 
+[INFO] 00:20:16:899 MEMORIA/(8514:8526):  Se realizo drop en FS de : COSAS
+[INFO] 00:20:35:778 MEMORIA/(8514:8526):  Se realizo create en el FS : COSAS con EC 2 40000
+[INFO] 00:21:10:990 MEMORIA/(8514:8526):  Se realizo insert en FS 
+[INFO] 00:21:10:990 MEMORIA/(8514:8526):  Se realizo insert en FS 
+[INFO] 00:21:58:651 MEMORIA/(8514:8526):  Se realizo insert en FS 
+[INFO] 00:21:58:651 MEMORIA/(8514:8526):  Se realizo insert en FS 
+[INFO] 12:14:23:658 MEMORIA/(7208:7211):  Se realizo create en el FS : COSAS con EC 2 40000
+[ERROR] 12:15:01:854 MEMORIA/(7208:7211):  Se realizo insert en FS 
+[ERROR] 12:15:01:865 MEMORIA/(7208:7211):  Se realizo insert en FS 
+[INFO] 12:15:22:340 Memoria/(7208:7211):  Llego select con VALUE : MARCADOR
+
