@@ -181,6 +181,9 @@ pthread_mutex_t SEMAFORODETMPC;
 pthread_mutex_t SEMAFOROMEMTABLE;
 
 int main(int argc, char *argv[]) {
+
+	printf("\t\x1B[1;32m◢\x1B[0;32m BIENVENIDO A LISSANDRA FILE SYSTEM. ¿PUEDO TOMAR SU ORDEN?.\x1B[1;32m ◣ \x1B[0m \n");
+
 	//tablasQueTienenTMPs = dictionary_create();
 	binariosParaCompactar = dictionary_create();
 	pthread_t hiloDump;
@@ -308,7 +311,7 @@ void borrarSemaforo(char *tablaADestruir) {
 
 void atenderPeticionesDeConsola() {
 	while (1) {
-		printf("SELECT | INSERT | CREATE |\n");
+		printf("SELECT | INSERT | CREATE | DESCRIBE | DROP |\n");
 		char* mensaje = malloc(1000);
 		do {
 			fgets(mensaje, 1000, stdin);
