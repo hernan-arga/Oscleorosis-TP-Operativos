@@ -133,7 +133,7 @@ unsigned long long getMicrotime();
 int main(int argc, char *argv[]) {
 
 	sem_init(&sem, 1, 0);
-	sem_init(&sem, 2, 0);
+	sem_init(&sem2, 1, 0);
 	pthread_mutex_init(&semaforoKernel,NULL);
 	pthread_mutex_init(&SEMAFORODECONEXIONFS,NULL);
 	pthread_mutex_init(&SEMAFORODETABLASEGMENTOS,NULL);
@@ -312,8 +312,8 @@ OPERACION tipoDePeticion(char* peticion) {
 }
 
 char* realizarSelect(char* tabla, char* key) {
-	if (dictionary_has_key(tablaSegmentos, tabla)) {
 
+	if (dictionary_has_key(tablaSegmentos, tabla)) {
 
 		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
 
@@ -1505,8 +1505,15 @@ void conectarseAFS() {
 	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
 
-	connect(clienteFS, (struct sockaddr *) &serverAddressFS,
-			sizeof(serverAddressFS));
+	int res = -1;
+	while(res < 0)
+	{
+		res = connect(clienteFS, (struct sockaddr *) &serverAddressFS,
+					sizeof(serverAddressFS));
+
+		sleep(5);
+	}
+
 
 	int *tamanioValue = malloc(sizeof(int));
 	recv(clienteFS, tamanioValue, sizeof(int), 0);

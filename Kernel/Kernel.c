@@ -232,7 +232,7 @@ unsigned long long getMicrotime(){
 }
 
 void iniciarSemaforos() {
-	sem_init(&MAXIMOPROCESAMIENTO, 0, multiprocesamiento);
+	sem_init(&MAXIMOPROCESAMIENTO, 1, multiprocesamiento);
 	sem_init(&PEDIRDESCRIBE, 0, 0);
 	sem_init(&MEMORIAPRINCIPAL, 0, 0);
 }
@@ -561,7 +561,7 @@ OPERACION tipo_de_peticion(char* peticion) {
 							return JOURNAL;
 						} else {
 							if (!strcmp(peticion, "ADD")) {
-								//free(peticion);//ACA ROMPE
+								free(peticion);//ACA ROMPE
 								return ADD;
 							} else {
 								if (!strcmp(peticion, "RUN")) {
@@ -897,7 +897,7 @@ void tomar_peticion(char* mensaje, int es_request, int *huboError) {
 	//free(value);
 	free(noValue);
 	free(posibleTimestamp);
-	free(mensajeSeparadoConValue);
+	//free(mensajeSeparadoConValue);
 
 	//Fijarse despues cual seria la cantidad correcta de malloc
 	/*char** mensajeSeparado = malloc(strlen(mensaje) + 1);
@@ -1416,6 +1416,12 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			char* memoria = parametros[1];
 			string_to_upper(memoria);
 			string_to_upper(to);
+
+			printf("Consistencia: %s\n", consistencia);
+			printf("To: %s\n", to);
+			printf("numeroMemoria: %s\n", numeroMemoria);
+			printf("Memoria: %s\n", memoria);
+
 			if (strcmp(memoria, "MEMORY")) {
 				printf(
 						"El primer parametro de add tiene que ser \"MEMORY\".\n");
@@ -1435,7 +1441,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					(void*) seEncuentraLaMemoria)) {
 				printf("No existe tal memoria.\n");
 			}
-
+			printf("Es el criterio ADD\n");
 			return !strcmp(memoria, "MEMORY") && !strcmp(to, "TO")
 					&& esUnTipoDeConsistenciaValida(consistencia)
 					&& esUnNumero(numeroMemoria)
@@ -2078,7 +2084,7 @@ void ejecutor(struct Script *ejecutando) {
 			fread(caracter, sizeof(char), 1, lql);
 		}
 		tomar_peticion(lineaDeScript, 0, &error);
-		free(lineaDeScript);
+		//free(lineaDeScript);
 		i++;
 
 		int sleepEjecucion = config_get_int_value(configuracion,

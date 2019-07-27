@@ -3299,6 +3299,9 @@ void tomarPeticionSelect(int sd) {
 
 	char *value = realizarSelect(tablaCortada, keyString);
 
+	printf("Si rompe despues de esto es porq el valor es null");
+	printf("\n\nValue a Mandar: %s\n\n", value);
+
 	if (value == NULL) {
 		char* mensajeALogear = malloc( strlen(" No encontre value ") +1);
 		strcpy(mensajeALogear, " No encontre value ");
@@ -3309,7 +3312,7 @@ void tomarPeticionSelect(int sd) {
 				LOG_LEVEL_ERROR);
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
-		free(mensajeALogear);
+		//free(mensajeALogear);
 
 		int ok = 0;
 		void* buffer = malloc(4);
@@ -3318,6 +3321,7 @@ void tomarPeticionSelect(int sd) {
 
 	} else {
 
+		/*
 		char* mensajeALogear = malloc( strlen(" Encontre el value : ") + strlen(value)+1);
 		strcpy(mensajeALogear, " Encontre el value : ");
 		strcat(mensajeALogear, value);
@@ -3328,13 +3332,20 @@ void tomarPeticionSelect(int sd) {
 				LOG_LEVEL_INFO);
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
-		free(mensajeALogear);
+		//free(mensajeALogear);
 
-		void *buffer = malloc(strlen(value) + sizeof(int));
+		 */
+
+		char *buffer = malloc(strlen(value) + sizeof(int));
 		int tamanio = strlen(value);
 		memcpy(buffer, &tamanio, sizeof(int));
+
+		printf("\n\nValue a Mandar: %s\n\n", value);
+
 		memcpy(buffer + sizeof(int), value, tamanio);
 		send(sd, buffer, strlen(value) + sizeof(int), 0);
+
+		free(buffer);
 	}
 }
 
