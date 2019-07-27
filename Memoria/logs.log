@@ -15,3 +15,35 @@
 [INFO] 00:21:10:990 MEMORIA/(8514:8526):  Se realizo insert en FS 
 [INFO] 00:21:58:651 MEMORIA/(8514:8526):  Se realizo insert en FS 
 [INFO] 00:21:58:651 MEMORIA/(8514:8526):  Se realizo insert en FS 
+[INFO] 01:02:16:495 MEMORIA/(10066:10087):  Se realizo drop en FS de : COSAS
+[INFO] 01:02:23:491 MEMORIA/(10066:10087):  Se realizo create en el FS : COSAS con EC 2 40000
+[INFO] 01:02:36:366 MEMORIA/(10066:10087):  Se realizo insert en FS 
+[INFO] 01:02:36:367 MEMORIA/(10066:10087):  Se realizo insert en FS 
+[INFO] 01:02:45:415 MEMORIA/(10066:10087):  Se realizo insert en FS 
+[INFO] 01:02:45:415 MEMORIA/(10066:10087):  Se realizo insert en FS 
+[INFO] 01:02:48:212 Memoria/(10066:10087):  Llego select con VALUE : "Marcador"
+
+[INFO] 01:03:42:169 Memoria/(10066:10087):  Llego select con VALUE : "Mesa"
+
+[ERROR] 01:03:58:556 MEMORIA/(10066:10087):  No se pudo realizar create en el FS 
+[INFO] 01:04:08:17 Memoria/(10066:10087):  Llego select con VALUE : "Pizarron"
+
+[INFO] 01:04:20:0 MEMORIA/(10066:10087):  Se realizo insert en FS 
+[INFO] 01:04:34:714 MEMORIA/(10066:10087):  Se realizo insert en FS 
+[INFO] 01:04:34:714 MEMORIA/(10066:10087):  Se realizo insert en FS 
+[INFO] 01:04:36:628 Memoria/(10066:10087):  Llego select con VALUE : "Marcador"
+
+[INFO] 01:04:54:572 Memoria/(10066:10087):  Llego select con VALUE : "Mesa"
+
+[INFO] 01:05:59:191 MEMORIA/(10426:10450):  Se realizo drop en FS de : COSAS
+[INFO] 01:06:03:756 MEMORIA/(10426:10450):  Se realizo create en el FS : COSAS con EC 2 40000
+[INFO] 01:06:11:880 MEMORIA/(10426:10450):  Se realizo insert en FS 
+[INFO] 01:06:11:880 MEMORIA/(10426:10450):  Se realizo insert en FS 
+[INFO] 01:06:23:147 MEMORIA/(10426:10450):  Se realizo insert en FS 
+[INFO] 01:06:23:147 MEMORIA/(10426:10450):  Se realizo insert en FS 
+[INFO] 02:00:44:722 MEMORIA/(12338:12357):  Se realizo insert en FS 
+[INFO] 02:00:44:723 MEMORIA/(12338:12357):  Se realizo insert en FS 
+[INFO] 02:01:12:732 MEMORIA/(12338:12357):  Se realizo insert en FS 
+[INFO] 02:01:12:733 MEMORIA/(12338:12357):  Se realizo insert en FS 
+[INFO] 02:01:22:197 Memoria/(12338:12357):  Llego select con VALUE : "Marcador"
+

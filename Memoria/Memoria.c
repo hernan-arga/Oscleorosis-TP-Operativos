@@ -81,6 +81,9 @@ int32_t activado = 1;
 //Semaforos
 sem_t sem;
 sem_t sem2;
+pthread_mutex_t SEMAFORODECONEXIONFS;
+pthread_mutex_t SEMAFORODETABLASEGMENTOS;
+
 
 //Hilos
 pthread_t threadKernel;
@@ -319,8 +322,9 @@ char* realizarSelect(char* tabla, char* key) {
 			}
 			free(laKey);
 		}
-
+		printf("arriba");
 		int frameNum = frameLibre();
+		printf("abajo");
 
 		long int* timeStamp = malloc(sizeof(long int));
 		*timeStamp = (long int) time(NULL);
@@ -334,7 +338,9 @@ char* realizarSelect(char* tabla, char* key) {
 		if (hizoJ == 1) {
 			t_list* pagis = list_create();
 			list_add(pagis, pagp);
+			pthread_mutex_lock(&SEMAFORODETABLASEGMENTOS);
 			dictionary_put(tablaSegmentos, tabla, pagis);
+			pthread_mutex_unlock(&SEMAFORODETABLASEGMENTOS);
 			hizoJ = 0;
 		} else {
 			list_add(tablaPag, pagp);
@@ -349,7 +355,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 		*(frames + frameNum) = strlen(value);
 
-		//printf("Value: %s\n", value);
+		printf("Value: %s\n", value);
 
 		int* laKey = malloc(sizeof(int));
 		*laKey = atoi(key);
@@ -391,7 +397,10 @@ char* realizarSelect(char* tabla, char* key) {
 	pagp->timeStamp = *timeStamp;
 
 	list_add(paginasp, pagp);
+	pthread_mutex_lock(&SEMAFORODETABLASEGMENTOS);
+
 	dictionary_put(tablaSegmentos, tabla, paginasp);
+	pthread_mutex_unlock(&SEMAFORODETABLASEGMENTOS);
 
 	int* laKey = malloc(sizeof(int));
 	*laKey = atoi(key);
@@ -463,7 +472,10 @@ int realizarInsert(char* tabla, char* key, char* value) {
 		if (hizoJ == 1) {
 			t_list* pagis = list_create();
 			list_add(pagis, pagp);
+			pthread_mutex_lock(&SEMAFORODETABLASEGMENTOS);
 			dictionary_put(tablaSegmentos, tabla, pagis);
+			pthread_mutex_unlock(&SEMAFORODETABLASEGMENTOS);
+
 			hizoJ = 0;
 		} else {
 			list_add(tablaPag, pagp);
@@ -499,8 +511,10 @@ int realizarInsert(char* tabla, char* key, char* value) {
 
 	t_list* paginas = list_create();
 	list_add(paginas, pagp);
+	pthread_mutex_lock(&SEMAFORODETABLASEGMENTOS);
 
 	dictionary_put(tablaSegmentos, tabla, paginas);
+	pthread_mutex_unlock(&SEMAFORODETABLASEGMENTOS);
 
 	int* laKey = malloc(sizeof(int));
 	*laKey = atoi(key);
@@ -525,7 +539,9 @@ int frameLibre() {
 		}
 	}
 	printf("Ejecutar LRU");
-	return ejecutarLRU();
+	int frameLib = ejecutarLRU();
+
+	return frameLib;
 }
 
 char* pedirValue(char* tabla, char* laKey) {
@@ -550,11 +566,13 @@ char* pedirValue(char* tabla, char* laKey) {
 	memcpy(buffer + 3 * sizeof(int) + strlen(tabla), &tamanioKey, sizeof(int));
 	memcpy(buffer + 4 * sizeof(int) + strlen(tabla), key, sizeof(int));
 
+	pthread_mutex_lock(&SEMAFORODECONEXIONFS);
 	send(clienteFS, buffer, strlen(tabla) + 5 * sizeof(int), 0);
 
 	//deserializo value
 	int *tamanioValue = malloc(sizeof(int));
 	recv(clienteFS, tamanioValue, sizeof(int), 0);
+	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
 	printf("Tamanio value: %d\n", *tamanioValue);
 
@@ -614,7 +632,6 @@ int ejecutarLRU() {
 			}
 		}
 	}
-
 	dictionary_iterator(tablaSegmentos, elMenor);
 	if (timeStamp == 0) {
 		ejecutarJournaling();
@@ -625,7 +642,6 @@ int ejecutarLRU() {
 		}
 		list_remove_and_destroy_element(objetivo, target, elemento_distroyer);
 	}
-
 	printf("Remplazo: %d\n", numF);
 	return numF;
 }
@@ -633,6 +649,7 @@ int ejecutarLRU() {
 void ejecutarJournaling() {
 	void journal(char* tabla, void* valor) {
 		t_list* paginas = valor;
+		int tasdasd = list_size(paginas);
 		for (int i = 0; i < list_size(paginas); i++) {
 			pagina* pag = list_get(paginas, i);
 			if (pag->modificado) {
@@ -646,7 +663,6 @@ void ejecutarJournaling() {
 						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
 								+ sizeof(int) + sizeof(long int)),
 						*(frames + pag->numeroFrame) + 1);
-
 				// Serializo peticion, tabla, key, value (el timestamp lo agrega el fs y siempre es el ACTUAL)
 				char* buffer = malloc(
 						6 * sizeof(int) + strlen(tabla) + strlen(value));
@@ -671,7 +687,7 @@ void ejecutarJournaling() {
 						sizeof(int));
 				memcpy(buffer + 6 * sizeof(int) + strlen(tabla), value,
 						strlen(value));
-
+				pthread_mutex_lock(&SEMAFORODECONEXIONFS);
 				send(clienteFS, buffer,
 						6 * sizeof(int) + strlen(tabla) + strlen(value), 0);
 
@@ -680,7 +696,7 @@ void ejecutarJournaling() {
 				read(clienteFS, tamanioRespuesta, sizeof(int));
 				int* ok = malloc(*tamanioRespuesta);
 				read(clienteFS, ok, *tamanioRespuesta);
-
+				pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 				if (*ok == 0) {
 					char* mensajeALogear = malloc(
 							strlen(" No se pudo realizar insert en FS ") + 1);
@@ -708,8 +724,10 @@ void ejecutarJournaling() {
 			}
 		}
 	}
+	pthread_mutex_lock(&SEMAFORODETABLASEGMENTOS);
 
 	dictionary_iterator(tablaSegmentos, journal);
+	pthread_mutex_unlock(&SEMAFORODETABLASEGMENTOS);
 
 	for (int i = 0; i < t_archivoConfiguracion.TAM_MEM / tamanoFrame; i++) {
 		*(frames + i) = 0;
@@ -717,7 +735,9 @@ void ejecutarJournaling() {
 	void data_destroyer(void* data) {
 		free(data);
 	}
+	pthread_mutex_lock(&SEMAFORODETABLASEGMENTOS);
 	dictionary_clean_and_destroy_elements(tablaSegmentos, data_destroyer);
+	pthread_mutex_unlock(&SEMAFORODETABLASEGMENTOS);
 
 	free(memoriaPrincipal);
 
@@ -764,6 +784,7 @@ int realizarCreate(char* tabla, char* tipoConsistencia,
 					+ tamanioParticiones, tiempoCompactacion,
 			tamanioCompactacion);
 
+	pthread_mutex_lock(&SEMAFORODECONEXIONFS);
 	send(clienteFS, buffer,
 			strlen(tabla) + 6 * sizeof(int) + strlen(tipoConsistencia)
 					+ strlen(numeroParticiones) + strlen(tiempoCompactacion),
@@ -774,6 +795,7 @@ int realizarCreate(char* tabla, char* tipoConsistencia,
 	read(clienteFS, tamanioRespuesta, sizeof(int));
 	int* ok = malloc(*tamanioRespuesta);
 	read(clienteFS, ok, *tamanioRespuesta);
+	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
 	if (*ok == 0) {
 		char* mensajeALogear = malloc(
@@ -827,7 +849,7 @@ int realizarDrop(char* tabla) {
 	int tamanioTabla = strlen(tabla);
 	memcpy(buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
 	memcpy(buffer + 3 * sizeof(int), tabla, strlen(tabla));
-
+	pthread_mutex_lock(&SEMAFORODECONEXIONFS);
 	send(clienteFS, buffer, strlen(tabla) + 3 * sizeof(int), 0);
 
 	// Deserializo respuesta
@@ -835,6 +857,8 @@ int realizarDrop(char* tabla) {
 	read(clienteFS, tamanioRespuesta, sizeof(int));
 	int* ok = malloc(*tamanioRespuesta);
 	read(clienteFS, ok, *tamanioRespuesta);
+	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
+
 
 	if (*ok == 0) {
 		char* mensajeALogear = malloc(
@@ -876,6 +900,7 @@ metadataTabla* realizarDescribe(char* tabla) {
 	int tamanioTabla = strlen(tabla);
 	memcpy(buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
 	memcpy(buffer + 3 * sizeof(int), tabla, strlen(tabla));
+	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
 	send(clienteFS, buffer, strlen(tabla) + 3 * sizeof(int), 0);
 
@@ -897,6 +922,7 @@ metadataTabla* realizarDescribe(char* tabla) {
 	int* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
 	read(clienteFS, tiempoCompactacion, *tamanioTiempoCompactacion);
 	// aca ya tengo toda la metadata, falta guardarla en struct
+	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
 	metadataTabla* data = malloc(8 + 4);    // 2 int = 2*4 bytes
 	data->consistencia = malloc(strlen(tipoConsistenciaCortada));
@@ -923,6 +949,8 @@ void realizarDescribeGlobal() {
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+
+	pthread_mutex_lock(&SEMAFORODECONEXIONFS);
 	send(clienteFS, buffer, 2 * sizeof(int), 0);
 
 	// deserializo
@@ -970,6 +998,7 @@ void realizarDescribeGlobal() {
 
 		read(clienteFS, tamanioTabla, sizeof(int));
 	}
+	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 }
 
 void consola() {
@@ -1401,6 +1430,8 @@ void tomarPeticionDescribeGlobal(int kernel) {
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+	pthread_mutex_lock(&SEMAFORODECONEXIONFS);
+
 	send(clienteFS, buffer, 2 * sizeof(int), 0);
 
 	// deserializo
@@ -1471,6 +1502,7 @@ void tomarPeticionDescribeGlobal(int kernel) {
 
 		read(clienteFS, tamanioTabla2, sizeof(int));
 	}
+	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
 	char* buffer2 = malloc(4);
 	int respuesta = 0;
