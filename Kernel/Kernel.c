@@ -155,8 +155,8 @@ t_list *eventualConsistency;
 struct metricas * unRegistro;
 //pthread_t hiloLevantarConexion;
 sem_t MAXIMOPROCESAMIENTO;
-sem_t PEDIRGOSSIPING;
 sem_t PEDIRDESCRIBE;
+sem_t MEMORIAPRINCIPAL;
 
 int main() {
 	listaMetricas = list_create();
@@ -215,8 +215,8 @@ int main() {
 
 void iniciarSemaforos() {
 	sem_init(&MAXIMOPROCESAMIENTO, 0, multiprocesamiento);
-	sem_init(&PEDIRGOSSIPING, 0, 0);
 	sem_init(&PEDIRDESCRIBE, 0, 0);
+	sem_init(&MEMORIAPRINCIPAL, 0, 0);
 }
 
 void conectarMemoriaPrcpal(){
@@ -228,6 +228,7 @@ void conectarMemoriaPrcpal(){
 	memoriaPrincipal->MEMORY_NUMBER = config_get_int_value(configuracion, "MEMORY_NUMBER");
 	list_add(listaDeMemorias, (void*) memoriaPrincipal);
 	sem_post(&PEDIRDESCRIBE);
+	sem_post(&MEMORIAPRINCIPAL);
 }
 
 void PRUEBA() {
@@ -490,18 +491,17 @@ t_list * borrarObsoletos(clock_t tiempoActual) {
 }
 
 void refreshMetadata() {
+	sem_wait(&PEDIRDESCRIBE);
 	while (1) {
 		//Aca no me interesa esta variable pero la necesita
-		sem_wait(&PEDIRDESCRIBE);
+		sem_wait(&MEMORIAPRINCIPAL);
 		int huboError;
 		tomar_peticion("DESCRIBE", 0, &huboError);
-
-		sem_post(&PEDIRGOSSIPING);
+		sem_post(&MEMORIAPRINCIPAL);
 		int refreshMetadata = config_get_int_value(configuracion,
 					"METADATA_REFRESH");
 		sleep(refreshMetadata);
 	}
-	//pthread_mutex_unlock(&CONEXIONMEMORIAPRINCIPAL);
 }
 
 void atenderPeticionesDeConsola() {
@@ -640,7 +640,7 @@ int numeroSinUsar() {
 
 void operacion_gossiping() {
 	while (1) {
-		sem_wait(&PEDIRGOSSIPING);
+		sem_wait(&MEMORIAPRINCIPAL);
 		printf("GOSSIPING\n");
 		//Borro las anteriores
 		list_clean(memoriasRecibidas);
@@ -698,16 +698,15 @@ void operacion_gossiping() {
 			}
 
 			if(seDesconectoLaMemoria(memoriaConocida)){
-			quitarMemoriaDeSC(memoriaConocida);
-			quitarMemoriaDe1Lista(memoriaConocida, hashConsistency);
-			quitarMemoriaDe1Lista(memoriaConocida, eventualConsistency);
+				quitarMemoriaDeSC(memoriaConocida);
+				quitarMemoriaDe1Lista(memoriaConocida, hashConsistency);
+				quitarMemoriaDe1Lista(memoriaConocida, eventualConsistency);
 			}
 		}
 
 		list_iterate(listaDeMemorias, (void*)evaluarMemoriaConocida);
-
+		sem_post(&MEMORIAPRINCIPAL);
 		sleep(30);
-		sem_post(&PEDIRDESCRIBE);
 	}
 }
 
