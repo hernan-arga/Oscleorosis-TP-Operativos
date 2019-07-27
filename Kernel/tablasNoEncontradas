@@ -2,3 +2,15 @@
 [ERROR] 00:00:28:776 KERNEL/(6377:6385): No se tiene conocimiento de la tabla: TABLA1
 [ERROR] 12:14:51:88 KERNEL/(5193:5196): No se tiene conocimiento de la tabla: TABLA1
 [ERROR] 12:15:02:231 KERNEL/(5193:5196): No se tiene conocimiento de la tabla: TABLA1
+[ERROR] 13:27:25:124 KERNEL/(8464:8468): No se tiene conocimiento de la tabla: TABLA3
+[ERROR] 13:38:24:379 KERNEL/(8633:8637): No se tiene conocimiento de la tabla: TABLA15
+[ERROR] 13:47:15:212 KERNEL/(8762:8766): No se tiene conocimiento de la tabla: TABLA15
+[ERROR] 14:28:03:20 KERNEL/(3826:3856): No se tiene conocimiento de la tabla: TABLA1
+[ERROR] 14:28:09:259 KERNEL/(3826:3830): No se tiene conocimiento de la tabla: S
+[ERROR] 14:28:16:813 KERNEL/(3826:3830): No se tiene conocimiento de la tabla: TABLA1
+[ERROR] 15:14:40:684 KERNEL/(3946:3974): No se tiene conocimiento de la tabla: TABLA2
+[ERROR] 15:28:30:302 KERNEL/(4327:4331): No se tiene conocimiento de la tabla: TABLA3
+[ERROR] 16:18:41:933 KERNEL/(5799:5803): No se tiene conocimiento de la tabla: TABLA311
+[ERROR] 16:26:20:953 KERNEL/(5998:6002): No se tiene conocimiento de la tabla: TABLA299
+[ERROR] 16:37:43:556 KERNEL/(6338:6342): No se tiene conocimiento de la tabla: TABLA110
+[ERROR] 16:41:57:992 KERNEL/(6428:6449): No se tiene conocimiento de la tabla: TABLA1

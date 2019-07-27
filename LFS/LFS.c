@@ -181,6 +181,9 @@ pthread_mutex_t SEMAFORODETMPC;
 pthread_mutex_t SEMAFOROMEMTABLE;
 
 int main(int argc, char *argv[]) {
+
+	printf("\t\x1B[1;32m◢\x1B[0;32m BIENVENIDO A LISSANDRA FILE SYSTEM. ¿PUEDO TOMAR SU ORDEN?.\x1B[1;32m ◣ \x1B[0m \n");
+
 	//tablasQueTienenTMPs = dictionary_create();
 	binariosParaCompactar = dictionary_create();
 	pthread_t hiloDump;
@@ -308,7 +311,7 @@ void borrarSemaforo(char *tablaADestruir) {
 
 void atenderPeticionesDeConsola() {
 	while (1) {
-		printf("SELECT | INSERT | CREATE |\n");
+		printf("SELECT | INSERT | CREATE | DESCRIBE | DROP |\n");
 		char* mensaje = malloc(1000);
 		do {
 			fgets(mensaje, 1000, stdin);
@@ -3018,7 +3021,6 @@ void tomarPeticionSelect(int sd) {
 
 	char *value = realizarSelect(tablaCortada, keyString);
 	//printf("%s\n", value);
-
 	// serializo paquete
 	if (value == NULL) {
 		int ok = 0;
@@ -3035,200 +3037,202 @@ void tomarPeticionSelect(int sd) {
 }
 
 void tomarPeticionCreate(int sd) {
-// deserializo peticion de mm
-int *tamanioTabla = malloc(sizeof(int));
-read(sd, tamanioTabla, sizeof(int));
-char *tabla = malloc(*tamanioTabla);
-read(sd, tabla, *tamanioTabla);
-char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
+	// deserializo peticion de mm
+	int *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(*tamanioTabla);
+	read(sd, tabla, *tamanioTabla);
+	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
-int *tamanioConsistencia = malloc(sizeof(int));
-read(sd, tamanioConsistencia, sizeof(int));
-char *tipoConsistencia = malloc(*tamanioConsistencia);
-read(sd, tipoConsistencia, *tamanioConsistencia);
-char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia,
-		*tamanioConsistencia);
+	int *tamanioConsistencia = malloc(sizeof(int));
+	read(sd, tamanioConsistencia, sizeof(int));
+	char *tipoConsistencia = malloc(*tamanioConsistencia);
+	read(sd, tipoConsistencia, *tamanioConsistencia);
+	char *tipoConsistenciaCortada = string_substring_until(tipoConsistencia,
+			*tamanioConsistencia);
 
-int* tamanioNumeroParticiones = malloc(sizeof(int));
-read(sd, tamanioNumeroParticiones, sizeof(int));
-char* numeroParticiones = malloc(*tamanioNumeroParticiones);
-read(sd, numeroParticiones, *tamanioNumeroParticiones);
-char *numeroParticionesCortado = string_substring_until(numeroParticiones,
-		*tamanioNumeroParticiones);
+	int* tamanioNumeroParticiones = malloc(sizeof(int));
+	read(sd, tamanioNumeroParticiones, sizeof(int));
+	char* numeroParticiones = malloc(*tamanioNumeroParticiones);
+	read(sd, numeroParticiones, *tamanioNumeroParticiones);
+	char *numeroParticionesCortado = string_substring_until(numeroParticiones,
+			*tamanioNumeroParticiones);
 
-int* tamanioTiempoCompactacion = malloc(sizeof(int));
-read(sd, tamanioTiempoCompactacion, sizeof(int));
-char* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
-read(sd, tiempoCompactacion, *tamanioTiempoCompactacion);
-char *tiempoCompactacionCortado = string_substring_until(tiempoCompactacion,
-		*tamanioTiempoCompactacion);
+	int* tamanioTiempoCompactacion = malloc(sizeof(int));
+	read(sd, tamanioTiempoCompactacion, sizeof(int));
+	char* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
+	read(sd, tiempoCompactacion, *tamanioTiempoCompactacion);
+	char *tiempoCompactacionCortado = string_substring_until(tiempoCompactacion,
+			*tamanioTiempoCompactacion);
 
-int respuesta = create(tablaCortada, tipoConsistenciaCortada,
-		numeroParticionesCortado, tiempoCompactacionCortado);
+	int respuesta = create(tablaCortada, tipoConsistenciaCortada,
+			numeroParticionesCortado, tiempoCompactacionCortado);
 
-// serializo respuesta . respuesta = 1 es OK
-char* buffer = malloc(2 * sizeof(int));
-int tamanioRespuesta = sizeof(int);
-memcpy(buffer, &tamanioRespuesta, sizeof(int));
-memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
+	// serializo respuesta . respuesta = 1 es OK
+	char* buffer = malloc(2 * sizeof(int));
+	int tamanioRespuesta = sizeof(int);
+	memcpy(buffer, &tamanioRespuesta, sizeof(int));
+	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
 
-send(sd, buffer, 2 * sizeof(int), 0);
+	send(sd, buffer, 2 * sizeof(int), 0);
 }
 
 void tomarPeticionInsert(int sd) {
-// deserializo peticion de mm
-int *tamanioTabla = malloc(sizeof(int));
-read(sd, tamanioTabla, sizeof(int));
-char *tabla = malloc(*tamanioTabla);
-read(sd, tabla, *tamanioTabla);
-char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
+	// deserializo peticion de mm
+	int *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(*tamanioTabla);
+	read(sd, tabla, *tamanioTabla);
+	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
-int *tamanioKey = malloc(sizeof(int));
-read(sd, tamanioKey, sizeof(int));
-int *key = malloc(*tamanioKey);
-read(sd, key, *tamanioKey);
-char* keyString = string_itoa(*key);
+	int *tamanioKey = malloc(sizeof(int));
+	read(sd, tamanioKey, sizeof(int));
+	int *key = malloc(*tamanioKey);
+	read(sd, key, *tamanioKey);
+	char* keyString = string_itoa(*key);
 
-int *tamanioValue = malloc(sizeof(int));
-recv(sd, tamanioValue, sizeof(int), 0);
-char *value = malloc(*tamanioValue);
-recv(sd, value, *tamanioValue, 0);
-char *valueCortado = string_substring_until(value, *tamanioValue);
+	int *tamanioValue = malloc(sizeof(int));
+	recv(sd, tamanioValue, sizeof(int), 0);
+	char *value = malloc(*tamanioValue);
+	recv(sd, value, *tamanioValue, 0);
+	char *valueCortado = string_substring_until(value, *tamanioValue);
 
-int timestampActual = time(NULL);
-char* timestamp = string_itoa(timestampActual);
+	int timestampActual = time(NULL);
+	char* timestamp = string_itoa(timestampActual);
 
-int respuesta = insert(tablaCortada, keyString, valueCortado, timestamp);
+	int respuesta = insert(tablaCortada, keyString, valueCortado, timestamp);
 
-// serializo respuesta . respuesta = 1 es OK
-char* buffer = malloc(2 * sizeof(int));
-int tamanioRespuesta = sizeof(int);
-memcpy(buffer, &tamanioRespuesta, sizeof(int));
-memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
+	// serializo respuesta . respuesta = 1 es OK
+	char* buffer = malloc(2 * sizeof(int));
+	int tamanioRespuesta = sizeof(int);
+	memcpy(buffer, &tamanioRespuesta, sizeof(int));
+	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
 
-send(sd, buffer, 2 * sizeof(int), 0);
+	send(sd, buffer, 2 * sizeof(int), 0);
 }
 
 void tomarPeticionDescribePorTabla(int sd) {
-int *tamanioTabla = malloc(sizeof(int));
-read(sd, tamanioTabla, sizeof(int));
-char *tabla = malloc(*tamanioTabla);
-read(sd, tabla, *tamanioTabla);
-char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
+	int *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(*tamanioTabla);
+	read(sd, tabla, *tamanioTabla);
+	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
-metadataTabla metadataPuntero = describeUnaTabla(tablaCortada, 0);
-metadataTabla* metadata = &metadataPuntero;
+	metadataTabla metadataPuntero = describeUnaTabla(tablaCortada, 0);
+	metadataTabla* metadata = &metadataPuntero;
 
-// serializo paquete
-void* buffer = malloc(
-		strlen(metadata->CONSISTENCY) + 2 * sizeof(int) + 3 * sizeof(int)); //primeros dos terminos para datos, tercer termino para longitudes
+	// serializo paquete
+	void* buffer = malloc(
+			strlen(metadata->CONSISTENCY) + 2 * sizeof(int) + 3 * sizeof(int)); //primeros dos terminos para datos, tercer termino para longitudes
 
-int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
-memcpy(buffer, &tamanioMetadataConsistency, sizeof(int));
-memcpy(buffer + sizeof(int), metadata->CONSISTENCY,
-		strlen(metadata->CONSISTENCY));
+	int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
+	memcpy(buffer, &tamanioMetadataConsistency, sizeof(int));
+	memcpy(buffer + sizeof(int), metadata->CONSISTENCY,
+			strlen(metadata->CONSISTENCY));
 
-int tamanioParticiones = sizeof(int);
-memcpy(buffer + sizeof(int) + strlen(metadata->CONSISTENCY),
-		&tamanioParticiones, sizeof(int));
-memcpy(buffer + 2 * sizeof(int) + strlen(metadata->CONSISTENCY),
-		&metadata->PARTITIONS, sizeof(int));
+	int tamanioParticiones = sizeof(int);
+	memcpy(buffer + sizeof(int) + strlen(metadata->CONSISTENCY),
+			&tamanioParticiones, sizeof(int));
+	memcpy(buffer + 2 * sizeof(int) + strlen(metadata->CONSISTENCY),
+			&metadata->PARTITIONS, sizeof(int));
 
-int tamanioCompactacion = sizeof(int);
-memcpy(buffer + 3 * sizeof(int) + strlen(metadata->CONSISTENCY),
-		&tamanioCompactacion, sizeof(int));
-memcpy(buffer + 4 * sizeof(int) + strlen(metadata->CONSISTENCY),
-		&metadata->COMPACTION_TIME, sizeof(int));
+	int tamanioCompactacion = sizeof(int);
+	memcpy(buffer + 3 * sizeof(int) + strlen(metadata->CONSISTENCY),
+			&tamanioCompactacion, sizeof(int));
+	memcpy(buffer + 4 * sizeof(int) + strlen(metadata->CONSISTENCY),
+			&metadata->COMPACTION_TIME, sizeof(int));
 
-send(sd, buffer, strlen(metadata->CONSISTENCY) + 5 * sizeof(int), 0);
+	send(sd, buffer, strlen(metadata->CONSISTENCY) + 5 * sizeof(int), 0);
 }
 
 void tomarPeticionDescribeTodasLasTablas(int sd) {
-describeTodasLasTablas(0);
+	describeTodasLasTablas(0);
 
-DIR *directorio = opendir(
-		string_from_format("%sTables", structConfiguracionLFS.PUNTO_MONTAJE));
-struct dirent *directorioALeer;
+	DIR *directorio = opendir(
+			string_from_format("%sTables",
+					structConfiguracionLFS.PUNTO_MONTAJE));
+	struct dirent *directorioALeer;
 
-while ((directorioALeer = readdir(directorio)) != NULL) {
-	//Busco la metadata de todas las tablas (evaluo que no ingrese a los directorios "." y ".."
-	if ((directorioALeer->d_type) == DT_DIR
-			&& strcmp((directorioALeer->d_name), ".")
-			&& strcmp((directorioALeer->d_name), "..")) {
-		char *tabla = string_new();
-		string_append(&tabla, directorioALeer->d_name);
+	while ((directorioALeer = readdir(directorio)) != NULL) {
+		//Busco la metadata de todas las tablas (evaluo que no ingrese a los directorios "." y ".."
+		if ((directorioALeer->d_type) == DT_DIR
+				&& strcmp((directorioALeer->d_name), ".")
+				&& strcmp((directorioALeer->d_name), "..")) {
+			char *tabla = string_new();
+			string_append(&tabla, directorioALeer->d_name);
 
-		metadataTabla *metadata = dictionary_get(diccionarioDescribe, tabla);
+			metadataTabla *metadata = dictionary_get(diccionarioDescribe,
+					tabla);
 
-		void * buffer = malloc(
-				strlen(tabla) + sizeof(int) + strlen(metadata->CONSISTENCY)
-						+ 2 * sizeof(int) + 3 * sizeof(int));
+			void * buffer = malloc(
+					strlen(tabla) + sizeof(int) + strlen(metadata->CONSISTENCY)
+							+ 2 * sizeof(int) + 3 * sizeof(int));
 
-		int tamanioTabla = strlen(tabla);
-		memcpy(buffer, &tamanioTabla, sizeof(int));
-		memcpy(buffer + sizeof(int), tabla, strlen(tabla));
+			int tamanioTabla = strlen(tabla);
+			memcpy(buffer, &tamanioTabla, sizeof(int));
+			memcpy(buffer + sizeof(int), tabla, strlen(tabla));
 
-		int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
-		memcpy(buffer + sizeof(int) + strlen(tabla),
-				&tamanioMetadataConsistency, sizeof(int));
-		memcpy(buffer + 2 * sizeof(int) + strlen(tabla), metadata->CONSISTENCY,
-				strlen(metadata->CONSISTENCY));
+			int tamanioMetadataConsistency = strlen(metadata->CONSISTENCY);
+			memcpy(buffer + sizeof(int) + strlen(tabla),
+					&tamanioMetadataConsistency, sizeof(int));
+			memcpy(buffer + 2 * sizeof(int) + strlen(tabla),
+					metadata->CONSISTENCY, strlen(metadata->CONSISTENCY));
 
-		int tamanioParticiones = sizeof(int);
-		memcpy(
-				buffer + 2 * sizeof(int) + strlen(tabla)
-						+ strlen(metadata->CONSISTENCY), &tamanioParticiones,
-				sizeof(int));
-		memcpy(
-				buffer + 3 * sizeof(int) + strlen(tabla)
-						+ strlen(metadata->CONSISTENCY), &metadata->PARTITIONS,
-				sizeof(int));
+			int tamanioParticiones = sizeof(int);
+			memcpy(
+					buffer + 2 * sizeof(int) + strlen(tabla)
+							+ strlen(metadata->CONSISTENCY),
+					&tamanioParticiones, sizeof(int));
+			memcpy(
+					buffer + 3 * sizeof(int) + strlen(tabla)
+							+ strlen(metadata->CONSISTENCY),
+					&metadata->PARTITIONS, sizeof(int));
 
-		int tamanioCompactacion = sizeof(int);
-		memcpy(
-				buffer + 4 * sizeof(int) + strlen(tabla)
-						+ strlen(metadata->CONSISTENCY), &tamanioCompactacion,
-				sizeof(int));
-		memcpy(
-				buffer + 5 * sizeof(int) + strlen(tabla)
-						+ strlen(metadata->CONSISTENCY),
-				&metadata->COMPACTION_TIME, sizeof(int));
+			int tamanioCompactacion = sizeof(int);
+			memcpy(
+					buffer + 4 * sizeof(int) + strlen(tabla)
+							+ strlen(metadata->CONSISTENCY),
+					&tamanioCompactacion, sizeof(int));
+			memcpy(
+					buffer + 5 * sizeof(int) + strlen(tabla)
+							+ strlen(metadata->CONSISTENCY),
+					&metadata->COMPACTION_TIME, sizeof(int));
 
-		send(sd, buffer,
-				strlen(tabla) + strlen(metadata->CONSISTENCY) + 6 * sizeof(int),
-				0);
+			send(sd, buffer,
+					strlen(tabla) + strlen(metadata->CONSISTENCY)
+							+ 6 * sizeof(int), 0);
+		}
 	}
-}
-char* buffer = malloc(4);
-int respuesta = 0;
-memcpy(buffer, &respuesta, sizeof(int));
+	char* buffer = malloc(4);
+	int respuesta = 0;
+	memcpy(buffer, &respuesta, sizeof(int));
 
-send(sd, buffer, sizeof(int), 0);
-closedir(directorio);
+	send(sd, buffer, sizeof(int), 0);
+	closedir(directorio);
 }
 
 void tomarPeticionDrop(int sd) {
-int *tamanioTabla = malloc(sizeof(int));
-read(sd, tamanioTabla, sizeof(int));
-char *tabla = malloc(*tamanioTabla);
-read(sd, tabla, *tamanioTabla);
-char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
-printf("%s\n", tablaCortada);
-int respuesta;
-if (!existeLaTabla(tablaCortada)) {
-	// respuesta = 0 es ERROR
-	respuesta = 0;
-} else {
-	drop(tablaCortada);
-	// respuesta = 1 es OK
-	respuesta = 1;
-}
-// serializo respuesta
-char* buffer = malloc(2 * sizeof(int));
-int tamanioRespuesta = sizeof(int);
-memcpy(buffer, &tamanioRespuesta, sizeof(int));
-memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
+	int *tamanioTabla = malloc(sizeof(int));
+	read(sd, tamanioTabla, sizeof(int));
+	char *tabla = malloc(*tamanioTabla);
+	read(sd, tabla, *tamanioTabla);
+	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
+	printf("%s\n", tablaCortada);
+	int respuesta;
+	if (!existeLaTabla(tablaCortada)) {
+		// respuesta = 0 es ERROR
+		respuesta = 0;
+	} else {
+		drop(tablaCortada);
+		// respuesta = 1 es OK
+		respuesta = 1;
+	}
+	// serializo respuesta
+	char* buffer = malloc(2 * sizeof(int));
+	int tamanioRespuesta = sizeof(int);
+	memcpy(buffer, &tamanioRespuesta, sizeof(int));
+	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
 
-send(sd, buffer, 2 * sizeof(int), 0);
+	send(sd, buffer, 2 * sizeof(int), 0);
 }
 
