@@ -1488,9 +1488,12 @@ void conectar() {
 		direccionCliente.sin_port = htons(
 				atoi(t_archivoConfiguracion.PUERTO_SEEDS[i]));
 		direccionCliente.sin_addr.s_addr = INADDR_ANY;
+		int res = -1;
+		while(res < 0)
+		{
+			res = connect(clienteSeed, (struct sockaddr *) &direccionCliente, sizeof(direccionCliente));
+		}
 
-		connect(clienteSeed, (struct sockaddr *) &direccionCliente,
-				sizeof(direccionCliente));
 
 		pthread_t tGosiping;
 		int32_t idTGosiping = pthread_create(&tGosiping, NULL, gossiping,
