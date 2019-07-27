@@ -337,7 +337,7 @@ char* realizarSelect(char* tabla, char* key) {
 								+ sizeof(int)), timeStamp,
 						sizeof(unsigned long long));
 
-				//printf("Value: %s\n", value);
+				printf("Value: %s\n", value);
 
 				pag->timeStamp = *timeStamp;
 
@@ -1392,8 +1392,6 @@ int serServidor() {
 						for (int j = 0; j < list_size(provisoria); j++) {
 							datosMemoria* me = malloc(sizeof(datosMemoria));
 							me = list_get(provisoria, j);
-
-									t_archivoConfiguracion.MEMORY_NUMBER);
 
 							bool esta(datosMemoria* elemento) {
 								return elemento->MEMORY_NUMBER

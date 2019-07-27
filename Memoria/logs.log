@@ -92,3 +92,958 @@
 
 [ERROR] 14:17:43:965 LFS/(8201:8203):  No se encontro la key : 154
 [ERROR] 14:17:46:542 LFS/(8189:8191):  No se encontro la key : 16
+[INFO] 23:51:19:920 MEMORIA/(3995:3997):  Se realizo create en el FS : ANIMALS con EC 2 5000
+[INFO] 23:51:21:32 MEMORIA/(4000:4002):  Se realizo create en el FS : METALS con EC 3 5000
+[ERROR] 23:51:24:141 LFS/(4000:4002):  No se encontro la key : 126
+[ERROR] 23:51:26:189 LFS/(3995:3997):  No se encontro la key : 65
+[ERROR] 23:51:27:269 LFS/(4000:4002):  No se encontro la key : 136
+[ERROR] 23:51:33:367 LFS/(4000:4002):  No se encontro la key : 136
+[INFO] 23:51:34:392 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : METALS con value : "aluminiferous" y timestamp : 1259789412
+[INFO] 23:51:34:403 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : METALS con value : "ferrous" y timestamp : 1259795565
+[INFO] 23:51:34:416 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "tigers" y timestamp : 1259786299
+[INFO] 23:51:34:439 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "biological" y timestamp : 1259792539
+[ERROR] 23:51:36:496 LFS/(4000:4002):  No se encontro la key : 105
+[ERROR] 23:51:37:540 LFS/(4007:4009):  No se encontro la key : 64
+[INFO] 23:51:38:576 Memoria/(3995:3997):  Llego select con VALUE : "aluminiferous"
+
+[INFO] 23:51:41:687 Memoria/(3995:3997):  Llego select con VALUE : "ferrous"
+
+[ERROR] 23:51:44:791 LFS/(3995:3997):  No se encontro la key : 16
+[INFO] 23:51:46:810 Memoria/(4007:4009):  Llego select con VALUE : "biological"
+
+[ERROR] 23:51:47:902 LFS/(3995:3997):  No se encontro la key : 135
+[INFO] 23:51:49:975 Memoria/(4007:4009):  Llego select con VALUE : "tigers"
+
+[ERROR] 23:51:53:83 LFS/(4007:4009):  No se encontro la key : 126
+[INFO] 23:51:55:121 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : METALS con value : "warheads" y timestamp : 1259816268
+[INFO] 23:51:55:132 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : METALS con value : "dysprosium" y timestamp : 1259806958
+[INFO] 23:51:55:142 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : METALS con value : "auriferous" y timestamp : 1259813211
+[INFO] 23:51:55:163 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "tortoises" y timestamp : 1259794608
+[INFO] 23:51:55:171 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "warheads" y timestamp : 1259816268
+[INFO] 23:51:57:201 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : METALS con value : "precious metals" y timestamp : 1259815302
+[INFO] 23:51:57:213 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : METALS con value : "moly" y timestamp : 1259799676
+[INFO] 23:51:57:225 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : METALS con value : "precious metals" y timestamp : 1259815302
+[INFO] 23:51:57:248 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : ANIMALS con value : "beasts" y timestamp : 1259818361
+[INFO] 23:51:57:261 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : ANIMALS con value : "primates" y timestamp : 1259796587
+[INFO] 23:51:59:181 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : METALS con value : "iridium" y timestamp : 1259804867
+[INFO] 23:51:59:192 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : METALS con value : "petrochemicals" y timestamp : 1259820431
+[INFO] 23:51:59:216 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "bullies" y timestamp : 1259798695
+[INFO] 23:51:59:230 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "livestock" y timestamp : 1259807964
+[INFO] 23:52:06:281 Memoria/(3995:3997):  Llego select con VALUE : "precious metals"
+
+[ERROR] 23:52:09:398 LFS/(3995:3997):  No se encontro la key : 128
+[INFO] 23:52:12:521 Memoria/(3995:3997):  Llego select con VALUE : "primates"
+
+[INFO] 23:52:13:578 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : METALS con value : "nickel alloy" y timestamp : 1259825468
+[INFO] 23:52:13:594 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "bovine" y timestamp : 1259819433
+[INFO] 23:52:13:616 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "species" y timestamp : 1259834661
+[INFO] 23:52:13:618 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "biological" y timestamp : 1259831596
+[ERROR] 23:52:13:672 LFS/(4000:4002):  No se encontro la key : 36
+[INFO] 23:52:14:689 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : METALS con value : "aluminous" y timestamp : 1259835670
+[INFO] 23:52:14:703 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "pets" y timestamp : 1259826476
+[INFO] 23:52:14:720 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "puppies" y timestamp : 1259829553
+[INFO] 23:52:14:734 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "heads" y timestamp : 1259832561
+[INFO] 23:52:15:730 Memoria/(3995:3997):  Llego select con VALUE : "petrochemicals"
+
+[INFO] 23:52:17:769 Memoria/(4007:4009):  Llego select con VALUE : "precious metals"
+
+[INFO] 23:52:18:878 Memoria/(3995:3997):  Llego select con VALUE : "heads"
+
+[INFO] 23:52:19:945 Memoria/(4000:4002):  Llego select con VALUE : "livestock"
+
+[ERROR] 23:52:21:41 LFS/(4007:4009):  No se encontro la key : 154
+[ERROR] 23:52:22:156 LFS/(3995:3997):  No se encontro la key : 16
+[INFO] 23:52:25:221 Memoria/(3995:3997):  Llego select con VALUE : "pets"
+
+[INFO] 23:52:26:278 Memoria/(4000:4002):  Llego select con VALUE : "aluminous"
+
+[INFO] 23:52:31:349 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : METALS con value : "bronze" y timestamp : 1259821518
+[INFO] 23:52:31:355 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : METALS con value : "europium" y timestamp : 1259824462
+[INFO] 23:52:31:380 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : METALS con value : "industrials" y timestamp : 1259852597
+[INFO] 23:52:31:393 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : ANIMALS con value : "horses" y timestamp : 1259827499
+[INFO] 23:52:31:438 Memoria/(3995:3997):  Llego select con VALUE : "beasts"
+
+[INFO] 23:52:34:529 Memoria/(3995:3997):  Llego select con VALUE : "biological"
+
+[INFO] 23:52:38:587 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "monkeys" y timestamp : 1259853572
+[INFO] 23:52:38:601 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "mammals" y timestamp : 1259847467
+[INFO] 23:52:38:607 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "monkeys" y timestamp : 1259853572
+[INFO] 23:52:38:625 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "housecats" y timestamp : 1259856710
+[INFO] 23:52:38:630 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "primates" y timestamp : 1259859801
+[INFO] 23:52:39:642 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : METALS con value : "bovine" y timestamp : 1259857718
+[INFO] 23:52:39:656 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "llamas" y timestamp : 1259838990
+[INFO] 23:52:39:680 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "beast" y timestamp : 1259851551
+[INFO] 23:52:39:684 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "arseholes" y timestamp : 1259860805
+[INFO] 23:52:39:690 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "bovine" y timestamp : 1259857718
+[INFO] 23:52:40:663 Memoria/(3995:3997):  Llego select con VALUE : "tigers"
+
+[INFO] 23:52:45:749 Memoria/(4007:4009):  Llego select con VALUE : "aluminous"
+
+[INFO] 23:52:46:860 Memoria/(3995:3997):  Llego select con VALUE : "heads"
+
+[INFO] 23:52:50:910 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "pups" y timestamp : 1259862888
+[INFO] 23:52:50:924 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "freaks" y timestamp : 1259865930
+[INFO] 23:52:50:948 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "bovine" y timestamp : 1259868965
+[INFO] 23:52:50:950 MEMORIA/(4000:4002):  Se realizo insert en FS en tabla : ANIMALS con value : "specimens" y timestamp : 1259872125
+[INFO] 23:52:50:996 Memoria/(4000:4002):  Llego select con VALUE : "puppies"
+
+[INFO] 23:52:54:101 Memoria/(4000:4002):  Llego select con VALUE : "biological"
+
+[INFO] 23:52:55:129 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : METALS con value : "precious metal" y timestamp : 1259863951
+[INFO] 23:52:55:135 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : METALS con value : "earths" y timestamp : 1259873131
+[INFO] 23:52:55:154 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "ruminants" y timestamp : 1259866933
+[INFO] 23:52:55:172 MEMORIA/(4007:4009):  Se realizo insert en FS en tabla : ANIMALS con value : "reptiles" y timestamp : 1259876274
+[INFO] 23:52:59:195 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : METALS con value : "environ" y timestamp : 1259880407
+[INFO] 23:52:59:200 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : ANIMALS con value : "seals" y timestamp : 1259861864
+[INFO] 23:52:59:211 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : ANIMALS con value : "humans" y timestamp : 1259874156
+[INFO] 23:52:59:223 MEMORIA/(3995:3997):  Se realizo insert en FS en tabla : ANIMALS con value : "warheads" y timestamp : 1259877342
+[INFO] 23:53:01:877 Memoria/(4000:4002):  Llego select con VALUE : 
+[INFO] 23:56:10:598 MEMORIA/(4185:4187):  Se realizo create en el FS : ANIMALS con EC 2 5000
+[INFO] 23:56:11:690 MEMORIA/(4190:4192):  Se realizo create en el FS : METALS con EC 3 5000
+[ERROR] 23:56:14:749 LFS/(4190:4192):  No se encontro la key : 126
+[ERROR] 23:56:16:791 LFS/(4185:4187):  No se encontro la key : 65
+[ERROR] 23:56:17:891 LFS/(4190:4192):  No se encontro la key : 136
+[ERROR] 23:56:23:972 LFS/(4190:4192):  No se encontro la key : 136
+[INFO] 23:56:25:10 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : METALS con value : "aluminiferous" y timestamp : 1260080013
+[INFO] 23:56:25:28 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : METALS con value : "ferrous" y timestamp : 1260086190
+[INFO] 23:56:25:48 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : ANIMALS con value : "tigers" y timestamp : 1260076961
+[INFO] 23:56:25:57 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : ANIMALS con value : "biological" y timestamp : 1260083161
+[ERROR] 23:56:27:99 LFS/(4190:4192):  No se encontro la key : 105
+[ERROR] 23:56:28:134 LFS/(4197:4199):  No se encontro la key : 64
+[INFO] 23:56:29:162 Memoria/(4185:4187):  Llego select con VALUE : "aluminiferous"
+[INFO] 23:56:32:269 Memoria/(4185:4187):  Llego select con VALUE : "ferrous"
+
+[ERROR] 23:56:35:396 LFS/(4185:4187):  No se encontro la key : 16
+[INFO] 23:56:37:419 Memoria/(4197:4199):  Llego select con VALUE : "biological"
+
+[ERROR] 23:56:38:466 LFS/(4185:4187):  No se encontro la key : 135
+[INFO] 23:56:40:554 Memoria/(4197:4199):  Llego select con VALUE : "tigers"
+
+[ERROR] 23:56:43:668 LFS/(4197:4199):  No se encontro la key : 126
+[INFO] 23:56:45:753 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : METALS con value : "warheads" y timestamp : 1260106851
+[INFO] 23:56:45:769 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : METALS con value : "dysprosium" y timestamp : 1260097538
+[INFO] 23:56:45:772 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : METALS con value : "auriferous" y timestamp : 1260103781
+[INFO] 23:56:45:793 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : ANIMALS con value : "tortoises" y timestamp : 1260085231
+[INFO] 23:56:45:800 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : ANIMALS con value : "warheads" y timestamp : 1260106851
+[INFO] 23:56:47:819 MEMORIA/(4185:4187):  Se realizo insert en FS en tabla : METALS con value : "precious metals" y timestamp : 1260105893
+[INFO] 23:56:47:833 MEMORIA/(4185:4187):  Se realizo insert en FS en tabla : METALS con value : "moly" y timestamp : 1260090288
+[INFO] 23:56:47:855 MEMORIA/(4185:4187):  Se realizo insert en FS en tabla : METALS con value : "precious metals" y timestamp : 1260105893
+[INFO] 23:56:47:865 MEMORIA/(4185:4187):  Se realizo insert en FS en tabla : ANIMALS con value : "beasts" y timestamp : 1260108991
+[INFO] 23:56:47:872 MEMORIA/(4185:4187):  Se realizo insert en FS en tabla : ANIMALS con value : "primates" y timestamp : 1260087211
+[INFO] 23:56:49:790 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : METALS con value : "iridium" y timestamp : 1260095488
+[INFO] 23:56:49:810 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : METALS con value : "petrochemicals" y timestamp : 1260111053
+[INFO] 23:56:49:832 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : ANIMALS con value : "bullies" y timestamp : 1260089313
+[INFO] 23:56:49:845 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : ANIMALS con value : "livestock" y timestamp : 1260098543
+[INFO] 23:56:56:902 Memoria/(4185:4187):  Llego select con VALUE : "precious metals"
+
+[ERROR] 23:57:00:33 LFS/(4185:4187):  No se encontro la key : 128
+[INFO] 23:57:03:163 Memoria/(4185:4187):  Llego select con VALUE : "primates"
+
+[INFO] 23:57:04:231 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : METALS con value : "nickel alloy" y timestamp : 1260116093
+[INFO] 23:57:04:244 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : ANIMALS con value : "bovine" y timestamp : 1260110065
+[INFO] 23:57:04:260 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : ANIMALS con value : "species" y timestamp : 1260125343
+[INFO] 23:57:04:273 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : ANIMALS con value : "biological" y timestamp : 1260122188
+[ERROR] 23:57:04:301 LFS/(4190:4192):  No se encontro la key : 36
+[INFO] 23:57:05:322 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : METALS con value : "aluminous" y timestamp : 1260126364
+[INFO] 23:57:05:337 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : ANIMALS con value : "pets" y timestamp : 1260117101
+[INFO] 23:57:05:368 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : ANIMALS con value : "puppies" y timestamp : 1260120176
+[INFO] 23:57:05:369 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : ANIMALS con value : "heads" y timestamp : 1260123195
+[INFO] 23:57:06:378 Memoria/(4185:4187):  Llego select con VALUE : "petrochemicals"
+
+[INFO] 23:57:08:407 Memoria/(4197:4199):  Llego select con VALUE : "precious metals"
+
+[ERROR] 23:57:09:518 LFS/(4185:4187):  No se encontro la key : 76
+[INFO] 23:57:10:589 Memoria/(4190:4192):  Llego select con VALUE : "livestock"
+
+[ERROR] 23:57:11:686 LFS/(4197:4199):  No se encontro la key : 154
+[ERROR] 23:57:12:752 LFS/(4185:4187):  No se encontro la key : 16
+[INFO] 23:57:15:877 Memoria/(4185:4187):  Llego select con VALUE : "pets"
+
+[INFO] 23:57:16:926 Memoria/(4190:4192):  Llego select con VALUE : "aluminous"
+
+[INFO] 23:57:21:999 MEMORIA/(4185:4187):  Se realizo insert en FS en tabla : METALS con value : "bronze" y timestamp : 1260112129
+[INFO] 23:57:22:5 MEMORIA/(4185:4187):  Se realizo insert en FS en tabla : METALS con value : "europium" y timestamp : 1260115072
+[INFO] 23:57:22:29 MEMORIA/(4185:4187):  Se realizo insert en FS en tabla : METALS con value : "industrials" y timestamp : 1260143219
+[INFO] 23:57:22:54 MEMORIA/(4185:4187):  Se realizo insert en FS en tabla : ANIMALS con value : "horses" y timestamp : 1260118126
+[INFO] 23:57:22:95 Memoria/(4185:4187):  Llego select con VALUE : "beasts"
+
+[INFO] 23:57:25:185 Memoria/(4185:4187):  Llego select con VALUE : "biological"
+
+[INFO] 23:57:29:242 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : ANIMALS con value : "monkeys" y timestamp : 1260144224
+[INFO] 23:57:29:250 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : ANIMALS con value : "mammals" y timestamp : 1260138060
+[INFO] 23:57:29:263 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : ANIMALS con value : "monkeys" y timestamp : 1260144224
+[INFO] 23:57:29:288 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : ANIMALS con value : "housecats" y timestamp : 1260147371
+[INFO] 23:57:29:290 MEMORIA/(4190:4192):  Se realizo insert en FS en tabla : ANIMALS con value : "primates" y timestamp : 1260150457
+[INFO] 23:57:30:298 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : METALS con value : "bovine" y timestamp : 1260148378
+[INFO] 23:57:30:315 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : ANIMALS con value : "llamas" y timestamp : 1260129625
+[INFO] 23:57:30:336 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : ANIMALS con value : "beast" y timestamp : 1260142194
+[INFO] 23:57:30:343 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : ANIMALS con value : "arseholes" y timestamp : 1260151464
+[INFO] 23:57:30:364 MEMORIA/(4197:4199):  Se realizo insert en FS en tabla : ANIMALS con value : "bovine" y timestamp : 1260148378
+[INFO] 23:57:31:358 Memoria/(4185:4187):  Llego select con VALUE : "tigers"
+
+[INFO] 23:57:36:469 Memoria/(4197:4199):  Llego select con VALUE : "aluminous"
+
+[ERROR] 23:57:38:999 LFS/(4185:4187):  No se encontro la key : 76
+[ERROR] 23:57:43:73 MEMORIA/(4190:4192):  NO se pudo realizar insert en FS en tabla : ANIMALS con value : "pups"
+[INFO] 00:07:10:965 MEMORIA/(4553:4555):  Se realizo create en el FS : ANIMALS con EC 2 5000
+[INFO] 00:07:12:130 MEMORIA/(4559:4561):  Se realizo create en el FS : METALS con EC 3 5000
+[ERROR] 00:07:15:491 LFS/(4559:4561):  No se encontro la key : 126
+[ERROR] 00:07:17:633 LFS/(4553:4555):  No se encontro la key : 65
+[ERROR] 00:07:18:735 LFS/(4559:4561):  No se encontro la key : 136
+[ERROR] 00:07:24:987 LFS/(4559:4561):  No se encontro la key : 136
+[INFO] 00:07:26:244 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "aluminiferous" y timestamp : 1260740760
+[INFO] 00:07:26:317 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "ferrous" y timestamp : 1260747054
+[INFO] 00:07:26:364 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "tigers" y timestamp : 1260737396
+[INFO] 00:07:26:394 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "biological" y timestamp : 1260744016
+[ERROR] 00:07:28:282 LFS/(4559:4561):  No se encontro la key : 105
+[ERROR] 00:07:29:430 LFS/(4565:4567):  No se encontro la key : 64
+[INFO] 00:07:30:990 Memoria/(4553:4555):  Llego select con VALUE : "aluminiferous"
+
+[INFO] 00:07:34:252 Memoria/(4553:4555):  Llego select con VALUE : "ferrous"
+
+[ERROR] 00:07:37:462 LFS/(4553:4555):  No se encontro la key : 16
+[INFO] 00:07:39:644 Memoria/(4565:4567):  Llego select con VALUE : "biological"
+
+[ERROR] 00:07:40:820 LFS/(4553:4555):  No se encontro la key : 135
+[INFO] 00:07:43:23 Memoria/(4565:4567):  Llego select con VALUE : "tigers"
+
+[ERROR] 00:07:46:204 LFS/(4565:4567):  No se encontro la key : 126
+[INFO] 00:07:48:264 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "warheads" y timestamp : 1260769318
+[INFO] 00:07:48:317 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "dysprosium" y timestamp : 1260759522
+[INFO] 00:07:48:357 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "auriferous" y timestamp : 1260766139
+[INFO] 00:07:48:403 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "tortoises" y timestamp : 1260746055
+[INFO] 00:07:48:455 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "warheads" y timestamp : 1260769318
+[INFO] 00:07:50:343 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "precious metals" y timestamp : 1260768311
+[INFO] 00:07:50:408 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "moly" y timestamp : 1260751291
+[INFO] 00:07:50:452 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "precious metals" y timestamp : 1260768311
+[INFO] 00:07:50:498 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "beasts" y timestamp : 1260771490
+[INFO] 00:07:50:523 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "primates" y timestamp : 1260748077
+[INFO] 00:07:52:318 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "iridium" y timestamp : 1260757262
+[INFO] 00:07:52:357 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "petrochemicals" y timestamp : 1260773508
+[INFO] 00:07:52:394 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "bullies" y timestamp : 1260750650
+[INFO] 00:07:52:439 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "livestock" y timestamp : 1260760529
+[INFO] 00:07:59:546 Memoria/(4553:4555):  Llego select con VALUE : "precious metals"
+
+[ERROR] 00:08:02:720 LFS/(4553:4555):  No se encontro la key : 128
+[INFO] 00:08:06:89 Memoria/(4553:4555):  Llego select con VALUE : "primates"
+
+[INFO] 00:08:07:178 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "nickel alloy" y timestamp : 1260778605
+[INFO] 00:08:07:227 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "bovine" y timestamp : 1260772713
+[INFO] 00:08:07:280 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "species" y timestamp : 1260787997
+[INFO] 00:08:07:308 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "biological" y timestamp : 1260784831
+[ERROR] 00:08:07:448 LFS/(4559:4561):  No se encontro la key : 36
+[INFO] 00:08:08:482 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "aluminous" y timestamp : 1260789007
+[INFO] 00:08:08:530 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "pets" y timestamp : 1260779618
+[INFO] 00:08:08:576 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "puppies" y timestamp : 1260782698
+[INFO] 00:08:08:613 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "heads" y timestamp : 1260785832
+[INFO] 00:08:09:668 Memoria/(4553:4555):  Llego select con VALUE : "petrochemicals"
+
+[INFO] 00:08:11:910 Memoria/(4565:4567):  Llego select con VALUE : "precious metals"
+
+[INFO] 00:08:13:147 Memoria/(4553:4555):  Llego select con VALUE : "heads"
+
+[INFO] 00:08:14:421 Memoria/(4559:4561):  Llego select con VALUE : "livestock"
+
+[ERROR] 00:08:15:699 LFS/(4565:4567):  No se encontro la key : 154
+[ERROR] 00:08:16:898 LFS/(4553:4555):  No se encontro la key : 16
+[INFO] 00:08:20:136 Memoria/(4553:4555):  Llego select con VALUE : "pets"
+
+[INFO] 00:08:21:317 Memoria/(4559:4561):  Llego select con VALUE : "aluminous"
+
+[INFO] 00:08:26:421 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "bronze" y timestamp : 1260774780
+[INFO] 00:08:26:461 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "europium" y timestamp : 1260777562
+[INFO] 00:08:26:502 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "industrials" y timestamp : 1260807657
+[INFO] 00:08:26:546 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "horses" y timestamp : 1260780646
+[INFO] 00:08:26:727 Memoria/(4553:4555):  Llego select con VALUE : "beasts"
+
+[INFO] 00:08:30:23 Memoria/(4553:4555):  Llego select con VALUE : "biological"
+
+[INFO] 00:08:34:115 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "monkeys" y timestamp : 1260808619
+[INFO] 00:08:34:161 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "mammals" y timestamp : 1260802177
+[INFO] 00:08:34:217 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "monkeys" y timestamp : 1260808619
+[INFO] 00:08:34:250 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "housecats" y timestamp : 1260811999
+[INFO] 00:08:34:344 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "primates" y timestamp : 1260815297
+[INFO] 00:08:35:166 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "bovine" y timestamp : 1260813005
+[INFO] 00:08:35:211 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "llamas" y timestamp : 1260792873
+[INFO] 00:08:35:295 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "beast" y timestamp : 1260806590
+[INFO] 00:08:35:432 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "arseholes" y timestamp : 1260816304
+[INFO] 00:08:35:568 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "bovine" y timestamp : 1260813005
+[INFO] 00:08:36:463 Memoria/(4553:4555):  Llego select con VALUE : "tigers"
+
+[INFO] 00:08:41:724 Memoria/(4565:4567):  Llego select con VALUE : "aluminous"
+
+[INFO] 00:08:42:998 Memoria/(4553:4555):  Llego select con VALUE : "heads"
+
+[INFO] 00:08:47:101 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "pups" y timestamp : 1260818600
+[INFO] 00:08:47:148 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "freaks" y timestamp : 1260821743
+[INFO] 00:08:47:194 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "bovine" y timestamp : 1260824775
+[INFO] 00:08:47:241 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "specimens" y timestamp : 1260828275
+[INFO] 00:08:47:504 Memoria/(4559:4561):  Llego select con VALUE : "puppies"
+
+[INFO] 00:08:50:878 Memoria/(4559:4561):  Llego select con VALUE : "biological"
+
+[INFO] 00:08:51:930 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "precious metal" y timestamp : 1260819825
+[INFO] 00:08:51:978 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "earths" y timestamp : 1260829282
+[INFO] 00:08:52:20 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "ruminants" y timestamp : 1260822746
+[INFO] 00:08:52:52 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "reptiles" y timestamp : 1260832774
+[INFO] 00:08:56:24 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "environ" y timestamp : 1260837183
+[INFO] 00:08:56:76 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "seals" y timestamp : 1260817327
+[INFO] 00:08:56:189 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "humans" y timestamp : 1260830331
+[INFO] 00:08:56:222 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "warheads" y timestamp : 1260833797
+[INFO] 00:08:57:260 Memoria/(4559:4561):  Llego select con VALUE : "pups"
+
+[INFO] 00:08:59:492 Memoria/(4553:4555):  Llego select con VALUE : "precious metal"
+
+[INFO] 00:09:04:570 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "metallic element" y timestamp : 1260836315
+[INFO] 00:09:04:628 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "idiots" y timestamp : 1260839193
+[INFO] 00:09:04:661 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "chickens" y timestamp : 1260842530
+[INFO] 00:09:04:700 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "wildlife" y timestamp : 1260845769
+[INFO] 00:09:06:829 Memoria/(4559:4561):  Llego select con VALUE : "environ"
+
+[ERROR] 00:09:10:129 LFS/(4559:4561):  No se encontro la key : 118
+[INFO] 00:09:12:196 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "cetaceans" y timestamp : 1260840477
+[INFO] 00:09:12:236 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "pigs" y timestamp : 1260846791
+[INFO] 00:09:12:284 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "calves" y timestamp : 1260849827
+[INFO] 00:09:12:316 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "elephants" y timestamp : 1260853177
+[INFO] 00:09:12:639 Memoria/(4553:4555):  Llego select con VALUE : "housecats"
+
+[INFO] 00:09:17:67 Memoria/(4559:4561):  Llego select con VALUE : "pets"
+
+[INFO] 00:09:18:104 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "steel" y timestamp : 1260852109
+[INFO] 00:09:18:155 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "carnal" y timestamp : 1260848959
+[INFO] 00:09:18:197 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "greyhounds" y timestamp : 1260855455
+[INFO] 00:09:18:244 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "calves" y timestamp : 1260858924
+[ERROR] 00:09:19:376 LFS/(4553:4555):  No se encontro la key : 153
+[INFO] 00:09:20:683 Memoria/(4559:4561):  Llego select con VALUE : "idiots"
+
+[ERROR] 00:09:22:921 LFS/(4553:4555):  No se encontro la key : 116
+[INFO] 00:09:24:294 Memoria/(4559:4561):  Llego select con VALUE : "mammals"
+
+[ERROR] 00:09:26:522 LFS/(4553:4555):  No se encontro la key : 66
+[INFO] 00:09:30:617 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "metallic" y timestamp : 1260847798
+[INFO] 00:09:30:658 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "copper" y timestamp : 1260871807
+[INFO] 00:09:30:697 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "feed" y timestamp : 1260857916
+[INFO] 00:09:30:748 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "feed" y timestamp : 1260844763
+[INFO] 00:09:34:652 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "pgm" y timestamp : 1260872813
+[INFO] 00:09:34:700 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "vanadium" y timestamp : 1260869569
+[INFO] 00:09:34:742 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "rabbits" y timestamp : 1260862503
+[INFO] 00:09:34:802 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "pigs" y timestamp : 1260875846
+[INFO] 00:09:35:805 Memoria/(4553:4555):  Llego select con VALUE : "moly"
+
+[INFO] 00:09:38:176 Memoria/(4565:4567):  Llego select con VALUE : "calves"
+
+[INFO] 00:09:40:659 Memoria/(4559:4561):  Llego select con VALUE : "reptiles"
+
+[ERROR] 00:09:43:921 LFS/(4559:4561):  No se encontro la key : 185
+[INFO] 00:09:45:219 Memoria/(4565:4567):  Llego select con VALUE : "feed"
+
+[INFO] 00:09:50:317 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "cerium" y timestamp : 1260881081
+[INFO] 00:09:50:370 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "felines" y timestamp : 1260875005
+[INFO] 00:09:50:409 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "beast" y timestamp : 1260877879
+[INFO] 00:09:50:449 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "coyotes" y timestamp : 1260891513
+[INFO] 00:09:50:784 Memoria/(4559:4561):  Llego select con VALUE : "primates"
+
+[INFO] 00:09:54:883 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "ferrochromium" y timestamp : 1260885929
+[INFO] 00:09:54:957 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "ferrochromium" y timestamp : 1260892520
+[INFO] 00:09:55:9 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "fluorspar" y timestamp : 1260896058
+[INFO] 00:09:55:67 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "critters" y timestamp : 1260879063
+[INFO] 00:09:55:886 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "loadings" y timestamp : 1260897078
+[INFO] 00:09:55:938 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "bears" y timestamp : 1260890505
+[INFO] 00:09:55:968 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "zinc" y timestamp : 1260876871
+[INFO] 00:09:56:89 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "bears" y timestamp : 1260890505
+[INFO] 00:09:56:136 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "bears" y timestamp : 1260890505
+[INFO] 00:09:56:228 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "metallic element" y timestamp : 1260893544
+[INFO] 00:09:56:312 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "bears" y timestamp : 1260890505
+[INFO] 00:09:57:231 Memoria/(4559:4561):  Llego select con VALUE : "auriferous"
+
+[INFO] 00:10:05:733 Memoria/(4553:4555):  Llego select con VALUE : "bovine"
+
+[INFO] 00:10:07:792 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "industrials" y timestamp : 1260899328
+[INFO] 00:10:07:829 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "cattle" y timestamp : 1260902500
+[INFO] 00:10:07:872 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "chickens" y timestamp : 1260905534
+[INFO] 00:10:07:917 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "coyotes" y timestamp : 1260908567
+[INFO] 00:10:09:817 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "iron ore" y timestamp : 1260904528
+[INFO] 00:10:09:849 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "barytes" y timestamp : 1260911011
+[INFO] 00:10:09:886 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "mice" y timestamp : 1260898124
+[INFO] 00:10:09:937 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "walruses" y timestamp : 1260907562
+[ERROR] 00:10:10:274 LFS/(4559:4561):  No se encontro la key : 167
+[INFO] 00:10:12:386 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "cupric sulfate" y timestamp : 1260903522
+[INFO] 00:10:12:425 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "industrials" y timestamp : 1260913099
+[INFO] 00:10:12:473 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "wolves" y timestamp : 1260900571
+[INFO] 00:10:12:531 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "puppies" y timestamp : 1260906556
+[INFO] 00:10:13:447 Memoria/(4553:4555):  Llego select con VALUE : "puppies"
+
+[INFO] 00:10:15:857 Memoria/(4565:4567):  Llego select con VALUE : "ferrochromium"
+
+[ERROR] 00:10:17:131 LFS/(4553:4555):  No se encontro la key : 94
+[ERROR] 00:10:20:405 LFS/(4553:4555):  No se encontro la key : 94
+[INFO] 00:10:23:891 Memoria/(4553:4555):  Llego select con VALUE : "pigs"
+
+[INFO] 00:10:25:937 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "fluorspar" y timestamp : 1260915584
+[INFO] 00:10:26:12 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "zinc" y timestamp : 1260923415
+[INFO] 00:10:26:60 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "birds" y timestamp : 1260912175
+[INFO] 00:10:26:122 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "savages" y timestamp : 1260926684
+[INFO] 00:10:30:2 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "nodules" y timestamp : 1260932203
+[INFO] 00:10:31:42 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "smelting" y timestamp : 1260929204
+[INFO] 00:10:31:91 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "nodules" y timestamp : 1260932203
+[INFO] 00:10:31:132 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "fools" y timestamp : 1260922408
+[INFO] 00:10:31:162 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "equines" y timestamp : 1260925677
+[ERROR] 00:10:31:696 LFS/(4559:4561):  No se encontro la key : 51
+[INFO] 00:10:34:187 Memoria/(4553:4555):  Llego select con VALUE : "nodules"
+
+[INFO] 00:10:39:278 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "sodium sulfate" y timestamp : 1260930384
+[INFO] 00:10:39:329 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "sodium sulphate" y timestamp : 1260933209
+[INFO] 00:10:39:376 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "aluminous" y timestamp : 1260936983
+[INFO] 00:10:39:404 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "wildlife" y timestamp : 1260940470
+[INFO] 00:10:41:643 Memoria/(4559:4561):  Llego select con VALUE : "elephants"
+
+[INFO] 00:10:43:711 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "ilmenite" y timestamp : 1260941537
+[INFO] 00:10:43:748 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "dogs" y timestamp : 1260931197
+[INFO] 00:10:43:788 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "flora" y timestamp : 1260934227
+[INFO] 00:10:43:828 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "otters" y timestamp : 1260944569
+[INFO] 00:10:44:360 Memoria/(4553:4555):  Llego select con VALUE : "chickens"
+
+[INFO] 00:10:47:777 Memoria/(4553:4555):  Llego select con VALUE : "copper"
+
+[INFO] 00:10:52:188 Memoria/(4559:4561):  Llego select con VALUE : "metallic element"
+
+[INFO] 00:10:53:245 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "biological" y timestamp : 1260943664
+[INFO] 00:10:53:288 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "buggers" y timestamp : 1260946916
+[INFO] 00:10:53:329 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "cows" y timestamp : 1260950649
+[INFO] 00:10:53:360 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "pet" y timestamp : 1260954065
+[INFO] 00:10:53:748 Memoria/(4565:4567):  Llego select con VALUE : "idiots"
+
+[INFO] 00:10:58:67 Memoria/(4553:4555):  Llego select con VALUE : "petrochemicals"
+
+[INFO] 00:10:59:102 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "rope" y timestamp : 1260942498
+[INFO] 00:10:59:144 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "gold-bearing" y timestamp : 1260949643
+[INFO] 00:10:59:192 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "fools" y timestamp : 1260953056
+[INFO] 00:10:59:229 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "fools" y timestamp : 1260953056
+[INFO] 00:10:59:249 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "whales" y timestamp : 1260960053
+[INFO] 00:11:01:414 Memoria/(4553:4555):  Llego select con VALUE : "sodium sulfate"
+
+[INFO] 00:11:09:543 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "industrials" y timestamp : 1260964348
+[INFO] 00:11:09:586 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "savages" y timestamp : 1260961060
+[INFO] 00:11:09:634 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "pet" y timestamp : 1260967704
+[INFO] 00:11:09:679 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "bears" y timestamp : 1260970744
+[INFO] 00:11:10:569 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "argentiferous" y timestamp : 1260955085
+[INFO] 00:11:10:615 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "contaminants" y timestamp : 1260959047
+[INFO] 00:11:10:667 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "tungsten" y timestamp : 1260968729
+[INFO] 00:11:10:709 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "rhodium" y timestamp : 1260971805
+[INFO] 00:11:11:642 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "ferromanganese" y timestamp : 1260963509
+[INFO] 00:11:11:685 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "precious metals" y timestamp : 1260969736
+[INFO] 00:11:11:725 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "iridium" y timestamp : 1260972772
+[INFO] 00:11:11:780 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "horses" y timestamp : 1260966695
+[INFO] 00:11:13:107 Memoria/(4565:4567):  Llego select con VALUE : "pet"
+
+[INFO] 00:11:19:525 Memoria/(4565:4567):  Llego select con VALUE : "aluminous"
+
+[INFO] 00:11:23:668 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "zircon" y timestamp : 1260974965
+[INFO] 00:11:23:713 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "golden" y timestamp : 1260978406
+[INFO] 00:11:23:757 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "wolves" y timestamp : 1260981455
+[INFO] 00:11:23:820 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "ruminants" y timestamp : 1260984828
+[INFO] 00:11:24:726 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "individuals" y timestamp : 1260976037
+[INFO] 00:11:24:790 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "turtles" y timestamp : 1260979414
+[INFO] 00:11:24:849 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "arseholes" y timestamp : 1260982468
+[INFO] 00:11:24:893 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "bullies" y timestamp : 1260985846
+[INFO] 00:11:27:562 Memoria/(4553:4555):  Llego select con VALUE : "humans"
+
+[INFO] 00:11:29:639 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "plastics" y timestamp : 1260986860
+[INFO] 00:11:29:694 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "rare earth" y timestamp : 1260989932
+[INFO] 00:11:29:744 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "cattle" y timestamp : 1260973935
+[INFO] 00:11:29:789 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "fools" y timestamp : 1260980427
+[INFO] 00:11:30:347 Memoria/(4565:4567):  Llego select con VALUE : "equines"
+
+[INFO] 00:11:31:891 Memoria/(4553:4555):  Llego select con VALUE : "ferrochromium"
+
+[INFO] 00:11:37:299 Memoria/(4565:4567):  Llego select con VALUE : "fluorspar"
+
+[INFO] 00:11:39:408 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "platinum" y timestamp : 1260989149
+[INFO] 00:11:39:482 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "gold" y timestamp : 1261000203
+[INFO] 00:11:39:532 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "pigs" y timestamp : 1260997168
+[INFO] 00:11:39:980 Memoria/(4559:4561):  Llego select con VALUE : "golden"
+
+[INFO] 00:11:41:578 Memoria/(4565:4567):  Llego select con VALUE : "bears"
+
+[ERROR] 00:11:44:160 LFS/(4559:4561):  No se encontro la key : 153
+[INFO] 00:11:46:257 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "steel" y timestamp : 1260999196
+[INFO] 00:11:46:304 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "savages" y timestamp : 1260988086
+[INFO] 00:11:46:351 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "creatures" y timestamp : 1261002648
+[INFO] 00:11:46:396 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "chickens" y timestamp : 1261006877
+[INFO] 00:11:54:377 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "bison" y timestamp : 1260998174
+[INFO] 00:11:54:456 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "puppies" y timestamp : 1261009456
+[INFO] 00:11:54:509 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "foxes" y timestamp : 1261012500
+[INFO] 00:11:54:577 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "snakes" y timestamp : 1261015555
+[INFO] 00:11:58:478 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "silver" y timestamp : 1261010652
+[INFO] 00:11:58:532 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "years" y timestamp : 1261013529
+[INFO] 00:11:58:588 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "years" y timestamp : 1261016579
+[INFO] 00:11:58:641 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "primates" y timestamp : 1261019641
+[INFO] 00:11:59:133 Memoria/(4553:4555):  Llego select con VALUE : "iron ore"
+
+[INFO] 00:12:03:230 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "nickel" y timestamp : 1261024413
+[INFO] 00:12:03:302 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "environ" y timestamp : 1261014546
+[INFO] 00:12:03:395 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "golden" y timestamp : 1261017587
+[INFO] 00:12:03:524 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "nickel" y timestamp : 1261024413
+[INFO] 00:12:03:560 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "cetaceans" y timestamp : 1261020651
+[INFO] 00:12:05:872 Memoria/(4553:4555):  Llego select con VALUE : "precious metal"
+
+[INFO] 00:12:08:625 Memoria/(4565:4567):  Llego select con VALUE : "chickens"
+
+[INFO] 00:12:08:680 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "aluminum" y timestamp : 1261018835
+[INFO] 00:12:08:732 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "argentiferous" y timestamp : 1261021660
+[INFO] 00:12:08:769 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "bimetal" y timestamp : 1261025424
+[INFO] 00:12:08:805 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "metallurgical" y timestamp : 1261028470
+[INFO] 00:12:11:456 Memoria/(4559:4561):  Llego select con VALUE : "freaks"
+
+[INFO] 00:12:13:47 Memoria/(4565:4567):  Llego select con VALUE : "precious metals"
+
+[INFO] 00:12:19:741 Memoria/(4565:4567):  Llego select con VALUE : "sodium sulfate"
+
+[INFO] 00:12:20:865 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "palladium" y timestamp : 1261026449
+[INFO] 00:12:20:942 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "rhenium" y timestamp : 1261038339
+[INFO] 00:12:20:992 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "bullion" y timestamp : 1261041379
+[INFO] 00:12:21:41 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "canines" y timestamp : 1261034107
+[INFO] 00:12:21:880 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "metallike" y timestamp : 1261039348
+[INFO] 00:12:21:932 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "weevils" y timestamp : 1261027828
+[INFO] 00:12:21:982 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "bassets" y timestamp : 1261031154
+[INFO] 00:12:22:25 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "beasts" y timestamp : 1261042387
+[INFO] 00:12:25:540 Memoria/(4559:4561):  Llego select con VALUE : "canines"
+
+[INFO] 00:12:29:211 Memoria/(4559:4561):  Llego select con VALUE : "savages"
+
+[INFO] 00:12:30:310 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "raw materials" y timestamp : 1261040357
+[INFO] 00:12:30:359 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "fluorspar" y timestamp : 1261050819
+[INFO] 00:12:30:406 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "animate being" y timestamp : 1261047101
+[INFO] 00:12:34:388 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "antimonial" y timestamp : 1261045304
+[INFO] 00:12:34:439 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "environ" y timestamp : 1261055568
+[INFO] 00:12:34:509 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "fleshly" y timestamp : 1261048123
+[INFO] 00:12:34:561 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "equines" y timestamp : 1261051885
+[INFO] 00:12:37:260 Memoria/(4565:4567):  Llego select con VALUE : "savages"
+
+[INFO] 00:12:41:973 Memoria/(4553:4555):  Llego select con VALUE : "humans"
+
+[INFO] 00:12:43:24 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "columbium" y timestamp : 1261063573
+[INFO] 00:12:43:73 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "weevils" y timestamp : 1261046287
+[INFO] 00:12:43:135 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "raptors" y timestamp : 1261056576
+[INFO] 00:12:43:184 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "horses" y timestamp : 1261059643
+[INFO] 00:12:43:883 Memoria/(4559:4561):  Llego select con VALUE : "humans"
+
+[INFO] 00:12:45:485 Memoria/(4565:4567):  Llego select con VALUE : "argentiferous"
+
+[INFO] 00:12:49:663 Memoria/(4565:4567):  Llego select con VALUE : "horses"
+
+[INFO] 00:12:53:814 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "superalloy" y timestamp : 1261062608
+[INFO] 00:12:53:884 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "animales" y timestamp : 1261058818
+[INFO] 00:12:53:945 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "cetaceans" y timestamp : 1261070775
+[INFO] 00:12:53:992 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "puppies" y timestamp : 1261074955
+[INFO] 00:12:55:846 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "argentiferous" y timestamp : 1261054664
+[INFO] 00:12:55:900 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "industrials" y timestamp : 1261057585
+[INFO] 00:12:55:952 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "platinum" y timestamp : 1261064581
+[INFO] 00:12:55:980 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "carbides" y timestamp : 1261076993
+[INFO] 00:12:56:740 Memoria/(4565:4567):  Llego select con VALUE : "pet"
+
+[INFO] 00:12:59:500 Memoria/(4559:4561):  Llego select con VALUE : "mammals"
+
+[INFO] 00:13:05:695 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "rare earth" y timestamp : 1261071782
+[INFO] 00:13:05:749 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "earths" y timestamp : 1261086837
+[INFO] 00:13:05:788 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "individuals" y timestamp : 1261075980
+[INFO] 00:13:05:852 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "tigers" y timestamp : 1261079052
+[INFO] 00:13:07:440 Memoria/(4565:4567):  Llego select con VALUE : "pigs"
+
+[INFO] 00:13:08:590 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "smelting" y timestamp : 1261078254
+[INFO] 00:13:08:636 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "wolframite" y timestamp : 1261082063
+[INFO] 00:13:08:712 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "rare earth" y timestamp : 1261088892
+[INFO] 00:13:08:757 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "chickens" y timestamp : 1261085820
+[INFO] 00:13:12:452 Memoria/(4553:4555):  Llego select con VALUE : "years"
+
+[INFO] 00:13:17:563 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "indium" y timestamp : 1261087859
+[INFO] 00:13:17:592 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "commodities" y timestamp : 1261098737
+[INFO] 00:13:17:661 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "dogs" y timestamp : 1261084792
+[INFO] 00:13:17:697 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "monsters" y timestamp : 1261094761
+[INFO] 00:13:19:585 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "petrochemicals" y timestamp : 1261090112
+[INFO] 00:13:19:651 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "nickel" y timestamp : 1261093753
+[INFO] 00:13:19:704 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "physical" y timestamp : 1261097730
+[INFO] 00:13:19:733 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "stuffs" y timestamp : 1261100768
+[INFO] 00:13:20:248 Memoria/(4559:4561):  Llego select con VALUE : "petrochemicals"
+
+[INFO] 00:13:22:572 Memoria/(4565:4567):  Llego select con VALUE : "biological"
+
+[INFO] 00:13:26:733 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "sodium sulphate" y timestamp : 1261099762
+[INFO] 00:13:26:778 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "tantalum" y timestamp : 1261102798
+[INFO] 00:13:26:833 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "pigs" y timestamp : 1261093020
+[INFO] 00:13:26:909 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "herds" y timestamp : 1261107898
+[INFO] 00:13:33:427 Memoria/(4553:4555):  Llego select con VALUE : "steel"
+
+[INFO] 00:13:35:491 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "zircon" y timestamp : 1261101954
+[INFO] 00:13:35:524 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "barium sulphate" y timestamp : 1261109911
+[INFO] 00:13:35:582 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "nonferrous" y timestamp : 1261112956
+[INFO] 00:13:35:640 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "wolves" y timestamp : 1261115998
+[INFO] 00:13:37:529 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "precious metal" y timestamp : 1261108980
+[INFO] 00:13:37:568 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : METALS con value : "sodium sulfate" y timestamp : 1261118701
+[INFO] 00:13:37:613 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "equines" y timestamp : 1261111996
+[INFO] 00:13:37:648 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "monkeys" y timestamp : 1261114990
+[INFO] 00:13:38:179 Memoria/(4559:4561):  Llego select con VALUE : "earths"
+
+[INFO] 00:13:40:647 Memoria/(4565:4567):  Llego select con VALUE : "warheads"
+
+[INFO] 00:13:43:296 Memoria/(4559:4561):  Llego select con VALUE : "ferromanganese"
+
+[INFO] 00:13:44:911 Memoria/(4565:4567):  Llego select con VALUE : "ilmenite"
+
+[INFO] 00:13:45:981 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "tinny" y timestamp : 1261125991
+[INFO] 00:13:46:53 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "beasts" y timestamp : 1261111167
+[INFO] 00:13:46:152 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "pups" y timestamp : 1261113982
+[INFO] 00:13:46:432 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "fauna" y timestamp : 1261120735
+[INFO] 00:13:47:957 Memoria/(4553:4555):  Llego select con VALUE : "creatures"
+
+[INFO] 00:13:49:502 Memoria/(4559:4561):  Llego select con VALUE : "metallic element"
+
+[INFO] 00:13:54:79 Memoria/(4565:4567):  Llego select con VALUE : "plastics"
+
+[INFO] 00:13:58:806 Memoria/(4553:4555):  Llego select con VALUE : "golden"
+
+[INFO] 00:14:03:932 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "bimetal" y timestamp : 1261119897
+[INFO] 00:14:03:996 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "electroforming" y timestamp : 1261134783
+[INFO] 00:14:04:31 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "bullion" y timestamp : 1261141407
+[INFO] 00:14:04:85 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "barium sulphate" y timestamp : 1261145105
+[INFO] 00:14:04:860 Memoria/(4565:4567):  Llego select con VALUE : "humans"
+
+[INFO] 00:14:06:937 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "brutes" y timestamp : 1261136815
+[INFO] 00:14:06:996 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "arseholes" y timestamp : 1261140394
+[INFO] 00:14:07:49 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "felines" y timestamp : 1261144096
+[INFO] 00:14:07:94 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "belugas" y timestamp : 1261147138
+[INFO] 00:14:08:782 Memoria/(4565:4567):  Llego select con VALUE : "felines"
+
+[INFO] 00:14:09:908 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "hydrometallurgy" y timestamp : 1261139375
+[INFO] 00:14:09:939 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "tellurium" y timestamp : 1261146128
+[INFO] 00:14:09:981 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "ferrochromium" y timestamp : 1261150160
+[INFO] 00:14:10:28 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "veterinary" y timestamp : 1261135804
+[INFO] 00:14:10:754 Memoria/(4553:4555):  Llego select con VALUE : "wildlife"
+
+[INFO] 00:14:12:464 Memoria/(4559:4561):  Llego select con VALUE : "tinny"
+
+[INFO] 00:14:24:430 Memoria/(4553:4555):  Llego select con VALUE : "pups"
+
+[INFO] 00:14:25:479 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "wolves" y timestamp : 1261151356
+[INFO] 00:14:25:523 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "heads" y timestamp : 1261159792
+[INFO] 00:14:25:592 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "otters" y timestamp : 1261162830
+[INFO] 00:14:25:642 MEMORIA/(4559:4561):  Se realizo insert en FS en tabla : ANIMALS con value : "raptors" y timestamp : 1261165869
+[INFO] 00:14:26:538 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "indium" y timestamp : 1261163837
+[INFO] 00:14:26:586 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : METALS con value : "moly" y timestamp : 1261166878
+[INFO] 00:14:26:665 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "hogs" y timestamp : 1261157740
+[INFO] 00:14:26:752 MEMORIA/(4565:4567):  Se realizo insert en FS en tabla : ANIMALS con value : "pets" y timestamp : 1261160798
+[INFO] 00:14:29:205 Memoria/(4559:4561):  Llego select con VALUE : "metallurgical"
+
+[INFO] 00:14:32:481 Memoria/(4565:4567):  Llego select con VALUE : "wolves"
+
+[INFO] 00:14:33:562 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "ferro" y timestamp : 1261158784
+[INFO] 00:14:33:623 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "metallurgy" y timestamp : 1261161820
+[INFO] 00:14:33:681 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : METALS con value : "halides" y timestamp : 1261171768
+[INFO] 00:14:33:733 MEMORIA/(4553:4555):  Se realizo insert en FS en tabla : ANIMALS con value : "monsters" y timestamp : 1261164861
+[INFO] 00:14:34:412 Memoria/(4553:4555):  Llego select con VALUE : "precious metals"
+
+[INFO] 00:14:39:181 Memoria/(4559:4561):  Llego select con VALUE : "steel"
+
+[INFO] 00:14:41:460 Memoria/(4565:4567):  Llego select con VALUE : "herds"
+
+[INFO] 00:18:18:769 Memoria/(4553:4555):  Llego select con VALUE : 
+[INFO] 12:30:04:777 MEMORIA/(4567:4569):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 12:30:04:947 MEMORIA/(4567:4569):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1305309123
+[INFO] 12:30:04:976 MEMORIA/(4567:4569):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1305309127
+[INFO] 12:30:04:994 MEMORIA/(4567:4569):  Se realizo insert en FS en tabla : POSTRES con value : °Çi·°Çi·"Almendrado" y timestamp : 1305309168
+[INFO] 12:30:05:31 MEMORIA/(4567:4569):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1305309181
+[INFO] 12:30:38:983 MEMORIA/(4567:4570):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1305309287
+[INFO] 12:49:06:530 MEMORIA/(5198:5213):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 12:54:18:476 MEMORIA/(5316:5318):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 12:56:48:714 MEMORIA/(5409:5411):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 12:57:48:985 MEMORIA/(5409:5411):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1306918808
+[INFO] 12:57:48:990 MEMORIA/(5409:5411):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1306921649
+[INFO] 12:57:49:6 MEMORIA/(5409:5411):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1306964956
+[INFO] 12:57:49:35 MEMORIA/(5409:5411):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1306971129
+[INFO] 13:20:28:401 MEMORIA/(5869:5871):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 13:20:28:511 MEMORIA/(5869:5871):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1308332682
+[INFO] 13:20:28:541 MEMORIA/(5869:5871):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1308332719
+[INFO] 13:20:28:557 MEMORIA/(5869:5871):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1308332725
+[INFO] 13:20:28:573 MEMORIA/(5869:5871):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1308332747
+[INFO] 13:21:17:199 MEMORIA/(5869:5872):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1308332831
+[INFO] 13:22:45:363 Memoria/(5869:5871):  Llego select con VALUE : Alfajor
+
+[INFO] 13:22:45:435 Memoria/(5869:5871):  Llego select con VALUE : Mouse
+
+[INFO] 13:22:45:481 Memoria/(5869:5871):  Llego select con VALUE : "Almendrado"
+
+[INFO] 13:22:45:525 Memoria/(5869:5871):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 13:22:45:561 Memoria/(5869:5871):  Llego select con VALUE : "Muffin"
+
+[INFO] 13:22:45:620 MEMORIA/(5869:5871):  Se realizo insert en FS en tabla : POSTRES con value : "Chocolate" y timestamp : 1308469826
+[INFO] 13:22:45:638 MEMORIA/(5869:5871):  Se realizo insert en FS en tabla : POSTRES con value : "Torta de ricota" y timestamp : 1308469872
+[INFO] 13:22:45:653 MEMORIA/(5869:5871):  Se realizo insert en FS en tabla : POSTRES con value : "Gelatina" y timestamp : 1308469872
+[INFO] 13:40:59:383 MEMORIA/(6275:6277):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 13:40:59:451 MEMORIA/(6275:6277):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1309563662
+[INFO] 13:40:59:477 MEMORIA/(6275:6277):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1309563667
+[INFO] 13:40:59:495 MEMORIA/(6275:6277):  Se realizo insert en FS en tabla : POSTRES con value : °÷t·°÷t·"Almendrado" y timestamp : 1309563677
+[INFO] 13:40:59:525 MEMORIA/(6275:6277):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1309563691
+[INFO] 13:42:19:481 MEMORIA/(6348:6350):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 13:42:19:589 MEMORIA/(6348:6350):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1309643754
+[INFO] 13:42:19:612 MEMORIA/(6348:6350):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1309643799
+[INFO] 13:42:19:643 MEMORIA/(6348:6350):  Se realizo insert en FS en tabla : POSTRES con value : °—p·°—p·"Almendrado" y timestamp : 1309643802
+[INFO] 13:42:19:655 MEMORIA/(6348:6350):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1309643813
+[INFO] 13:44:58:532 MEMORIA/(6420:6422):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 13:44:58:622 MEMORIA/(6420:6422):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1309802800
+[INFO] 13:44:58:637 MEMORIA/(6420:6422):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1309802808
+[INFO] 13:44:58:660 MEMORIA/(6420:6422):  Se realizo insert en FS en tabla : POSTRES con value : °çu·°çu·"Almendrado" y timestamp : 1309802841
+[INFO] 13:44:58:704 MEMORIA/(6420:6422):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1309802858
+[INFO] 13:48:07:107 MEMORIA/(6481:6483):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 13:50:27:431 MEMORIA/(6481:6483):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1310051607
+[INFO] 13:50:27:445 MEMORIA/(6481:6483):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1310057453
+[INFO] 13:50:27:464 MEMORIA/(6481:6483):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1310107365
+[INFO] 13:50:27:476 MEMORIA/(6481:6483):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1310125244
+[INFO] 14:14:29:255 MEMORIA/(7111:7113):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 14:14:29:345 MEMORIA/(7111:7113):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1311573521
+[INFO] 14:14:29:370 MEMORIA/(7111:7113):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1311573529
+[INFO] 14:14:29:393 MEMORIA/(7111:7113):  Se realizo insert en FS en tabla : POSTRES con value : °·n·°·n·"Almendrado" y timestamp : 1311573566
+[INFO] 14:14:29:437 MEMORIA/(7111:7113):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1311573579
+[INFO] 15:52:16:594 MEMORIA/(4193:4195):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 15:53:47:893 MEMORIA/(4193:4196):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1317453723
+[INFO] 15:53:47:914 MEMORIA/(4193:4196):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1317465828
+[INFO] 15:53:47:926 MEMORIA/(4193:4196):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1317487150
+[INFO] 15:53:47:947 MEMORIA/(4193:4196):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1317497178
+[ERROR] 15:54:58:2 LFS/(4193:4195):  No se encontro la key : 819
+[INFO] 16:05:16:11 MEMORIA/(4410:4413):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 16:05:59:239 MEMORIA/(4410:4413):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1318233936
+[INFO] 16:05:59:251 MEMORIA/(4410:4413):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1318242666
+[INFO] 16:05:59:272 MEMORIA/(4410:4413):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1318249926
+[INFO] 16:05:59:282 MEMORIA/(4410:4413):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1318255382
+[INFO] 16:08:19:122 Memoria/(4410:4413):  Llego select con VALUE : Alfajor
+
+[INFO] 16:08:45:396 Memoria/(4410:4413):  Llego select con VALUE : Mousse
+
+[INFO] 16:08:53:432 Memoria/(4410:4413):  Llego select con VALUE : "Almendrado"
+
+[INFO] 16:08:59:604 Memoria/(4410:4413):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 16:10:29:636 Memoria/(4410:4413):  Llego select con VALUE : Alfajor
+
+[INFO] 16:12:20:573 MEMORIA/(4515:4518):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 16:12:50:22 MEMORIA/(4515:4518):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1318649138
+[INFO] 16:12:50:27 MEMORIA/(4515:4518):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1318654164
+[INFO] 16:12:50:43 MEMORIA/(4515:4518):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1318658712
+[INFO] 16:12:50:49 MEMORIA/(4515:4518):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1318669227
+[INFO] 16:13:42:132 Memoria/(4515:4518):  Llego select con VALUE : Alfajor
+
+[INFO] 16:13:46:624 Memoria/(4515:4518):  Llego select con VALUE : Mousse
+
+[INFO] 16:13:51:95 Memoria/(4515:4518):  Llego select con VALUE : "Almendrado"
+
+[INFO] 16:13:56:799 Memoria/(4515:4518):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 16:17:42:916 Memoria/(4515:4518):  Llego select con VALUE : Alfajor
+
+[INFO] 16:20:26:949 Memoria/(4515:4518):  Llego select con VALUE : Mousse
+
+[INFO] 16:22:46:840 Memoria/(4515:4518):  Llego select con VALUE : "Almendrado"
+
+[INFO] 16:25:22:580 MEMORIA/(4667:4670):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1319403048
+[INFO] 16:25:22:594 MEMORIA/(4667:4670):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1319410398
+[INFO] 16:25:22:633 MEMORIA/(4667:4670):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1319386506
+[INFO] 16:25:22:654 MEMORIA/(4667:4670):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1319392651
+[ERROR] 16:26:03:182 LFS/(4680:4683):  No se encontro la key : 100
+[ERROR] 16:27:58:509 LFS/(4761:4764):  No se encontro la key : 100
+[INFO] 16:32:09:257 MEMORIA/(4856:4859):  Se realizo create en el FS : POSTRES con SC 3 60000
+[ERROR] 16:33:21:41 LFS/(4877:4880):  No se encontro la key : 100
+[ERROR] 16:33:29:521 LFS/(4877:4880):  No se encontro la key : 80
+[ERROR] 16:33:45:523 LFS/(4877:4880):  No se encontro la key : 100
+[ERROR] 16:34:13:88 LFS/(4877:4880):  No se encontro la key : 100
+[INFO] 16:35:14:867 MEMORIA/(4901:4904):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 16:35:42:54 MEMORIA/(4901:4904):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1320023561
+[INFO] 16:35:42:60 MEMORIA/(4901:4904):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1320027352
+[INFO] 16:35:42:70 MEMORIA/(4901:4904):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1320031820
+[INFO] 16:35:42:85 MEMORIA/(4901:4904):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1320036040
+[INFO] 16:36:21:624 Memoria/(4901:4904):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 16:44:29:962 MEMORIA/(5061:5064):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 16:44:52:224 MEMORIA/(5061:5064):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1320579096
+[INFO] 16:44:52:232 MEMORIA/(5061:5064):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1320583124
+[INFO] 16:44:52:242 MEMORIA/(5061:5064):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1320586867
+[INFO] 16:44:52:255 MEMORIA/(5061:5064):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1320590383
+[INFO] 16:45:16:987 MEMORIA/(5061:5064):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1320610983
+[INFO] 16:46:23:208 Memoria/(5061:5064):  Llego select con VALUE : AlFAJOR
+
+[INFO] 16:46:28:961 Memoria/(5061:5064):  Llego select con VALUE : Mousse
+
+[INFO] 16:46:33:446 Memoria/(5061:5064):  Llego select con VALUE : "Almendrado"
+
+[INFO] 16:46:37:642 Memoria/(5061:5064):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 16:46:42:186 Memoria/(5061:5064):  Llego select con VALUE : "Muffin"
+
+[INFO] 16:47:03:490 MEMORIA/(5061:5064):  Se realizo insert en FS en tabla : POSTRES con value : "Chocolate" y timestamp : 1320712203
+[INFO] 16:47:03:508 MEMORIA/(5061:5064):  Se realizo insert en FS en tabla : POSTRES con value : "Torta de ricota" y timestamp : 1320718368
+[INFO] 16:47:03:529 MEMORIA/(5061:5064):  Se realizo insert en FS en tabla : POSTRES con value : "Gelatina" y timestamp : 1320722849
+[INFO] 16:52:11:936 MEMORIA/(5260:5262):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 16:52:12:91 MEMORIA/(5260:5262):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1321036208
+[INFO] 16:52:12:108 MEMORIA/(5260:5262):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1321036219
+[INFO] 16:52:12:133 MEMORIA/(5260:5262):  Se realizo insert en FS en tabla : POSTRES con value : °÷p·°÷p·"Almendrado" y timestamp : 1321036255
+[INFO] 16:52:12:163 MEMORIA/(5260:5262):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1321036272
+[INFO] 16:53:07:819 MEMORIA/(5260:5263):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1321036421
+[INFO] 16:54:15:180 Memoria/(5260:5262):  Llego select con VALUE : Alfajor
+
+[INFO] 16:54:15:292 Memoria/(5260:5262):  Llego select con VALUE : Mousse
+
+[INFO] 16:59:43:330 MEMORIA/(5475:5477):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 16:59:43:512 MEMORIA/(5475:5477):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1321487612
+[INFO] 16:59:43:539 MEMORIA/(5475:5477):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1321487627
+[INFO] 16:59:43:575 MEMORIA/(5475:5477):  Se realizo insert en FS en tabla : POSTRES con value : °Gu·°Gu·"Almendrado" y timestamp : 1321487662
+[INFO] 16:59:43:618 MEMORIA/(5475:5477):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1321487704
+[INFO] 17:02:40:562 MEMORIA/(5549:5551):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 17:02:40:715 MEMORIA/(5549:5551):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1321664852
+[INFO] 17:02:40:759 MEMORIA/(5549:5551):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1321664887
+[INFO] 17:02:40:768 MEMORIA/(5549:5551):  Se realizo insert en FS en tabla : POSTRES con value : °Wn·°Wn·"Almendrado" y timestamp : 1321664918
+[INFO] 17:02:40:776 MEMORIA/(5549:5551):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1321664946
+[INFO] 17:12:16:741 MEMORIA/(5613:5615):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 17:15:50:745 MEMORIA/(5816:5818):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 17:15:50:843 MEMORIA/(5816:5818):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1322455022
+[INFO] 17:15:50:859 MEMORIA/(5816:5818):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1322455028
+[INFO] 17:15:50:871 MEMORIA/(5816:5818):  Se realizo insert en FS en tabla : POSTRES con value : °—u·°—u·"Almendrado" y timestamp : 1322455062
+[INFO] 17:15:50:884 MEMORIA/(5816:5818):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1322455071
+[INFO] 17:17:18:707 MEMORIA/(5879:5881):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 17:17:18:794 MEMORIA/(5879:5881):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1322542987
+[INFO] 17:17:18:801 MEMORIA/(5879:5881):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1322542992
+[INFO] 17:17:18:808 MEMORIA/(5879:5881):  Se realizo insert en FS en tabla : POSTRES con value : @"Almendrado" y timestamp : 1322543019
+[INFO] 17:17:18:827 MEMORIA/(5879:5881):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1322543024
+[ERROR] 17:20:14:675 MEMORIA/(5973:5975):  No se pudo realizar create en el FS 
+[INFO] 17:20:14:747 MEMORIA/(5973:5975):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1322718945
+[INFO] 17:20:14:755 MEMORIA/(5973:5975):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1322718983
+[INFO] 17:20:14:772 MEMORIA/(5973:5975):  Se realizo insert en FS en tabla : POSTRES con value : @"Almendrado" y timestamp : 1322718986
+[INFO] 17:20:14:785 MEMORIA/(5973:5975):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1322718987
+[INFO] 17:21:48:229 MEMORIA/(6021:6023):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 17:21:48:302 MEMORIA/(6021:6023):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1322812501
+[INFO] 17:21:48:320 MEMORIA/(6021:6023):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1322812508
+[INFO] 17:21:48:349 MEMORIA/(6021:6023):  Se realizo insert en FS en tabla : POSTRES con value : @"Almendrado" y timestamp : 1322812540
+[INFO] 17:21:48:368 MEMORIA/(6021:6023):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1322812547
+[INFO] 17:23:31:891 MEMORIA/(6074:6076):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 17:23:31:959 MEMORIA/(6074:6076):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1322916159
+[INFO] 17:23:31:978 MEMORIA/(6074:6076):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1322916199
+[INFO] 17:23:31:985 MEMORIA/(6074:6076):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1322916200
+[INFO] 17:23:32:4 MEMORIA/(6074:6076):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1322916201
+[INFO] 17:27:37:694 MEMORIA/(6169:6171):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 17:27:37:760 MEMORIA/(6169:6171):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1323161966
+[INFO] 17:27:37:795 MEMORIA/(6169:6171):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1323161970
+[INFO] 17:27:37:829 MEMORIA/(6169:6171):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1323162002
+[INFO] 17:27:37:850 MEMORIA/(6169:6171):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1323162004
+[INFO] 17:27:51:79 MEMORIA/(6169:6172):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1323162107
+[INFO] 17:29:02:443 Memoria/(6169:6171):  Llego select con VALUE : Alfajor
+
+[INFO] 17:29:02:481 Memoria/(6169:6171):  Llego select con VALUE : Mousse
+
+[INFO] 17:29:02:530 Memoria/(6169:6171):  Llego select con VALUE : "Almendrado"
+
+[INFO] 17:29:02:588 Memoria/(6169:6171):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 17:29:02:661 Memoria/(6169:6171):  Llego select con VALUE : "Muffin"
+
+[INFO] 17:29:02:744 MEMORIA/(6169:6171):  Se realizo insert en FS en tabla : POSTRES con value : "Chocolate" y timestamp : 1323246937
+[INFO] 17:29:02:777 MEMORIA/(6169:6171):  Se realizo insert en FS en tabla : POSTRES con value : "Torta de ricota" y timestamp : 1323246970
+[INFO] 17:29:02:796 MEMORIA/(6169:6171):  Se realizo insert en FS en tabla : POSTRES con value : "Gelatina" y timestamp : 1323246975
+[INFO] 17:46:34:193 MEMORIA/(6600:6602):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 17:46:34:275 MEMORIA/(6600:6602):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1324298459
+[INFO] 17:46:34:304 MEMORIA/(6600:6602):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1324298471
+[INFO] 17:46:34:347 MEMORIA/(6600:6602):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1324298509
+[INFO] 17:46:34:359 MEMORIA/(6600:6602):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1324298517
+[INFO] 17:46:45:151 MEMORIA/(6600:6603):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1324298615
+[INFO] 17:47:36:496 Memoria/(6600:6602):  Llego select con VALUE : Alfajor
+
+[INFO] 17:47:36:557 Memoria/(6600:6602):  Llego select con VALUE : Mousse
+
+[INFO] 17:47:36:609 Memoria/(6600:6602):  Llego select con VALUE : "Almendrado"
+
+[INFO] 17:47:36:694 Memoria/(6600:6602):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 17:47:36:733 Memoria/(6600:6602):  Llego select con VALUE : "Muffin"
+
+[INFO] 17:47:36:809 MEMORIA/(6600:6602):  Se realizo insert en FS en tabla : POSTRES con value : "Chocolate" y timestamp : 1324361004
+[INFO] 17:47:36:831 MEMORIA/(6600:6602):  Se realizo insert en FS en tabla : POSTRES con value : "Torta de ricota" y timestamp : 1324361038
+[INFO] 17:47:36:866 MEMORIA/(6600:6602):  Se realizo insert en FS en tabla : POSTRES con value : "Gelatina" y timestamp : 1324361040
+[INFO] 18:09:50:304 MEMORIA/(7048:7050):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 18:09:50:368 MEMORIA/(7048:7050):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1325694573
+[INFO] 18:09:50:387 MEMORIA/(7048:7050):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1325694608
+[INFO] 18:09:50:394 MEMORIA/(7048:7050):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1325694609
+[INFO] 18:09:50:415 MEMORIA/(7048:7050):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1325694610
+[INFO] 18:10:00:609 MEMORIA/(7048:7051):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1325694671
+[INFO] 18:12:17:472 Memoria/(7048:7050):  Llego select con VALUE : Alfajor
+
+[INFO] 18:12:17:539 Memoria/(7048:7050):  Llego select con VALUE : Mousse
+
+[INFO] 18:12:17:590 Memoria/(7048:7050):  Llego select con VALUE : "Almendrado"
+
+[INFO] 18:12:17:640 Memoria/(7048:7050):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 18:12:17:664 Memoria/(7048:7050):  Llego select con VALUE : "Muffin"
+
+[INFO] 18:12:17:725 MEMORIA/(7048:7050):  Se realizo insert en FS en tabla : POSTRES con value : "Chocolate" y timestamp : 1325841933
+[INFO] 18:12:17:746 MEMORIA/(7048:7050):  Se realizo insert en FS en tabla : POSTRES con value : "Torta de ricota" y timestamp : 1325841967
+[INFO] 18:12:17:775 MEMORIA/(7048:7050):  Se realizo insert en FS en tabla : POSTRES con value : "Gelatina" y timestamp : 1325841971
+[INFO] 18:26:07:833 MEMORIA/(7338:7340):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 18:26:07:951 MEMORIA/(7338:7340):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1326672104
+[INFO] 18:26:07:977 MEMORIA/(7338:7340):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1326672115
+[INFO] 18:26:07:991 MEMORIA/(7338:7340):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1326672167
+[INFO] 18:26:08:14 MEMORIA/(7338:7340):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1326672170
+[INFO] 18:26:16:603 MEMORIA/(7338:7341):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1326672273
+[INFO] 18:27:40:675 Memoria/(7338:7340):  Llego select con VALUE : Alfajor
+
+[INFO] 18:27:40:742 Memoria/(7338:7340):  Llego select con VALUE : Mousse
+
+[INFO] 18:27:40:785 Memoria/(7338:7340):  Llego select con VALUE : "Almendrado"
+
+[INFO] 18:27:40:844 Memoria/(7338:7340):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 18:27:40:876 Memoria/(7338:7340):  Llego select con VALUE : "Muffin"
+
+[INFO] 18:27:40:937 MEMORIA/(7338:7340):  Se realizo insert en FS en tabla : POSTRES con value : "Chocolate" y timestamp : 1326765142
+[INFO] 18:27:40:963 MEMORIA/(7338:7340):  Se realizo insert en FS en tabla : POSTRES con value : "Torta de ricota" y timestamp : 1326765182
+[INFO] 18:27:40:979 MEMORIA/(7338:7340):  Se realizo insert en FS en tabla : POSTRES con value : "Gelatina" y timestamp : 1326765182
+[INFO] 18:40:34:875 MEMORIA/(7562:7564):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 18:40:34:982 MEMORIA/(7562:7564):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1327539156
+[INFO] 18:40:35:10 MEMORIA/(7562:7564):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1327539158
+[INFO] 18:40:35:50 MEMORIA/(7562:7564):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1327539200
+[INFO] 18:40:35:61 MEMORIA/(7562:7564):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1327539209
+[INFO] 18:40:44:578 MEMORIA/(7562:7565):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1327539322
+[INFO] 18:41:30:562 Memoria/(7562:7564):  Llego select con VALUE : Alfajor
+
+[INFO] 18:41:30:640 Memoria/(7562:7564):  Llego select con VALUE : Mousse
+
+[INFO] 18:41:30:702 Memoria/(7562:7564):  Llego select con VALUE : "Almendrado"
+
+[INFO] 18:41:30:770 Memoria/(7562:7564):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 18:41:30:827 Memoria/(7562:7564):  Llego select con VALUE : "Muffin"
+
+[INFO] 18:41:30:918 MEMORIA/(7562:7564):  Se realizo insert en FS en tabla : POSTRES con value : "Chocolate" y timestamp : 1327595103
+[INFO] 18:41:30:930 MEMORIA/(7562:7564):  Se realizo insert en FS en tabla : POSTRES con value : "Torta de ricota" y timestamp : 1327595138
+[INFO] 18:41:30:939 MEMORIA/(7562:7564):  Se realizo insert en FS en tabla : POSTRES con value : "Gelatina" y timestamp : 1327595153
+[INFO] 18:45:43:491 MEMORIA/(7703:7705):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 18:45:43:573 MEMORIA/(7703:7705):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1327847757
+[INFO] 18:45:43:595 MEMORIA/(7703:7705):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1327847761
+[INFO] 18:45:43:642 MEMORIA/(7703:7705):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1327847791
+[INFO] 18:45:43:660 MEMORIA/(7703:7705):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1327847806
+[INFO] 18:46:01:652 MEMORIA/(7703:7706):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1327847916
+[INFO] 18:46:52:643 Memoria/(7703:7705):  Llego select con VALUE : Alfajor
+
+[INFO] 18:46:52:722 Memoria/(7703:7705):  Llego select con VALUE : Mousse
+
+[INFO] 18:46:52:773 Memoria/(7703:7705):  Llego select con VALUE : "Almendrado"
+
+[INFO] 18:46:52:828 Memoria/(7703:7705):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 18:46:52:844 Memoria/(7703:7705):  Llego select con VALUE : "Muffin"
+
+[INFO] 18:46:52:902 MEMORIA/(7703:7705):  Se realizo insert en FS en tabla : POSTRES con value : "Chocolate" y timestamp : 1327917113
+[INFO] 18:46:52:916 MEMORIA/(7703:7705):  Se realizo insert en FS en tabla : POSTRES con value : "Torta de ricota" y timestamp : 1327917150
+[INFO] 18:46:52:939 MEMORIA/(7703:7705):  Se realizo insert en FS en tabla : POSTRES con value : "Gelatina" y timestamp : 1327917153
+[INFO] 18:53:02:547 MEMORIA/(7864:7866):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 18:53:02:660 MEMORIA/(7864:7866):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1328286829
+[INFO] 18:53:02:687 MEMORIA/(7864:7866):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1328286832
+[INFO] 18:53:02:707 MEMORIA/(7864:7866):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1328286864
+[INFO] 18:53:02:726 MEMORIA/(7864:7866):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1328286881
+[INFO] 18:53:07:640 MEMORIA/(7864:7867):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1328286985
