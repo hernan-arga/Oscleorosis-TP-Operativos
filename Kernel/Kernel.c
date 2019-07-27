@@ -896,11 +896,22 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					char *value = pedirValue(tabla, key,
 							strongConsistency->socket);
 					//printf("El value es: %s\n", value);
-				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
+				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {	//SHC
 					if (list_size(hashConsistency) != 0) {
 						char* key = parametros[2];
+
+						struct datosMemoria *unaMemoria;
 						int numeroMemoria = funcionHash(atoi(key));
-						struct datosMemoria *unaMemoria = list_get(hashConsistency, numeroMemoria);
+						unaMemoria = list_get(hashConsistency, numeroMemoria);
+						//Si la memoria de la funcion hash fallo busco otra cualquiera
+						if(!laMemoriaEstaConectada(unaMemoria)){
+							do{
+								int max = list_size(hashConsistency);
+								int numeroEnListaMemoria = (rand() % max);
+								unaMemoria = list_get(hashConsistency, numeroEnListaMemoria);
+								//printf("\t%i", numeroEnListaMemoria);
+							}while(!laMemoriaEstaConectada(unaMemoria));
+						}
 						char * value = pedirValue(tabla, key,
 								unaMemoria->socket);
 						printf("El value es: %s\n", value);
@@ -911,8 +922,14 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					}
 				} else { //EC
 					if (list_size(eventualConsistency) != 0) {
-						struct datosMemoria *unaMemoria = list_remove(
-								eventualConsistency, 0);
+
+						struct datosMemoria *unaMemoria;
+						//Saco memorias hasta encontrar una conectada
+						do{
+							unaMemoria = list_remove(
+									eventualConsistency, 0);
+						}while(!laMemoriaEstaConectada(unaMemoria));
+
 						char* value = pedirValue(tabla, key,
 								unaMemoria->socket);
 						printf("El value es: %s\n", value);
@@ -979,11 +996,23 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					//printf("HOLA\n");
 					//printf("SC socket: %d\n", strongConsistency->socket);
 					mandarInsert(tabla, key, value, strongConsistency->socket);
-				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
+				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {	//SHC
 					if (list_size(hashConsistency) != 0) {
 						char* key = parametros[2];
+
+						struct datosMemoria *unaMemoria;
 						int numeroMemoria = funcionHash(atoi(key));
-						struct datosMemoria *unaMemoria = list_get(hashConsistency, numeroMemoria);
+						unaMemoria = list_get(hashConsistency, numeroMemoria);
+						//Si la memoria de la funcion hash fallo busco otra cualquiera
+						if(!laMemoriaEstaConectada(unaMemoria)){
+							do{
+								int max = list_size(hashConsistency);
+								int numeroEnListaMemoria = (rand() % max);
+								unaMemoria = list_get(hashConsistency, numeroEnListaMemoria);
+								//printf("\t%i", numeroEnListaMemoria);
+							}while(!laMemoriaEstaConectada(unaMemoria));
+						}
+
 
 						clock_t tiempoInsert = clock();
 						generarMetrica(tiempoInsert, 1,
@@ -995,10 +1024,16 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					}
 				} else { //EC
 					if (list_size(eventualConsistency) != 0) {
-						struct datosMemoria *memoriaRandom = list_remove(
-								eventualConsistency, 0);
-						mandarInsert(tabla, key, value, memoriaRandom->socket);
-						list_add(eventualConsistency, memoriaRandom);
+
+						struct datosMemoria *unaMemoria;
+						//Saco memorias hasta encontrar una conectada
+						do{
+							unaMemoria = list_remove(
+									eventualConsistency, 0);
+						}while(!laMemoriaEstaConectada(unaMemoria));
+
+						mandarInsert(tabla, key, value, unaMemoria->socket);
+						list_add(eventualConsistency, unaMemoria);
 					} else {
 						mandarInsert(tabla, key, value,
 								strongConsistency->socket);
@@ -1062,11 +1097,22 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					//strongConsistency->socket
 					mandarCreate(tabla, consistencia, cantidadParticiones,
 							tiempoCompactacion, strongConsistency->socket);
-				} else if (!strcmp(consistencia, "SHC")) {
+				} else if (!strcmp(consistencia, "SHC")) {	//SHC
 					if (list_size(hashConsistency) != 0) {
 						char* cantidadDeParticiones = parametros[3];
+
+						struct datosMemoria *unaMemoria;
 						int numeroMemoria = funcionHash(atoi(cantidadDeParticiones));
-						struct datosMemoria *unaMemoria = list_get(hashConsistency, numeroMemoria);
+						unaMemoria = list_get(hashConsistency, numeroMemoria);
+						//Si la memoria de la funcion hash fallo busco otra cualquiera
+						if(!laMemoriaEstaConectada(unaMemoria)){
+							do{
+								int max = list_size(hashConsistency);
+								int numeroEnListaMemoria = (rand() % max);
+								unaMemoria = list_get(hashConsistency, numeroEnListaMemoria);
+								//printf("\t%i", numeroEnListaMemoria);
+							}while(!laMemoriaEstaConectada(unaMemoria));
+						}
 
 						mandarCreate(tabla, consistencia, cantidadParticiones,
 								tiempoCompactacion, unaMemoria->socket);
@@ -1076,11 +1122,17 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					}
 				} else { //EC
 					if (list_size(eventualConsistency) != 0) {
-						struct datosMemoria* memoriaRandom = list_remove(
-								eventualConsistency, 0);
+
+						struct datosMemoria *unaMemoria;
+						//Saco memorias hasta encontrar una conectada
+						do{
+							unaMemoria = list_remove(
+									eventualConsistency, 0);
+						}while(!laMemoriaEstaConectada(unaMemoria));
+
 						mandarCreate(tabla, consistencia, cantidadParticiones,
-								tiempoCompactacion, memoriaRandom->socket);
-						list_add(eventualConsistency, memoriaRandom);
+								tiempoCompactacion, unaMemoria->socket);
+						list_add(eventualConsistency, unaMemoria);
 					} else {
 						mandarCreate(tabla, consistencia, cantidadParticiones,
 								tiempoCompactacion, strongConsistency->socket);
@@ -1209,14 +1261,14 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
 					//strongConsistency->socket
 					mandarDrop(tabla, strongConsistency->socket);
-				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {
+				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {	//SHC
 					if (list_size(hashConsistency) != 0) {
 						struct datosMemoria *unaMemoria;
 						do{
 							int max = list_size(hashConsistency);
 							int numeroMemoria = (rand() % max);
 							//printf("MEMORIA: %i\n", numeroMemoria);
-							unaMemoria = list_get(listaDeMemorias, numeroMemoria);
+							unaMemoria = list_get(hashConsistency, numeroMemoria);
 						}while(!laMemoriaEstaConectada(unaMemoria));
 
 						mandarDrop(tabla, unaMemoria->socket);
@@ -1225,10 +1277,16 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					}
 				} else { //EC
 					if (list_size(eventualConsistency) != 0) {
-						struct datosMemoria *memoriaRandom = list_remove(
+
+						struct datosMemoria *unaMemoria;
+						//Saco memorias hasta encontrar una conectada
+						do{
+							unaMemoria = list_remove(
 								eventualConsistency, 0);
-						mandarDrop(tabla, memoriaRandom->socket);
-						list_add(eventualConsistency, memoriaRandom);
+						}while(!laMemoriaEstaConectada(unaMemoria));
+
+						mandarDrop(tabla, unaMemoria->socket);
+						list_add(eventualConsistency, unaMemoria);
 					} else {
 						mandarDrop(tabla, strongConsistency->socket);
 					}
