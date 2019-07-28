@@ -176,7 +176,9 @@ int main() {
 	tablas_conocidas = dictionary_create();
 	new = queue_create();
 	ready = queue_create();
-	printf("\t\x1B[1;34m◢\x1B[0;34m KERNEL OPERATIVO Y EN FUNCIONAMIENTO\x1B[1;34m ◣ \x1B[0m \n");
+	printf("\t\x1B[1;34m██╗  ██╗███████╗██████╗ ███╗   ██╗███████╗██╗\n\t██║ ██╔╝██╔════╝██╔══██╗████╗  ██║██╔════╝██║\n\t█████╔╝ █████╗  ██████╔╝██╔██╗ ██║█████╗  ██║\n\t██╔═██╗ ██╔══╝  ██╔══██╗██║╚██╗██║██╔══╝  ██║\n\t██║  ██╗███████╗██║  ██║██║ ╚████║███████╗███████╗\n\t╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝\x1B[0m\n");
+	printf("\t\t\t\t\t\t\t\x1B[0;34mby OScleorosis™\x1B[0m\n");
+	printf("\x1B[1;34m  ◢\x1B[0;34m O P E R A T I V O   Y   E N   F U N C I O N A M I E N T O\x1B[1;34m ◣ \x1B[0m \n");
 
 	//PRUEBA();
 	multiprocesamiento = config_get_int_value(configuracion,
