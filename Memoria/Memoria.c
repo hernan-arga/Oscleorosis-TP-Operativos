@@ -195,14 +195,16 @@ void realizarComando(char** comando) {
 	char* value;
 	switch (accion) {
 	case SELECT:
-		printf("SELECT\n");
+		;
+		//printf("SELECT\n");
 		tabla = comando[1];
 		key = comando[2];
 		realizarSelect(tabla, key);
 		break;
 
 	case INSERT:
-		printf("INSERT\n");
+		;
+		//printf("INSERT\n");
 		tabla = comando[1];
 		key = comando[2];
 		value = comando[3];
@@ -215,7 +217,8 @@ void realizarComando(char** comando) {
 		break;
 
 	case CREATE:
-		printf("CREATE\n");
+		;
+		//printf("CREATE\n");
 		tabla = comando[1];
 		char* tipoConsistencia = comando[2];
 		char* numeroParticiones = comando[3];
@@ -227,7 +230,8 @@ void realizarComando(char** comando) {
 		//Describe recibe un diccionario con (nombreTabla - struct(con la info de la metadata)
 
 	case DESCRIBE:
-		printf("DESCRIBE");
+		;
+		//printf("DESCRIBE");
 
 		if (comando[1] == NULL) {
 			printf("GLOBAL\n");
@@ -240,13 +244,15 @@ void realizarComando(char** comando) {
 		break;
 
 	case DROP:
-		printf("DROP\n");
+		;
+		//printf("DROP\n");
 		tabla = comando[1];
 		realizarDrop(tabla);
 		break;
 
 	case JOURNAL:
-		printf("JOURNAL\n");
+		;
+		//printf("JOURNAL\n");
 		ejecutarJournaling();
 		break;
 
@@ -311,7 +317,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 				free(timeStamp);
 
-				printf("Value: %s\n", value);
+				//printf("Value: %s\n", value);
 
 				pag->timeStamp = *timeStamp;
 
@@ -322,9 +328,7 @@ char* realizarSelect(char* tabla, char* key) {
 			}
 			free(laKey);
 		}
-		printf("arriba");
 		int frameNum = frameLibre();
-		printf("abajo");
 
 		long int* timeStamp = malloc(sizeof(long int));
 		*timeStamp = (long int) time(NULL);
@@ -355,7 +359,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 		*(frames + frameNum) = strlen(value);
 
-		printf("Value: %s\n", value);
+		//printf("Value: %s\n", value);
 
 		int* laKey = malloc(sizeof(int));
 		*laKey = atoi(key);
@@ -416,7 +420,7 @@ char* realizarSelect(char* tabla, char* key) {
 	free(timeStamp);
 	//free(value);
 
-	printf("Value: %s", value);
+	//printf("Value: %s", value);
 	return value;
 }
 
@@ -574,7 +578,7 @@ char* pedirValue(char* tabla, char* laKey) {
 	recv(clienteFS, tamanioValue, sizeof(int), 0);
 	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
-	printf("Tamanio value: %d\n", *tamanioValue);
+	//printf("Tamanio value: %d\n", *tamanioValue);
 
 	if (*tamanioValue == 0) {
 		char* mensajeALogear = malloc(
@@ -649,7 +653,6 @@ int ejecutarLRU() {
 void ejecutarJournaling() {
 	void journal(char* tabla, void* valor) {
 		t_list* paginas = valor;
-		int tasdasd = list_size(paginas);
 		for (int i = 0; i < list_size(paginas); i++) {
 			pagina* pag = list_get(paginas, i);
 			if (pag->modificado) {
@@ -698,10 +701,11 @@ void ejecutarJournaling() {
 				read(clienteFS, ok, *tamanioRespuesta);
 				pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 				if (*ok == 0) {
-					char* mensajeALogear = malloc(
-							strlen(" No se pudo realizar insert en FS ") + 1);
-					strcpy(mensajeALogear,
-							" No se pudo realizar insert en FS ");
+					char* mensajeALogear = malloc( strlen(" NO se pudo realizar insert en FS en tabla :  con value : ") + strlen(tabla) + strlen(value) + 1);
+					strcpy(mensajeALogear, " NO se pudo realizar insert en FS en tabla : ");
+					strcat(mensajeALogear, tabla);
+					strcat(mensajeALogear, " con value : ");
+					strcat(mensajeALogear, value);
 					t_log* g_logger;
 					g_logger = log_create("./logs.log", "MEMORIA", 1,
 							LOG_LEVEL_ERROR);
@@ -710,9 +714,11 @@ void ejecutarJournaling() {
 					free(mensajeALogear);
 				}
 				if (*ok == 1) {
-					char* mensajeALogear = malloc(
-							strlen(" Se realizo insert en FS ") + 1);
-					strcpy(mensajeALogear, " Se realizo insert en FS ");
+					char* mensajeALogear = malloc( strlen(" Se realizo insert en FS en tabla :  con value : ") +strlen(tabla) + strlen(value) + 1);
+					strcpy(mensajeALogear, " Se realizo insert en FS en tabla : ");
+					strcat(mensajeALogear, tabla);
+					strcat(mensajeALogear, " con value : ");
+					strcat(mensajeALogear, value);
 					t_log* g_logger;
 					g_logger = log_create("./logs.log", "MEMORIA", 1,
 							LOG_LEVEL_INFO);
