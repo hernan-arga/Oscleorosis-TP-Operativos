@@ -179,7 +179,6 @@ pthread_t hiloLevantarConexion;
 
 pthread_mutex_t SEMAFORODETMPC;
 pthread_mutex_t SEMAFOROMEMTABLE;
-pthread_mutex_t SEMAFOROCAPO;
 
 int main(int argc, char *argv[]) {
 
@@ -206,7 +205,6 @@ int main(int argc, char *argv[]) {
 	diccionarioDescribe = malloc(4000);
 	diccionarioDescribe = dictionary_create();
 
-	pthread_mutex_init(&SEMAFOROCAPO, NULL);
 
 	//listaDeSemaforos = list_create();
 	//ponerActivasTodasLasTablas();
@@ -949,9 +947,6 @@ void dumpPorTabla(char* tabla) {
 		//semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 		//pthread_mutex_lock(&unSemaforo->mutexDrop);
 
-		pthread_mutex_lock(&SEMAFOROCAPO);
-
-
 		//Tomo el tamanio por bloque de mi LFS
 		char *metadataPath = string_from_format("%sMetadata/metadata.bin",
 				structConfiguracionLFS.PUNTO_MONTAJE);
@@ -1061,9 +1056,6 @@ void dumpPorTabla(char* tabla) {
 	dictionary_remove(memtable, tabla);
 
 
-
-
-	pthread_mutex_unlock(&SEMAFOROCAPO);
 
 }
 
@@ -1193,7 +1185,7 @@ void verificarCompactacion(char *pathTabla) {
 
 void compactacion(char* pathTabla) {
 
-	pthread_mutex_lock(&SEMAFOROCAPO);
+
 	/*
 	char* mensajeALogear = malloc( strlen(" Arranco la compactacion de la tabla : ") + strlen(pathTabla));
 	strcpy(mensajeALogear, " Arranco la compactacion de la tabla : ");
@@ -1235,7 +1227,6 @@ void compactacion(char* pathTabla) {
 	log_destroy(g_logger2);
 	free(mensajeALogear2);
 	*/
-	pthread_mutex_unlock(&SEMAFOROCAPO);
 
 
 }
@@ -1975,7 +1966,6 @@ int existeCarpeta(char *nombreCarpeta) {
 char* realizarSelect(char* tabla, char* key) {
 	//actualizarTiempoDeRetardo();
 	//sleep(structConfiguracionLFS.RETARDO);
-	pthread_mutex_lock(&SEMAFOROCAPO);
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
 		char* pathMetadata = malloc(
@@ -2766,7 +2756,6 @@ char* realizarSelect(char* tabla, char* key) {
 		free(mensajeALogear);
 		return NULL;
 	}
-	pthread_mutex_unlock(&SEMAFOROCAPO);
 
 }
 
@@ -3175,6 +3164,7 @@ int32_t iniciarConexion() {
 					switch (*operacion) {
 					case 1:
 						//Select
+						printf("Mensaje SELECT\n");
 						tomarPeticionSelect(sd);
 						break;
 					case 2:
@@ -3221,11 +3211,8 @@ void tomarPeticionSelect(int sd) {
 	char* keyString = string_itoa(*key);
 
 	char *value = realizarSelect(tablaCortada, keyString);
-	//printf("%s\n", value);
 
-	// serializo paquete
 	if (value == NULL) {
-
 		char* mensajeALogear = malloc( strlen(" No encontre value ") );
 		strcpy(mensajeALogear, " No encontre value ");
 		t_log* g_logger;
@@ -3237,11 +3224,11 @@ void tomarPeticionSelect(int sd) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
-
 		int ok = 0;
 		void* buffer = malloc(4);
 		memcpy(buffer, &ok, 4);
 		send(sd, buffer, 4, 0);
+
 	} else {
 
 		char* mensajeALogear = malloc( strlen(" Encontre el value : ") + strlen(value));
@@ -3256,7 +3243,6 @@ void tomarPeticionSelect(int sd) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
-
 		void *buffer = malloc(strlen(value) + sizeof(int));
 		int tamanio = strlen(value);
 		memcpy(buffer, &tamanio, sizeof(int));
@@ -3264,6 +3250,7 @@ void tomarPeticionSelect(int sd) {
 		send(sd, buffer, strlen(value) + sizeof(int), 0);
 	}
 }
+
 
 void tomarPeticionCreate(int sd) {
 	// deserializo peticion de mm
