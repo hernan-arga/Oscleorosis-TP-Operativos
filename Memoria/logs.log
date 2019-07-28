@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 [INFO] 19:01:49:576 MEMORIA/(3688:3698):  Se realizo create en el FS : COSAS con EC 2 40000
 [INFO] 19:02:43:410 MEMORIA/(3688:3698):  Se realizo insert en FS en tabla : COSAS con value : "Pizarron"
 [INFO] 19:02:43:410 MEMORIA/(3688:3698):  Se realizo insert en FS en tabla : COSAS con value : "Marcador"
@@ -230,3 +231,10 @@
 [ERROR] 20:05:47:876 MEMORIA/(5749:5759):  No se pudo realizar create en el FS 
 [INFO] 20:25:46:172 MEMORIA/(6212:6232):  Se realizo insert en FS en tabla : COSAS con value : "Pizarron"
 [INFO] 20:25:46:174 MEMORIA/(6212:6232):  Se realizo insert en FS en tabla : COSAS con value : "Marcador"
+=======
+[INFO] 20:01:15:436 MEMORIA/(18219:18221):  Se realizo create en el FS : TABLA99 con SHC 3 10
+[INFO] 20:01:21:40 MEMORIA/(18219:18221):  Se realizo create en el FS : TABLA100 con EC 3 10
+[INFO] 20:01:57:168 MEMORIA/(18229:18231):  Se realizo create en el FS : TABLA333 con SHC 3 10
+[INFO] 20:03:38:432 MEMORIA/(18229:18232):  Se realizo insert en FS 
+[INFO] 20:03:45:98 MEMORIA/(18219:18222):  Se realizo insert en FS 
+>>>>>>> origin/master
