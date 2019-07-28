@@ -29,6 +29,8 @@
 #include <commons/log.h>
 #include <dirent.h>
 #include <commons/temporal.h>
+#include <errno.h>
+
 
 struct metricas {
 	clock_t tiempoDeCreacion;
@@ -228,7 +230,7 @@ void conectarMemoriaPrcpal(){
 
 	memoriaPrincipal->MEMORY_NUMBER = config_get_int_value(configuracion, "MEMORY_NUMBER");
 	list_add(listaDeMemorias, (void*) memoriaPrincipal);
-	sem_post(&PEDIRDESCRIBE);
+	//sem_post(&PEDIRDESCRIBE);
 	sem_post(&MEMORIAPRINCIPAL);
 }
 
@@ -492,8 +494,6 @@ t_list * borrarObsoletos(clock_t tiempoActual) {
 }
 
 void refreshMetadata() {
-	sem_wait(&PEDIRDESCRIBE);
-	sem_destroy(&PEDIRDESCRIBE);
 	while (1) {
 		//Aca no me interesa esta variable pero la necesita
 		sem_wait(&MEMORIAPRINCIPAL);
@@ -701,7 +701,7 @@ void operacion_gossiping() {
 
 		list_iterate(listaDeMemorias, (void*)evaluarMemoriaConocida);
 		sem_post(&MEMORIAPRINCIPAL);
-		sleep(60);
+		sleep(30);
 	}
 }
 
@@ -729,10 +729,11 @@ void quitarMemoriaDeSC(struct datosMemoria *unaMemoria) {
 }
 
 void quitarMemoriaDe1Lista(struct datosMemoria *unaMemoria, t_list *unaLista) {
-	int esLaMemoria(struct datosMemoria *unaMemoriaConocida) {
+	bool esLaMemoria(struct datosMemoria *unaMemoriaConocida) {
 		return unaMemoriaConocida->MEMORY_NUMBER == unaMemoria->MEMORY_NUMBER;
 	}
-	list_remove_by_condition(unaLista, (void*) esLaMemoria);
+	struct datosMemoria *memoriaEliminada = list_remove_by_condition(unaLista, (void*)esLaMemoria);
+	//printf("memoria eliminada: %i\n", memoriaEliminada->MEMORY_NUMBER);
 }
 
 //En esta funcion la IP, el puerto y el socket ya fueron llenados
@@ -903,11 +904,12 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						if(!laMemoriaEstaConectada(unaMemoria)){
 							do{
 								int max = list_size(hashConsistency);
-								int numeroEnListaMemoria = (rand() % max);
+								int	numeroEnListaMemoria = (rand() % max);
 								unaMemoria = list_get(hashConsistency, numeroEnListaMemoria);
 								//printf("\t%i", numeroEnListaMemoria);
 							}while(!laMemoriaEstaConectada(unaMemoria));
 						}
+
 						char * value = pedirValue(tabla, key,
 								unaMemoria->socket);
 						printf("El value es: %s\n", value);
@@ -988,9 +990,6 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				struct tabla *unaTabla = dictionary_get(tablas_conocidas,
 						tabla);
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
-					//strongConsistency->socket
-					//printf("HOLA\n");
-					//printf("SC socket: %d\n", strongConsistency->socket);
 					mandarInsert(tabla, key, value, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {	//SHC
 					if (list_size(hashConsistency) != 0) {
@@ -1003,16 +1002,16 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						if(!laMemoriaEstaConectada(unaMemoria)){
 							do{
 								int max = list_size(hashConsistency);
-								int numeroEnListaMemoria = (rand() % max);
+								int	numeroEnListaMemoria = (rand() % max);
 								unaMemoria = list_get(hashConsistency, numeroEnListaMemoria);
 								//printf("\t%i", numeroEnListaMemoria);
 							}while(!laMemoriaEstaConectada(unaMemoria));
 						}
 
-
-						clock_t tiempoInsert = clock();
+						//ESTE FALLA
+						/*clock_t tiempoInsert = clock();
 						generarMetrica(tiempoInsert, 1,
-								unaMemoria->direccionSocket.sin_addr.s_addr);
+								unaMemoria->direccionSocket.sin_addr.s_addr);*/
 						mandarInsert(tabla, key, value, unaMemoria->socket);
 					} else {
 						mandarInsert(tabla, key, value,
@@ -1104,7 +1103,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 						if(!laMemoriaEstaConectada(unaMemoria)){
 							do{
 								int max = list_size(hashConsistency);
-								int numeroEnListaMemoria = (rand() % max);
+								int	numeroEnListaMemoria = (rand() % max);
 								unaMemoria = list_get(hashConsistency, numeroEnListaMemoria);
 								//printf("\t%i", numeroEnListaMemoria);
 							}while(!laMemoriaEstaConectada(unaMemoria));
@@ -1173,7 +1172,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			struct datosMemoria *unaMemoria;
 			do{
 				int max = list_size(listaDeMemorias);
-				int numeroEnListaMemoria = (rand() % max);
+				int	numeroEnListaMemoria = (rand() % max);
 				unaMemoria = list_get(listaDeMemorias, numeroEnListaMemoria);
 				//printf("\t%i", numeroEnListaMemoria);
 			}while(!laMemoriaEstaConectada(unaMemoria));
@@ -1260,6 +1259,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					mandarDrop(tabla, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {	//SHC
 					if (list_size(hashConsistency) != 0) {
+
 						struct datosMemoria *unaMemoria;
 						do{
 							int max = list_size(hashConsistency);
@@ -1430,12 +1430,42 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 }
 
 int laMemoriaEstaConectada(struct datosMemoria* unaMemoria){
-	/*int *tamanio = malloc(sizeof(int));
+	void* buffer = malloc(2 * sizeof(int));
+	int peticion = 20;
+	int tamanioPeticion = sizeof(int);
+	memcpy(buffer, &tamanioPeticion, sizeof(int));
+	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+	int loQueEnvio = send(unaMemoria->socket, buffer, 2 * sizeof(int), 0);
+
+		//loQueEnvio = send(unaMemoria->socket, buffer, 2 * sizeof(int), 0);
 	//recibo algo de la memoria, si devuelve 0 no esta conectada
-	int estaConectada = read(unaMemoria->socket, tamanio, sizeof(int));
-	printf("\t%i", estaConectada);
-	return estaConectada;*/
-	return 1;
+	/*if(loQueEnvio == -1){
+		estaConectada = 0;
+	}
+	else{
+		estaConectada = 1;
+	}*/
+	/*printf("\t%i\n", loQueEnvio);
+	return 1;*/
+
+	struct sockaddr_in peer;
+
+	int seDesconecto = 0;
+	socklen_t peer_len = sizeof(peer);
+	int error = getpeername(unaMemoria->socket, (struct sockaddr*)&peer, &peer_len);
+	if(error == -1){
+			seDesconecto = 1;
+			quitarMemoriaDeSC(unaMemoria);
+			quitarMemoriaDe1Lista(unaMemoria, hashConsistency);
+			quitarMemoriaDe1Lista(unaMemoria, eventualConsistency);
+			quitarMemoriaDe1Lista(unaMemoria, listaDeMemorias);
+	}
+	/*int seDesconecto = 0;
+	socklen_t len = sizeof(seDesconecto);
+	//En seDesconecto se guarda un numero distinto de 0 en caso de error (aca la uso porque me interesa saber que se desconecto la memoria)
+	getsockopt(unaMemoria->socket, SOL_SOCKET, SO_ERROR, &seDesconecto, &len);*/
+	printf("\tmemoria numero: %i - seDesconecto: %i\n", unaMemoria->MEMORY_NUMBER, seDesconecto);
+	return !seDesconecto;
 }
 
 
