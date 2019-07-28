@@ -3175,6 +3175,7 @@ int32_t iniciarConexion() {
 					switch (*operacion) {
 					case 1:
 						//Select
+						printf("Mensaje SELECT\n");
 						tomarPeticionSelect(sd);
 						break;
 					case 2:
@@ -3221,11 +3222,8 @@ void tomarPeticionSelect(int sd) {
 	char* keyString = string_itoa(*key);
 
 	char *value = realizarSelect(tablaCortada, keyString);
-	//printf("%s\n", value);
 
-	// serializo paquete
 	if (value == NULL) {
-
 		char* mensajeALogear = malloc( strlen(" No encontre value ") );
 		strcpy(mensajeALogear, " No encontre value ");
 		t_log* g_logger;
@@ -3237,11 +3235,11 @@ void tomarPeticionSelect(int sd) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
-
 		int ok = 0;
 		void* buffer = malloc(4);
 		memcpy(buffer, &ok, 4);
 		send(sd, buffer, 4, 0);
+
 	} else {
 
 		char* mensajeALogear = malloc( strlen(" Encontre el value : ") + strlen(value));
@@ -3256,7 +3254,6 @@ void tomarPeticionSelect(int sd) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
-
 		void *buffer = malloc(strlen(value) + sizeof(int));
 		int tamanio = strlen(value);
 		memcpy(buffer, &tamanio, sizeof(int));
@@ -3264,6 +3261,7 @@ void tomarPeticionSelect(int sd) {
 		send(sd, buffer, strlen(value) + sizeof(int), 0);
 	}
 }
+
 
 void tomarPeticionCreate(int sd) {
 	// deserializo peticion de mm
