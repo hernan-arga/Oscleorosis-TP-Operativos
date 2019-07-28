@@ -120,7 +120,7 @@ char* pedirValue(char* tabla, char* laKey, int socketMemoria);
 struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria);
 void mandarInsert(char* tabla, char* key, char* value, int socketMemoria);
 void mandarDrop(char *tabla, int socketMemoria);
-void mandarJournal(int socketMemoria);
+void mandarJournal(struct datosMemoria *);
 void mandarCreate(char *, char *, char *, char *, int);
 void guardarDiccionarioGlobal(int socketMemoria);
 
@@ -1513,7 +1513,7 @@ void mandarDrop(char *tabla, int socketMemoria){
 	}
 }
 
-void mandarJournal(int socketMemoria) {
+void mandarJournal(struct datosMemoria *unaMemoria) {
 	void* buffer = malloc(sizeof(int));
 
 	int peticion = 7;
@@ -1521,7 +1521,7 @@ void mandarJournal(int socketMemoria) {
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
-	send(socketMemoria, buffer, 2 * sizeof(int), 0);
+	send(unaMemoria->socket, buffer, 2 * sizeof(int), 0);
 }
 
 void guardarDiccionarioGlobal(int socketMemoria) {
