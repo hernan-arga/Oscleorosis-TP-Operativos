@@ -192,3 +192,41 @@
 >>>>>>> origin/master
 >>>>>>> 53507fcc84d0a1317eddfd14a77445868f011d0d
 >>>>>>> origin/master
+[INFO] 19:27:08:106 MEMORIA/(4765:4779):  Se realizo insert en FS en tabla : COSAS con value : "Pizarron"
+[INFO] 19:27:08:107 MEMORIA/(4765:4779):  Se realizo insert en FS en tabla : COSAS con value : "Marcador"
+[INFO] 19:27:20:544 MEMORIA/(4765:4779):  Se realizo insert en FS en tabla : COSAS con value : "Auto"
+[INFO] 19:27:20:545 MEMORIA/(4765:4779):  Se realizo insert en FS en tabla : COSAS con value : "Mesa"
+[INFO] 19:27:26:313 Memoria/(4765:4779):  Llego select con VALUE : "Marcador"
+
+[INFO] 19:35:40:86 MEMORIA/(5031:5043):  Se realizo insert en FS en tabla : COSAS con value : "Pizarron"
+[INFO] 19:35:40:86 MEMORIA/(5031:5043):  Se realizo insert en FS en tabla : COSAS con value : "Marcador"
+[INFO] 19:36:03:906 MEMORIA/(5031:5043):  Se realizo insert en FS en tabla : COSAS con value : "Auto"
+[INFO] 19:36:03:906 MEMORIA/(5031:5043):  Se realizo insert en FS en tabla : COSAS con value : "Mesa"
+[INFO] 19:36:06:809 Memoria/(5031:5043):  Llego select con VALUE : "Marcador"
+
+[INFO] 19:36:15:843 Memoria/(5031:5043):  Llego select con VALUE : "Mesa"
+
+[ERROR] 19:36:33:888 MEMORIA/(5031:5043):  No se pudo realizar create en el FS 
+[INFO] 19:41:41:201 MEMORIA/(5230:5240):  Se realizo insert en FS en tabla : COSAS con value : "Pizarron"
+[INFO] 19:41:41:201 MEMORIA/(5230:5240):  Se realizo insert en FS en tabla : COSAS con value : "Marcador"
+[INFO] 19:42:04:892 MEMORIA/(5230:5240):  Se realizo insert en FS en tabla : COSAS con value : "Auto"
+[INFO] 19:42:04:892 MEMORIA/(5230:5240):  Se realizo insert en FS en tabla : COSAS con value : "Mesa"
+[INFO] 19:42:07:984 Memoria/(5230:5240):  Llego select con VALUE : "Marcador"
+
+[INFO] 19:42:20:578 Memoria/(5230:5240):  Llego select con VALUE : "Mesa"
+
+[ERROR] 19:42:28:148 MEMORIA/(5230:5240):  No se pudo realizar create en el FS 
+[INFO] 19:54:06:854 Memoria/(5230:5240):  Llego select con VALUE : "Pizarron"
+
+[INFO] 19:57:05:559 MEMORIA/(5230:5240):  Se realizo insert en FS en tabla : COSAS con value : "Cama"
+[INFO] 20:04:47:651 MEMORIA/(5749:5759):  Se realizo insert en FS en tabla : COSAS con value : "Pizarron"
+[INFO] 20:04:47:651 MEMORIA/(5749:5759):  Se realizo insert en FS en tabla : COSAS con value : "Marcador"
+[INFO] 20:05:22:352 MEMORIA/(5749:5759):  Se realizo insert en FS en tabla : COSAS con value : "Auto"
+[INFO] 20:05:22:352 MEMORIA/(5749:5759):  Se realizo insert en FS en tabla : COSAS con value : "Mesa"
+[INFO] 20:05:29:302 Memoria/(5749:5759):  Llego select con VALUE : "Marcador"
+
+[INFO] 20:05:33:611 Memoria/(5749:5759):  Llego select con VALUE : "Mesa"
+
+[ERROR] 20:05:47:876 MEMORIA/(5749:5759):  No se pudo realizar create en el FS 
+[INFO] 20:25:46:172 MEMORIA/(6212:6232):  Se realizo insert en FS en tabla : COSAS con value : "Pizarron"
+[INFO] 20:25:46:174 MEMORIA/(6212:6232):  Se realizo insert en FS en tabla : COSAS con value : "Marcador"

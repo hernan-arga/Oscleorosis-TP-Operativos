@@ -3213,6 +3213,7 @@ void tomarPeticionSelect(int sd) {
 	char *value = realizarSelect(tablaCortada, keyString);
 
 	if (value == NULL) {
+/*
 		char* mensajeALogear = malloc( strlen(" No encontre value ") );
 		strcpy(mensajeALogear, " No encontre value ");
 		t_log* g_logger;
@@ -3228,9 +3229,9 @@ void tomarPeticionSelect(int sd) {
 		void* buffer = malloc(4);
 		memcpy(buffer, &ok, 4);
 		send(sd, buffer, 4, 0);
-
+*/
 	} else {
-
+/*
 		char* mensajeALogear = malloc( strlen(" Encontre el value : ") + strlen(value));
 		strcpy(mensajeALogear, " Encontre el value : ");
 		strcat(mensajeALogear, value);
@@ -3242,7 +3243,7 @@ void tomarPeticionSelect(int sd) {
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
-
+*/
 		void *buffer = malloc(strlen(value) + sizeof(int));
 		int tamanio = strlen(value);
 		memcpy(buffer, &tamanio, sizeof(int));

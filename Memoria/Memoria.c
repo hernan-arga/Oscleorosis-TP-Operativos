@@ -346,11 +346,14 @@ char* realizarSelect(char* tabla, char* key) {
 
 		long int* timeStamp = malloc(sizeof(long int));
 		*timeStamp = (long int) time(NULL);
-
 		pagina* pagp = malloc(sizeof(pagina));
 		pagp->modificado = false;
 		pagp->numeroFrame = frameNum;
-		pagp->numeroPag = list_size(tablaPag);
+		if (dictionary_has_key(tablaSegmentos, tabla)) {
+			pagp->numeroPag = list_size(tablaPag);
+		} else {
+			pagp->numeroPag = 0;
+		}
 		pagp->timeStamp = *timeStamp;
 
 		if (hizoJ == 1) {
@@ -499,7 +502,11 @@ int realizarInsert(char* tabla, char* key, char* value) {
 
 		pagp->modificado = true;
 		pagp->numeroFrame = frameNum;
-		pagp->numeroPag = list_size(tablaPag); //todo deberia haber un if que valide tablaPag y sino seria la tabla 0?
+		if (dictionary_has_key(tablaSegmentos, tabla)) {
+			pagp->numeroPag = list_size(tablaPag);
+		} else {
+			pagp->numeroPag = 0;
+		}
 		pagp->timeStamp = *timeStamp;
 
 		if (hizoJ == 1) {
@@ -793,8 +800,7 @@ void ejecutarJournaling() {
 	sem_post(&sem2);
 }
 
-int realizarCreate(char* tabla, char* tipoConsistencia,
-		char* numeroParticiones, char* tiempoCompactacion) {
+int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones, char* tiempoCompactacion) {
 
 	sem_wait(&sem2);
 
@@ -879,8 +885,8 @@ int realizarCreate(char* tabla, char* tipoConsistencia,
 		free(mensajeALogear);
 		sem_post(&sem2);
 		return 1;
-
 	}
+	return 0;
 }
 
 int realizarDrop(char* tabla) {
@@ -941,6 +947,7 @@ int realizarDrop(char* tabla) {
 		sem_post(&sem2);
 		return 1;
 	}
+	return 0;
 }
 
 metadataTabla* realizarDescribe(char* tabla) {
