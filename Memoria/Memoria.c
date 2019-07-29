@@ -772,7 +772,6 @@ void ejecutarJournaling() {
 					log_destroy(g_logger);
 					free(mensajeALogear);
 				}
-				//free(mensaje);
 			}
 		}
 	}
@@ -1218,9 +1217,7 @@ int serServidor() {
 				if ((valread = read(sd, tamanio, sizeof(int))) == 0) {
 					getpeername(sd, (struct sockaddr *) &address,
 							(socklen_t *) &addrlen);
-					printf("Host disconected, ip: %s, port: %d\n",
-							inet_ntoa(address.sin_addr),
-							ntohs(address.sin_port));
+					//printf("Host disconected, ip: %s, port: %d\n", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 					close(sd);
 					client_socket[i] = 0;
 				} else {
@@ -1261,6 +1258,7 @@ int serServidor() {
 					case 7:
 						//Journal
 						printf("Kernel pidio un Journal\n");
+						ejecutarJournaling();
 						break;
 					case 8:
 						//Gossiping
@@ -1660,32 +1658,26 @@ void gossiping(int cliente) {
 		buffer = malloc(
 				sizeof(int) + sizeof(struct sockaddr_in) + sizeof(int32_t));
 
-		memcpy(buffer, &unaM->socket, sizeof(int));
-		memcpy(buffer + sizeof(int), &unaM->direccionSocket,
-				sizeof(struct sockaddr_in));
-		memcpy(buffer + sizeof(int) + sizeof(struct sockaddr_in),
-				&unaM->MEMORY_NUMBER, sizeof(int32_t));
+		memcpy(buffer,  &unaM->socket,  sizeof(int));
+		memcpy(buffer + sizeof(int),  &unaM->direccionSocket,   sizeof(struct sockaddr_in));
+		memcpy(buffer + sizeof(int) + sizeof(struct sockaddr_in),  &unaM->MEMORY_NUMBER,   sizeof(int32_t));
 
-		send(cliente, buffer,
-				sizeof(int) + sizeof(struct sockaddr_in) + sizeof(int32_t), 0);
+		send(cliente, buffer,	sizeof(int) + sizeof(struct sockaddr_in) + sizeof(int32_t),   0);
 
 		free(buffer);
 
 		i++;
 	}
 
+	//fin
 	buffer = malloc(sizeof(int));
 	int* fin = 0;
-
 	memcpy(buffer, &fin, sizeof(int));
-
 	send(cliente, buffer, sizeof(int), 0);
-
 	free(buffer);
 
 	int* socket = malloc(sizeof(int));
 	recv(cliente, socket, sizeof(int), 0);
-
 	while (*socket != 0) {
 		struct sockaddr_in *direccion = malloc(sizeof(struct sockaddr_in));
 		recv(cliente, direccion, sizeof(struct sockaddr_in), 0);
@@ -1708,6 +1700,8 @@ void gossiping(int cliente) {
 
 		if (!list_any_satisfy(clientes, estaEnLaLista)) {
 			list_add(clientes, unaM);
+
+
 		}
 
 		free(direccion);

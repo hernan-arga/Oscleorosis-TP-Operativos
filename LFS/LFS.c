@@ -3120,9 +3120,7 @@ int32_t iniciarConexion() {
 			}
 
 			//inform user of socket number - used in send and receive commands
-			printf("Nueva Conexion , socket fd: %d , ip: %s , puerto: %d 	\n",
-					new_socket, inet_ntoa(address.sin_addr),
-					ntohs(address.sin_port));
+			//printf("Nueva Conexion , socket fd: %d , ip: %s , puerto: %d 	\n", new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
 			int tamanioValue = structConfiguracionLFS.TAMANIO_VALUE;
 			void* buffer = malloc(sizeof(int));
@@ -3134,7 +3132,7 @@ int32_t iniciarConexion() {
 				//if position is empty
 				if (client_socket[i] == 0) {
 					client_socket[i] = new_socket;
-					printf("Agregado a la lista de sockets como: %d\n", i);
+//					printf("Agregado a la lista de sockets como: %d\n", i);
 
 					break;
 				}
@@ -3152,9 +3150,9 @@ int32_t iniciarConexion() {
 				if ((valread = read(sd, tamanio, sizeof(int))) == 0) {
 					getpeername(sd, (struct sockaddr *) &address,
 							(socklen_t *) &addrlen);
-					printf("Host disconected, ip: %s, port: %d\n",
-							inet_ntoa(address.sin_addr),
-							ntohs(address.sin_port));
+					//printf("Host disconected, ip: %s, port: %d\n",
+						//	inet_ntoa(address.sin_addr),
+							//ntohs(address.sin_port));
 					close(sd);
 					client_socket[i] = 0;
 				} else {
@@ -3213,7 +3211,6 @@ void tomarPeticionSelect(int sd) {
 	char *value = realizarSelect(tablaCortada, keyString);
 
 	if (value == NULL) {
-/*
 		char* mensajeALogear = malloc( strlen(" No encontre value ") );
 		strcpy(mensajeALogear, " No encontre value ");
 		t_log* g_logger;
@@ -3229,9 +3226,9 @@ void tomarPeticionSelect(int sd) {
 		void* buffer = malloc(4);
 		memcpy(buffer, &ok, 4);
 		send(sd, buffer, 4, 0);
-*/
+
 	} else {
-/*
+
 		char* mensajeALogear = malloc( strlen(" Encontre el value : ") + strlen(value));
 		strcpy(mensajeALogear, " Encontre el value : ");
 		strcat(mensajeALogear, value);
@@ -3243,7 +3240,7 @@ void tomarPeticionSelect(int sd) {
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
-*/
+
 		void *buffer = malloc(strlen(value) + sizeof(int));
 		int tamanio = strlen(value);
 		memcpy(buffer, &tamanio, sizeof(int));

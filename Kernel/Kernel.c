@@ -202,15 +202,15 @@ int main() {
 	pthread_t hiloEjecutarReady;
 	pthread_t atenderPeticionesConsola;
 	pthread_t describe;
-	pthread_t metrics;
+	//pthread_t metrics;
 	pthread_t goissiping;
-	pthread_create(&metrics, NULL, (void*) logearMetrics, NULL);
+	//pthread_create(&metrics, NULL, (void*) logearMetrics, NULL);
 	pthread_create(&hiloEjecutarReady, NULL, (void*) ejecutarReady, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
 	pthread_create(&goissiping, NULL, (void*)operacion_gossiping, NULL);
 	pthread_create(&describe, NULL, (void*) refreshMetadata, NULL);
-	pthread_join(metrics, NULL);
+	//pthread_join(metrics, NULL);
 	pthread_join(describe, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	pthread_join(hiloEjecutarReady, NULL);
@@ -290,7 +290,7 @@ void metrics(int opcion) {
 void logearMetrics() {
 	while (1) {
 		//metrics(1);
-		sleep(30);
+		//sleep(30);
 	}
 
 }
@@ -643,7 +643,6 @@ void operacion_gossiping() {
 		list_clean(memoriasRecibidas);
 		//Pido Gossiping
 		char* buffer = malloc(3 * sizeof(int));
-
 		int peticion = 8;
 		int tamanioPeticion = sizeof(int);
 		int fin = 0;
@@ -1422,7 +1421,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		break;
 
 	case METRICS:
-		metrics(0);
+		//metrics(0);
 		break;
 
 	default:
