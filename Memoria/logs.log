@@ -238,3 +238,33 @@
 [INFO] 20:03:38:432 MEMORIA/(18229:18232):  Se realizo insert en FS 
 [INFO] 20:03:45:98 MEMORIA/(18219:18222):  Se realizo insert en FS 
 >>>>>>> origin/master
+[INFO] 20:52:10:608 MEMORIA/(6889:6900):  Se realizo insert en FS en tabla : COSAS con value : "Pizarron"
+[INFO] 20:52:10:609 MEMORIA/(6889:6900):  Se realizo insert en FS en tabla : COSAS con value : "Marcador"
+[INFO] 20:52:53:887 MEMORIA/(6889:6900):  Se realizo insert en FS en tabla : COSAS con value : "Auto"
+[INFO] 20:52:53:887 MEMORIA/(6889:6900):  Se realizo insert en FS en tabla : COSAS con value : "Mesa"
+[INFO] 20:52:58:311 Memoria/(6889:6900):  Llego select con VALUE : "Marcador"
+
+[INFO] 20:53:09:523 Memoria/(6889:6900):  Llego select con VALUE : "Mesa"
+
+[INFO] 20:53:30:78 Memoria/(6889:6900):  Llego select con VALUE : "Pizarron"
+
+[INFO] 21:07:57:622 MEMORIA/(7285:7321):  Se realizo insert en FS en tabla : COSAS con value : "Pizarron"
+[INFO] 21:07:57:622 MEMORIA/(7285:7321):  Se realizo insert en FS en tabla : COSAS con value : "Marcador"
+[INFO] 21:10:00:737 MEMORIA/(7285:7321):  Se realizo insert en FS en tabla : COSAS con value : "Auto"
+[INFO] 21:10:00:738 MEMORIA/(7285:7321):  Se realizo insert en FS en tabla : COSAS con value : "Mesa"
+[INFO] 21:10:25:106 Memoria/(7285:7321):  Llego select con VALUE : "Marcador"
+
+[INFO] 21:11:00:471 Memoria/(7285:7321):  Llego select con VALUE : "Mesa"
+
+[INFO] 21:13:52:612 Memoria/(7285:7321):  Llego select con VALUE : "Pizarron"
+
+[INFO] 21:34:11:422 MEMORIA/(8249:8260):  Se realizo insert en FS en tabla : COSAS con value : "Pizarron"
+[INFO] 21:34:11:423 MEMORIA/(8249:8260):  Se realizo insert en FS en tabla : COSAS con value : "Marcador"
+[INFO] 21:35:18:219 MEMORIA/(8249:8260):  Se realizo insert en FS en tabla : COSAS con value : "Auto"
+[INFO] 21:35:18:220 MEMORIA/(8249:8260):  Se realizo insert en FS en tabla : COSAS con value : "Mesa"
+[INFO] 21:35:40:200 Memoria/(8249:8260):  Llego select con VALUE : "Marcador"
+
+[INFO] 21:36:01:73 Memoria/(8249:8260):  Llego select con VALUE : "Mesa"
+
+[INFO] 21:37:44:973 Memoria/(8249:8260):  Llego select con VALUE : "Pizarron"
+

@@ -495,7 +495,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 		int frameNum = frameLibre();
 		*(frames + frameNum) = strlen(value);
 
-		char* timeStamp = malloc(sizeof(long int));
+		long int* timeStamp = malloc(sizeof(long int));
 		*timeStamp = (long int) time(NULL);
 
 		pagina* pagp = malloc(sizeof(pagina));
@@ -542,7 +542,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 	int frameNum = frameLibre();
 	*(frames + frameNum) = strlen(value);
 
-	char* timeStamp = malloc(sizeof(long int));
+	long int* timeStamp = malloc(sizeof(long int));
 	*timeStamp = (long int) time(NULL);
 
 	pagina* pagp = malloc(sizeof(pagina));
@@ -665,13 +665,13 @@ int ejecutarLRU() {
 			if (timeStamp == 0 && !pag->modificado) {
 				timeStamp = pag->timeStamp;
 				numF = pag->numeroFrame;
-				target = pag->numeroPag;
+				target = i;
 				objetivo = paginas;
 			} else {
 				if (pag->timeStamp < timeStamp && !pag->modificado) {
 					timeStamp = pag->timeStamp;
 					numF = pag->numeroFrame;
-					target = pag->numeroPag;
+					target = i;
 					objetivo = paginas;
 				}
 			}
