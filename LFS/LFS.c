@@ -891,8 +891,8 @@ void actualizarTiempoDeRetardo() {
 
 int insert(char* tabla, char* key, char* valor, char* timestamp) {
 	//Puedo modificar en tiempo de ejecucion el retardo
-	//actualizarTiempoDeRetardo();
-	//sleep(structConfiguracionLFS.RETARDO);
+	actualizarTiempoDeRetardo();
+	sleep(structConfiguracionLFS.RETARDO/1000);
 
 	string_to_upper(tabla);
 	if (!existeLaTabla(tabla)) {
@@ -933,7 +933,7 @@ void dump() {
 		configLFS = config_create(pathConfiguracion);
 		structConfiguracionLFS.TIEMPO_DUMP = config_get_int_value(configLFS,
 				"TIEMPO_DUMP");
-		sleep(structConfiguracionLFS.TIEMPO_DUMP);
+		sleep(structConfiguracionLFS.TIEMPO_DUMP/1000);
 		//Con sleep tengo que meter un \n al final de un printf porque sino no imprime
 		//printf("dump boy!\n");
 		dictionary_iterator(memtable, (void *) dumpPorTabla);
@@ -1163,13 +1163,13 @@ void verificarCompactacion(char *pathTabla) {
 		string_append(&metadataTabla, pathTabla);
 		string_append(&metadataTabla, "/metadata");
 		//printf("%s\n", pathTabla);
-		//sleep(10);
+		//sleep(10); //       /1000??
 		//Levanto el valor de tiempo de compactacion de la tabla
 		t_config *configTabla = config_create(metadataTabla);
 		int tiempoCompactacion = config_get_int_value(configTabla,
 				"COMPACTION_TIME");
 		//printf("%i\n", tiempoCompactacion);
-		sleep(tiempoCompactacion);
+		sleep(tiempoCompactacion/1000);
 		//Con sleep tengo que meter un \n al final de un printf porque sino no imprime
 
 		//semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
@@ -1707,7 +1707,7 @@ void renombrarTodosLosTMPATMPC(char* tablaPath) {
 int create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 		char* tiempoDeCompactacion) {
 	actualizarTiempoDeRetardo();
-	// sleep(structConfiguracionLFS.RETARDO);
+	sleep(structConfiguracionLFS.RETARDO/1000);
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
 		return 0;
@@ -1923,7 +1923,7 @@ int existeLaTabla(char* nombreDeTabla) {
 
 void drop(char* tabla) {
 	actualizarTiempoDeRetardo();
-	//sleep(structConfiguracionLFS.RETARDO);
+	sleep(structConfiguracionLFS.RETARDO/1000);
 	char *path = string_new();
 	string_append(&path,
 			string_from_format("%sTables/",
@@ -1964,8 +1964,8 @@ int existeCarpeta(char *nombreCarpeta) {
 
 //No le pongo "select" porque ya esta la funcion de socket y rompe
 char* realizarSelect(char* tabla, char* key) {
-	//actualizarTiempoDeRetardo();
-	//sleep(structConfiguracionLFS.RETARDO);
+	actualizarTiempoDeRetardo();
+	sleep(structConfiguracionLFS.RETARDO/1000);
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
 		char* pathMetadata = malloc(
@@ -2936,7 +2936,7 @@ int estaEntreComillas(char* valor) {
 
 metadataTabla describeUnaTabla(char *tabla, int seImprimePorPantalla) {
 	actualizarTiempoDeRetardo();
-	// sleep(structConfiguracionLFS.RETARDO);
+	sleep(structConfiguracionLFS.RETARDO/1000);
 	char* pathTabla = string_new();
 	string_append(&pathTabla,
 			string_from_format("%sTables",

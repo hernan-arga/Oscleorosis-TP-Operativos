@@ -1634,7 +1634,7 @@ void conectar() {
 
 			i++;
 		}
-		sleep(t_archivoConfiguracion.RETARDO_GOSSIPING);
+		sleep(t_archivoConfiguracion.RETARDO_GOSSIPING/1000);
 	}
 }
 

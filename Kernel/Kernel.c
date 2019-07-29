@@ -504,7 +504,7 @@ void refreshMetadata() {
 		sem_post(&MEMORIAPRINCIPAL);
 		int refreshMetadata = config_get_int_value(configuracion,
 					"METADATA_REFRESH");
-		sleep(refreshMetadata);
+		sleep(refreshMetadata /1000);
 	}
 }
 
@@ -1981,7 +1981,7 @@ void ejecutor(struct Script *ejecutando) {
 
 		int sleepEjecucion = config_get_int_value(configuracion,
 				"SLEEP_EJECUCION");
-		sleep(sleepEjecucion);
+		sleep(sleepEjecucion/1000);
 		queue_push(ready, ejecutando);
 	} else {
 		sem_post(&MAXIMOPROCESAMIENTO);
