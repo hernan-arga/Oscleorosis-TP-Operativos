@@ -108,6 +108,7 @@ void describeTodasLasTablas(int);
 void dump();
 void dumpPorTabla(char*);
 int contarLosDigitos(int);
+int contarLosDigitosDe1Long(long long);
 void crearArchivoDeBloquesConRegistros(int, char*);
 void crearArchivoConBloques(char*, char*, int);
 int cuantosDumpeosHuboEnLaTabla(char *);
@@ -184,13 +185,11 @@ pthread_mutex_t SEMAFOROMEMTABLE;
 
 int main(int argc, char *argv[]) {
 
-
 	/*unsigned long long time1 = getMicrotime();
 	printf("tiempo : %llu\n",time1);
 
 	unsigned long long time2 = getMicrotime();
 	printf("tiempo2 : %llu\n",time2);*/
-
 
 	printf("\t\x1B[1;32m◢\x1B[0;32m BIENVENIDO A LISSANDRA FILE SYSTEM. ¿PUEDO TOMAR SU ORDEN?.\x1B[1;32m ◣ \x1B[0m \n");
 
@@ -560,10 +559,12 @@ void realizarPeticion(char** parametros) {
 			//le saco las comillas al valor
 			char *valor = string_substring(parametros[3], 1,
 					string_length(parametros[3]) - 2);
-
-			unsigned long long timestampActual = getMicrotime();
+			//¿El timestamp necesita conversion? esto esta en segundos y no hay tipo de dato que banque los milisegundos por el tamanio
 			//long int timestampActual = (long int) time(NULL);
-			char* timestamp = string_itoa(timestampActual);
+			unsigned long long timestampActual = getMicrotime();
+			//char* timestamp = string_itoa(timestampActual);
+			char* timestamp = string_from_format("%llu",timestampActual);
+			//printf("timestamp: %llu  -  char: %s",timestampActual, timestamp);
 
 			char* tablaMayusculas = string_new();
 			string_append(&tablaMayusculas, tabla);
@@ -886,7 +887,8 @@ int insert(char* tabla, char* key, char* valor, char* timestamp) {
 		//pthread_mutex_lock(&SEMAFOROMEMTABLE);
 
 		t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
-		p_registro->timestamp = (unsigned long long)atoi(timestamp);
+		p_registro->timestamp = atoll(timestamp);
+		//printf("timestamp: %llu - char: %s", p_registro->timestamp, timestamp);
 		p_registro->key = atoi(key);
 		p_registro->value = malloc(strlen(valor) + 1); //todo OJOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO LE PUSE UN +1111!!!!!!!!!!!!
 		strcpy(p_registro->value, valor);
@@ -948,7 +950,7 @@ void dumpPorTabla(char* tabla) {
 			t_registro *p_registro = list_get(listaDeRegistros, i);
 			//memcpy(p_registro, list_get(listaDeRegistros, i), sizeof(p_registro));
 			string_append(&registrosADumpear,
-					string_itoa(p_registro->timestamp));
+					string_from_format("%llu",p_registro->timestamp));
 			string_append(&registrosADumpear, ";");
 			string_append(&registrosADumpear, string_itoa(p_registro->key));
 			string_append(&registrosADumpear, ";");
@@ -956,8 +958,10 @@ void dumpPorTabla(char* tabla) {
 			string_append(&registrosADumpear, "\n");
 			cantidadDeBytesADumpear += (strlen(p_registro->value)
 					+ contarLosDigitos(p_registro->key)
-					+ contarLosDigitos(p_registro->timestamp) + 3); //2 ; y un \n
+					+ contarLosDigitosDe1Long(p_registro->timestamp) + 3); //2 ; y un \n
 			//printf("cantidadDeBytesADumpear: %i\n", cantidadDeBytesADumpear);
+			//printf("p_registro->key: %i - digitos : %i", p_registro->key, contarLosDigitos(p_registro->key));
+			//printf("p_registro->timestamp: %llu - digitos : %i", p_registro->timestamp, contarLosDigitos(p_registro->timestamp));
 			i++;
 		}
 		//printf("\n\n");
@@ -1061,6 +1065,16 @@ int cuantosDumpeosHuboEnLaTabla(char *tablaPath) {
 	}
 	closedir(directorio);
 	return cantidadDeDumpeos;
+}
+
+int contarLosDigitosDe1Long(long long numero) {
+	int contador = 0;
+	long long aux = numero;
+	do {
+		contador++;
+		aux = (aux / 10);
+	} while (aux != 0);
+	return contador;
 }
 
 int contarLosDigitos(int numero) {
@@ -1469,7 +1483,7 @@ void evaluarRegistro(char *registro, char *tablaPath,
 	int cantidadDeParticiones = config_get_int_value(metadata, "PARTITIONS");
 	//Separo el registro en timestamp, key y value
 	char **infoSeparada = string_split(registro, ";");
-	unsigned long long timestamp = (unsigned long long)atoi(infoSeparada[0]);
+	unsigned long long timestamp = atoll(infoSeparada[0]);
 	int key = atoi(infoSeparada[1]);
 	char *value = string_new();
 	string_append(&value, infoSeparada[2]);
@@ -1534,7 +1548,7 @@ void compararRegistros(unsigned long long timestamp, int key, char *value,
 	//Si i = 0 quiere decir que el binario estaba vacio por lo que tengo que agregar solo este nuevo registro
 	if (!existeLaKeyEnElBinario || i == 0) {
 		char *nuevoRegistro = string_new();
-		string_append(&nuevoRegistro, string_itoa(timestamp));
+		string_append(&nuevoRegistro, string_from_format("%llu",timestamp));
 		string_append(&nuevoRegistro, ";");
 		string_append(&nuevoRegistro, string_itoa(key));
 		string_append(&nuevoRegistro, ";");
@@ -1559,7 +1573,8 @@ void comparar1RegistroBinarioCon1NuevoRegistro(unsigned long long timestampRegis
 		int keyRegistro, char *valueRegistro, char **registroBinario,
 		int *elRegistroContieneLaKey) {
 	char **infoSeparada = string_split(*registroBinario, ";");
-	unsigned long long timestampBinario = (unsigned long long)atoi(infoSeparada[0]);
+	unsigned long long timestampBinario = atoll(infoSeparada[0]);
+	//printf("%llu\n", timestampBinario);
 	int keyBinario = atoi(infoSeparada[1]);
 	char *valueBinario = string_new();
 	string_append(&valueBinario, infoSeparada[2]);
@@ -1569,7 +1584,7 @@ void comparar1RegistroBinarioCon1NuevoRegistro(unsigned long long timestampRegis
 		*elRegistroContieneLaKey = 1;
 		if (timestampBinario < timestampRegistro) {
 			char *nuevoRegistro = string_new();
-			string_append(&nuevoRegistro, string_itoa(timestampRegistro));
+			string_append(&nuevoRegistro, string_from_format("%llu",timestampRegistro));
 			string_append(&nuevoRegistro, ";");
 			string_append(&nuevoRegistro, string_itoa(keyRegistro));
 			string_append(&nuevoRegistro, ";");
