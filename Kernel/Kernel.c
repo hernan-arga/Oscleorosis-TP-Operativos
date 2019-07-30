@@ -1963,6 +1963,11 @@ void ejecutor(struct Script *ejecutando) {
 	while (i < quantum && !feof(lql) && !error) {
 		char* lineaDeScript = string_new();
 		fread(caracter, sizeof(char), 1, lql);
+		printf("\t%s",caracter);
+		//Si en la siguiente linea leyo el feof sale del while
+		if(feof(lql)){
+			break;
+		}
 		//leo caracter a caracter hasta encontrar \n
 		while (!feof(lql) && strcmp(caracter, "\n")) {
 			string_append(&lineaDeScript, caracter);

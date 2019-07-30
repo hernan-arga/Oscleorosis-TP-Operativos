@@ -1,0 +1,21 @@
+[INFO] 20:56:54:301 MEMORIA/(5943:5945):  Se realizo create en el FS : COLORS con SC 4 600000
+[INFO] 20:59:57:355 MEMORIA/(6102:6104):  Se realizo create en el FS : COLORS con SC 4 600000
+[INFO] 21:16:49:384 MEMORIA/(6301:6303):  Se realizo create en el FS : COLORS con SC 4 600000
+[INFO] 21:20:45:222 MEMORIA/(6301:6303):  Se realizo create en el FS : COLORS con SC 4 600000
+[INFO] 21:22:50:792 MEMORIA/(6301:6303):  Se realizo create en el FS : COLORS con SC 4 600000
+[INFO] 21:27:04:336 MEMORIA/(6301:6303):  Se realizo create en el FS : COLORS con SC 4 600000
+[INFO] 21:33:26:40 MEMORIA/(6301:6303):  Se realizo create en el FS : COLORS con SC 4 600000
+[INFO] 21:34:53:832 MEMORIA/(6301:6303):  Se realizo create en el FS : MARCAS con EC 4 600000
+[ERROR] 21:34:53:913 LFS/(6301:6303):  No se encontro la key : 1
+[INFO] 21:37:47:231 MEMORIA/(7358:7360):  Se realizo create en el FS : COLORS con SC 4 600000
+[INFO] 21:38:18:777 MEMORIA/(7358:7360):  Se realizo create en el FS : MARCAS con EC 4 600000
+[ERROR] 21:38:18:853 LFS/(7358:7360):  No se encontro la key : 1
+[INFO] 21:38:57:399 MEMORIA/(7358:7360):  Se realizo create en el FS : TABLA1 con SC 2 10
+[INFO] 21:39:35:923 MEMORIA/(7358:7360):  Se realizo create en el FS : TABLA2 con SC 2 10
+[INFO] 21:48:31:295 MEMORIA/(7556:7558):  Se realizo create en el FS : MARCAS con EC 4 600000
+[ERROR] 21:48:31:412 LFS/(7556:7558):  No se encontro la key : 1
+[INFO] 21:49:31:993 MEMORIA/(7556:7558):  Se realizo create en el FS : CELULARES con SHC 4 600000
+[INFO] 21:50:00:94 MEMORIA/(7556:7558):  Se realizo insert en FS en tabla : CELULARES con value : "Android"
+[INFO] 21:50:00:101 MEMORIA/(7556:7558):  Se realizo insert en FS en tabla : MARCAS con value : 
+[INFO] 21:50:00:113 MEMORIA/(7588:7590):  Se realizo insert en FS en tabla : CELULARES con value : "iPhone"
+[INFO] 21:50:00:127 MEMORIA/(7588:7590):  Se realizo insert en FS en tabla : MARCAS con value : "Nike"
