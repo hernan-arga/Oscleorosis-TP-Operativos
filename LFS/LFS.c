@@ -1843,9 +1843,9 @@ void crearMetadataBloques() {
 	FILE *archivoMetadata = fopen(metadataPath, "w");
 	t_config *metadata = config_create(metadataPath);
 	//Estos datos harcodeados despues tienen que modificarse. ¿Tienen que tener algun valor especial por defecto?
-	config_set_value(metadata, "BLOCK_SIZE", "128");
+	config_set_value(metadata, "BLOCK_SIZE", "64");
 	//4096
-	config_set_value(metadata, "BLOCKS", "512");
+	config_set_value(metadata, "BLOCKS", "4096");
 	config_set_value(metadata, "MAGIC_NUMBER", "LISSANDRA");
 	config_save_in_file(metadata, metadataPath);
 	fclose(archivoMetadata);
@@ -2025,7 +2025,7 @@ char* realizarSelect(char* tabla, char* key) {
 			m++;
 		}
 
-		int timestampActualMayorBloques = -1;
+		unsigned long long timestampActualMayorBloques = -1;
 		char* valueDeTimestampActualMayorBloques = string_new();
 
 		// POR CADA BLOQUE, TENGO QUE ENTRAR A ESTE BLOQUE
@@ -2086,7 +2086,7 @@ char* realizarSelect(char* tabla, char* key) {
 			//printf("%i", vectorStructs[1]->timestamp);
 
 			//cual de estos tiene el timestamp mas grande? guardar timestamp y value
-			int temp = 0;
+			unsigned long long temp = 0;
 			char* valor;
 			for (int k = 1; k < cantidadIgualDeKeysEnBloque; k++) {
 				for (int j = 0; j < (cantidadIgualDeKeysEnBloque - k); j++) {
@@ -2150,7 +2150,7 @@ char* realizarSelect(char* tabla, char* key) {
 		DIR *directorioTemporal = opendir(pathTemporales);
 		struct dirent *archivoALeer;
 
-		int timestampActualMayorTemporales = -1;
+		unsigned long long timestampActualMayorTemporales = -1;
 		char* valueDeTimestampActualMayorTemporales = string_new();
 
 		while ((archivoALeer = readdir(directorioTemporal)) != NULL) { //PARA CADA ARCHIVO DE LA TABLA ESPECIFICA
@@ -2255,7 +2255,7 @@ char* realizarSelect(char* tabla, char* key) {
 					free(mensajeALogear4);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
-					int tempo = 0;
+					unsigned long long tempo = 0;
 					char* valorTemp;
 					for (int k = 1; k < cantidadIgualDeKeysEnTemporal; k++) {
 						for (int j = 0; j < (cantidadIgualDeKeysEnTemporal - k);
@@ -2321,7 +2321,7 @@ char* realizarSelect(char* tabla, char* key) {
 		DIR *directorioTemporalC = opendir(pathTemporalesC);
 		struct dirent *archivoCALeer;
 
-		int timestampActualMayorTemporalesC = -1;
+		unsigned long long timestampActualMayorTemporalesC = -1;
 		char* valueDeTimestampActualMayorTemporalesC = string_new();
 
 
@@ -2416,7 +2416,7 @@ char* realizarSelect(char* tabla, char* key) {
 							bloqueAnterior);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
-					int tempo = 0;
+					unsigned long long tempo = 0;
 					char* valorTempC;
 					for (int k = 1; k < cantidadIgualDeKeysEnTemporal; k++) {
 						for (int j = 0; j < (cantidadIgualDeKeysEnTemporal - k);
@@ -2528,7 +2528,7 @@ char* realizarSelect(char* tabla, char* key) {
 		free(mensajeALogear11);
 
 
-		int t = 0;
+		unsigned long long t = 0;
 		char* unValor;
 		for (int k = 1; k < cantIgualDeKeyEnMemtable; k++) {
 			for (int j = 0; j < (cantIgualDeKeyEnMemtable); j++) {
@@ -2550,7 +2550,7 @@ char* realizarSelect(char* tabla, char* key) {
 			}
 		} // aca quedaria el array arrayPorKeyDeseadaMemtable ordenado por timestamp mayor
 
-		int timestampMayorMemtable;
+		unsigned long long timestampMayorMemtable;
 		if (cantIgualDeKeyEnMemtable == 0) {
 			timestampMayorMemtable = -1;
 		} else {
@@ -2604,17 +2604,14 @@ char* realizarSelect(char* tabla, char* key) {
 								strlen(
 										" Se selecciono tabla :  / En bloque con timestamp :  / Value : ")
 										+ strlen(tabla)
-										+ strlen(
-												string_itoa(
-														timestampActualMayorBloques))
-										+ strlen(
-												valueDeTimestampActualMayorBloques)
+										+ strlen( string_from_format("%llu",timestampActualMayorBloques))
+										+ strlen( valueDeTimestampActualMayorBloques)
 										+ 1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / En bloque con timestamp : ");
 				strcat(mensajeALogear,
-						string_itoa(timestampActualMayorBloques));
+						string_from_format("%llu",timestampActualMayorBloques));
 				strcat(mensajeALogear, " / Value : ");
 				strcat(mensajeALogear, valueDeTimestampActualMayorBloques);
 				t_log* g_logger;
@@ -2638,16 +2635,14 @@ char* realizarSelect(char* tabla, char* key) {
 
 				char* mensajeALogear = malloc(
 						120 + strlen(tabla)
-								+ strlen(
-										string_itoa(
-												timestampActualMayorTemporales))
+								+ strlen( string_from_format("%llu",timestampActualMayorTemporales))
 								+ strlen(valueDeTimestampActualMayorTemporales)
 								+ 1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / En TMP con timestamp : ");
 				strcat(mensajeALogear,
-						string_itoa(timestampActualMayorTemporales));
+						string_from_format("%llu",timestampActualMayorTemporales));
 				strcat(mensajeALogear, " / Value : ");
 				strcat(mensajeALogear, valueDeTimestampActualMayorTemporales);
 				t_log* g_logger;
@@ -2675,7 +2670,7 @@ char* realizarSelect(char* tabla, char* key) {
 						malloc(
 								120 + strlen(tabla)
 										+ strlen(
-												string_itoa(
+												string_from_format("%llu",
 														timestampActualMayorTemporalesC))
 										+ strlen(
 												valueDeTimestampActualMayorTemporalesC)
@@ -2684,7 +2679,7 @@ char* realizarSelect(char* tabla, char* key) {
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / En TMPC con timestamp : ");
 				strcat(mensajeALogear,
-						string_itoa(timestampActualMayorTemporalesC));
+						string_from_format("%llu",timestampActualMayorTemporalesC));
 				strcat(mensajeALogear, " / Value : ");
 				strcat(mensajeALogear, valueDeTimestampActualMayorTemporalesC);
 				t_log* g_logger;
@@ -2708,13 +2703,13 @@ char* realizarSelect(char* tabla, char* key) {
 
 				char* mensajeALogear = malloc(
 						120 + strlen(tabla)
-								+ strlen(string_itoa(timestampMayorMemtable))
+								+ strlen(string_from_format("%llu",timestampMayorMemtable))
 								+ strlen(arrayPorKeyDeseadaMemtable[0]->value)
 								+ 1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / En MEMTABLE con timestamp : ");
-				strcat(mensajeALogear, string_itoa(timestampMayorMemtable));
+				strcat(mensajeALogear, string_from_format("%llu",timestampMayorMemtable));
 				strcat(mensajeALogear, " / Value : ");
 				strcat(mensajeALogear, arrayPorKeyDeseadaMemtable[0]->value);
 				t_log* g_logger;
@@ -2833,18 +2828,18 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 		}
 		int keyLeida = atoi(string_split(line, ";")[1]);
 		if (keyLeida == key) {
-			t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+			t_registro* p_registro = malloc(8 + sizeof(unsigned long long)); // 2 int = 2* 4        +       un puntero a char = 4
 			t_registro p_registro2;
 			p_registro = &p_registro2;
 			char** arrayLinea = malloc(strlen(line) + 1);
 			arrayLinea = string_split(line, ";");
-			int timestamp = atoi(arrayLinea[0]);
+			unsigned long long timestamp = atoll(arrayLinea[0]);
 			int key = atoi(arrayLinea[1]);
 			p_registro->timestamp = timestamp;
 			p_registro->key = key;
 			p_registro->value = malloc(strlen(arrayLinea[2]) + 1);
 			strcpy(p_registro->value, arrayLinea[2]);
-			vectorStructs[i] = malloc(8);
+			vectorStructs[i] = malloc(4 + sizeof(unsigned long long));
 
 			memcpy(&vectorStructs[i]->key, &p_registro->key,
 					sizeof(p_registro->key));
@@ -2858,8 +2853,8 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 		}
 	} // cierra el while
 	if (i == 0) {
-		vectorStructs[i] = malloc(12);
-		t_registro* p_registro = malloc(12);
+		vectorStructs[i] = malloc(8 + sizeof(unsigned long long));
+		t_registro* p_registro = malloc(8 + sizeof(unsigned long long));
 		p_registro->timestamp = -1;
 		memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
 				sizeof(p_registro->timestamp));
@@ -2912,7 +2907,7 @@ void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 			log_destroy(g_logger);
 			free(mensajeALogear);
 			if (p_registro->key == laKey) {
-				arrayPorKeyDeseadaMemtable[*cant] = malloc(12);
+				arrayPorKeyDeseadaMemtable[*cant] = malloc(8 + sizeof(unsigned long long));
 				memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key,
 						&p_registro->key, sizeof(p_registro->key));
 				memcpy(&arrayPorKeyDeseadaMemtable[*cant]->timestamp,
@@ -3311,11 +3306,11 @@ void tomarPeticionInsert(int sd) {
 	recv(sd, value, *tamanioValue, 0);
 	char *valueCortado = string_substring_until(value, *tamanioValue);
 
-	int *tamanioTime = malloc(sizeof(int));
-	read(sd, tamanioTime, sizeof(int));
-	int *time = malloc(*tamanioTime);
+	unsigned long long *tamanioTime = malloc(sizeof(unsigned long long));
+	read(sd, tamanioTime, sizeof(unsigned long long));
+	unsigned long long *time = malloc(*tamanioTime);
 	read(sd, time, *tamanioTime);
-	char* timeString = string_itoa(*time);
+	char* timeString = string_from_format("%llu",*time);
 
 	int respuesta = insert(tablaCortada, keyString, valueCortado, timeString);
 
