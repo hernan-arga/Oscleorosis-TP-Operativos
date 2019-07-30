@@ -19,3 +19,29 @@
 [INFO] 21:50:00:101 MEMORIA/(7556:7558):  Se realizo insert en FS en tabla : MARCAS con value : 
 [INFO] 21:50:00:113 MEMORIA/(7588:7590):  Se realizo insert en FS en tabla : CELULARES con value : "iPhone"
 [INFO] 21:50:00:127 MEMORIA/(7588:7590):  Se realizo insert en FS en tabla : MARCAS con value : "Nike"
+[INFO] 23:01:04:469 MEMORIA/(7961:7963):  Se realizo create en el FS : COLORS con SC 4 600000
+[INFO] 23:01:39:803 MEMORIA/(7961:7963):  Se realizo create en el FS : MARCAS con EC 4 600000
+[ERROR] 23:01:39:895 LFS/(7961:7963):  No se encontro la key : 1
+[INFO] 23:02:21:190 MEMORIA/(7961:7963):  Se realizo create en el FS : CELULARES con SHC 4 600000
+[INFO] 23:02:47:783 MEMORIA/(7961:7963):  Se realizo insert en FS en tabla : COLORS con value : "Black"
+[INFO] 23:02:47:791 MEMORIA/(7961:7963):  Se realizo insert en FS en tabla : COLORS con value : "Red"
+[INFO] 23:02:47:797 MEMORIA/(7961:7963):  Se realizo insert en FS en tabla : CELULARES con value : "Android"
+[INFO] 23:02:47:819 MEMORIA/(7973:7975):  Se realizo insert en FS en tabla : CELULARES con value : "iPhone"
+[INFO] 23:02:47:821 MEMORIA/(7961:7963):  Se realizo insert en FS en tabla : MARCAS con value : "Adidas"
+[INFO] 23:02:47:836 MEMORIA/(7973:7975):  Se realizo insert en FS en tabla : MARCAS con value : "Nike"
+[INFO] 23:22:11:634 MEMORIA/(8588:8590):  Se realizo create en el FS : COLORS con SC 4 600000
+[INFO] 23:23:58:448 MEMORIA/(8588:8590):  Se realizo create en el FS : MARCAS con EC 4 600000
+[ERROR] 23:23:58:527 LFS/(8588:8590):  No se encontro la key : 1
+[INFO] 23:24:26:582 MEMORIA/(8588:8590):  Se realizo create en el FS : CELULARES con SHC 4 600000
+[INFO] 23:24:35:842 MEMORIA/(8588:8590):  Se realizo insert en FS en tabla : COLORS con value : "Black"
+[INFO] 23:24:35:850 MEMORIA/(8588:8590):  Se realizo insert en FS en tabla : COLORS con value : "Red"
+[INFO] 23:24:35:855 MEMORIA/(8588:8590):  Se realizo insert en FS en tabla : CELULARES con value : "Android"
+[INFO] 23:24:35:862 MEMORIA/(8595:8597):  Se realizo insert en FS en tabla : CELULARES con value : "iPhone"
+[INFO] 23:24:35:876 MEMORIA/(8595:8597):  Se realizo insert en FS en tabla : MARCAS con value : "Nike"
+[INFO] 23:24:35:886 MEMORIA/(8588:8590):  Se realizo insert en FS en tabla : MARCAS con value : "Adidas"
+[INFO] 23:32:07:553 MEMORIA/(8987:8989):  Se realizo create en el FS : MARCAS con EC 4 600000
+[ERROR] 23:32:09:655 LFS/(8987:8989):  No se encontro la key : 1
+[INFO] 23:32:20:566 MEMORIA/(8987:8989):  Se realizo insert en FS en tabla : MARCAS con value : "Adidas"
+[INFO] 23:32:20:576 MEMORIA/(8993:8995):  Se realizo insert en FS en tabla : MARCAS con value : "Nike"
+[INFO] 23:35:43:894 MEMORIA/(8987:8990):  Se realizo insert en FS en tabla : MARCAS con value : "Kappa"
+[INFO] 23:35:47:198 MEMORIA/(8993:8996):  Se realizo insert en FS en tabla : MARCAS con value : "Puma"

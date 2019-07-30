@@ -1977,16 +1977,16 @@ void ejecutor(struct Script *ejecutando) {
 		tomar_peticion(lineaDeScript, 0, &error);
 		free(lineaDeScript);
 		i++;
+
+		int sleepEjecucion = config_get_int_value(configuracion,
+						"SLEEP_EJECUCION");
+		sleep(sleepEjecucion/1000);
 	}
 	//printf("\t%i\n", feof(lql));
 	//Si salio por quantum
 	if (i >= quantum && !error && !feof(lql)) {
 		printf("---Fin q---\n");
 		ejecutando->posicionActual = ftell(lql);
-
-		int sleepEjecucion = config_get_int_value(configuracion,
-				"SLEEP_EJECUCION");
-		sleep(sleepEjecucion/1000);
 		queue_push(ready, ejecutando);
 	} else {
 		sem_post(&MAXIMOPROCESAMIENTO);
