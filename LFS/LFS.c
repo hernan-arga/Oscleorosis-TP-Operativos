@@ -1,23 +1,4 @@
 // FS
-/*
- * FALTANTES:
-
- * - ver problema de mandar dos select (rompe el segundo)
- *
- * - ver sleep, ver semaforos
- * - SEMAFOROS: ¿por q se bloquea en las terminales y no en el ecplipse? -> condicion de carrera
- *
- * - VERIFICAR CON VALGRIND QUE NO PIERDA MEMORIA EN NINGUN LADO
- * - CAMBIAR LOS PRINTF A LOGS (en todos los modulos!!!!) PARA QUE NO TARDE AL IMPRIMIR EN PANTALLA (si alcanza el tiempo)
- *
- *
- *	HECHO:
- *	- recortar todos los char* en serializacion
- *	- MANEJO DE ERRORES : probar las respuestas de errores en tod fs (ej select de tabla q no existe -> LEER PRUEBAS)
- *	- cambiar las operaciones de fs segun si las mandan por consola o memoria
- *	- drop manejo de errores
- *	- sockets mm-kernel
- */
 
 #include <stdio.h>
 #include <string.h> //strlen
@@ -126,8 +107,7 @@ void comparar1RegistroBinarioCon1NuevoRegistro(unsigned long long, int, char *, 
 void actualizarBin(char *);
 void liberarBloques(char *);
 void desasignarBloqueDelBitarray(int);
-void serializarDescribe(char* tabla, metadataTabla* metadata, void* buffer,
-		int* i);
+void serializarDescribe(char* tabla, metadataTabla* metadata, void* buffer, int* i);
 void drop(char*);
 int insert(char*, char*, char*, char*);
 int existeUnaListaDeDatosADumpear();
@@ -185,12 +165,6 @@ pthread_mutex_t SEMAFOROMEMTABLE;
 
 int main(int argc, char *argv[]) {
 
-	/*unsigned long long time1 = getMicrotime();
-	printf("tiempo : %llu\n",time1);
-
-	unsigned long long time2 = getMicrotime();
-	printf("tiempo2 : %llu\n",time2);*/
-
 	printf("\t\x1B[1;32m◢\x1B[0;32m BIENVENIDO A LISSANDRA FILE SYSTEM. ¿PUEDO TOMAR SU ORDEN?.\x1B[1;32m ◣ \x1B[0m \n");
 
 	//tablasQueTienenTMPs = dictionary_create();
@@ -200,8 +174,7 @@ int main(int argc, char *argv[]) {
 	levantarConfiguracionLFS();
 	levantarFileSystem();
 	iniciarMmap();
-	bitarrayBloques = bitarray_create(mmapDeBitmap,
-			tamanioEnBytesDelBitarray());
+	bitarrayBloques = bitarray_create(mmapDeBitmap, tamanioEnBytesDelBitarray());
 	//verBitArray();
 	pthread_create(&hiloLevantarConexion, NULL, (void*) iniciarConexion, NULL);
 	pthread_create(&hiloDump, NULL, (void*) dump, NULL);
@@ -886,7 +859,7 @@ int insert(char* tabla, char* key, char* valor, char* timestamp) {
 	} else {
 		//pthread_mutex_lock(&SEMAFOROMEMTABLE);
 
-		t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
+		t_registro* p_registro = malloc(8 + sizeof(unsigned long long)); // 2 int = 2* 4        +       un puntero a char = 4
 		p_registro->timestamp = atoll(timestamp);
 		//printf("timestamp: %llu - char: %s", p_registro->timestamp, timestamp);
 		p_registro->key = atoi(key);
@@ -949,8 +922,7 @@ void dumpPorTabla(char* tabla) {
 		while (i < list_size(listaDeRegistros)) {
 			t_registro *p_registro = list_get(listaDeRegistros, i);
 			//memcpy(p_registro, list_get(listaDeRegistros, i), sizeof(p_registro));
-			string_append(&registrosADumpear,
-					string_from_format("%llu",p_registro->timestamp));
+			string_append(&registrosADumpear, string_from_format("%llu",p_registro->timestamp));
 			string_append(&registrosADumpear, ";");
 			string_append(&registrosADumpear, string_itoa(p_registro->key));
 			string_append(&registrosADumpear, ";");
@@ -1271,7 +1243,7 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 	time_t inicio;
 	time_t fin;
 	time_t delta;
-	inicio = time(NULL);
+	inicio = time(NULL); //todo esto esta bien q quede asi?
 
 	liberarBloques(tmpc);
 	remove(tmpc);
@@ -1355,8 +1327,7 @@ void actualizarBin(char *pathBin) {
 	int totalDeBytesDelBin = cantidadDeBytesAEscribir;
 
 	//Cantidad de bloques enteros
-	int cantidadDeBloquesCompletosNecesarios = cantidadDeBytesAEscribir
-			/ tamanioPorBloque;
+	int cantidadDeBloquesCompletosNecesarios = cantidadDeBytesAEscribir / tamanioPorBloque;
 	int cantidadDeComasNecesarias = cantidadDeBloquesCompletosNecesarios - 1;
 	char *stringdelArrayDeBloques = string_new();
 	//printf("cantidadDeBloquesCompletosNecesarios: %i\n", cantidadDeBloquesCompletosNecesarios);
