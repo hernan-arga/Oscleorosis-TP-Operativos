@@ -45,6 +45,7 @@
 #include <math.h>
 #include <commons/log.h>
 #include <semaphore.h>
+#include <sys/time.h>
 
 //#define TRUE 1
 //#define FALSE 0
@@ -3311,10 +3312,13 @@ void tomarPeticionInsert(int sd) {
 	recv(sd, value, *tamanioValue, 0);
 	char *valueCortado = string_substring_until(value, *tamanioValue);
 
-	int timestampActual = time(NULL);
-	char* timestamp = string_itoa(timestampActual);
+	int *tamanioTime = malloc(sizeof(int));
+	read(sd, tamanioTime, sizeof(int));
+	int *time = malloc(*tamanioTime);
+	read(sd, time, *tamanioTime);
+	char* timeString = string_itoa(*time);
 
-	int respuesta = insert(tablaCortada, keyString, valueCortado, timestamp);
+	int respuesta = insert(tablaCortada, keyString, valueCortado, timeString);
 
 	// serializo respuesta . respuesta = 1 es OK
 	char* buffer = malloc(2 * sizeof(int));

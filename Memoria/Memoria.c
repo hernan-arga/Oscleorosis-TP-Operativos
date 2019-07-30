@@ -25,6 +25,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <sys/time.h>
 
 typedef enum {
 	SELECT, INSERT, CREATE, DESCRIBE, DROP, JOURNAL, OPERACIONINVALIDA
@@ -703,18 +704,19 @@ void ejecutarJournaling() {
 			pagina* pag = list_get(paginas, i);
 			if (pag->modificado) {
 				int* unaKey = malloc(sizeof(int));
-				memcpy(unaKey,
-						(memoriaPrincipal + pag->numeroFrame * tamanoFrame),
-						sizeof(int));
+				memcpy(unaKey,	(memoriaPrincipal + pag->numeroFrame * tamanoFrame), sizeof(int));
+
+				// ESTO ESTA MODIFICADO
+				long int* timestamp = malloc(sizeof(long int));
+				memcpy(timestamp, (memoriaPrincipal + pag->numeroFrame * tamanoFrame + sizeof(long int)), sizeof(long int));
 
 				char* value = malloc(tamanoValue);
-				memcpy(value,
-						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
-								+ sizeof(int) + sizeof(long int)),
-						*(frames + pag->numeroFrame) + 1);
+				memcpy(value, (memoriaPrincipal + pag->numeroFrame * tamanoFrame + sizeof(int) + sizeof(long int)),	*(frames + pag->numeroFrame) + 1);
+
 				// Serializo peticion, tabla, key, value (el timestamp lo agrega el fs y siempre es el ACTUAL)
-				char* buffer = malloc(
-						6 * sizeof(int) + strlen(tabla) + strlen(value));
+				char* buffer = malloc( 8 * sizeof(int) + strlen(tabla) + strlen(value) );
+
+				int* time = (int*) timestamp;
 
 				int peticion = 2;
 				int tamanioPeticion = sizeof(int);
@@ -734,11 +736,14 @@ void ejecutarJournaling() {
 				int tamanioValue = strlen(value);
 				memcpy(buffer + 5 * sizeof(int) + strlen(tabla), &tamanioValue,
 						sizeof(int));
-				memcpy(buffer + 6 * sizeof(int) + strlen(tabla), value,
-						strlen(value));
+				memcpy(buffer + 6 * sizeof(int) + strlen(tabla), value,	strlen(value));
+
+				int tamanioTimestamp = sizeof(int);
+				memcpy(buffer + 6 * sizeof(int) + strlen(tabla) + strlen(value), &tamanioTimestamp, sizeof(int));
+				memcpy(buffer + 7 * sizeof(int) + strlen(tabla) + strlen(value), time, sizeof(int));
+
 				pthread_mutex_lock(&SEMAFORODECONEXIONFS);
-				send(clienteFS, buffer,
-						6 * sizeof(int) + strlen(tabla) + strlen(value), 0);
+				send(clienteFS, buffer,	8 * sizeof(int) + strlen(tabla) + strlen(value), 0);
 
 				// Deserializo respuesta
 				int* tamanioRespuesta = malloc(sizeof(int));

@@ -30,6 +30,7 @@
 #include <dirent.h>
 #include <commons/temporal.h>
 #include <errno.h>
+#include <sys/time.h>
 
 
 struct metricas {
@@ -131,6 +132,7 @@ void quitarMemoriaDe1Lista(struct datosMemoria *, t_list *);
 void iniciarSemaforos();
 void conectarMemoriaPrcpal();
 void PRUEBA();
+long getMicrotime();
 
 int multiprocesamiento;
 t_list * metricasDeUltimos30Segundos;
@@ -216,6 +218,12 @@ int main() {
 	pthread_join(hiloEjecutarReady, NULL);
 	pthread_join(goissiping, NULL);
 	return 0;
+}
+
+long getMicrotime(){
+	struct timeval currentTime;
+	gettimeofday(&currentTime, NULL);
+	return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
 }
 
 void iniciarSemaforos() {
