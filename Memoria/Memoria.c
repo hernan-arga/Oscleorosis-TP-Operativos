@@ -127,6 +127,7 @@ void tomarPeticionCreate(int);
 void tomarPeticionDescribe1Tabla(int);
 void tomarPeticionDescribeGlobal(int);
 void tomarPeticionDrop(int);
+long getMicrotime();
 
 int main(int argc, char *argv[]) {
 
@@ -189,6 +190,12 @@ int main(int argc, char *argv[]) {
 	pthread_join(threadConsola, NULL);
 	pthread_join(threadSerServidor, NULL);
 	pthread_join(threadFS, NULL);
+}
+
+long getMicrotime(){
+	struct timeval currentTime;
+	gettimeofday(&currentTime, NULL);
+	return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
 }
 
 void analizarInstruccion(char* instruccion) {

@@ -2,3 +2,5 @@
 [ERROR] 02:39:08:562 LFS/(14838:14849):  No se encontro la key : 1
 [ERROR] 02:46:16:760 MEMORIA/(14888:14898):  NO se pudo realizar insert en FS en tabla : MARCAS con value : "Nike"
 [ERROR] 03:07:31:688 MEMORIA/(16226:16239):  NO se pudo realizar insert en FS en tabla : MARCAS con value : "Nike"
+[INFO] 04:33:11:797 MEMORIA/(19509:19528):  Se realizo create en el FS : MARCAS con EC 4 600000
+[ERROR] 04:35:08:658 LFS/(19509:19528):  No se encontro la key : 1

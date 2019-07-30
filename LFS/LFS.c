@@ -170,6 +170,7 @@ void ponerActivasTodasLasTablas();
 t_list *tomarTodasLasTablas();
 void borrarSemaforo(char *tablaADestruir);
 void activarOtrosSemaforos();
+long getMicrotime();
 
 t_config* configLFS;
 configuracionLFS structConfiguracionLFS;
@@ -182,6 +183,19 @@ pthread_mutex_t SEMAFORODETMPC;
 pthread_mutex_t SEMAFOROMEMTABLE;
 
 int main(int argc, char *argv[]) {
+
+/*
+	long time1 = getMicrotime();
+	printf("tiempo : %ld\n",time1);
+
+	int tiempo = time(NULL);
+	printf("tiempo : %d\n", tiempo);
+
+	time_t seconds;
+	time(&seconds);
+	printf("tiempo : %ld\n", seconds);
+*/
+
 
 	printf("\t\x1B[1;32m◢\x1B[0;32m BIENVENIDO A LISSANDRA FILE SYSTEM. ¿PUEDO TOMAR SU ORDEN?.\x1B[1;32m ◣ \x1B[0m \n");
 
@@ -218,6 +232,12 @@ int main(int argc, char *argv[]) {
 	//Aca se destruye el bitarray?
 	//bitarray_destroy(bitarrayBloques);
 	return 0;
+}
+
+long getMicrotime(){
+	struct timeval currentTime;
+	gettimeofday(&currentTime, NULL);
+	return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
 }
 
 void activarOtrosSemaforos() {
@@ -277,39 +297,6 @@ void borrarSemaforo(char *tablaADestruir) {
 
 }
 
-/*
- int main(int argc, char *argv[]) {
- //tablasQueTienenTMPs = dictionary_create();
- binariosParaCompactar = dictionary_create();
- diccionarioDeSemaforos = dictionary_create();
- pthread_t hiloLevantarConexion;
- pthread_t hiloDump;
- pthread_t atenderPeticionesConsola;
- levantarConfiguracionLFS();
- levantarFileSystem();
- iniciarMmap();
- bitarrayBloques = bitarray_create(mmapDeBitmap,
- tamanioEnBytesDelBitarray());
- //verBitArray();
- pthread_create(&hiloLevantarConexion, NULL, (void*) iniciarConexion, NULL);
- pthread_create(&hiloDump, NULL, (void*) dump, NULL);
- pthread_create(&atenderPeticionesConsola, NULL,
- (void*) atenderPeticionesDeConsola, NULL);
- levantarHilosCompactacionParaTodasLasTablas();
- memtable = malloc(4);
- memtable = dictionary_create();
-
- diccionarioDescribe = malloc(4000);
- diccionarioDescribe = dictionary_create();
-
- //Se queda esperando a que termine el hilo de escuchar peticiones
- pthread_join(hiloLevantarConexion, NULL);
- pthread_join(hiloDump, NULL);
- pthread_join(atenderPeticionesConsola, NULL);
- //Aca se destruye el bitarray?
- //bitarray_destroy(bitarrayBloques);
- return 0;
- } */
 
 void atenderPeticionesDeConsola() {
 	while (1) {
