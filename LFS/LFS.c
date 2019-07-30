@@ -2010,7 +2010,7 @@ char* realizarSelect(char* tabla, char* key) {
 			m++;
 		}
 
-		int timestampActualMayorBloques = -1;
+		unsigned long long timestampActualMayorBloques = -1;
 		char* valueDeTimestampActualMayorBloques = string_new();
 
 		// POR CADA BLOQUE, TENGO QUE ENTRAR A ESTE BLOQUE
@@ -2071,7 +2071,7 @@ char* realizarSelect(char* tabla, char* key) {
 			//printf("%i", vectorStructs[1]->timestamp);
 
 			//cual de estos tiene el timestamp mas grande? guardar timestamp y value
-			int temp = 0;
+			unsigned long long temp = 0;
 			char* valor;
 			for (int k = 1; k < cantidadIgualDeKeysEnBloque; k++) {
 				for (int j = 0; j < (cantidadIgualDeKeysEnBloque - k); j++) {
@@ -2135,7 +2135,7 @@ char* realizarSelect(char* tabla, char* key) {
 		DIR *directorioTemporal = opendir(pathTemporales);
 		struct dirent *archivoALeer;
 
-		int timestampActualMayorTemporales = -1;
+		unsigned long long timestampActualMayorTemporales = -1;
 		char* valueDeTimestampActualMayorTemporales = string_new();
 
 		while ((archivoALeer = readdir(directorioTemporal)) != NULL) { //PARA CADA ARCHIVO DE LA TABLA ESPECIFICA
@@ -2240,7 +2240,7 @@ char* realizarSelect(char* tabla, char* key) {
 					free(mensajeALogear4);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
-					int tempo = 0;
+					unsigned long long tempo = 0;
 					char* valorTemp;
 					for (int k = 1; k < cantidadIgualDeKeysEnTemporal; k++) {
 						for (int j = 0; j < (cantidadIgualDeKeysEnTemporal - k);
@@ -2306,7 +2306,7 @@ char* realizarSelect(char* tabla, char* key) {
 		DIR *directorioTemporalC = opendir(pathTemporalesC);
 		struct dirent *archivoCALeer;
 
-		int timestampActualMayorTemporalesC = -1;
+		unsigned long long timestampActualMayorTemporalesC = -1;
 		char* valueDeTimestampActualMayorTemporalesC = string_new();
 
 
@@ -2401,7 +2401,7 @@ char* realizarSelect(char* tabla, char* key) {
 							bloqueAnterior);
 
 					//cual de estos tiene el timestamp mas grande? guardar timestamp y value
-					int tempo = 0;
+					unsigned long long tempo = 0;
 					char* valorTempC;
 					for (int k = 1; k < cantidadIgualDeKeysEnTemporal; k++) {
 						for (int j = 0; j < (cantidadIgualDeKeysEnTemporal - k);
@@ -2513,7 +2513,7 @@ char* realizarSelect(char* tabla, char* key) {
 		free(mensajeALogear11);
 
 
-		int t = 0;
+		unsigned long long t = 0;
 		char* unValor;
 		for (int k = 1; k < cantIgualDeKeyEnMemtable; k++) {
 			for (int j = 0; j < (cantIgualDeKeyEnMemtable); j++) {
@@ -2535,7 +2535,7 @@ char* realizarSelect(char* tabla, char* key) {
 			}
 		} // aca quedaria el array arrayPorKeyDeseadaMemtable ordenado por timestamp mayor
 
-		int timestampMayorMemtable;
+		unsigned long long timestampMayorMemtable;
 		if (cantIgualDeKeyEnMemtable == 0) {
 			timestampMayorMemtable = -1;
 		} else {
@@ -2589,17 +2589,14 @@ char* realizarSelect(char* tabla, char* key) {
 								strlen(
 										" Se selecciono tabla :  / En bloque con timestamp :  / Value : ")
 										+ strlen(tabla)
-										+ strlen(
-												string_itoa(
-														timestampActualMayorBloques))
-										+ strlen(
-												valueDeTimestampActualMayorBloques)
+										+ strlen( string_from_format("%llu",timestampActualMayorBloques))
+										+ strlen( valueDeTimestampActualMayorBloques)
 										+ 1);
 				strcpy(mensajeALogear, " Se selecciono tabla : ");
 				strcat(mensajeALogear, tabla);
 				strcat(mensajeALogear, " / En bloque con timestamp : ");
 				strcat(mensajeALogear,
-						string_itoa(timestampActualMayorBloques));
+						string_from_format("%llu",timestampActualMayorBloques));
 				strcat(mensajeALogear, " / Value : ");
 				strcat(mensajeALogear, valueDeTimestampActualMayorBloques);
 				t_log* g_logger;
