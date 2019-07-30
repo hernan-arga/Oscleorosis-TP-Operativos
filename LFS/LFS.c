@@ -467,7 +467,7 @@ void realizarPeticion(char** parametros) {
 					<= structConfiguracionLFS.TAMANIO_VALUE) && esUnNumero(key)
 					&& estaEntreComillas(value);
 		}
-		//puede o no estar el timestamp
+		//si me pasan el timestamp
 		if (parametrosValidos(4, parametros, (void *) criterioInsert)) {
 			char *tabla = parametros[1];
 			char *key = parametros[2];
@@ -1993,7 +1993,7 @@ char* realizarSelect(char* tabla, char* key) {
 			m++;
 		}
 
-		unsigned long long timestampActualMayorBloques = -1;
+		unsigned long long timestampActualMayorBloques = 1;
 		char* valueDeTimestampActualMayorBloques = string_new();
 
 		// POR CADA BLOQUE, TENGO QUE ENTRAR A ESTE BLOQUE
@@ -2118,7 +2118,7 @@ char* realizarSelect(char* tabla, char* key) {
 		DIR *directorioTemporal = opendir(pathTemporales);
 		struct dirent *archivoALeer;
 
-		unsigned long long timestampActualMayorTemporales = -1;
+		unsigned long long timestampActualMayorTemporales = 1;
 		char* valueDeTimestampActualMayorTemporales = string_new();
 
 		while ((archivoALeer = readdir(directorioTemporal)) != NULL) { //PARA CADA ARCHIVO DE LA TABLA ESPECIFICA
@@ -2289,7 +2289,7 @@ char* realizarSelect(char* tabla, char* key) {
 		DIR *directorioTemporalC = opendir(pathTemporalesC);
 		struct dirent *archivoCALeer;
 
-		unsigned long long timestampActualMayorTemporalesC = -1;
+		unsigned long long timestampActualMayorTemporalesC = 1;
 		char* valueDeTimestampActualMayorTemporalesC = string_new();
 
 
@@ -2520,7 +2520,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 		unsigned long long timestampMayorMemtable;
 		if (cantIgualDeKeyEnMemtable == 0) {
-			timestampMayorMemtable = -1;
+			timestampMayorMemtable = 1;
 		} else {
 			timestampMayorMemtable = arrayPorKeyDeseadaMemtable[0]->timestamp;
 		}
@@ -2540,10 +2540,10 @@ char* realizarSelect(char* tabla, char* key) {
 		char *valueFinal = string_new();
 
 		// si no existe la key, error
-		if ((timestampActualMayorBloques == -1)
-				&& (timestampActualMayorTemporales == -1)
-				&& (timestampMayorMemtable == -1)
-				&& (timestampActualMayorTemporalesC == -1)) {
+		if ((timestampActualMayorBloques == 1)
+				&& (timestampActualMayorTemporales == 1)
+				&& (timestampMayorMemtable == 1)
+				&& (timestampActualMayorTemporalesC == 1)) {
 			char* mensajeALogear = malloc(
 					strlen(" No existe la key numero : ") + strlen(key) + 1);
 			strcpy(mensajeALogear, " No existe la key numero : ");
