@@ -952,12 +952,9 @@ void dumpPorTabla(char* tabla) {
 		while (cantidadDeBloquesCompletosNecesarios != 0) {
 			int bloqueEncontrado = asignarBloque();
 			char *stringAuxRegistros = string_new();
-			string_append(&stringAuxRegistros,
-					string_substring(registrosADumpear,
-							desdeDondeTomarLosRegistros, tamanioPorBloque));
+			string_append(&stringAuxRegistros, string_substring(registrosADumpear,	desdeDondeTomarLosRegistros, tamanioPorBloque));
 			//printf("%s\n", stringAuxRegistros);
-			crearArchivoDeBloquesConRegistros(bloqueEncontrado,
-					stringAuxRegistros);
+			crearArchivoDeBloquesConRegistros(bloqueEncontrado, stringAuxRegistros);
 			//Agrego al string del array el bloque nuevo
 			string_append(&stringdelArrayDeBloques,
 					string_itoa(bloqueEncontrado));
@@ -1611,7 +1608,7 @@ void levantarRegistroDe1Bloque(char *bloque, char **stringAux) {
 	archivoBloque = fopen(bloque, "rb");
 	;
 	//buffer = string_new();
-	buffer = (char*) malloc(tamanioPorBloque);
+	buffer = malloc(tamanioPorBloque);
 	//Leo todos los registros del bloque que pueden ser como maximo el tamanio del bloque
 	//fgets(buffer, tamanioPorBloque, archivoBloque);
 	/*while(fgets(buffer, 128, archivoBloque)) {
