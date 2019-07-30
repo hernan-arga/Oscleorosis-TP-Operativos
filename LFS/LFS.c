@@ -56,7 +56,7 @@ typedef enum {
 } OPERACION;
 
 typedef struct {
-	int timestamp;
+	unsigned long long timestamp;
 	int key;
 	char* value;
 } t_registro;
@@ -120,8 +120,8 @@ char *levantarRegistros(char *);
 void levantarRegistroDe1Bloque(char *, char **);
 void tomarLosTmpc(char *, t_queue *);
 void evaluarRegistro(char *, char *, t_list **);
-void compararRegistros(int, int, char *, binarioCompactacion *, char*);
-void comparar1RegistroBinarioCon1NuevoRegistro(int, int, char *, char **, int *);
+void compararRegistros(unsigned long long, int, char *, binarioCompactacion *, char*);
+void comparar1RegistroBinarioCon1NuevoRegistro(unsigned long long, int, char *, char **, int *);
 void actualizarBin(char *);
 void liberarBloques(char *);
 void desasignarBloqueDelBitarray(int);
@@ -170,7 +170,7 @@ void ponerActivasTodasLasTablas();
 t_list *tomarTodasLasTablas();
 void borrarSemaforo(char *tablaADestruir);
 void activarOtrosSemaforos();
-long getMicrotime();
+unsigned long long getMicrotime();
 
 t_config* configLFS;
 configuracionLFS structConfiguracionLFS;
@@ -184,17 +184,12 @@ pthread_mutex_t SEMAFOROMEMTABLE;
 
 int main(int argc, char *argv[]) {
 
-/*
-	long time1 = getMicrotime();
-	printf("tiempo : %ld\n",time1);
 
-	int tiempo = time(NULL);
-	printf("tiempo : %d\n", tiempo);
+	/*unsigned long long time1 = getMicrotime();
+	printf("tiempo : %llu\n",time1);
 
-	time_t seconds;
-	time(&seconds);
-	printf("tiempo : %ld\n", seconds);
-*/
+	unsigned long long time2 = getMicrotime();
+	printf("tiempo2 : %llu\n",time2);*/
 
 
 	printf("\t\x1B[1;32m◢\x1B[0;32m BIENVENIDO A LISSANDRA FILE SYSTEM. ¿PUEDO TOMAR SU ORDEN?.\x1B[1;32m ◣ \x1B[0m \n");
@@ -234,10 +229,11 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-long getMicrotime(){
+unsigned long long getMicrotime(){
 	struct timeval currentTime;
 	gettimeofday(&currentTime, NULL);
-	return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
+	//return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
+	return ((unsigned long long)currentTime.tv_sec * 1000000) + currentTime.tv_usec;
 }
 
 void activarOtrosSemaforos() {
@@ -564,8 +560,9 @@ void realizarPeticion(char** parametros) {
 			//le saco las comillas al valor
 			char *valor = string_substring(parametros[3], 1,
 					string_length(parametros[3]) - 2);
-			//¿El timestamp necesita conversion? esto esta en segundos y no hay tipo de dato que banque los milisegundos por el tamanio
-			long int timestampActual = (long int) time(NULL);
+
+			unsigned long long timestampActual = getMicrotime();
+			//long int timestampActual = (long int) time(NULL);
 			char* timestamp = string_itoa(timestampActual);
 
 			char* tablaMayusculas = string_new();
@@ -889,7 +886,7 @@ int insert(char* tabla, char* key, char* valor, char* timestamp) {
 		//pthread_mutex_lock(&SEMAFOROMEMTABLE);
 
 		t_registro* p_registro = malloc(12); // 2 int = 2* 4        +       un puntero a char = 4
-		p_registro->timestamp = atoi(timestamp);
+		p_registro->timestamp = (unsigned long long)atoi(timestamp);
 		p_registro->key = atoi(key);
 		p_registro->value = malloc(strlen(valor) + 1); //todo OJOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO LE PUSE UN +1111!!!!!!!!!!!!
 		strcpy(p_registro->value, valor);
@@ -1472,7 +1469,7 @@ void evaluarRegistro(char *registro, char *tablaPath,
 	int cantidadDeParticiones = config_get_int_value(metadata, "PARTITIONS");
 	//Separo el registro en timestamp, key y value
 	char **infoSeparada = string_split(registro, ";");
-	int timestamp = atoi(infoSeparada[0]);
+	unsigned long long timestamp = (unsigned long long)atoi(infoSeparada[0]);
 	int key = atoi(infoSeparada[1]);
 	char *value = string_new();
 	string_append(&value, infoSeparada[2]);
@@ -1512,7 +1509,7 @@ void evaluarRegistro(char *registro, char *tablaPath,
 	 string_append(&registrosBinario, levantarRegistros(pathBinario));*/
 }
 
-void compararRegistros(int timestamp, int key, char *value,
+void compararRegistros(unsigned long long timestamp, int key, char *value,
 		binarioCompactacion *unBinario, char* pathBinario) {
 	char *registrosBinario = string_new();
 	string_append(&registrosBinario, unBinario->registros);
@@ -1558,11 +1555,11 @@ void compararRegistros(int timestamp, int key, char *value,
 	 printf("%s", otro->registros);*/
 }
 
-void comparar1RegistroBinarioCon1NuevoRegistro(int timestampRegistro,
+void comparar1RegistroBinarioCon1NuevoRegistro(unsigned long long timestampRegistro,
 		int keyRegistro, char *valueRegistro, char **registroBinario,
 		int *elRegistroContieneLaKey) {
 	char **infoSeparada = string_split(*registroBinario, ";");
-	int timestampBinario = atoi(infoSeparada[0]);
+	unsigned long long timestampBinario = (unsigned long long)atoi(infoSeparada[0]);
 	int keyBinario = atoi(infoSeparada[1]);
 	char *valueBinario = string_new();
 	string_append(&valueBinario, infoSeparada[2]);
