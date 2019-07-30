@@ -2076,8 +2076,7 @@ char* realizarSelect(char* tabla, char* key) {
 			if (vectorStructs[0]->timestamp > timestampActualMayorBloques) {
 				timestampActualMayorBloques = vectorStructs[0]->timestamp;
 				strcpy(valueDeTimestampActualMayorBloques, "");
-				string_append(&valueDeTimestampActualMayorBloques,
-						vectorStructs[0]->value);
+				string_append(&valueDeTimestampActualMayorBloques, vectorStructs[0]->value);
 			}
 
 			char* mensajeALogear2 = malloc( strlen(" Cierro estudio de los bloques "));
@@ -2823,7 +2822,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	if (i == 0) {
 		vectorStructs[i] = malloc(8 + sizeof(unsigned long long));
 		t_registro* p_registro = malloc(8 + sizeof(unsigned long long));
-		p_registro->timestamp = -1;
+		p_registro->timestamp = 1;
 		memcpy(&vectorStructs[i]->timestamp, &p_registro->timestamp,
 				sizeof(p_registro->timestamp));
 	}
