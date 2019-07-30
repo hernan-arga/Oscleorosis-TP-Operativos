@@ -2863,16 +2863,15 @@ void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 
 		while ( contador < list_size(entradaTabla)) {
 			t_registro* p_registro = list_get(entradaTabla, (*cant));
+
 			char* mensajeALogear = malloc( strlen(" 1 "));
 			strcpy(mensajeALogear, " 1 ");
 			t_log* g_logger;
-			g_logger = log_create(
-					string_from_format("%slogs.log",
-							structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
-					LOG_LEVEL_INFO);
+			g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0, LOG_LEVEL_INFO);
 			log_info(g_logger, mensajeALogear);
 			log_destroy(g_logger);
 			free(mensajeALogear);
+
 			if (p_registro->key == laKey) {
 				arrayPorKeyDeseadaMemtable[*cant] = malloc(8 + sizeof(unsigned long long));
 				memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key,
@@ -2880,10 +2879,8 @@ void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 				memcpy(&arrayPorKeyDeseadaMemtable[*cant]->timestamp,
 						&p_registro->timestamp, sizeof(p_registro->timestamp));
 
-				arrayPorKeyDeseadaMemtable[*cant]->value = malloc(
-						strlen(p_registro->value));
-				memcpy(arrayPorKeyDeseadaMemtable[*cant]->value,
-						p_registro->value, strlen(p_registro->value));
+				arrayPorKeyDeseadaMemtable[*cant]->value = malloc(strlen(p_registro->value) + 1);
+				memcpy(arrayPorKeyDeseadaMemtable[*cant]->value, p_registro->value, strlen(p_registro->value) + 1);
 
 				(*cant)++;
 			}
