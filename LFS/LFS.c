@@ -3270,8 +3270,8 @@ void tomarPeticionInsert(int sd) {
 	recv(sd, value, *tamanioValue, 0);
 	char *valueCortado = string_substring_until(value, *tamanioValue);
 
-	unsigned long long *tamanioTime = malloc(sizeof(unsigned long long));
-	read(sd, tamanioTime, sizeof(unsigned long long));
+	int *tamanioTime = malloc(sizeof(int));
+	read(sd, tamanioTime, sizeof(int));
 	unsigned long long *time = malloc(*tamanioTime);
 	read(sd, time, *tamanioTime);
 	char* timeString = string_from_format("%llu",*time);

@@ -132,7 +132,7 @@ void quitarMemoriaDe1Lista(struct datosMemoria *, t_list *);
 void iniciarSemaforos();
 void conectarMemoriaPrcpal();
 void PRUEBA();
-long getMicrotime();
+unsigned long long getMicrotime();
 
 int multiprocesamiento;
 t_list * metricasDeUltimos30Segundos;
@@ -220,10 +220,11 @@ int main() {
 	return 0;
 }
 
-long getMicrotime(){
+unsigned long long getMicrotime(){
 	struct timeval currentTime;
 	gettimeofday(&currentTime, NULL);
-	return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
+	//return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
+	return ((unsigned long long)currentTime.tv_sec * 1000000) + currentTime.tv_usec;
 }
 
 void iniciarSemaforos() {
