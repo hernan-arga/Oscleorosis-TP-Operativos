@@ -162,6 +162,8 @@ pthread_t hiloLevantarConexion;
 
 pthread_mutex_t SEMAFORODETMPC;
 pthread_mutex_t SEMAFOROMEMTABLE;
+pthread_mutex_t SEMAFOROCHOTO;
+
 
 int main(int argc, char *argv[]) {
 
@@ -211,6 +213,7 @@ unsigned long long getMicrotime(){
 void activarOtrosSemaforos() {
 	pthread_mutex_init(&SEMAFORODETMPC, NULL);
 	pthread_mutex_init(&SEMAFOROMEMTABLE, NULL);
+	pthread_mutex_init(&SEMAFOROCHOTO, NULL);
 }
 
 void ponerActivasTodasLasTablas() {
@@ -904,6 +907,7 @@ void dump() {
 
 void dumpPorTabla(char* tabla) {
 	if (existeLaTabla(tabla)) {
+		pthread_mutex_lock(&SEMAFOROCHOTO);
 		//semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 		//pthread_mutex_lock(&unSemaforo->mutexDrop);
 
@@ -1012,6 +1016,7 @@ void dumpPorTabla(char* tabla) {
 	}
 	//Si no existe no hago nada, solo la elimino de la memtable
 	dictionary_remove(memtable, tabla);
+	pthread_mutex_unlock(&SEMAFOROCHOTO);
 
 
 
@@ -1153,9 +1158,8 @@ void verificarCompactacion(char *pathTabla) {
 
 void compactacion(char* pathTabla) {
 
-
-	/*
-	char* mensajeALogear = malloc( strlen(" Arranco la compactacion de la tabla : ") + strlen(pathTabla));
+	pthread_mutex_lock(&SEMAFOROCHOTO);
+	char* mensajeALogear = malloc( strlen(" Arranco la compactacion de la tabla : ") + strlen(pathTabla) +1);
 	strcpy(mensajeALogear, " Arranco la compactacion de la tabla : ");
 	strcat(mensajeALogear, pathTabla);
 	t_log* g_logger;
@@ -1166,7 +1170,7 @@ void compactacion(char* pathTabla) {
 	log_info(g_logger, mensajeALogear);
 	log_destroy(g_logger);
 	free(mensajeALogear);
-	*/
+
 
 	char *tabla = string_new();
 	char *pathDeMontajeDeLasTablas = string_new();
@@ -1182,8 +1186,7 @@ void compactacion(char* pathTabla) {
 	//dictionary_iterator(tablasQueTienenTMPs, (void*) actualizarRegistros);
 	//dictionary_clean(tablasQueTienenTMPs);
 
-	/*
-	char* mensajeALogear2 = malloc( strlen(" Termino la compactacion de la tabla : ") + strlen(pathTabla));
+	char* mensajeALogear2 = malloc( strlen(" Termino la compactacion de la tabla : ") + strlen(pathTabla) +1);
 	strcpy(mensajeALogear2, " Termino la compactacion de la tabla : ");
 	strcat(mensajeALogear2, pathTabla);
 	t_log* g_logger2;
@@ -1194,8 +1197,7 @@ void compactacion(char* pathTabla) {
 	log_info(g_logger2, mensajeALogear2);
 	log_destroy(g_logger2);
 	free(mensajeALogear2);
-	*/
-
+	pthread_mutex_unlock(&SEMAFOROCHOTO);
 
 }
 
@@ -1932,6 +1934,7 @@ int existeCarpeta(char *nombreCarpeta) {
 
 //No le pongo "select" porque ya esta la funcion de socket y rompe
 char* realizarSelect(char* tabla, char* key) {
+	pthread_mutex_lock(&SEMAFOROCHOTO);
 	actualizarTiempoDeRetardo();
 	sleep(structConfiguracionLFS.RETARDO/1000);
 	string_to_upper(tabla);
@@ -2555,6 +2558,8 @@ char* realizarSelect(char* tabla, char* key) {
 			log_error(g_logger, mensajeALogear);
 			log_destroy(g_logger);
 			free(mensajeALogear);
+			pthread_mutex_unlock(&SEMAFOROCHOTO);
+
 			return NULL;
 		} else { // o sea, si existe la key en algun lugar
 
@@ -2688,6 +2693,7 @@ char* realizarSelect(char* tabla, char* key) {
 				log_destroy(g_logger);
 				free(mensajeALogear);
 			}
+			pthread_mutex_unlock(&SEMAFOROCHOTO);
 
 			return valueFinal;
 			string_append(&valueFinal, "");
@@ -2716,6 +2722,7 @@ char* realizarSelect(char* tabla, char* key) {
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
+		pthread_mutex_unlock(&SEMAFOROCHOTO);
 		return NULL;
 	}
 
