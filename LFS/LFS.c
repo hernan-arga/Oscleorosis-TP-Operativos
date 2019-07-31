@@ -63,8 +63,10 @@ typedef struct {
 
 typedef struct {
 	char *tabla;
-	pthread_mutex_t mutexTablaParticion;
 	pthread_mutex_t mutexDrop;
+	pthread_mutex_t mutexCompactacion;
+	pthread_mutex_t MUTEX_TABLE_PART;
+
 } semaforoDeTabla;
 
 int32_t iniciarConexion();
@@ -162,7 +164,7 @@ pthread_t hiloLevantarConexion;
 
 pthread_mutex_t SEMAFORODETMPC;
 pthread_mutex_t SEMAFOROMEMTABLE;
-pthread_mutex_t SEMAFOROCHOTO;
+//pthread_mutex_t SEMAFOROCHOTO;
 
 
 int main(int argc, char *argv[]) {
@@ -213,7 +215,7 @@ unsigned long long getMicrotime(){
 void activarOtrosSemaforos() {
 	pthread_mutex_init(&SEMAFORODETMPC, NULL);
 	pthread_mutex_init(&SEMAFOROMEMTABLE, NULL);
-	pthread_mutex_init(&SEMAFOROCHOTO, NULL);
+	//pthread_mutex_init(&SEMAFOROCHOTO, NULL);
 }
 
 void ponerActivasTodasLasTablas() {
@@ -223,8 +225,9 @@ void ponerActivasTodasLasTablas() {
 		unaTablaConSemaforo = malloc(sizeof(semaforoDeTabla));
 		unaTablaConSemaforo->tabla = string_duplicate(
 				list_get(todasLasTablasDelFS, i));
-		pthread_mutex_init(&(unaTablaConSemaforo->mutexTablaParticion), NULL);
 		pthread_mutex_init(&(unaTablaConSemaforo->mutexDrop), NULL);
+		pthread_mutex_init(&(unaTablaConSemaforo->MUTEX_TABLE_PART), NULL);
+		pthread_mutex_init(&(unaTablaConSemaforo->mutexCompactacion), NULL);
 		list_add(listaDeSemaforos, unaTablaConSemaforo);
 	}
 	list_destroy(todasLasTablasDelFS);
@@ -252,8 +255,8 @@ t_list *tomarTodasLasTablas() {
 void borrarSemaforo(char *tablaADestruir) {
 	void destruirSemaforo(semaforoDeTabla *unSemaforo) {
 		pthread_mutex_destroy(&((semaforoDeTabla*) unSemaforo)->mutexDrop);
-		pthread_mutex_destroy(
-				&((semaforoDeTabla*) unSemaforo)->mutexTablaParticion);
+		pthread_mutex_destroy(&((semaforoDeTabla*) unSemaforo)->MUTEX_TABLE_PART);
+		pthread_mutex_destroy(&((semaforoDeTabla*) unSemaforo)->mutexCompactacion);
 	}
 
 	semaforoDeTabla *unSemaforo;
@@ -712,12 +715,8 @@ void realizarPeticion(char** parametros) {
 			char* tabla = parametros[1];
 			string_to_upper(tabla);
 
-			semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-			pthread_mutex_lock(&unSemaforo->mutexDrop);
 			drop(tabla);
-			pthread_mutex_unlock(&unSemaforo->mutexDrop);
-			borrarSemaforo(tabla);
-
+			//borrarSemaforo(tabla);
 		}
 		break;
 	case DESCRIBE:
@@ -897,11 +896,25 @@ void dump() {
 }
 
 void dumpPorTabla(char* tabla) {
+
 	if (existeLaTabla(tabla)) {
 		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-		pthread_mutex_lock(&unSemaforo->mutexDrop);
+		//pthread_mutex_lock(&unSemaforo->mutexDrop); veo en el otro tp q no lo usan aca
+		pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART);
 
-		pthread_mutex_lock(&SEMAFOROCHOTO);
+		char* mensajeALogear = malloc( strlen(" Arranco dump de la tabla : ") + strlen(tabla) +1);
+		strcpy(mensajeALogear, " Arranco dump de la tabla : ");
+		strcat(mensajeALogear, tabla);
+		t_log* g_logger;
+		g_logger = log_create(
+				string_from_format("%slogs.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+				LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+
+		//pthread_mutex_lock(&SEMAFOROCHOTO);
 
 		//Tomo el tamanio por bloque de mi LFS
 		char *metadataPath = string_from_format("%sMetadata/metadata.bin",
@@ -1004,14 +1017,29 @@ void dumpPorTabla(char* tabla) {
 		//antes de eliminarlo de la memtable lo pongo en el diccionario de tablasQueTienenTMPs porque sino se borra el string tambien
 		//dictionary_put(tablasQueTienenTMPs, tabla, tablaPath);
 
+
+		char* mensajeALogear2 = malloc( strlen(" termino dump de la tabla : ") + strlen(tabla) +1);
+		strcpy(mensajeALogear2, " termino dump de la tabla : ");
+		strcat(mensajeALogear2, tabla);
+			t_log* g_logger2;
+		g_logger2 = log_create(
+						string_from_format("%slogs.log",
+								structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+						LOG_LEVEL_INFO);
+		log_info(g_logger2, mensajeALogear2);
+		log_destroy(g_logger2);
+		free(mensajeALogear2);
+
+		dictionary_remove(memtable, tabla);
+
+		pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
 		pthread_mutex_unlock(&unSemaforo->mutexDrop);
 	}
-	//Si no existe no hago nada, solo la elimino de la memtable
-	dictionary_remove(memtable, tabla);
-	pthread_mutex_unlock(&SEMAFOROCHOTO);
-
-
-
+	else{
+		//Si no existe no hago nada, solo la elimino de la memtable
+		dictionary_remove(memtable, tabla);
+	}
+	//pthread_mutex_unlock(&SEMAFOROCHOTO);
 }
 
 int cuantosDumpeosHuboEnLaTabla(char *tablaPath) {
@@ -1123,6 +1151,9 @@ void verificarCompactacion(char *pathTabla) {
 			string_substring_from(pathTabla, strlen(pathDeMontajeDeLasTablas)));
 
 	while (existeLaTabla(tabla)) {
+		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+		pthread_mutex_lock(&unSemaforo->mutexDrop);
+		pthread_mutex_lock(&unSemaforo->mutexCompactacion);
 		//printf("%s\n", pathTabla);
 		char *metadataTabla = string_new();
 		string_append(&metadataTabla, pathTabla);
@@ -1136,13 +1167,15 @@ void verificarCompactacion(char *pathTabla) {
 		//printf("%i\n", tiempoCompactacion);
 		sleep(tiempoCompactacion/1000);
 		//Con sleep tengo que meter un \n al final de un printf porque sino no imprime
-		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 
 		if (existeLaTabla(tabla)) {	//por si se borro mientras estaba en sleep
-			pthread_mutex_lock(&unSemaforo->mutexDrop);	//Semaforo para bloquear el drop
+
 			compactacion(pathTabla);	//Seccion Critica
-			pthread_mutex_unlock(&unSemaforo->mutexDrop);
+
 		}
+
+		pthread_mutex_unlock(&unSemaforo->mutexCompactacion);
+		pthread_mutex_unlock(&unSemaforo->mutexDrop);
 		free(metadataTabla);
 		config_destroy(configTabla);
 	}
@@ -1150,7 +1183,7 @@ void verificarCompactacion(char *pathTabla) {
 
 void compactacion(char* pathTabla) {
 
-	pthread_mutex_lock(&SEMAFOROCHOTO);
+	//pthread_mutex_lock(&SEMAFOROCHOTO);
 	char* mensajeALogear = malloc( strlen(" Arranco la compactacion de la tabla : ") + strlen(pathTabla) +1);
 	strcpy(mensajeALogear, " Arranco la compactacion de la tabla : ");
 	strcat(mensajeALogear, pathTabla);
@@ -1183,13 +1216,13 @@ void compactacion(char* pathTabla) {
 	strcat(mensajeALogear2, pathTabla);
 	t_log* g_logger2;
 	g_logger2 = log_create(
-			string_from_format("%slogs.log",
-					structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
-			LOG_LEVEL_INFO);
+				string_from_format("%slogs.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+				LOG_LEVEL_INFO);
 	log_info(g_logger2, mensajeALogear2);
 	log_destroy(g_logger2);
 	free(mensajeALogear2);
-	pthread_mutex_unlock(&SEMAFOROCHOTO);
+	//pthread_mutex_unlock(&SEMAFOROCHOTO);
 
 }
 
@@ -1239,10 +1272,7 @@ void actualizarRegistrosCon1TMPC(char *tmpc, char *tablaPath) {
 	liberarBloques(tmpc);
 	remove(tmpc);
 
-	//semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-	//pthread_mutex_lock(&unSemaforo->mutexTablaParticion);
 	list_iterate(binariosAfectados, (void*) actualizarBin);	//Seccion Critica
-	//pthread_mutex_unlock(&unSemaforo->mutexTablaParticion);
 
 	list_clean(binariosAfectados);
 	fin = time(NULL);
@@ -1704,7 +1734,9 @@ int create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 		semaforoDeTabla *unSemaforo = malloc(sizeof(semaforoDeTabla));
 		unSemaforo->tabla = tabla;
 		pthread_mutex_init(&unSemaforo->mutexDrop, NULL);
-		pthread_mutex_init(&unSemaforo->mutexTablaParticion, NULL);
+		pthread_mutex_init(&unSemaforo->MUTEX_TABLE_PART, NULL);
+		pthread_mutex_init(&unSemaforo->mutexCompactacion, NULL);
+
 		list_add(listaDeSemaforos, unSemaforo);
 
 		return 1;
@@ -1890,6 +1922,9 @@ int existeLaTabla(char* nombreDeTabla) {
 }
 
 void drop(char* tabla) {
+	semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+	pthread_mutex_lock(&unSemaforo->mutexDrop);
+
 	actualizarTiempoDeRetardo();
 	sleep(structConfiguracionLFS.RETARDO/1000);
 	char *path = string_new();
@@ -1909,6 +1944,8 @@ void drop(char* tabla) {
 		}
 	}
 	rmdir(path);
+	pthread_mutex_unlock(&unSemaforo->mutexDrop);
+	borrarSemaforo(tabla);
 	closedir(directorio);
 }
 
@@ -1932,7 +1969,12 @@ int existeCarpeta(char *nombreCarpeta) {
 
 //No le pongo "select" porque ya esta la funcion de socket y rompe
 char* realizarSelect(char* tabla, char* key) {
-	pthread_mutex_lock(&SEMAFOROCHOTO);
+	//pthread_mutex_lock(&SEMAFOROCHOTO);
+
+	semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+	pthread_mutex_lock(&unSemaforo->mutexDrop);
+	pthread_mutex_lock(&unSemaforo->mutexCompactacion);
+
 	actualizarTiempoDeRetardo();
 	sleep(structConfiguracionLFS.RETARDO/1000);
 	string_to_upper(tabla);
@@ -2438,6 +2480,7 @@ char* realizarSelect(char* tabla, char* key) {
 		// ----------------------------------------------------
 
 		// LEO MEMTABLE
+		pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART);
 
 		char* mensajeALogear6 = malloc( strlen(" arranco a leer memtable ") + 1);
 		strcpy(mensajeALogear6, " arranco a leer memtable ");
@@ -2556,7 +2599,10 @@ char* realizarSelect(char* tabla, char* key) {
 			log_error(g_logger, mensajeALogear);
 			log_destroy(g_logger);
 			free(mensajeALogear);
-			pthread_mutex_unlock(&SEMAFOROCHOTO);
+
+			pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
+			pthread_mutex_unlock(&unSemaforo->mutexCompactacion);
+			pthread_mutex_unlock(&unSemaforo->mutexDrop);
 
 			return NULL;
 		} else { // o sea, si existe la key en algun lugar
@@ -2691,7 +2737,11 @@ char* realizarSelect(char* tabla, char* key) {
 				log_destroy(g_logger);
 				free(mensajeALogear);
 			}
-			pthread_mutex_unlock(&SEMAFOROCHOTO);
+			//pthread_mutex_unlock(&SEMAFOROCHOTO);
+
+			pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
+			pthread_mutex_unlock(&unSemaforo->mutexCompactacion);
+			pthread_mutex_unlock(&unSemaforo->mutexDrop);
 
 			return valueFinal;
 			string_append(&valueFinal, "");
@@ -2720,7 +2770,10 @@ char* realizarSelect(char* tabla, char* key) {
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
-		pthread_mutex_unlock(&SEMAFOROCHOTO);
+		//pthread_mutex_unlock(&SEMAFOROCHOTO);
+		pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
+		pthread_mutex_unlock(&unSemaforo->mutexCompactacion);
+		pthread_mutex_unlock(&unSemaforo->mutexDrop);
 		return NULL;
 	}
 
@@ -2943,7 +2996,7 @@ metadataTabla describeUnaTabla(char *tabla, int seImprimePorPantalla) {
 	}
 	printf("¡Error! no se encontro la metadata\n");
 	closedir(directorio);
-	exit(-1);
+	//exit(-1);
 }
 
 void describeTodasLasTablas(int seImprimePorPantalla) {
@@ -3194,7 +3247,7 @@ void tomarPeticionSelect(int sd) {
 
 	} else {
 
-		char* mensajeALogear = malloc( strlen(" Encontre el value : ") + strlen(value));
+		char* mensajeALogear = malloc( strlen(" Encontre el value : ") + strlen(value)+1);
 		strcpy(mensajeALogear, " Encontre el value : ");
 		strcat(mensajeALogear, value);
 		t_log* g_logger;
