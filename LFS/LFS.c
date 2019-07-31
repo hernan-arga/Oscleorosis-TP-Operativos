@@ -202,10 +202,10 @@ int main(int argc, char *argv[]) {
 }
 
 unsigned long long getMicrotime(){
-	struct timeval currentTime;
-	gettimeofday(&currentTime, NULL);
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
 	//return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
-	return ((unsigned long long)currentTime.tv_sec * 1000000) + currentTime.tv_usec;
+	return ((unsigned long long)( (tv.tv_sec)*1000 + (tv.tv_usec)/1000 ));
 }
 
 void activarOtrosSemaforos() {
@@ -3277,6 +3277,45 @@ void tomarPeticionInsert(int sd) {
 	char* timeString = string_from_format("%llu",*time);
 
 	int respuesta = insert(tablaCortada, keyString, valueCortado, timeString);
+
+	//logueo respuesta
+	if (respuesta == 0) {
+		char* mensajeALogear = malloc(
+				strlen(" No existe tabla con el nombre : ") + strlen(tablaCortada)
+						+ 1);
+		strcpy(mensajeALogear, " No existe tabla con el nombre : ");
+		strcat(mensajeALogear, tablaCortada);
+		t_log* g_logger;
+		g_logger = log_create(
+				string_from_format("%slogs.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+				LOG_LEVEL_ERROR);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+	if (respuesta == 1) {
+		char* mensajeALogear = malloc(
+				strlen(" Se realizo INSERT en tabla :  / KEY :  / VALUE :  / TIMESTAMP : ")
+						+ strlen(tabla) + strlen(keyString) + strlen(valueCortado) + strlen(timeString) + 1);
+		strcpy(mensajeALogear, " Se realizo INSERT en tabla : ");
+		strcat(mensajeALogear, tablaCortada);
+		strcat(mensajeALogear, " / KEY : ");
+		strcat(mensajeALogear, keyString);
+		strcat(mensajeALogear, " / VALUE : ");
+		strcat(mensajeALogear, valueCortado);
+		strcat(mensajeALogear, " / TIMESTAMP : ");
+		strcat(mensajeALogear, timeString);
+		t_log* g_logger;
+		g_logger = log_create(
+				string_from_format("%slogs.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+				LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+
 
 	// serializo respuesta . respuesta = 1 es OK
 	char* buffer = malloc(2 * sizeof(int));

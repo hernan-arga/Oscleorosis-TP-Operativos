@@ -193,10 +193,10 @@ int main(int argc, char *argv[]) {
 }
 
 unsigned long long getMicrotime(){
-	struct timeval currentTime;
-	gettimeofday(&currentTime, NULL);
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
 	//return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
-	return ((unsigned long long)currentTime.tv_sec * 1000000) + currentTime.tv_usec;
+	return ((unsigned long long)( (tv.tv_sec)*1000 + (tv.tv_usec)/1000 ));
 }
 
 void analizarInstruccion(char* instruccion) {
@@ -566,11 +566,11 @@ int realizarInsert(char* tabla, char* key, char* value) {
 	int* laKey = malloc(sizeof(int));
 	*laKey = atoi(key);
 
-	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame, laKey,
-			sizeof(int));
+	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame, laKey, sizeof(int));
+
 	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int), timeStamp, sizeof(unsigned long long));
-	memcpy(
-			memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(unsigned long long), value, strlen(value) + 1);
+
+	memcpy(	memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(unsigned long long), value, strlen(value) + 1);
 
 	free(timeStamp);
 
@@ -734,8 +734,7 @@ void ejecutarJournaling() {
 						sizeof(int));
 
 				int tamanioValue = strlen(value);
-				memcpy(buffer + 5 * sizeof(int) + strlen(tabla), &tamanioValue,
-						sizeof(int));
+				memcpy(buffer + 5 * sizeof(int) + strlen(tabla), &tamanioValue,	sizeof(int));
 				memcpy(buffer + 6 * sizeof(int) + strlen(tabla), value,	strlen(value));
 
 				int tamanioTimestamp = sizeof(unsigned long long);
@@ -1280,8 +1279,8 @@ int serServidor() {
 							int32_t* num = malloc(sizeof(int));
 							recv(sd, num, sizeof(int32_t), 0);
 
-							printf("Num: %d\n", *num);
-							printf("Puerto: %d\n", direccion->sin_port);
+							//printf("Num: %d\n", *num);
+							//printf("Puerto: %d\n", direccion->sin_port);
 
 							datosMemoria* unaM = malloc(sizeof(datosMemoria));
 
@@ -1690,8 +1689,9 @@ void gossiping(int cliente) {
 		int32_t* num = malloc(sizeof(int));
 		recv(cliente, num, sizeof(int32_t), 0);
 
-		printf("Num: %d\n", *num);
-		printf("Puerto: %d\n", direccion->sin_port);
+
+		//printf("Num: %d\n", *num);
+		//printf("Puerto: %d\n", direccion->sin_port);
 
 		datosMemoria* unaM = malloc(sizeof(datosMemoria));
 

@@ -221,10 +221,10 @@ int main() {
 }
 
 unsigned long long getMicrotime(){
-	struct timeval currentTime;
-	gettimeofday(&currentTime, NULL);
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
 	//return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
-	return ((unsigned long long)currentTime.tv_sec * 1000000) + currentTime.tv_usec;
+	return ((unsigned long long)( (tv.tv_sec)*1000 + (tv.tv_usec)/1000 ));
 }
 
 void iniciarSemaforos() {

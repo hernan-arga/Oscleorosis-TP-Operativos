@@ -3,3 +3,8 @@
 [INFO] 17:55:23:544 MEMORIA/(27814:27825):  Se realizo insert en FS en tabla : MARCAS con value : AAA
 [INFO] 18:08:22:286 MEMORIA/(28469:28479):  Se realizo insert en FS en tabla : MARCAS con value : WWWW
 [INFO] 18:09:26:242 MEMORIA/(28469:28479):  Se realizo insert en FS en tabla : MARCAS con value : QQQQ
+[INFO] 22:35:08:108 MEMORIA/(30118:30129):  Se realizo create en el FS : TABLA1 con SC 1 80000
+[INFO] 22:38:58:749 MEMORIA/(30118:30129):  Se realizo insert en FS en tabla : TABLA1 con value : HOLIS
+[INFO] 22:42:26:173 MEMORIA/(30414:30426):  Se realizo create en el FS : COSAS con SC 4 60000
+[INFO] 22:57:15:944 MEMORIA/(30933:30944):  Se realizo insert en FS en tabla : COSAS con value : JEBUS
+[INFO] 23:19:26:515 MEMORIA/(31770:31780):  Se realizo insert en FS en tabla : COSAS con value : OCHOOCHO
