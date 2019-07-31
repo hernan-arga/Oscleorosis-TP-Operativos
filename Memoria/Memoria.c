@@ -322,7 +322,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 			if (*laKey == atoi(key)) {
 
-				char* value = malloc(*(frames + pag->numeroFrame));
+				char* value = malloc(*(frames + pag->numeroFrame) + 1);
 
 				memcpy(value,
 						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
@@ -336,13 +336,12 @@ char* realizarSelect(char* tabla, char* key) {
 						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
 								+ sizeof(int)), timeStamp, sizeof(unsigned long long));
 
-				free(timeStamp);
-
 				//printf("Value: %s\n", value);
 
 				pag->timeStamp = *timeStamp;
 
 				//free(value);
+				free(timeStamp);
 				free(laKey);
 
 				sem_post(&sem2);
@@ -764,7 +763,7 @@ void ejecutarJournaling() {
 					free(mensajeALogear);
 				}
 				if (*ok == 1) {
-					char* mensajeALogear = malloc( strlen(" Se realizo insert en FS en tabla :  con value : ") +strlen(tabla) + strlen(value) + 1 + strlen(" y timestamp : ") + sizeof(unsigned long long));
+					char* mensajeALogear = malloc( strlen(" Se realizo insert en FS en tabla :  con value : ") +strlen(tabla) + strlen(value) + 1 + strlen(" y timestamp : ") + sizeof(unsigned long long) +1);
 					strcpy(mensajeALogear, " Se realizo insert en FS en tabla : ");
 					strcat(mensajeALogear, tabla);
 					strcat(mensajeALogear, " con value : ");
