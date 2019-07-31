@@ -190,9 +190,9 @@ int main(int argc, char *argv[]) {
 	diccionarioDescribe = dictionary_create();
 
 
-	//listaDeSemaforos = list_create();
-	//ponerActivasTodasLasTablas();
-	//activarOtrosSemaforos();
+	listaDeSemaforos = list_create();
+	ponerActivasTodasLasTablas();
+	activarOtrosSemaforos();
 
 	//Se queda esperando a que termine el hilo de escuchar peticiones
 	pthread_join(hiloLevantarConexion, NULL);
@@ -227,7 +227,7 @@ void ponerActivasTodasLasTablas() {
 		pthread_mutex_init(&(unaTablaConSemaforo->mutexDrop), NULL);
 		list_add(listaDeSemaforos, unaTablaConSemaforo);
 	}
-	list_destroy_and_destroy_elements(todasLasTablasDelFS, free);
+	list_destroy(todasLasTablasDelFS);
 }
 
 t_list *tomarTodasLasTablas() {
@@ -659,18 +659,9 @@ void realizarPeticion(char** parametros) {
 				log_destroy(g_logger);
 				free(mensajeALogear);
 
-				//Levanto hilo de compactacion y agrego semaforo para la tabla
-				char *pathTabla = string_new();
-				string_append(&pathTabla,
-						string_from_format("%sTables/",
-								structConfiguracionLFS.PUNTO_MONTAJE));
-				string_append(&pathTabla, tablaMayusculas);
-				levantarHiloCompactacion(pathTabla);
-				semaforoDeTabla *unSemaforo = malloc(sizeof(semaforoDeTabla));
-				unSemaforo->tabla = tablaMayusculas;
-				pthread_mutex_init(&unSemaforo->mutexDrop, NULL);
-				pthread_mutex_init(&unSemaforo->mutexTablaParticion, NULL);
-				list_add(listaDeSemaforos, unSemaforo);
+
+				//semaforoDeTabla *otroSemaforo = dameSemaforo(tablaMayusculas);
+				//printf("semaforo: %s\n", otroSemaforo->tabla);
 			}
 			if (respuesta == 0) {
 				char* mensajeALogear = malloc(
@@ -910,7 +901,7 @@ void dumpPorTabla(char* tabla) {
 		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 		pthread_mutex_lock(&unSemaforo->mutexDrop);
 
-		//pthread_mutex_lock(&SEMAFOROCHOTO);
+		pthread_mutex_lock(&SEMAFOROCHOTO);
 
 		//Tomo el tamanio por bloque de mi LFS
 		char *metadataPath = string_from_format("%sMetadata/metadata.bin",
@@ -1145,13 +1136,13 @@ void verificarCompactacion(char *pathTabla) {
 		//printf("%i\n", tiempoCompactacion);
 		sleep(tiempoCompactacion/1000);
 		//Con sleep tengo que meter un \n al final de un printf porque sino no imprime
-
 		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-		pthread_mutex_lock(&unSemaforo->mutexDrop);	//Semaforo para bloquear el drop
-		if (existeLaTabla(tabla)) {	//por si se borro mientras se bloqueaba la tabla
+
+		if (existeLaTabla(tabla)) {	//por si se borro mientras estaba en sleep
+			pthread_mutex_lock(&unSemaforo->mutexDrop);	//Semaforo para bloquear el drop
 			compactacion(pathTabla);	//Seccion Critica
+			pthread_mutex_unlock(&unSemaforo->mutexDrop);
 		}
-		pthread_mutex_unlock(&unSemaforo->mutexDrop);
 		free(metadataTabla);
 		config_destroy(configTabla);
 	}
@@ -1709,6 +1700,12 @@ int create(char* tabla, char* consistencia, char* cantidadDeParticiones,
 		free(metadataPath);
 		levantarHiloCompactacion(path);
 		free(path);
+
+		semaforoDeTabla *unSemaforo = malloc(sizeof(semaforoDeTabla));
+		unSemaforo->tabla = tabla;
+		pthread_mutex_init(&unSemaforo->mutexDrop, NULL);
+		pthread_mutex_init(&unSemaforo->mutexTablaParticion, NULL);
+		list_add(listaDeSemaforos, unSemaforo);
 
 		return 1;
 	}

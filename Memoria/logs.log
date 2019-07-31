@@ -8,3 +8,87 @@
 [INFO] 22:42:26:173 MEMORIA/(30414:30426):  Se realizo create en el FS : COSAS con SC 4 60000
 [INFO] 22:57:15:944 MEMORIA/(30933:30944):  Se realizo insert en FS en tabla : COSAS con value : JEBUS
 [INFO] 23:19:26:515 MEMORIA/(31770:31780):  Se realizo insert en FS en tabla : COSAS con value : OCHOOCHO
+[INFO] 13:15:53:115 MEMORIA/(6525:6527):  Se realizo create en el FS : ANIMALS con EC 2 5000
+[INFO] 13:15:54:211 MEMORIA/(6530:6532):  Se realizo create en el FS : METALS con EC 3 5000
+[ERROR] 13:15:57:288 LFS/(6530:6532):  No se encontro la key : 126
+[INFO] 13:26:50:242 MEMORIA/(6716:6718):  Se realizo create en el FS : ANIMALS con EC 2 5000
+[INFO] 13:26:51:325 MEMORIA/(6721:6723):  Se realizo create en el FS : METALS con EC 3 5000
+[ERROR] 13:26:54:375 LFS/(6721:6723):  No se encontro la key : 126
+[INFO] 13:33:19:950 MEMORIA/(6862:6864):  Se realizo create en el FS : ANIMALS con EC 2 5000
+[INFO] 13:33:21:64 MEMORIA/(6867:6869):  Se realizo create en el FS : METALS con EC 3 5000
+[ERROR] 13:33:24:146 LFS/(6867:6869):  No se encontro la key : 126
+[INFO] 13:56:22:671 MEMORIA/(7496:7498):  Se realizo create en el FS : ANIMALS con EC 2 5000
+[INFO] 13:56:23:756 MEMORIA/(7501:7503):  Se realizo create en el FS : METALS con EC 3 5000
+[ERROR] 13:56:26:809 LFS/(7501:7503):  No se encontro la key : 126
+[INFO] 13:58:20:678 MEMORIA/(7558:7560):  Se realizo create en el FS : ANIMALS con EC 2 5000
+[INFO] 13:58:21:766 MEMORIA/(7563:7565):  Se realizo create en el FS : METALS con EC 3 5000
+[ERROR] 13:58:24:833 LFS/(7563:7565):  No se encontro la key : 126
+[INFO] 14:05:37:814 MEMORIA/(7789:7791):  Se realizo create en el FS : ANIMALS con EC 2 5000
+[INFO] 14:05:38:864 MEMORIA/(7796:7798):  Se realizo create en el FS : METALS con EC 3 5000
+[ERROR] 14:05:41:928 LFS/(7796:7798):  No se encontro la key : 126
+[INFO] 14:14:28:892 MEMORIA/(8129:8131):  Se realizo create en el FS : ANIMALS con EC 2 5000
+[INFO] 14:14:29:984 MEMORIA/(8134:8136):  Se realizo create en el FS : METALS con EC 3 5000
+[ERROR] 14:14:33:36 LFS/(8134:8136):  No se encontro la key : 126
+[ERROR] 14:14:35:80 LFS/(8129:8131):  No se encontro la key : 65
+[INFO] 14:16:43:31 MEMORIA/(8189:8191):  Se realizo create en el FS : ANIMALS con EC 2 5000
+[INFO] 14:16:44:102 MEMORIA/(8194:8196):  Se realizo create en el FS : METALS con EC 3 5000
+[ERROR] 14:16:47:214 LFS/(8194:8196):  No se encontro la key : 126
+[ERROR] 14:16:49:314 LFS/(8189:8191):  No se encontro la key : 65
+[ERROR] 14:16:50:394 LFS/(8194:8196):  No se encontro la key : 136
+[ERROR] 14:16:56:476 LFS/(8194:8196):  No se encontro la key : 136
+[INFO] 14:16:57:491 MEMORIA/(8201:8203):  Se realizo insert en FS en tabla : METALS con value : "aluminiferous" y timestamp : 1225312483
+[INFO] 14:16:57:503 MEMORIA/(8201:8203):  Se realizo insert en FS en tabla : METALS con value : "ferrous" y timestamp : 1225318690
+[INFO] 14:16:57:527 MEMORIA/(8201:8203):  Se realizo insert en FS en tabla : ANIMALS con value : "tigers" y timestamp : 1225309375
+[INFO] 14:16:57:534 MEMORIA/(8201:8203):  Se realizo insert en FS en tabla : ANIMALS con value : "biological" y timestamp : 1225315661
+[INFO] 14:16:59:580 Memoria/(8194:8196):  Llego select con VALUE : "biological"
+
+[ERROR] 14:17:00:599 LFS/(8201:8203):  No se encontro la key : 64
+[INFO] 14:17:01:636 Memoria/(8189:8191):  Llego select con VALUE : "aluminiferous"
+
+[INFO] 14:17:04:734 Memoria/(8189:8191):  Llego select con VALUE : "ferrous"
+
+[ERROR] 14:17:07:831 LFS/(8189:8191):  No se encontro la key : 16
+[INFO] 14:17:09:855 Memoria/(8201:8203):  Llego select con VALUE : "biological"
+
+[ERROR] 14:17:10:937 LFS/(8189:8191):  No se encontro la key : 135
+[INFO] 14:17:13:6 Memoria/(8201:8203):  Llego select con VALUE : "tigers"
+
+[INFO] 14:17:15:46 MEMORIA/(8194:8196):  Se realizo insert en FS en tabla : METALS con value : "chemicals" y timestamp : 1225333099
+[INFO] 14:17:15:52 MEMORIA/(8194:8196):  Se realizo insert en FS en tabla : METALS con value : "dysprosium" y timestamp : 1225330005
+[INFO] 14:17:15:65 MEMORIA/(8194:8196):  Se realizo insert en FS en tabla : METALS con value : "auriferous" y timestamp : 1225336245
+[INFO] 14:17:15:89 MEMORIA/(8194:8196):  Se realizo insert en FS en tabla : ANIMALS con value : "tortoises" y timestamp : 1225317724
+[ERROR] 14:17:16:114 LFS/(8201:8203):  No se encontro la key : 126
+[INFO] 14:17:20:221 MEMORIA/(8189:8191):  Se realizo insert en FS en tabla : METALS con value : "precious metals" y timestamp : 1225338331
+[INFO] 14:17:20:248 MEMORIA/(8189:8191):  Se realizo insert en FS en tabla : METALS con value : "moly" y timestamp : 1225322770
+[INFO] 14:17:20:252 MEMORIA/(8189:8191):  Se realizo insert en FS en tabla : METALS con value : "precious metals" y timestamp : 1225338331
+[INFO] 14:17:20:264 MEMORIA/(8189:8191):  Se realizo insert en FS en tabla : ANIMALS con value : "beasts" y timestamp : 1225341396
+[INFO] 14:17:20:273 MEMORIA/(8189:8191):  Se realizo insert en FS en tabla : ANIMALS con value : "primates" y timestamp : 1225319710
+[INFO] 14:17:22:185 MEMORIA/(8201:8203):  Se realizo insert en FS en tabla : METALS con value : "iridium" y timestamp : 1225327960
+[INFO] 14:17:22:202 MEMORIA/(8201:8203):  Se realizo insert en FS en tabla : METALS con value : "petrochemicals" y timestamp : 1225343457
+[INFO] 14:17:22:216 MEMORIA/(8201:8203):  Se realizo insert en FS en tabla : ANIMALS con value : "bullies" y timestamp : 1225321790
+[INFO] 14:17:22:229 MEMORIA/(8201:8203):  Se realizo insert en FS en tabla : ANIMALS con value : "livestock" y timestamp : 1225331012
+[INFO] 14:17:29:280 Memoria/(8189:8191):  Llego select con VALUE : "precious metals"
+
+[INFO] 14:17:30:317 MEMORIA/(8194:8196):  Se realizo insert en FS en tabla : METALS con value : "nickel alloy" y timestamp : 1225348470
+[INFO] 14:17:30:330 MEMORIA/(8194:8196):  Se realizo insert en FS en tabla : ANIMALS con value : "warheads" y timestamp : 1225339345
+[INFO] 14:17:30:337 MEMORIA/(8194:8196):  Se realizo insert en FS en tabla : ANIMALS con value : "bovine" y timestamp : 1225342404
+[INFO] 14:17:30:363 MEMORIA/(8194:8196):  Se realizo insert en FS en tabla : ANIMALS con value : "species" y timestamp : 1225351549
+[INFO] 14:17:32:384 Memoria/(8189:8191):  Llego select con VALUE : "nickel alloy"
+[ERROR] 14:17:33:464 LFS/(8194:8196):  No se encontro la key : 144
+[INFO] 14:17:35:581 Memoria/(8189:8191):  Llego select con VALUE : "primates"
+
+[ERROR] 14:17:36:661 LFS/(8194:8196):  No se encontro la key : 36
+[INFO] 14:17:37:677 MEMORIA/(8201:8203):  Se realizo insert en FS en tabla : METALS con value : "aluminous" y timestamp : 1225358734
+[INFO] 14:17:37:692 MEMORIA/(8201:8203):  Se realizo insert en FS en tabla : ANIMALS con value : "pets" y timestamp : 1225349479
+[INFO] 14:17:37:712 MEMORIA/(8201:8203):  Se realizo insert en FS en tabla : ANIMALS con value : "puppies" y timestamp : 1225352549
+[INFO] 14:17:37:716 MEMORIA/(8201:8203):  Se realizo insert en FS en tabla : ANIMALS con value : "heads" y timestamp : 1225355579
+[INFO] 14:17:38:720 Memoria/(8189:8191):  Llego select con VALUE : "petrochemicals"
+
+[INFO] 14:17:40:744 Memoria/(8201:8203):  Llego select con VALUE : "precious metals"
+
+[INFO] 14:17:41:849 Memoria/(8189:8191):  Llego select con VALUE : "heads"
+
+[INFO] 14:17:42:896 Memoria/(8194:8196):  Llego select con VALUE : "livestock"
+
+[ERROR] 14:17:43:965 LFS/(8201:8203):  No se encontro la key : 154
+[ERROR] 14:17:46:542 LFS/(8189:8191):  No se encontro la key : 16

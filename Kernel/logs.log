@@ -1,0 +1,78 @@
+[INFO] 13:15:53:123 Kernel/(6564:6590):  Se realizo create en FS de : ANIMALS
+[INFO] 13:15:54:229 Kernel/(6564:6590):  Se realizo create en FS de : METALS
+[ERROR] 13:15:57:294 Kernel/(6564:6597):  No se encontro ni en MM ni en FS la key : 126
+[INFO] 13:26:50:245 Kernel/(6736:6757):  Se realizo create en FS de : ANIMALS
+[INFO] 13:26:51:329 Kernel/(6736:6757):  Se realizo create en FS de : METALS
+[ERROR] 13:26:54:378 Kernel/(6736:6761):  No se encontro ni en MM ni en FS la key : 126
+[INFO] 13:33:19:953 Kernel/(6880:6916):  Se realizo create en FS de : ANIMALS
+[INFO] 13:33:21:70 Kernel/(6880:6916):  Se realizo create en FS de : METALS
+[ERROR] 13:33:24:152 Kernel/(6880:6921):  No se encontro ni en MM ni en FS la key : 126
+[ERROR] 13:55:03:864 Kernel/(6880:6928):  No se encontro ni en MM ni en FS la key : 65
+[INFO] 13:56:22:674 Kernel/(7515:7535):  Se realizo create en FS de : ANIMALS
+[INFO] 13:56:23:764 Kernel/(7515:7535):  Se realizo create en FS de : METALS
+[ERROR] 13:56:26:818 Kernel/(7515:7539):  No se encontro ni en MM ni en FS la key : 126
+[INFO] 13:58:20:681 Kernel/(7577:7595):  Se realizo create en FS de : ANIMALS
+[INFO] 13:58:21:777 Kernel/(7577:7595):  Se realizo create en FS de : METALS
+[ERROR] 13:58:24:835 Kernel/(7577:7601):  No se encontro ni en MM ni en FS la key : 126
+[INFO] 14:05:37:816 Kernel/(7812:7829):  Se realizo create en FS de : ANIMALS
+[INFO] 14:05:38:869 Kernel/(7812:7829):  Se realizo create en FS de : METALS
+[INFO] 14:05:40:738 KERNEL/(7812:7817):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 14:05:40:750 KERNEL/(7812:7817):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[ERROR] 14:05:41:930 Kernel/(7812:7834):  No se encontro ni en MM ni en FS la key : 126
+[INFO] 14:13:04:704 KERNEL/(8105:8110):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 14:13:04:704 KERNEL/(8105:8110):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 14:14:28:896 Kernel/(8148:8167):  Se realizo create en FS de : ANIMALS
+[INFO] 14:14:29:989 Kernel/(8148:8167):  Se realizo create en FS de : METALS
+[ERROR] 14:14:33:49 Kernel/(8148:8171):  No se encontro ni en MM ni en FS la key : 126
+[ERROR] 14:14:35:104 Kernel/(8148:8173):  No se encontro ni en MM ni en FS la key : 65
+[INFO] 14:14:39:401 KERNEL/(8148:8153):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 14:14:39:413 KERNEL/(8148:8153):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 14:16:43:34 Kernel/(8209:8226):  Se realizo create en FS de : ANIMALS
+[INFO] 14:16:44:110 Kernel/(8209:8226):  Se realizo create en FS de : METALS
+[ERROR] 14:16:47:219 Kernel/(8209:8229):  No se encontro ni en MM ni en FS la key : 126
+[INFO] 14:16:47:553 KERNEL/(8209:8214):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 14:16:47:561 KERNEL/(8209:8214):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[ERROR] 14:16:49:321 Kernel/(8209:8231):  No se encontro ni en MM ni en FS la key : 65
+[ERROR] 14:16:50:395 Kernel/(8209:8231):  No se encontro ni en MM ni en FS la key : 136
+[ERROR] 14:16:56:478 Kernel/(8209:8235):  No se encontro ni en MM ni en FS la key : 136
+[INFO] 14:16:59:584 Kernel/(8209:8237):  Llego select con VALUE : "biological"
+
+[ERROR] 14:17:00:606 Kernel/(8209:8237):  No se encontro ni en MM ni en FS la key : 64
+[INFO] 14:17:01:650 Kernel/(8209:8239):  Llego select con VALUE : "aluminiferous"
+
+[INFO] 14:17:02:617 KERNEL/(8209:8214):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 14:17:02:626 KERNEL/(8209:8214):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 14:17:04:742 Kernel/(8209:8244):  Llego select con VALUE : "ferrous"
+
+[ERROR] 14:17:07:836 Kernel/(8209:8246):  No se encontro ni en MM ni en FS la key : 16
+[INFO] 14:17:08:845 Kernel/(8209:8246):  Llego select con VALUE : "chemicals"
+[INFO] 14:17:09:857 Kernel/(8209:8246):  Llego select con VALUE : "biological"
+
+[ERROR] 14:17:10:940 Kernel/(8209:8249):  No se encontro ni en MM ni en FS la key : 135
+[INFO] 14:17:13:16 Kernel/(8209:8249):  Llego select con VALUE : "tigers"
+
+[ERROR] 14:17:16:116 Kernel/(8209:8251):  No se encontro ni en MM ni en FS la key : 126
+[INFO] 14:17:17:141 Kernel/(8209:8252):  Llego select con VALUE : "beasts"
+[INFO] 14:17:17:682 KERNEL/(8209:8214):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 14:17:17:689 KERNEL/(8209:8214):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 14:17:24:216 Kernel/(8209:8257):  Llego select con VALUE : "nickel alloy"
+[INFO] 14:17:25:224 Kernel/(8209:8257):  Llego select con VALUE : "pets"
+[INFO] 14:17:29:283 Kernel/(8209:8260):  Llego select con VALUE : "precious metals"
+
+[INFO] 14:17:32:397 Kernel/(8209:8262):  Llego select con VALUE : "nickel alloy"
+[INFO] 14:17:32:700 KERNEL/(8209:8214):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 14:17:32:702 KERNEL/(8209:8214):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[ERROR] 14:17:33:465 Kernel/(8209:8262):  No se encontro ni en MM ni en FS la key : 144
+[INFO] 14:17:35:584 Kernel/(8209:8264):  Llego select con VALUE : "primates"
+
+[ERROR] 14:17:36:662 Kernel/(8209:8264):  No se encontro ni en MM ni en FS la key : 36
+[INFO] 14:17:38:722 Kernel/(8209:8266):  Llego select con VALUE : "petrochemicals"
+
+[INFO] 14:17:40:747 Kernel/(8209:8266):  Llego select con VALUE : "precious metals"
+
+[INFO] 14:17:41:851 Kernel/(8209:8268):  Llego select con VALUE : "heads"
+
+[INFO] 14:17:42:897 Kernel/(8209:8268):  Llego select con VALUE : "livestock"
+
+[ERROR] 14:17:43:969 Kernel/(8209:8268):  No se encontro ni en MM ni en FS la key : 154
+[ERROR] 14:17:46:545 Kernel/(8209:8270):  No se encontro ni en MM ni en FS la key : 16
