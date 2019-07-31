@@ -764,11 +764,13 @@ void ejecutarJournaling() {
 					free(mensajeALogear);
 				}
 				if (*ok == 1) {
-					char* mensajeALogear = malloc( strlen(" Se realizo insert en FS en tabla :  con value : ") +strlen(tabla) + strlen(value) + 1);
+					char* mensajeALogear = malloc( strlen(" Se realizo insert en FS en tabla :  con value : ") +strlen(tabla) + strlen(value) + 1 + strlen(" y timestamp : ") + sizeof(unsigned long long));
 					strcpy(mensajeALogear, " Se realizo insert en FS en tabla : ");
 					strcat(mensajeALogear, tabla);
 					strcat(mensajeALogear, " con value : ");
 					strcat(mensajeALogear, value);
+					strcat(mensajeALogear, " y timestamp : ");
+					strcat(mensajeALogear, string_from_format("%llu", *timestamp));
 					t_log* g_logger;
 					g_logger = log_create("./logs.log", "MEMORIA", 1,
 							LOG_LEVEL_INFO);

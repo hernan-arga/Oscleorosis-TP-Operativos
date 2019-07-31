@@ -1958,7 +1958,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 
 		char* mensajeALogear = malloc(
-				strlen(" Encontre la particion donde podria estar la key "));
+				strlen(" Encontre la particion donde podria estar la key ") + 1);
 		strcpy(mensajeALogear,
 				" Encontre la particion donde podria estar la key ");
 		t_log* g_logger;
@@ -2037,7 +2037,7 @@ char* realizarSelect(char* tabla, char* key) {
 					bloqueSiguiente, bloqueAnterior);
 
 			char* mensajeALogear = malloc(
-					strlen(" Obtuve los datos para la key deseada "));
+					strlen(" Obtuve los datos para la key deseada ") + 1);
 			strcpy(mensajeALogear,
 					" Obtuve los datos para la key deseada ");
 			t_log* g_logger;
@@ -2079,7 +2079,7 @@ char* realizarSelect(char* tabla, char* key) {
 				string_append(&valueDeTimestampActualMayorBloques, vectorStructs[0]->value);
 			}
 
-			char* mensajeALogear2 = malloc( strlen(" Cierro estudio de los bloques "));
+			char* mensajeALogear2 = malloc( strlen(" Cierro estudio de los bloques ") + 1);
 			strcpy(mensajeALogear2, " Cierro estudio de los bloques ");
 			t_log* g_logger2;
 			g_logger2 = log_create(
@@ -2432,13 +2432,13 @@ char* realizarSelect(char* tabla, char* key) {
 		// entonces timestampActualMayorTemporalesC = -1 y
 		// valueDeTimestampActualMayorTemporalesC = NULL
 
-		closedir(directorioTemporal);
+		closedir(directorioTemporalC);
 
 		// ----------------------------------------------------
 
 		// LEO MEMTABLE
 
-		char* mensajeALogear6 = malloc( strlen(" arranco a leer memtable "));
+		char* mensajeALogear6 = malloc( strlen(" arranco a leer memtable ") + 1);
 		strcpy(mensajeALogear6, " arranco a leer memtable ");
 		t_log* g_logger6;
 		g_logger6 = log_create(
@@ -2451,7 +2451,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 		t_list* listaRegistros = dictionary_get(memtable, tabla);
 
-		char* mensajeALogear10 = malloc( strlen(" lei la entrada tabla del diccionario memtable "));
+		char* mensajeALogear10 = malloc( strlen(" lei la entrada tabla del diccionario memtable ") + 1);
 		strcpy(mensajeALogear10, " lei la entrada tabla del diccionario memtable ");
 		t_log* g_logger10;
 		g_logger10 = log_create(
@@ -2483,7 +2483,7 @@ char* realizarSelect(char* tabla, char* key) {
 		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, listaRegistros,
 				atoi(key), &cantIgualDeKeyEnMemtable, tabla);
 
-		char* mensajeALogear11 = malloc( strlen(" cree el array por tabla memtable "));
+		char* mensajeALogear11 = malloc( strlen(" cree el array por tabla memtable ") + 1);
 		strcpy(mensajeALogear11, " cree el array por tabla memtable ");
 		t_log* g_logger11;
 		g_logger11 = log_create(
@@ -2524,7 +2524,7 @@ char* realizarSelect(char* tabla, char* key) {
 			timestampMayorMemtable = arrayPorKeyDeseadaMemtable[0]->timestamp;
 		}
 
-		char* mensajeALogear7 = malloc( strlen(" termine de leer memtable "));
+		char* mensajeALogear7 = malloc( strlen(" termine de leer memtable ") + 1);
 		strcpy(mensajeALogear7, " termine de leer memtable ");
 		t_log* g_logger7;
 		g_logger7 = log_create(
@@ -2838,7 +2838,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 		t_list* entradaTabla, int laKey, int *cant, char* tabla) {
 
-	char* mensajeALogear = malloc( strlen(" Entre en array por key memtable "));
+	char* mensajeALogear = malloc( strlen(" Entre en array por key memtable ") + 1);
 	strcpy(mensajeALogear, " Entre en array por key memtable ");
 	t_log* g_logger;
 	g_logger = log_create( string_from_format("%slogs.log",	structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0, LOG_LEVEL_INFO);
@@ -2942,6 +2942,7 @@ metadataTabla describeUnaTabla(char *tabla, int seImprimePorPantalla) {
 }
 
 void describeTodasLasTablas(int seImprimePorPantalla) {
+	// TODO SEMAFORO ACA PORQUE CUANDO SE HACE EL DESCRIBE GLOBAL NO SE LLEGAN A CREAR LOS ARCHIVOS, LINEA 2970
 	//Podria conservar la estructura en vez de borrar lo que tengo adentro pero tendria que ir fijandome que los valores que
 	//tenga adentro el diccionario todavia sean validos, entonces es mas facil borrar tod y hacer describe desde 0
 	dictionary_clean(diccionarioDescribe);
@@ -3170,7 +3171,7 @@ void tomarPeticionSelect(int sd) {
 	char *value = realizarSelect(tablaCortada, keyString);
 
 	if (value == NULL) {
-		char* mensajeALogear = malloc( strlen(" No encontre value ") );
+		char* mensajeALogear = malloc( strlen(" No encontre value ") +1);
 		strcpy(mensajeALogear, " No encontre value ");
 		t_log* g_logger;
 		g_logger = log_create(
