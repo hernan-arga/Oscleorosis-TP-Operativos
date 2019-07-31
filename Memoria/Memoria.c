@@ -763,7 +763,7 @@ void ejecutarJournaling() {
 					free(mensajeALogear);
 				}
 				if (*ok == 1) {
-					char* mensajeALogear = malloc( strlen(" Se realizo insert en FS en tabla :  con value : ") +strlen(tabla) + strlen(value) + 1 + strlen(" y timestamp : ") + sizeof(unsigned long long) +1);
+					char* mensajeALogear = malloc( strlen(" Se realizo insert en FS en tabla :  con value : ") +strlen(tabla) + strlen(value) + 1 + strlen(" y timestamp : ") + sizeof(unsigned long long) +2);
 					strcpy(mensajeALogear, " Se realizo insert en FS en tabla : ");
 					strcat(mensajeALogear, tabla);
 					strcat(mensajeALogear, " con value : ");
