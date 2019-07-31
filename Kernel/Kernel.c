@@ -132,7 +132,7 @@ void quitarMemoriaDe1Lista(struct datosMemoria *, t_list *);
 void iniciarSemaforos();
 void conectarMemoriaPrcpal();
 void PRUEBA();
-long getMicrotime();
+unsigned long long getMicrotime();
 
 int multiprocesamiento;
 t_list * metricasDeUltimos30Segundos;
@@ -161,9 +161,11 @@ struct metricas * unRegistro;
 sem_t MAXIMOPROCESAMIENTO;
 sem_t PEDIRDESCRIBE;
 sem_t MEMORIAPRINCIPAL;
+pthread_mutex_t SEMAFORODECONEXIONMEMORIAS;
+
 
 int main() {
-
+	pthread_mutex_init(&SEMAFORODECONEXIONMEMORIAS, NULL);
 	listaMetricas = list_create();
 	metricasDeUltimos30Segundos = list_create();
 	configuracion = config_create("Kernel_config");
@@ -220,10 +222,11 @@ int main() {
 	return 0;
 }
 
-long getMicrotime(){
-	struct timeval currentTime;
-	gettimeofday(&currentTime, NULL);
-	return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
+unsigned long long getMicrotime(){
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	//return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
+	return ((unsigned long long)( (tv.tv_sec)*1000 + (tv.tv_usec)/1000 ));
 }
 
 void iniciarSemaforos() {
@@ -1488,7 +1491,7 @@ void mandarDrop(char *tabla, int socketMemoria){
 	int tamanioTabla = strlen(tabla) + 1;
 	memcpy(buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
 	memcpy(buffer + 3 * sizeof(int), tabla, tamanioTabla);
-
+	pthread_mutex_lock(&SEMAFORODECONEXIONMEMORIAS);
 	send(socketMemoria, buffer, 3 * sizeof(int) + tamanioTabla, 0);
 
 	// Deserializo respuesta
@@ -1496,7 +1499,7 @@ void mandarDrop(char *tabla, int socketMemoria){
 	read(socketMemoria, tamanioRespuesta, sizeof(int));
 	int* ok = malloc(*tamanioRespuesta);
 	read(socketMemoria, ok, *tamanioRespuesta);
-
+	pthread_mutex_unlock(&SEMAFORODECONEXIONMEMORIAS);
 	if (*ok == 0) {
 		char* mensajeALogear = malloc(
 		strlen(" No se pudo realizar DROP de tabla : ") + strlen(tabla)	+ 1);
@@ -1540,6 +1543,7 @@ void guardarDiccionarioGlobal(int socketMemoria) {
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+	pthread_mutex_lock(&SEMAFORODECONEXIONMEMORIAS);
 	send(socketMemoria, buffer, 2 * sizeof(int), 0);
 
 	// deserializo lo que me devuelve memoria (que a su vez se lo mando el fs)
@@ -1608,6 +1612,7 @@ void guardarDiccionarioGlobal(int socketMemoria) {
 		 */
 		read(socketMemoria, tamanioTabla, sizeof(int));
 	}
+	pthread_mutex_unlock(&SEMAFORODECONEXIONMEMORIAS);
 }
 
 struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria) {
@@ -1621,7 +1626,6 @@ struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria) {
 	int tamanioTabla = strlen(tabla) + 1;
 	memcpy(buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
 	memcpy(buffer + 3 * sizeof(int), tabla, tamanioTabla);
-
 	send(socketMemoria, buffer, 3 * sizeof(int) + tamanioTabla, 0);
 
 	//Deserializo
@@ -1640,7 +1644,6 @@ struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria) {
 	int* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
 	read(socketMemoria, tiempoCompactacion, *tamanioTiempoCompactacion);
 	// aca ya tengo toda la metadata, falta guardarla en struct
-
 	char* mensajeALogear = malloc(	strlen(" [DESCRIBE x tabla]:  ") + strlen(tabla) + strlen(tipoConsistencia) + 2 * sizeof(int)	+ 1);
 	strcpy(mensajeALogear, " [DESCRIBE x tabla]:  ");
 	strcat(mensajeALogear, tabla);
@@ -1732,6 +1735,7 @@ void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones,
 			buffer + 6 * sizeof(int) + tamanioTabla + tamanioConsistencia
 					+ tamanioCantidadParticiones, tiempoCompactacion,
 			tamanioTiempoCompactacion);
+	pthread_mutex_lock(&SEMAFORODECONEXIONMEMORIAS);
 	send(socketMemoria, buffer,	tamanioTabla + 6 * sizeof(int) + tamanioConsistencia + tamanioCantidadParticiones + tamanioTiempoCompactacion, 0);
 
 	// Deserializo respuesta
@@ -1741,7 +1745,7 @@ void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones,
 	//printf("acano\n");
 	int* ok = malloc(*tamanioRespuesta);
 	read(socketMemoria, ok, *tamanioRespuesta);
-
+	pthread_mutex_unlock(&SEMAFORODECONEXIONMEMORIAS);
 	if (*ok == 0) {
 		char* mensajeALogear = malloc(
 				strlen(" No se pudo realizar create en FS de tabla : ") + strlen(tabla)	+ 1);
@@ -1786,13 +1790,13 @@ char* pedirValue(char* tabla, char* laKey, int socketMemoria) {
 	int tamanioKey = sizeof(int);
 	memcpy(buffer + 3 * sizeof(int) + strlen(tabla), &tamanioKey, sizeof(int));
 	memcpy(buffer + 4 * sizeof(int) + strlen(tabla), key, sizeof(int));
-
+	pthread_mutex_lock(&SEMAFORODECONEXIONMEMORIAS);
 	send(socketMemoria, buffer, strlen(tabla) + 5 * sizeof(int), 0);
 
 	//deserializo value
 	int *tamanioValue = malloc(sizeof(int));
 	recv(socketMemoria, tamanioValue, sizeof(int), 0);
-
+	pthread_mutex_unlock(&SEMAFORODECONEXIONMEMORIAS);
 	if (*tamanioValue == 0) {
 		char* mensajeALogear = malloc(
 				strlen(" No se encontro ni en MM ni en FS la key : ")

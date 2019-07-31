@@ -162,6 +162,8 @@ pthread_t hiloLevantarConexion;
 
 pthread_mutex_t SEMAFORODETMPC;
 pthread_mutex_t SEMAFOROMEMTABLE;
+pthread_mutex_t SEMAFOROCHOTO;
+
 
 int main(int argc, char *argv[]) {
 
@@ -202,15 +204,16 @@ int main(int argc, char *argv[]) {
 }
 
 unsigned long long getMicrotime(){
-	struct timeval currentTime;
-	gettimeofday(&currentTime, NULL);
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
 	//return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
-	return ((unsigned long long)currentTime.tv_sec * 1000000) + currentTime.tv_usec;
+	return ((unsigned long long)( (tv.tv_sec)*1000 + (tv.tv_usec)/1000 ));
 }
 
 void activarOtrosSemaforos() {
 	pthread_mutex_init(&SEMAFORODETMPC, NULL);
 	pthread_mutex_init(&SEMAFOROMEMTABLE, NULL);
+	pthread_mutex_init(&SEMAFOROCHOTO, NULL);
 }
 
 void ponerActivasTodasLasTablas() {
@@ -907,6 +910,8 @@ void dumpPorTabla(char* tabla) {
 		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 		pthread_mutex_lock(&unSemaforo->mutexDrop);
 
+		//pthread_mutex_lock(&SEMAFOROCHOTO);
+
 		//Tomo el tamanio por bloque de mi LFS
 		char *metadataPath = string_from_format("%sMetadata/metadata.bin",
 				structConfiguracionLFS.PUNTO_MONTAJE);
@@ -1012,6 +1017,7 @@ void dumpPorTabla(char* tabla) {
 	}
 	//Si no existe no hago nada, solo la elimino de la memtable
 	dictionary_remove(memtable, tabla);
+	pthread_mutex_unlock(&SEMAFOROCHOTO);
 
 
 
@@ -1153,9 +1159,8 @@ void verificarCompactacion(char *pathTabla) {
 
 void compactacion(char* pathTabla) {
 
-
-	/*
-	char* mensajeALogear = malloc( strlen(" Arranco la compactacion de la tabla : ") + strlen(pathTabla));
+	pthread_mutex_lock(&SEMAFOROCHOTO);
+	char* mensajeALogear = malloc( strlen(" Arranco la compactacion de la tabla : ") + strlen(pathTabla) +1);
 	strcpy(mensajeALogear, " Arranco la compactacion de la tabla : ");
 	strcat(mensajeALogear, pathTabla);
 	t_log* g_logger;
@@ -1166,7 +1171,7 @@ void compactacion(char* pathTabla) {
 	log_info(g_logger, mensajeALogear);
 	log_destroy(g_logger);
 	free(mensajeALogear);
-	*/
+
 
 	char *tabla = string_new();
 	char *pathDeMontajeDeLasTablas = string_new();
@@ -1182,8 +1187,7 @@ void compactacion(char* pathTabla) {
 	//dictionary_iterator(tablasQueTienenTMPs, (void*) actualizarRegistros);
 	//dictionary_clean(tablasQueTienenTMPs);
 
-	/*
-	char* mensajeALogear2 = malloc( strlen(" Termino la compactacion de la tabla : ") + strlen(pathTabla));
+	char* mensajeALogear2 = malloc( strlen(" Termino la compactacion de la tabla : ") + strlen(pathTabla) +1);
 	strcpy(mensajeALogear2, " Termino la compactacion de la tabla : ");
 	strcat(mensajeALogear2, pathTabla);
 	t_log* g_logger2;
@@ -1194,8 +1198,7 @@ void compactacion(char* pathTabla) {
 	log_info(g_logger2, mensajeALogear2);
 	log_destroy(g_logger2);
 	free(mensajeALogear2);
-	*/
-
+	pthread_mutex_unlock(&SEMAFOROCHOTO);
 
 }
 
@@ -1932,6 +1935,7 @@ int existeCarpeta(char *nombreCarpeta) {
 
 //No le pongo "select" porque ya esta la funcion de socket y rompe
 char* realizarSelect(char* tabla, char* key) {
+	pthread_mutex_lock(&SEMAFOROCHOTO);
 	actualizarTiempoDeRetardo();
 	sleep(structConfiguracionLFS.RETARDO/1000);
 	string_to_upper(tabla);
@@ -1958,7 +1962,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 
 		char* mensajeALogear = malloc(
-				strlen(" Encontre la particion donde podria estar la key "));
+				strlen(" Encontre la particion donde podria estar la key ") + 1);
 		strcpy(mensajeALogear,
 				" Encontre la particion donde podria estar la key ");
 		t_log* g_logger;
@@ -2037,7 +2041,7 @@ char* realizarSelect(char* tabla, char* key) {
 					bloqueSiguiente, bloqueAnterior);
 
 			char* mensajeALogear = malloc(
-					strlen(" Obtuve los datos para la key deseada "));
+					strlen(" Obtuve los datos para la key deseada ") + 1);
 			strcpy(mensajeALogear,
 					" Obtuve los datos para la key deseada ");
 			t_log* g_logger;
@@ -2079,7 +2083,7 @@ char* realizarSelect(char* tabla, char* key) {
 				string_append(&valueDeTimestampActualMayorBloques, vectorStructs[0]->value);
 			}
 
-			char* mensajeALogear2 = malloc( strlen(" Cierro estudio de los bloques "));
+			char* mensajeALogear2 = malloc( strlen(" Cierro estudio de los bloques ") + 1);
 			strcpy(mensajeALogear2, " Cierro estudio de los bloques ");
 			t_log* g_logger2;
 			g_logger2 = log_create(
@@ -2432,13 +2436,13 @@ char* realizarSelect(char* tabla, char* key) {
 		// entonces timestampActualMayorTemporalesC = -1 y
 		// valueDeTimestampActualMayorTemporalesC = NULL
 
-		closedir(directorioTemporal);
+		closedir(directorioTemporalC);
 
 		// ----------------------------------------------------
 
 		// LEO MEMTABLE
 
-		char* mensajeALogear6 = malloc( strlen(" arranco a leer memtable "));
+		char* mensajeALogear6 = malloc( strlen(" arranco a leer memtable ") + 1);
 		strcpy(mensajeALogear6, " arranco a leer memtable ");
 		t_log* g_logger6;
 		g_logger6 = log_create(
@@ -2451,7 +2455,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 		t_list* listaRegistros = dictionary_get(memtable, tabla);
 
-		char* mensajeALogear10 = malloc( strlen(" lei la entrada tabla del diccionario memtable "));
+		char* mensajeALogear10 = malloc( strlen(" lei la entrada tabla del diccionario memtable ") + 1);
 		strcpy(mensajeALogear10, " lei la entrada tabla del diccionario memtable ");
 		t_log* g_logger10;
 		g_logger10 = log_create(
@@ -2483,7 +2487,7 @@ char* realizarSelect(char* tabla, char* key) {
 		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, listaRegistros,
 				atoi(key), &cantIgualDeKeyEnMemtable, tabla);
 
-		char* mensajeALogear11 = malloc( strlen(" cree el array por tabla memtable "));
+		char* mensajeALogear11 = malloc( strlen(" cree el array por tabla memtable ") + 1);
 		strcpy(mensajeALogear11, " cree el array por tabla memtable ");
 		t_log* g_logger11;
 		g_logger11 = log_create(
@@ -2524,7 +2528,7 @@ char* realizarSelect(char* tabla, char* key) {
 			timestampMayorMemtable = arrayPorKeyDeseadaMemtable[0]->timestamp;
 		}
 
-		char* mensajeALogear7 = malloc( strlen(" termine de leer memtable "));
+		char* mensajeALogear7 = malloc( strlen(" termine de leer memtable ") + 1);
 		strcpy(mensajeALogear7, " termine de leer memtable ");
 		t_log* g_logger7;
 		g_logger7 = log_create(
@@ -2555,6 +2559,8 @@ char* realizarSelect(char* tabla, char* key) {
 			log_error(g_logger, mensajeALogear);
 			log_destroy(g_logger);
 			free(mensajeALogear);
+			pthread_mutex_unlock(&SEMAFOROCHOTO);
+
 			return NULL;
 		} else { // o sea, si existe la key en algun lugar
 
@@ -2688,6 +2694,7 @@ char* realizarSelect(char* tabla, char* key) {
 				log_destroy(g_logger);
 				free(mensajeALogear);
 			}
+			pthread_mutex_unlock(&SEMAFOROCHOTO);
 
 			return valueFinal;
 			string_append(&valueFinal, "");
@@ -2716,6 +2723,7 @@ char* realizarSelect(char* tabla, char* key) {
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
+		pthread_mutex_unlock(&SEMAFOROCHOTO);
 		return NULL;
 	}
 
@@ -2838,7 +2846,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 		t_list* entradaTabla, int laKey, int *cant, char* tabla) {
 
-	char* mensajeALogear = malloc( strlen(" Entre en array por key memtable "));
+	char* mensajeALogear = malloc( strlen(" Entre en array por key memtable ") + 1);
 	strcpy(mensajeALogear, " Entre en array por key memtable ");
 	t_log* g_logger;
 	g_logger = log_create( string_from_format("%slogs.log",	structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0, LOG_LEVEL_INFO);
@@ -2942,6 +2950,7 @@ metadataTabla describeUnaTabla(char *tabla, int seImprimePorPantalla) {
 }
 
 void describeTodasLasTablas(int seImprimePorPantalla) {
+	// TODO SEMAFORO ACA PORQUE CUANDO SE HACE EL DESCRIBE GLOBAL NO SE LLEGAN A CREAR LOS ARCHIVOS, LINEA 2970
 	//Podria conservar la estructura en vez de borrar lo que tengo adentro pero tendria que ir fijandome que los valores que
 	//tenga adentro el diccionario todavia sean validos, entonces es mas facil borrar tod y hacer describe desde 0
 	dictionary_clean(diccionarioDescribe);
@@ -3170,7 +3179,7 @@ void tomarPeticionSelect(int sd) {
 	char *value = realizarSelect(tablaCortada, keyString);
 
 	if (value == NULL) {
-		char* mensajeALogear = malloc( strlen(" No encontre value ") );
+		char* mensajeALogear = malloc( strlen(" No encontre value ") +1);
 		strcpy(mensajeALogear, " No encontre value ");
 		t_log* g_logger;
 		g_logger = log_create(
@@ -3270,13 +3279,52 @@ void tomarPeticionInsert(int sd) {
 	recv(sd, value, *tamanioValue, 0);
 	char *valueCortado = string_substring_until(value, *tamanioValue);
 
-	unsigned long long *tamanioTime = malloc(sizeof(unsigned long long));
-	read(sd, tamanioTime, sizeof(unsigned long long));
+	int *tamanioTime = malloc(sizeof(int));
+	read(sd, tamanioTime, sizeof(int));
 	unsigned long long *time = malloc(*tamanioTime);
 	read(sd, time, *tamanioTime);
 	char* timeString = string_from_format("%llu",*time);
 
 	int respuesta = insert(tablaCortada, keyString, valueCortado, timeString);
+
+	//logueo respuesta
+	if (respuesta == 0) {
+		char* mensajeALogear = malloc(
+				strlen(" No existe tabla con el nombre : ") + strlen(tablaCortada)
+						+ 1);
+		strcpy(mensajeALogear, " No existe tabla con el nombre : ");
+		strcat(mensajeALogear, tablaCortada);
+		t_log* g_logger;
+		g_logger = log_create(
+				string_from_format("%slogs.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+				LOG_LEVEL_ERROR);
+		log_error(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+	if (respuesta == 1) {
+		char* mensajeALogear = malloc(
+				strlen(" Se realizo INSERT en tabla :  / KEY :  / VALUE :  / TIMESTAMP : ")
+						+ strlen(tabla) + strlen(keyString) + strlen(valueCortado) + strlen(timeString) + 1);
+		strcpy(mensajeALogear, " Se realizo INSERT en tabla : ");
+		strcat(mensajeALogear, tablaCortada);
+		strcat(mensajeALogear, " / KEY : ");
+		strcat(mensajeALogear, keyString);
+		strcat(mensajeALogear, " / VALUE : ");
+		strcat(mensajeALogear, valueCortado);
+		strcat(mensajeALogear, " / TIMESTAMP : ");
+		strcat(mensajeALogear, timeString);
+		t_log* g_logger;
+		g_logger = log_create(
+				string_from_format("%slogs.log",
+						structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1,
+				LOG_LEVEL_INFO);
+		log_info(g_logger, mensajeALogear);
+		log_destroy(g_logger);
+		free(mensajeALogear);
+	}
+
 
 	// serializo respuesta . respuesta = 1 es OK
 	char* buffer = malloc(2 * sizeof(int));
