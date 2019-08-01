@@ -162,7 +162,7 @@ t_dictionary* diccionarioDescribe;
 pthread_t hiloLevantarConexion;
 
 pthread_mutex_t SEMAFORODETMPC;
-pthread_mutex_t SEMAFOROMEMTABLE;
+pthread_mutex_t semaforoMemtable;
 //pthread_mutex_t SEMAFOROCHOTO;
 
 
@@ -171,6 +171,7 @@ int main(int argc, char *argv[]) {
 	printf("\t\x1B[1;32m◢\x1B[0;32m BIENVENIDO A LISSANDRA FILE SYSTEM. ¿PUEDO TOMAR SU ORDEN?.\x1B[1;32m ◣ \x1B[0m \n");
 
 	//tablasQueTienenTMPs = dictionary_create();
+	pthread_mutex_init(&semaforoMemtable,NULL);
 	binariosParaCompactar = dictionary_create();
 	pthread_t hiloDump;
 	pthread_t atenderPeticionesConsola;
@@ -213,7 +214,7 @@ unsigned long long getMicrotime(){
 
 void activarOtrosSemaforos() {
 	pthread_mutex_init(&SEMAFORODETMPC, NULL);
-	pthread_mutex_init(&SEMAFOROMEMTABLE, NULL);
+	//pthread_mutex_init(&SEMAFOROMEMTABLE, NULL);
 	//pthread_mutex_init(&SEMAFOROCHOTO, NULL);
 }
 
@@ -859,12 +860,18 @@ int insert(char* tabla, char* key, char* valor, char* timestamp) {
 		if (!existeUnaListaDeDatosADumpear(tabla)) {
 			t_list* listaDeStructs = list_create();
 			list_add(listaDeStructs, p_registro);
+
+			pthread_mutex_lock(&semaforoMemtable);
 			dictionary_put(memtable, tabla, listaDeStructs);
+			pthread_mutex_unlock(&semaforoMemtable);
 		} else {
+
+			pthread_mutex_lock(&semaforoMemtable);
 			t_list* listaDeStructs = dictionary_get(memtable, tabla);
 			list_add(listaDeStructs, p_registro);
 			dictionary_remove(memtable, tabla);
 			dictionary_put(memtable, tabla, listaDeStructs);
+			pthread_mutex_unlock(&semaforoMemtable);
 		}
 
 		//pthread_mutex_unlock(&SEMAFOROMEMTABLE);
@@ -922,7 +929,9 @@ void dumpPorTabla(char* tabla) {
 		config_destroy(metadata);
 		//t_registro* vectorStructs[100];
 		//vectorStructs[0] = malloc(12);
+		pthread_mutex_lock(&semaforoMemtable);
 		t_list *listaDeRegistros = dictionary_get(memtable, tabla);
+		pthread_mutex_unlock(&semaforoMemtable);
 		int i = 0;
 		int cantidadDeBytesADumpear = 0;
 		char *registrosADumpear = string_new();
@@ -1028,14 +1037,18 @@ void dumpPorTabla(char* tabla) {
 		log_destroy(g_logger2);
 		free(mensajeALogear2);
 
+		pthread_mutex_lock(&semaforoMemtable);
 		dictionary_remove(memtable, tabla);
+		pthread_mutex_unlock(&semaforoMemtable);
 
 		pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
 		//pthread_mutex_unlock(&unSemaforo->mutexDrop);
 	}
 	else{
+		pthread_mutex_lock(&semaforoMemtable);
 		//Si no existe no hago nada, solo la elimino de la memtable
 		dictionary_remove(memtable, tabla);
+		pthread_mutex_unlock(&semaforoMemtable);
 	}
 	//pthread_mutex_unlock(&SEMAFOROCHOTO);
 }
@@ -2528,6 +2541,7 @@ char* realizarSelect(char* tabla, char* key) {
 		log_destroy(g_logger6);
 		free(mensajeALogear6);
 
+		pthread_mutex_lock(&semaforoMemtable);
 		t_list* listaRegistros = dictionary_get(memtable, tabla);
 
 		char* mensajeALogear10 = malloc( strlen(" lei la entrada tabla del diccionario memtable ") + 1);
@@ -2561,6 +2575,8 @@ char* realizarSelect(char* tabla, char* key) {
 
 		crearArrayPorKeyMemtable(arrayPorKeyDeseadaMemtable, listaRegistros,
 				atoi(key), &cantIgualDeKeyEnMemtable, tabla);
+
+		pthread_mutex_unlock(&semaforoMemtable);
 
 		char* mensajeALogear11 = malloc( strlen(" cree el array por tabla memtable ") + 1);
 		strcpy(mensajeALogear11, " cree el array por tabla memtable ");
@@ -3191,7 +3207,7 @@ int32_t iniciarConexion() {
 				//incoming message
 				int *tamanio = malloc(sizeof(int));
 				if ((valread = read(sd, tamanio, sizeof(int))) == 0) {
-					printf("tamanio: %d", *tamanio);
+					//printf("tamanio: %d", *tamanio);
 					getpeername(sd, (struct sockaddr *) &address,
 							(socklen_t *) &addrlen);
 					//printf("Host disconected, ip: %s, port: %d\n",
@@ -3200,7 +3216,7 @@ int32_t iniciarConexion() {
 					close(sd);
 					client_socket[i] = 0;
 				} else {
-					printf("tamanio: %d", *tamanio);
+					//printf("tamanio: %d", *tamanio);
 					int *operacion = malloc(4);
 					read(sd, operacion, sizeof(int));
 
