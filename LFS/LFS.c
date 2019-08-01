@@ -3189,6 +3189,7 @@ int32_t iniciarConexion() {
 				//incoming message
 				int *tamanio = malloc(sizeof(int));
 				if ((valread = read(sd, tamanio, sizeof(int))) == 0) {
+					printf("tamanio: %d", *tamanio);
 					getpeername(sd, (struct sockaddr *) &address,
 							(socklen_t *) &addrlen);
 					//printf("Host disconected, ip: %s, port: %d\n",
@@ -3197,6 +3198,7 @@ int32_t iniciarConexion() {
 					close(sd);
 					client_socket[i] = 0;
 				} else {
+					printf("tamanio: %d", *tamanio);
 					int *operacion = malloc(*tamanio);
 					read(sd, operacion, sizeof(int));
 
