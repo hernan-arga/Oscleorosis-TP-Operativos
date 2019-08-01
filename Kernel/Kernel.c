@@ -722,8 +722,10 @@ void evaluarMemoriaRecibida(struct datosMemoria* memoriaRecibida) {
 		return memoriaConocida->MEMORY_NUMBER == memoriaRecibida->MEMORY_NUMBER;
 	}
 	if (!list_any_satisfy(listaDeMemorias, (void*) yaSeEncuentraLaMemoria)) {
-		conectarMemoriaRecibida(memoriaRecibida);
-		list_add(listaDeMemorias, memoriaRecibida);
+		int huboError = conectarMemoriaRecibida(memoriaRecibida);
+		if(!huboError){
+			list_add(listaDeMemorias, memoriaRecibida);
+		}
 	}
 }
 
@@ -760,7 +762,7 @@ int32_t conectarMemoriaRecibida(struct datosMemoria* unaMemoria) {
 	if (connect(unaMemoria->socket,
 			(struct sockaddr *) &unaMemoria->direccionSocket,
 			sizeof(unaMemoria->direccionSocket)) == -1) {
-		perror("Hubo un error en la conexion");
+		//perror("Hubo un error en la conexion");
 		return -1;
 	}
 	//Mando un numero distinto de cero a memoria para que sepa que se conecto kernel

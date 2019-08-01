@@ -1047,3 +1047,81 @@
 [INFO] 18:53:02:707 MEMORIA/(7864:7866):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1328286864
 [INFO] 18:53:02:726 MEMORIA/(7864:7866):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1328286881
 [INFO] 18:53:07:640 MEMORIA/(7864:7867):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1328286985
+[INFO] 19:09:59:778 MEMORIA/(3497:3499):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 19:09:59:871 MEMORIA/(3497:3499):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1329304060
+[INFO] 19:09:59:881 MEMORIA/(3497:3499):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1329304068
+[INFO] 19:09:59:911 MEMORIA/(3497:3499):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1329304100
+[INFO] 19:09:59:920 MEMORIA/(3497:3499):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1329304104
+[INFO] 19:10:09:561 MEMORIA/(3497:3500):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1329304179
+[INFO] 19:12:17:277 Memoria/(3497:3499):  Llego select con VALUE : Alfajor
+
+[INFO] 19:12:17:331 Memoria/(3497:3499):  Llego select con VALUE : Mousse
+
+[INFO] 19:12:17:377 Memoria/(3497:3499):  Llego select con VALUE : "Almendrado"
+
+[INFO] 19:12:17:425 Memoria/(3497:3499):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 19:12:17:472 Memoria/(3497:3499):  Llego select con VALUE : "Muffin"
+
+[INFO] 19:12:17:549 MEMORIA/(3497:3499):  Se realizo insert en FS en tabla : POSTRES con value : "Chocolate" y timestamp : 1329441746
+[INFO] 19:12:17:571 MEMORIA/(3497:3499):  Se realizo insert en FS en tabla : POSTRES con value : "Torta de ricota" y timestamp : 1329441776
+[INFO] 19:12:17:575 MEMORIA/(3497:3499):  Se realizo insert en FS en tabla : POSTRES con value : "Gelatina" y timestamp : 1329441783
+[INFO] 19:17:39:765 MEMORIA/(3768:3770):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 19:17:39:865 MEMORIA/(3768:3770):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1329764034
+[INFO] 19:17:39:891 MEMORIA/(3768:3770):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1329764042
+[INFO] 19:17:39:928 MEMORIA/(3768:3770):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1329764076
+[INFO] 19:17:39:970 MEMORIA/(3768:3770):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1329764091
+[INFO] 19:17:47:319 MEMORIA/(3768:3771):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1329764226
+[INFO] 19:18:54:10 Memoria/(3768:3770):  Llego select con VALUE : Alfajor
+
+[INFO] 19:18:54:77 Memoria/(3768:3770):  Llego select con VALUE : Mousse
+
+[INFO] 19:18:54:152 Memoria/(3768:3770):  Llego select con VALUE : "Almendrado"
+
+[INFO] 19:18:54:212 Memoria/(3768:3770):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 19:18:54:271 Memoria/(3768:3770):  Llego select con VALUE : "Muffin"
+
+[INFO] 19:18:54:355 MEMORIA/(3768:3770):  Se realizo insert en FS en tabla : POSTRES con value : "Chocolate" y timestamp : 1329838542
+[INFO] 19:18:54:388 MEMORIA/(3768:3770):  Se realizo insert en FS en tabla : POSTRES con value : "Torta de ricota" y timestamp : 1329838576
+[INFO] 19:18:54:415 MEMORIA/(3768:3770):  Se realizo insert en FS en tabla : POSTRES con value : "Gelatina" y timestamp : 1329838585
+[INFO] 19:22:57:931 MEMORIA/(3871:3873):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 19:22:57:991 MEMORIA/(3871:3873):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1330082206
+[INFO] 19:22:58:21 MEMORIA/(3871:3873):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1330082212
+[INFO] 19:22:58:52 MEMORIA/(3871:3873):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1330082220
+[INFO] 19:22:58:69 MEMORIA/(3871:3873):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1330082229
+[INFO] 19:23:07:284 MEMORIA/(3871:3874):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1330082332
+[INFO] 19:23:40:757 Memoria/(3871:3873):  Llego select con VALUE : Alfajor
+
+[INFO] 19:23:40:840 Memoria/(3871:3873):  Llego select con VALUE : Mousse
+
+[INFO] 19:23:40:896 Memoria/(3871:3873):  Llego select con VALUE : "Almendrado"
+
+[INFO] 19:23:40:975 Memoria/(3871:3873):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 19:23:41:41 Memoria/(3871:3873):  Llego select con VALUE : "Muffin"
+
+[INFO] 19:23:41:82 MEMORIA/(3871:3873):  Se realizo insert en FS en tabla : POSTRES con value : "Chocolate" y timestamp : 1330125313
+[INFO] 19:23:41:101 MEMORIA/(3871:3873):  Se realizo insert en FS en tabla : POSTRES con value : "Torta de ricota" y timestamp : 1330125325
+[INFO] 19:23:41:112 MEMORIA/(3871:3873):  Se realizo insert en FS en tabla : POSTRES con value : "Gelatina" y timestamp : 1330125331
+[INFO] 19:24:31:625 MEMORIA/(3871:3873):  Se realizo insert en FS en tabla : POSTRES con value : "Helado" y timestamp : 1330125368
+[INFO] 19:24:31:655 MEMORIA/(3871:3873):  Se realizo insert en FS en tabla : POSTRES con value : "Tiramisu" y timestamp : 1330125368
+[INFO] 19:24:31:667 MEMORIA/(3871:3873):  Se realizo insert en FS en tabla : POSTRES con value : "Queso y dulce" y timestamp : 1330125374
+[INFO] 19:24:31:697 MEMORIA/(3871:3873):  Se realizo insert en FS en tabla : POSTRES con value : "Alfajor" y timestamp : 1330175831
+[INFO] 19:24:31:741 Memoria/(3871:3873):  Llego select con VALUE : "Chocolate"
+
+[INFO] 19:24:31:792 Memoria/(3871:3873):  Llego select con VALUE : "Torta de ricota"
+
+[INFO] 19:24:31:840 Memoria/(3871:3873):  Llego select con VALUE : "Gelatina"
+
+[INFO] 19:24:31:875 Memoria/(3871:3873):  Llego select con VALUE : "Helado"
+[INFO] 19:24:31:919 Memoria/(3871:3873):  Llego select con VALUE : "Muffin"
+
+[INFO] 19:24:31:984 Memoria/(3871:3873):  Llego select con VALUE : "Queso y dulce"
+
+[INFO] 20:30:06:572 MEMORIA/(5595:5597):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 20:32:00:628 MEMORIA/(5721:5723):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 20:32:00:725 MEMORIA/(5721:5723):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1334224908
+[INFO] 20:32:00:744 MEMORIA/(5721:5723):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1334224922
+[INFO] 20:32:00:762 MEMORIA/(5721:5723):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1334224946
+[INFO] 20:32:00:782 MEMORIA/(5721:5723):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1334224963
