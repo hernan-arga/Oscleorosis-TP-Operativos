@@ -2324,6 +2324,7 @@ char* realizarSelect(char* tabla, char* key) {
 								vectorStructsTemporal[0]->value);
 					}
 					fclose(archivoBloqueTmp);
+					fclose(fileTemporal);
 					free(pathBloqueTmp);
 					//free(vectorStructsTemporal);
 				} // cierra el for
@@ -2496,6 +2497,7 @@ char* realizarSelect(char* tabla, char* key) {
 						string_append(&valueDeTimestampActualMayorTemporalesC,
 								vectorStructsTemporalC[0]->value);
 					}
+					fclose(fileTemporalC);
 					fclose(archivoBloqueTmpC);
 					free(pathBloqueTmpC);
 					//free(vectorStructsTemporalC);
@@ -3199,7 +3201,7 @@ int32_t iniciarConexion() {
 					client_socket[i] = 0;
 				} else {
 					printf("tamanio: %d", *tamanio);
-					int *operacion = malloc(*tamanio);
+					int *operacion = malloc(4);
 					read(sd, operacion, sizeof(int));
 
 					switch (*operacion) {
@@ -3231,7 +3233,9 @@ int32_t iniciarConexion() {
 					default:
 						break;
 					}
+					free(operacion);
 				}
+				free(tamanio);
 			}
 		}
 	}
