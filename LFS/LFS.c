@@ -1199,8 +1199,7 @@ void compactacion(char* pathTabla) {
 	strcat(mensajeALogear, pathTabla);
 	t_log* g_logger;
 	g_logger = log_create(
-			string_from_format("%slogs.log",
-					structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
+			string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0,
 			LOG_LEVEL_INFO);
 	log_info(g_logger, mensajeALogear);
 	log_destroy(g_logger);
@@ -2598,7 +2597,7 @@ char* realizarSelect(char* tabla, char* key) {
 						< arrayPorKeyDeseadaMemtable[j + 1]->timestamp) {
 					t = arrayPorKeyDeseadaMemtable[j + 1]->timestamp;
 					unValor = malloc(
-							strlen(arrayPorKeyDeseadaMemtable[j + 1]->value) +1);
+							strlen(arrayPorKeyDeseadaMemtable[j + 1]->value)); //LE SAQUE EL +1 TODO
 					strcpy(unValor, arrayPorKeyDeseadaMemtable[j + 1]->value);
 
 					arrayPorKeyDeseadaMemtable[j + 1]->timestamp =
@@ -3216,14 +3215,29 @@ int32_t iniciarConexion() {
 					close(sd);
 					client_socket[i] = 0;
 				} else {
+
 					//printf("tamanio: %d", *tamanio);
 					int *operacion = malloc(4);
 					read(sd, operacion, sizeof(int));
 
+
+					//log de operacion y de tamanio
+					char* mensajeALogearB = malloc( strlen(" --- OPERACION :   ----- TAMANIO : ") + sizeof(*operacion) + sizeof(tamanio) +  1);
+					strcpy(mensajeALogearB, " --- OPERACION : ");
+					strcat(mensajeALogearB, string_itoa(*operacion));
+					strcat(mensajeALogearB, "  ----- TAMANIO : ");
+					strcat(mensajeALogearB, string_itoa(*tamanio));
+					t_log* g_loggerB;
+					g_loggerB = log_create( string_from_format("%sjaj.log",
+												structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 1, LOG_LEVEL_INFO);
+					log_info(g_loggerB, mensajeALogearB);
+					log_destroy(g_loggerB);
+					free(mensajeALogearB);
+
+
 					switch (*operacion) {
 					case 1:
 						//Select
-						printf("Mensaje SELECT\n");
 						tomarPeticionSelect(sd);
 						break;
 					case 2:
@@ -3247,6 +3261,18 @@ int32_t iniciarConexion() {
 						tomarPeticionDescribeTodasLasTablas(sd);
 						break;
 					default:
+						;
+						char* mensajeALogearC = malloc(
+								strlen(" - CASO 0 ") + 1);
+						strcpy(mensajeALogearC, " - CASO 0 ");
+						t_log* g_loggerC;
+						g_loggerC = log_create(
+								string_from_format("%sjaj.log",
+										structConfiguracionLFS.PUNTO_MONTAJE),
+								"LFS", 1, LOG_LEVEL_INFO);
+						log_info(g_loggerC, mensajeALogearC);
+						log_destroy(g_loggerC);
+						free(mensajeALogearC);
 						break;
 					}
 					free(operacion);
