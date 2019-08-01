@@ -2003,7 +2003,7 @@ char* realizarSelect(char* tabla, char* key) {
 		int particionQueContieneLaKey = (atoi(key)) % cantidadDeParticiones;
 		printf("Si existe, la key deberia estar en la particion %i\n",
 				particionQueContieneLaKey);
-		char* stringParticion = malloc(4);
+		char* stringParticion = malloc(4+1);
 		stringParticion = string_itoa(particionQueContieneLaKey);
 
 
@@ -2125,7 +2125,7 @@ char* realizarSelect(char* tabla, char* key) {
 					if (vectorStructs[j]->timestamp
 							< vectorStructs[j + 1]->timestamp) {
 						temp = vectorStructs[j + 1]->timestamp;
-						valor = malloc(strlen(vectorStructs[j + 1]->value));
+						valor = malloc(strlen(vectorStructs[j + 1]->value)+1);
 						strcpy(valor, vectorStructs[j + 1]->value);
 
 						vectorStructs[j + 1]->timestamp =
@@ -2206,11 +2206,11 @@ char* realizarSelect(char* tabla, char* key) {
 				strcat(pathTemporal, "/");
 				strcat(pathTemporal, nombreArchivoTemporal);
 				strcat(pathTemporal, ".tmp");
-				FILE *fileTemporal = fopen(pathTemporal, "r");
+				/*FILE *fileTemporal = fopen(pathTemporal, "r");
 				if (fileTemporal == NULL) {
 					printf("no se pudo abrir archivo de temporales\n");
 					exit(1);
-				}
+				}*/
 
 				t_config *tamanioYBloquesTmp = config_create(pathTemporal);
 				char** vectorBloquesTmp = config_get_array_value(
@@ -2221,7 +2221,7 @@ char* realizarSelect(char* tabla, char* key) {
 					n++;
 				}
 
-				char* mensajeALogear3 = malloc( strlen(" Antes de entrar en bloques temporales "));
+				char* mensajeALogear3 = malloc( strlen(" Antes de entrar en bloques temporales ")+1);
 				strcpy(mensajeALogear3, " Antes de entrar en bloques temporales ");
 				t_log* g_logger3;
 				g_logger3 = log_create(
@@ -2288,7 +2288,7 @@ char* realizarSelect(char* tabla, char* key) {
 							&cantidadIgualDeKeysEnTemporal, bloqueSiguiente,
 							bloqueAnterior);
 
-					char* mensajeALogear4 = malloc( strlen(" Post obtener datos para key temporales "));
+					char* mensajeALogear4 = malloc( strlen(" Post obtener datos para key temporales ")+1);
 					strcpy(mensajeALogear4, " Post obtener datos para key temporales ");
 					t_log* g_logger4;
 					g_logger4 = log_create(
@@ -2308,11 +2308,7 @@ char* realizarSelect(char* tabla, char* key) {
 							if (vectorStructsTemporal[j]->timestamp
 									< vectorStructsTemporal[j + 1]->timestamp) {
 								tempo = vectorStructsTemporal[j + 1]->timestamp;
-								valorTemp =
-										malloc(
-												strlen(
-														vectorStructsTemporal[j
-																+ 1]->value));
+								valorTemp =	malloc(	strlen(vectorStructsTemporal[j+ 1]->value)+1);
 								strcpy(valorTemp,
 										vectorStructsTemporal[j + 1]->value);
 
@@ -2336,7 +2332,7 @@ char* realizarSelect(char* tabla, char* key) {
 								vectorStructsTemporal[0]->value);
 					}
 					fclose(archivoBloqueTmp);
-					fclose(fileTemporal);
+					//fclose(fileTemporal);
 					free(pathBloqueTmp);
 					//free(vectorStructsTemporal);
 				} // cierra el for
@@ -2393,11 +2389,11 @@ char* realizarSelect(char* tabla, char* key) {
 				strcat(pathTemporalC, "/");
 				strcat(pathTemporalC, nombreArchivoTemporalC);
 				strcat(pathTemporalC, ".tmpc");
-				FILE *fileTemporalC = fopen(pathTemporalC, "r");
+				/*FILE *fileTemporalC = fopen(pathTemporalC, "r");
 				if (fileTemporalC == NULL) {
 					printf("no se pudo abrir archivo de temporales\n");
 					exit(1);
-				}
+				}*/
 
 				t_config *tamanioYBloquesTmpC = config_create(pathTemporalC);
 				char** vectorBloquesTmpC = config_get_array_value(
@@ -2408,7 +2404,7 @@ char* realizarSelect(char* tabla, char* key) {
 					n++;
 				}
 
-				char* mensajeALogear5 = malloc( strlen(" arranco a leer temporales C "));
+				char* mensajeALogear5 = malloc( strlen(" arranco a leer temporales C ")+1);
 				strcpy(mensajeALogear5, " arranco a leer temporales C ");
 				t_log* g_logger5;
 				g_logger5 = log_create(
@@ -2486,7 +2482,7 @@ char* realizarSelect(char* tabla, char* key) {
 										malloc(
 												strlen(
 														vectorStructsTemporalC[j
-																+ 1]->value));
+																+ 1]->value)+1);
 								strcpy(valorTempC,
 										vectorStructsTemporalC[j + 1]->value);
 
@@ -2509,7 +2505,7 @@ char* realizarSelect(char* tabla, char* key) {
 						string_append(&valueDeTimestampActualMayorTemporalesC,
 								vectorStructsTemporalC[0]->value);
 					}
-					fclose(fileTemporalC);
+					//fclose(fileTemporalC);
 					fclose(archivoBloqueTmpC);
 					free(pathBloqueTmpC);
 					//free(vectorStructsTemporalC);
@@ -2597,7 +2593,7 @@ char* realizarSelect(char* tabla, char* key) {
 						< arrayPorKeyDeseadaMemtable[j + 1]->timestamp) {
 					t = arrayPorKeyDeseadaMemtable[j + 1]->timestamp;
 					unValor = malloc(
-							strlen(arrayPorKeyDeseadaMemtable[j + 1]->value)); //LE SAQUE EL +1 TODO
+							strlen(arrayPorKeyDeseadaMemtable[j + 1]->value)+1); //LE SAQUE EL +1 TODO
 					strcpy(unValor, arrayPorKeyDeseadaMemtable[j + 1]->value);
 
 					arrayPorKeyDeseadaMemtable[j + 1]->timestamp =
@@ -2868,7 +2864,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 	// si NO es el primer bloque del array de BLOCK
 	if (anteriorBloque != NULL) {
 		// si el anterior bloque no termina con \n => anterior tiene renglon incompleto => yo tengo el primer renglon al pedo
-		char* ultimoCaracter = malloc(1);
+		char* ultimoCaracter = malloc(2);
 		fseek(anteriorBloque, -1, SEEK_END);
 		fread(ultimoCaracter, 1, 1, anteriorBloque);
 		if (strncmp(ultimoCaracter, "\n", 1)) {
@@ -2946,7 +2942,7 @@ void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 	if (entradaTabla) {
 		int contador = 0;
 
-		char* mensajeALogear = malloc( strlen(" valor size entrada tabla y cant ") + 8);
+		char* mensajeALogear = malloc( strlen(" valor size entrada tabla y cant ") + 9);
 		strcpy(mensajeALogear, " valor size entrada tabla y cant ");
 		strcat(mensajeALogear, string_itoa(list_size(entradaTabla)));
 		strcat(mensajeALogear, string_itoa(*cant));
@@ -2962,7 +2958,7 @@ void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 		while ( contador < list_size(entradaTabla)) {
 			t_registro* p_registro = list_get(entradaTabla, (*cant));
 
-			char* mensajeALogear = malloc( strlen(" 1 "));
+			char* mensajeALogear = malloc( strlen(" 1 ")+1);
 			strcpy(mensajeALogear, " 1 ");
 			t_log* g_logger;
 			g_logger = log_create( string_from_format("%slogs.log", structConfiguracionLFS.PUNTO_MONTAJE), "LFS", 0, LOG_LEVEL_INFO);
@@ -2971,7 +2967,7 @@ void crearArrayPorKeyMemtable(t_registro** arrayPorKeyDeseadaMemtable,
 			free(mensajeALogear);
 
 			if (p_registro->key == laKey) {
-				arrayPorKeyDeseadaMemtable[*cant] = malloc(8 + sizeof(unsigned long long));
+				arrayPorKeyDeseadaMemtable[*cant] = malloc(9 + sizeof(unsigned long long));
 				memcpy(&arrayPorKeyDeseadaMemtable[*cant]->key,
 						&p_registro->key, sizeof(p_registro->key));
 				memcpy(&arrayPorKeyDeseadaMemtable[*cant]->timestamp,

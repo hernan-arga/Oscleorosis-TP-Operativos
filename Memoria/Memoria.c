@@ -336,7 +336,7 @@ char* realizarSelect(char* tabla, char* key) {
 						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
 								+ sizeof(int)), timeStamp, sizeof(unsigned long long));
 
-				//printf("Value: %s\n", value);
+				printf("Value: %s\n", value);
 
 				pag->timeStamp = *timeStamp;
 
