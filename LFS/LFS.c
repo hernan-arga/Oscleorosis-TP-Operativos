@@ -2873,6 +2873,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 				strcat(line, lineProxBloque);
 			}
 		}
+		fclose(fpCopia);
 		int keyLeida = atoi(string_split(line, ";")[1]);
 		if (keyLeida == key) {
 			t_registro* p_registro = malloc(8 + sizeof(unsigned long long)); // 2 int = 2* 4        +       un puntero a char = 4
