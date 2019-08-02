@@ -802,8 +802,10 @@ void evaluarMemoriaRecibida(struct datosMemoria* memoriaRecibida) {
 		return memoriaConocida->MEMORY_NUMBER == memoriaRecibida->MEMORY_NUMBER;
 	}
 	if (!list_any_satisfy(listaDeMemorias, (void*) yaSeEncuentraLaMemoria)) {
-		conectarMemoriaRecibida(memoriaRecibida);
-		list_add(listaDeMemorias, memoriaRecibida);
+		int huboError = conectarMemoriaRecibida(memoriaRecibida);
+		if(!huboError){
+			list_add(listaDeMemorias, memoriaRecibida);
+		}
 	}
 }
 
@@ -840,7 +842,7 @@ int32_t conectarMemoriaRecibida(struct datosMemoria* unaMemoria) {
 	if (connect(unaMemoria->socket,
 			(struct sockaddr *) &unaMemoria->direccionSocket,
 			sizeof(unaMemoria->direccionSocket)) == -1) {
-		perror("Hubo un error en la conexion");
+		//perror("Hubo un error en la conexion");
 		return -1;
 	}
 	//Mando un numero distinto de cero a memoria para que sepa que se conecto kernel
@@ -871,7 +873,8 @@ void tomar_peticion(char* mensaje, int es_request, int *huboError) {
 	//mensajeSeparadoConValue[i] = value;
 	if (value != NULL) {
 		mensajeSeparadoConValue[i] = (char*) malloc(strlen(value) + 1);
-		string_append(&mensajeSeparadoConValue[i], value);
+		strcpy(mensajeSeparadoConValue[i], value);
+		printf("VALUE: %s\n", value);
 	} else {
 		mensajeSeparadoConValue[i] = (char*) malloc(20);
 		mensajeSeparadoConValue[i] = NULL;
@@ -885,9 +888,9 @@ void tomar_peticion(char* mensaje, int es_request, int *huboError) {
 		}
 	}
 	/*int j = 0;
-	 while(mensajeSeparadoConValue[j]!=NULL){
-	 printf("%s\n", mensajeSeparadoConValue[j]);
-	 j++;
+	while(mensajeSeparadoConValue[j]!=NULL){
+		printf("VALUE: %s\n", mensajeSeparadoConValue[j]);
+		j++;
 	 }*/
 	realizar_peticion(mensajeSeparadoConValue, es_request, huboError);
 	free(mensajeSeparado);
@@ -1770,6 +1773,7 @@ void mandarInsert(char* tabla, char* key, char* value, int socketMemoria) {
 	memcpy(buffer + 3 * sizeof(int) + tamanioTabla, &tamanioKey, sizeof(int));
 	memcpy(buffer + 4 * sizeof(int) + tamanioTabla, key, tamanioKey);
 
+	//printf("value: %s\n", value);
 	int tamanioValue = strlen(value) + 1;
 	memcpy(buffer + 4 * sizeof(int) + tamanioTabla + tamanioKey, &tamanioValue,
 			sizeof(int));
@@ -2059,7 +2063,7 @@ void ejecutor(struct Script *ejecutando) {
 	while (i < quantum && !feof(lql) && !error) {
 		char* lineaDeScript = string_new();
 		fread(caracter, sizeof(char), 1, lql);
-		printf("\t%s",caracter);
+		//printf("\t%s",caracter);
 		//Si en la siguiente linea leyo el feof sale del while
 		if(feof(lql)){
 			break;
@@ -2069,7 +2073,6 @@ void ejecutor(struct Script *ejecutando) {
 			string_append(&lineaDeScript, caracter);
 			fread(caracter, sizeof(char), 1, lql);
 		}
-		//printf("\t%s\n", lineaDeScript);
 		tomar_peticion(lineaDeScript, 0, &error);
 		free(lineaDeScript);
 		i++;

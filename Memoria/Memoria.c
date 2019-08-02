@@ -96,7 +96,6 @@ pthread_mutex_t SEMAFORODETABLASEGMENTOS;
 pthread_mutex_t semaforoKernel;
 
 
-
 //Hilos
 pthread_t threadKernel;
 pthread_t threadFS;
@@ -112,8 +111,8 @@ int frameLibre();
 char* pedirValue(char* tabla, char* key);
 int ejecutarLRU();
 void ejecutarJournaling();
-int realizarCreate(char* tabla, char* tipoConsistencia,
-		char* numeroParticiones, char* tiempoCompactacion);
+int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones,
+		char* tiempoCompactacion);
 int realizarDrop(char* tabla);
 void realizarDescribeGlobal();
 metadataTabla* realizarDescribe(char* tabla);
@@ -198,11 +197,11 @@ int main(int argc, char *argv[]) {
 	// pthread_join(threadFS, NULL);
 }
 
-unsigned long long getMicrotime(){
+unsigned long long getMicrotime() {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	//return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
-	return ((unsigned long long)( (tv.tv_sec)*1000 + (tv.tv_usec)/1000 ));
+	return ((unsigned long long) ((tv.tv_sec) * 1000 + (tv.tv_usec) / 1000));
 }
 
 void analizarInstruccion(char* instruccion) {
@@ -335,14 +334,16 @@ char* realizarSelect(char* tabla, char* key) {
 								+ sizeof(int) + sizeof(unsigned long long)),
 						*(frames + pag->numeroFrame) + 1);
 
-				unsigned long long* timeStamp = malloc(sizeof(unsigned long long));
+				unsigned long long* timeStamp = malloc(
+						sizeof(unsigned long long));
 				*timeStamp = getMicrotime();
 
 				memcpy(
 						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
-								+ sizeof(int)), timeStamp, sizeof(unsigned long long));
+								+ sizeof(int)), timeStamp,
+						sizeof(unsigned long long));
 
-				//printf("Value: %s\n", value);
+				printf("Value: %s\n", value);
 
 				pag->timeStamp = *timeStamp;
 
@@ -400,10 +401,15 @@ char* realizarSelect(char* tabla, char* key) {
 		int* laKey = malloc(sizeof(int));
 		*laKey = atoi(key);
 
-		memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame), laKey, sizeof(int));
-		memcpy(	(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(unsigned long long)), value,
+		memcpy((memoriaPrincipal + pagp->numeroFrame * tamanoFrame), laKey,
+				sizeof(int));
+		memcpy(
+				(memoriaPrincipal + pagp->numeroFrame * tamanoFrame
+						+ sizeof(int) + sizeof(unsigned long long)), value,
 				strlen(value));
-		memcpy(	(memoriaPrincipal + pagp->numeroFrame * tamanoFrame	+ sizeof(int)), timeStamp, sizeof(unsigned long long));
+		memcpy(
+				(memoriaPrincipal + pagp->numeroFrame * tamanoFrame
+						+ sizeof(int)), timeStamp, sizeof(unsigned long long));
 
 		free(timeStamp);
 		//free(value);
@@ -477,17 +483,19 @@ int realizarInsert(char* tabla, char* key, char* value) {
 					sizeof(int));
 
 			if (*laKey == atoi(key)) {
-				unsigned long long* timeStamp = malloc(sizeof(unsigned long long));
+				unsigned long long* timeStamp = malloc(
+						sizeof(unsigned long long));
 
 				*timeStamp = getMicrotime();
 
 				memcpy(
 						(memoriaPrincipal + (pagy->numeroFrame * tamanoFrame)
-								+ sizeof(int) + sizeof(unsigned long long)), value,
-						strlen(value) + 1);
+								+ sizeof(int) + sizeof(unsigned long long)),
+						value, strlen(value) + 1);
 				memcpy(
 						memoriaPrincipal + pagy->numeroFrame * tamanoFrame
-								+ sizeof(int), timeStamp, sizeof(unsigned long long));
+								+ sizeof(int), timeStamp,
+						sizeof(unsigned long long));
 
 				*(frames + pagy->numeroFrame) = strlen(value);
 
@@ -571,11 +579,15 @@ int realizarInsert(char* tabla, char* key, char* value) {
 	int* laKey = malloc(sizeof(int));
 	*laKey = atoi(key);
 
-	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame, laKey, sizeof(int));
+	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame, laKey,
+			sizeof(int));
 
-	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int), timeStamp, sizeof(unsigned long long));
+	memcpy(memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int),
+			timeStamp, sizeof(unsigned long long));
 
-	memcpy(	memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int) + sizeof(unsigned long long), value, strlen(value) + 1);
+	memcpy(
+			memoriaPrincipal + pagp->numeroFrame * tamanoFrame + sizeof(int)
+					+ sizeof(unsigned long long), value, strlen(value) + 1);
 
 	free(timeStamp);
 
@@ -711,17 +723,27 @@ void ejecutarJournaling() {
 			pagina* pag = list_get(paginas, i);
 			if (pag->modificado) {
 				int* unaKey = malloc(sizeof(int));
-				memcpy(unaKey,	(memoriaPrincipal + pag->numeroFrame * tamanoFrame), sizeof(int));
+				memcpy(unaKey,
+						(memoriaPrincipal + pag->numeroFrame * tamanoFrame),
+						sizeof(int));
 
 				// ESTO ESTA MODIFICADO
-				unsigned long long* timestamp = malloc(sizeof(unsigned long long));
-				memcpy(timestamp, (memoriaPrincipal + pag->numeroFrame * tamanoFrame + sizeof(int)), sizeof(unsigned long long));
+				unsigned long long* timestamp = malloc(
+						sizeof(unsigned long long));
+				memcpy(timestamp,
+						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
+								+ sizeof(int)), sizeof(unsigned long long));
 
 				char* value = malloc(tamanoValue);
-				memcpy(value, (memoriaPrincipal + pag->numeroFrame * tamanoFrame + sizeof(int) + sizeof(unsigned long long)),	*(frames + pag->numeroFrame) + 1);
+				memcpy(value,
+						(memoriaPrincipal + pag->numeroFrame * tamanoFrame
+								+ sizeof(int) + sizeof(unsigned long long)),
+						*(frames + pag->numeroFrame) + 1);
 
 				// Serializo peticion, tabla, key, value (el timestamp lo agrega el fs y siempre es el ACTUAL)
-				char* buffer = malloc( sizeof(unsigned long long) + 7 * sizeof(int) + strlen(tabla) + strlen(value) );
+				char* buffer = malloc(
+						sizeof(unsigned long long) + 7 * sizeof(int)
+								+ strlen(tabla) + strlen(value));
 
 				int peticion = 2;
 				int tamanioPeticion = sizeof(int);
@@ -739,15 +761,21 @@ void ejecutarJournaling() {
 						sizeof(int));
 
 				int tamanioValue = strlen(value);
-				memcpy(buffer + 5 * sizeof(int) + strlen(tabla), &tamanioValue,	sizeof(int));
-				memcpy(buffer + 6 * sizeof(int) + strlen(tabla), value,	strlen(value));
+				memcpy(buffer + 5 * sizeof(int) + strlen(tabla), &tamanioValue,
+						sizeof(int));
+				memcpy(buffer + 6 * sizeof(int) + strlen(tabla), value,
+						strlen(value));
 
 				int tamanioTimestamp = sizeof(unsigned long long);
-				memcpy(buffer + 6 * sizeof(int) + strlen(tabla) + strlen(value), &tamanioTimestamp, sizeof(int));
-				memcpy(buffer + 7 * sizeof(int) + strlen(tabla) + strlen(value), timestamp, sizeof(unsigned long long));
+				memcpy(buffer + 6 * sizeof(int) + strlen(tabla) + strlen(value),
+						&tamanioTimestamp, sizeof(int));
+				memcpy(buffer + 7 * sizeof(int) + strlen(tabla) + strlen(value),
+						timestamp, sizeof(unsigned long long));
 
 				pthread_mutex_lock(&SEMAFORODECONEXIONFS);
-				send(clienteFS, buffer,	7 * sizeof(int) + strlen(tabla) + strlen(value) + sizeof(unsigned long long), 0);
+				send(clienteFS, buffer,
+						7 * sizeof(int) + strlen(tabla) + strlen(value)
+								+ sizeof(unsigned long long), 0);
 
 				// Deserializo respuesta
 				int* tamanioRespuesta = malloc(sizeof(int));
@@ -756,8 +784,14 @@ void ejecutarJournaling() {
 				read(clienteFS, ok, *tamanioRespuesta);
 				pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 				if (*ok == 0) {
-					char* mensajeALogear = malloc( strlen(" NO se pudo realizar insert en FS en tabla :  con value : ") + strlen(tabla) + strlen(value) + 1);
-					strcpy(mensajeALogear, " NO se pudo realizar insert en FS en tabla : ");
+					char* mensajeALogear =
+							malloc(
+									strlen(
+											" NO se pudo realizar insert en FS en tabla :  con value : ")
+											+ strlen(tabla) + strlen(value)
+											+ 1);
+					strcpy(mensajeALogear,
+							" NO se pudo realizar insert en FS en tabla : ");
 					strcat(mensajeALogear, tabla);
 					strcat(mensajeALogear, " con value : ");
 					strcat(mensajeALogear, value);
@@ -769,13 +803,21 @@ void ejecutarJournaling() {
 					free(mensajeALogear);
 				}
 				if (*ok == 1) {
-					char* mensajeALogear = malloc( strlen(" Se realizo insert en FS en tabla :  con value : ") +strlen(tabla) + strlen(value) + 1 + strlen(" y timestamp : ") + sizeof(unsigned long long) +2);
-					strcpy(mensajeALogear, " Se realizo insert en FS en tabla : ");
+					char* mensajeALogear =
+							malloc(
+									strlen(
+											" Se realizo insert en FS en tabla :  con value : ")
+											+ strlen(tabla) + strlen(value) + 1
+											+ strlen(" y timestamp : ")
+											+ sizeof(unsigned long long) + 2);
+					strcpy(mensajeALogear,
+							" Se realizo insert en FS en tabla : ");
 					strcat(mensajeALogear, tabla);
 					strcat(mensajeALogear, " con value : ");
 					strcat(mensajeALogear, value);
 					strcat(mensajeALogear, " y timestamp : ");
-					strcat(mensajeALogear, string_from_format("%llu", *timestamp));
+					strcat(mensajeALogear,
+							string_from_format("%llu", *timestamp));
 					t_log* g_logger;
 					g_logger = log_create("./logs.log", "MEMORIA", 1,
 							LOG_LEVEL_INFO);
@@ -810,7 +852,8 @@ void ejecutarJournaling() {
 	sem_post(&sem2);
 }
 
-int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones, char* tiempoCompactacion) {
+int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones,
+		char* tiempoCompactacion) {
 
 	sem_wait(&sem2);
 
@@ -928,7 +971,6 @@ int realizarDrop(char* tabla) {
 	int* ok = malloc(*tamanioRespuesta);
 	read(clienteFS, ok, *tamanioRespuesta);
 	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
-
 
 	if (*ok == 0) {
 		char* mensajeALogear = malloc(
@@ -1287,7 +1329,6 @@ int serServidor() {
 						recv(sd, socket, sizeof(int), 0);
 
 						t_list* provisoria = list_create();
-
 						char* mensajeALogear9 = malloc(strlen(" el socket que recibi es : ") + sizeof(*socket)+ 1);
 						strcpy(mensajeALogear9, " el socket que recibi es : ");
 						strcat(mensajeALogear9, string_itoa(*socket));
@@ -1431,8 +1472,9 @@ int serServidor() {
 								return elemento->MEMORY_NUMBER
 										== me->MEMORY_NUMBER;
 							}
-
-							if (me->MEMORY_NUMBER != t_archivoConfiguracion.MEMORY_NUMBER	&& !list_any_satisfy(clientes, esta)) {
+							if (me->MEMORY_NUMBER
+									!= t_archivoConfiguracion.MEMORY_NUMBER
+									&& !list_any_satisfy(clientes, esta)) {
 								list_add(clientes, me);
 							}
 						}
@@ -1568,7 +1610,8 @@ void tomarPeticionCreate(int kernel) {
 	recv(kernel, tiempoCompactacion, *tamanioTiempoCompactacion, 0);
 	//printf("tiempo de compactacion: %s\n", tiempoCompactacion);
 
-	int respuesta = realizarCreate(tabla, consistencia, numeroDeParticiones, tiempoCompactacion);
+	int respuesta = realizarCreate(tabla, consistencia, numeroDeParticiones,
+			tiempoCompactacion);
 
 	char* buffer = malloc(2 * sizeof(int));
 	int tamanioRespuesta = sizeof(int);
@@ -1743,18 +1786,37 @@ void conectar() {
 
 			if (res >= 0) {
 				pthread_t tGosiping;
-				int32_t idTGosiping = pthread_create(&tGosiping, NULL, gossiping, clienteSeed);
+				int32_t idTGosiping = pthread_create(&tGosiping, NULL,
+						gossiping, clienteSeed);
+			} else {
+				printf("Borrando Memoria\n");
+
+				bool esMemoria(datosMemoria* memoria) {
+					printf("%d\n", ntohs(memoria->direccionSocket.sin_port));
+					printf("%d\n",
+							atoi(t_archivoConfiguracion.PUERTO_SEEDS[i]));
+					return ntohs(memoria->direccionSocket.sin_port)
+							== atoi(t_archivoConfiguracion.PUERTO_SEEDS[i]);
+				}
+
+				void destroyer(void* elemento) {
+					free(elemento);
+				}
+
+				list_remove_and_destroy_by_condition(clientes, esMemoria,
+						destroyer);
 			}
 
 			i++;
 		}
-		sleep(t_archivoConfiguracion.RETARDO_GOSSIPING/1000);
+		sleep(t_archivoConfiguracion.RETARDO_GOSSIPING / 1000);
 	}
 }
 
 void gossiping(int cliente) {
 
 	char* buffer = malloc(2 * sizeof(int));
+	t_list* provisoria = list_create();
 
 	int peticion = 8;
 	int tamanioPeticion = sizeof(int);
@@ -1772,11 +1834,14 @@ void gossiping(int cliente) {
 		buffer = malloc(
 				sizeof(int) + sizeof(struct sockaddr_in) + sizeof(int32_t));
 
-		memcpy(buffer,  &unaM->socket,  sizeof(int));
-		memcpy(buffer + sizeof(int),  &unaM->direccionSocket,   sizeof(struct sockaddr_in));
-		memcpy(buffer + sizeof(int) + sizeof(struct sockaddr_in),  &unaM->MEMORY_NUMBER,   sizeof(int32_t));
+		memcpy(buffer, &unaM->socket, sizeof(int));
+		memcpy(buffer + sizeof(int), &unaM->direccionSocket,
+				sizeof(struct sockaddr_in));
+		memcpy(buffer + sizeof(int) + sizeof(struct sockaddr_in),
+				&unaM->MEMORY_NUMBER, sizeof(int32_t));
 
-		send(cliente, buffer,	sizeof(int) + sizeof(struct sockaddr_in) + sizeof(int32_t),   0);
+		send(cliente, buffer,
+				sizeof(int) + sizeof(struct sockaddr_in) + sizeof(int32_t), 0);
 
 		free(buffer);
 
@@ -1799,9 +1864,8 @@ void gossiping(int cliente) {
 		int32_t* num = malloc(sizeof(int));
 		recv(cliente, num, sizeof(int32_t), 0);
 
-
 		//printf("Num: %d\n", *num);
-		//printf("Puerto: %d\n", direccion->sin_port);
+		//printf("Puerto: %d\n\n", direccion->sin_port);
 
 		datosMemoria* unaM = malloc(sizeof(datosMemoria));
 
@@ -1813,8 +1877,8 @@ void gossiping(int cliente) {
 			return elemento->MEMORY_NUMBER == *num;
 		}
 
-		if (!list_any_satisfy(clientes, estaEnLaLista)) {
-			list_add(clientes, unaM);
+		if (!list_any_satisfy(provisoria, estaEnLaLista)) {
+			list_add(provisoria, unaM);
 		}
 
 		free(direccion);
@@ -1824,6 +1888,36 @@ void gossiping(int cliente) {
 		socket = malloc(sizeof(int));
 		recv(cliente, socket, sizeof(int), 0);
 	}
+
 	close(cliente);
+
+	for (int h = 0; h < list_size(clientes); h++) {
+		datosMemoria* m = malloc(sizeof(datosMemoria));
+		m = list_get(clientes, h);
+		if (m->MEMORY_NUMBER != t_archivoConfiguracion.MEMORY_NUMBER) {
+			list_remove(clientes, h);
+		}
+	}
+
+	for (int j = 0; j < list_size(provisoria); j++) {
+		datosMemoria* me = malloc(sizeof(datosMemoria));
+		me = list_get(provisoria, j);
+
+		bool esta(datosMemoria* elemento) {
+			return elemento->MEMORY_NUMBER == me->MEMORY_NUMBER;
+		}
+
+		if (me->MEMORY_NUMBER != t_archivoConfiguracion.MEMORY_NUMBER
+				&& !list_any_satisfy(clientes, esta)) {
+			list_add(clientes, me);
+		}
+	}
+
+	for (int g = 0; g < list_size(clientes); g++) {
+		datosMemoria* mem = list_get(clientes, g);
+		printf("Mem num: %d\n", mem->MEMORY_NUMBER);
+	}
+
+	list_destroy(provisoria);
 }
 
