@@ -93,6 +93,8 @@ sem_t sem;
 sem_t sem2;
 pthread_mutex_t SEMAFORODECONEXIONFS;
 pthread_mutex_t SEMAFORODETABLASEGMENTOS;
+pthread_mutex_t semaforoKernel;
+
 
 
 //Hilos
@@ -133,6 +135,9 @@ int main(int argc, char *argv[]) {
 
 	sem_init(&sem, 1, 0);
 	sem_init(&sem, 2, 0);
+	pthread_mutex_init(&semaforoKernel,NULL);
+	pthread_mutex_init(&SEMAFORODECONEXIONFS,NULL);
+	pthread_mutex_init(&SEMAFORODETABLASEGMENTOS,NULL);
 
 	clientes = list_create();
 
@@ -158,7 +163,8 @@ int main(int argc, char *argv[]) {
 			"MEMORY_NUMBER");
 
 	pthread_t threadFS;
-	int32_t idThreadFS = pthread_create(&threadFS, NULL, conectarseAFS, NULL);
+	// int32_t idThreadFS = pthread_create(&threadFS, NULL, conectarseAFS, NULL);
+	conectarseAFS();
 
 	sem_wait(&sem);
 
@@ -189,7 +195,7 @@ int main(int argc, char *argv[]) {
 
 	pthread_join(threadConsola, NULL);
 	pthread_join(threadSerServidor, NULL);
-	pthread_join(threadFS, NULL);
+	// pthread_join(threadFS, NULL);
 }
 
 unsigned long long getMicrotime(){
@@ -1266,22 +1272,51 @@ int serServidor() {
 						ejecutarJournaling();
 						break;
 					case 8:
-						//Gossiping
-						printf("Se pidio un Gossiping\n");
+						;
+						char* mensajeALogear = malloc(
+								strlen(" se pidio gossiping ") + 1);
+						strcpy(mensajeALogear, " se pidio gossiping ");
+						t_log* g_logger;
+						g_logger = log_create("./logs.log", "LFS", 1,
+								LOG_LEVEL_INFO);
+						log_info(g_logger, mensajeALogear);
+						log_destroy(g_logger);
+						free(mensajeALogear);
 
 						int* socket = malloc(sizeof(int));
 						recv(sd, socket, sizeof(int), 0);
 
+						t_list* provisoria = list_create();
+
+						char* mensajeALogear9 = malloc(strlen(" el socket que recibi es : ") + sizeof(*socket)+ 1);
+						strcpy(mensajeALogear9, " el socket que recibi es : ");
+						strcat(mensajeALogear9, string_itoa(*socket));
+						t_log* g_logger9;
+						g_logger9 = log_create("./logs.log", "LFS", 1,
+								LOG_LEVEL_INFO);
+						log_info(g_logger9, mensajeALogear9);
+						log_destroy(g_logger9);
+						free(mensajeALogear9);
+
 						while (*socket != 0) {
+
+							char* mensajeALogear2 = malloc(
+									strlen(" entro al while ") + 1);
+							strcpy(mensajeALogear2, " entro al while ");
+							t_log* g_logger2;
+							g_logger2 = log_create("./logs.log", "LFS", 1,
+									LOG_LEVEL_INFO);
+							log_info(g_logger2, mensajeALogear2);
+							log_destroy(g_logger2);
+							free(mensajeALogear2);
+
+
 							struct sockaddr_in *direccion = malloc(
 									sizeof(struct sockaddr_in));
 							recv(sd, direccion, sizeof(struct sockaddr_in), 0);
 
 							int32_t* num = malloc(sizeof(int));
 							recv(sd, num, sizeof(int32_t), 0);
-
-							//printf("Num: %d\n", *num);
-							//printf("Puerto: %d\n", direccion->sin_port);
 
 							datosMemoria* unaM = malloc(sizeof(datosMemoria));
 
@@ -1293,9 +1328,9 @@ int serServidor() {
 								return elemento->MEMORY_NUMBER == *num;
 							}
 
-							if (!list_any_satisfy(clientes, estaEnLaLista)) {
-								list_add(clientes, unaM);
-							}
+							//if (!list_any_satisfy(provisoria, estaEnLaLista)) {
+							list_add(provisoria, unaM);
+							//}
 
 							free(direccion);
 							free(num);
@@ -1304,9 +1339,27 @@ int serServidor() {
 							socket = malloc(sizeof(int));
 							recv(sd, socket, sizeof(int), 0);
 
+							char* mensajeALogear3 = malloc(
+											strlen(" casi por salir del while ") + 1);
+							strcpy(mensajeALogear3, " casi por salir del while ");
+							t_log* g_logger3;
+							g_logger3 = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+							log_info(g_logger3, mensajeALogear3);
+							log_destroy(g_logger3);
+							free(mensajeALogear3);
 						}
 						int i = 0;
 						char* buffer;
+
+						char* mensajeALogear4 = malloc(
+										strlen(" sali del while ") + 1);
+						strcpy(mensajeALogear4, " sali del while ");
+						t_log* g_logger4;
+						g_logger4 = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+						log_info(g_logger4, mensajeALogear4);
+						log_destroy(g_logger4);
+						free(mensajeALogear4);
+
 
 						while (i < list_size(clientes)) {
 							datosMemoria* unaM = list_get(clientes, i);
@@ -1323,13 +1376,23 @@ int serServidor() {
 											+ sizeof(struct sockaddr_in),
 									&unaM->MEMORY_NUMBER, sizeof(int32_t));
 
+							pthread_mutex_lock(&semaforoKernel);
 							send(sd, buffer,
 									sizeof(int) + sizeof(struct sockaddr_in)
 											+ sizeof(int32_t), 0);
+							pthread_mutex_unlock(&semaforoKernel);
 
 							free(buffer);
-
 							i++;
+
+							char* mensajeALogear5 = malloc(
+											strlen(" por salir del segundo while ") + 1);
+							strcpy(mensajeALogear5, " por salir del segundo while ");
+							t_log* g_logger5;
+							g_logger5 = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+							log_info(g_logger5, mensajeALogear5);
+							log_destroy(g_logger5);
+							free(mensajeALogear5);
 						}
 
 						buffer = malloc(sizeof(int));
@@ -1337,10 +1400,44 @@ int serServidor() {
 
 						memcpy(buffer, &fin, sizeof(int));
 
+						pthread_mutex_lock(&semaforoKernel);
 						send(sd, buffer, sizeof(int), 0);
+						pthread_mutex_unlock(&semaforoKernel);
+
+						char* mensajeALogear6 = malloc(
+										strlen(" hice send de fin") + 1);
+						strcpy(mensajeALogear6, " hice send de fin");
+						t_log* g_logger6;
+						g_logger6 = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+						log_info(g_logger6, mensajeALogear6);
+						log_destroy(g_logger6);
+						free(mensajeALogear6);
+
 
 						free(buffer);
 
+						for (int i = 0; i < list_size(clientes); i++) {
+							datosMemoria* m = list_get(clientes, i);
+							if (m->MEMORY_NUMBER
+									!= t_archivoConfiguracion.MEMORY_NUMBER) {
+								list_remove(clientes, i);
+							}
+						}
+						for (int j = 0; j < list_size(provisoria); j++) {
+							datosMemoria* me = malloc(sizeof(datosMemoria));
+							me = list_get(provisoria, j);
+
+							bool esta(datosMemoria* elemento) {
+								return elemento->MEMORY_NUMBER
+										== me->MEMORY_NUMBER;
+							}
+
+							if (me->MEMORY_NUMBER != t_archivoConfiguracion.MEMORY_NUMBER	&& !list_any_satisfy(clientes, esta)) {
+								list_add(clientes, me);
+							}
+						}
+
+						list_destroy(provisoria);
 						break;
 					default:
 						break;
@@ -1367,7 +1464,7 @@ void conectarseAFS() {
 
 	sem_post(&sem);
 	sem_post(&sem2);
-
+	/*
 	sleep(30);
 
 	sem_wait(&sem2);
@@ -1376,7 +1473,7 @@ void conectarseAFS() {
 
 	close(clienteFS);
 
-	conectarseAFS();
+	conectarseAFS(); */
 }
 
 void tomarPeticionSelect(int kernel) {
@@ -1401,13 +1498,17 @@ void tomarPeticionSelect(int kernel) {
 		int ok = 0;
 		void* buffer = malloc(4);
 		memcpy(buffer, &ok, 4);
+		pthread_mutex_lock(&semaforoKernel);
 		send(kernel, buffer, 4, 0);
+		pthread_mutex_unlock(&semaforoKernel);
 	} else {
 		void *buffer = malloc(strlen(value) + sizeof(int));
 		int tamanio = strlen(value);
 		memcpy(buffer, &tamanio, sizeof(int));
 		memcpy(buffer + sizeof(int), value, tamanio);
+		pthread_mutex_lock(&semaforoKernel);
 		send(kernel, buffer, strlen(value) + sizeof(int), 0);
+		pthread_mutex_unlock(&semaforoKernel);
 	}
 	free(value);
 	free(key);
@@ -1474,7 +1575,9 @@ void tomarPeticionCreate(int kernel) {
 	memcpy(buffer, &tamanioRespuesta, sizeof(int));
 	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
 
+	pthread_mutex_lock(&semaforoKernel);
 	send(kernel, buffer, 2 * sizeof(int), 0);
+	pthread_mutex_unlock(&semaforoKernel);
 }
 
 void tomarPeticionDescribe1Tabla(int kernel) {
@@ -1507,7 +1610,9 @@ void tomarPeticionDescribe1Tabla(int kernel) {
 	memcpy(buffer + 4 * sizeof(int) + tamanioMetadataConsistency,
 			&metadata->tiempoCompactacion, sizeof(int));
 
+	pthread_mutex_lock(&semaforoKernel);
 	send(kernel, buffer, tamanioBuffer, 0);
+	pthread_mutex_unlock(&semaforoKernel);
 }
 
 void tomarPeticionDescribeGlobal(int kernel) {
@@ -1584,9 +1689,11 @@ void tomarPeticionDescribeGlobal(int kernel) {
 						+ strlen(tipoConsistenciaCortada), tiempoCompactacion,
 				sizeof(int));
 
+		pthread_mutex_lock(&semaforoKernel);
 		send(kernel, buffer2,
 				strlen(tablaCortada) + strlen(tipoConsistenciaCortada)
 						+ 6 * sizeof(int), 0);
+		pthread_mutex_unlock(&semaforoKernel);
 
 		read(clienteFS, tamanioTabla2, sizeof(int));
 	}
@@ -1595,7 +1702,9 @@ void tomarPeticionDescribeGlobal(int kernel) {
 	char* buffer2 = malloc(4);
 	int respuesta = 0;
 	memcpy(buffer2, &respuesta, sizeof(int));
+	pthread_mutex_lock(&semaforoKernel);
 	send(kernel, buffer2, sizeof(int), 0);
+	pthread_mutex_unlock(&semaforoKernel);
 
 }
 
@@ -1612,8 +1721,9 @@ void tomarPeticionDrop(int kernel) {
 	int tamanioRespuesta = sizeof(int);
 	memcpy(buffer, &tamanioRespuesta, sizeof(int));
 	memcpy(buffer + sizeof(int), &respuesta, sizeof(int));
-
+	pthread_mutex_lock(&semaforoKernel);
 	send(kernel, buffer, 2 * sizeof(int), 0);
+	pthread_mutex_unlock(&semaforoKernel);
 }
 
 void conectar() {
@@ -1633,8 +1743,7 @@ void conectar() {
 
 			if (res >= 0) {
 				pthread_t tGosiping;
-				int32_t idTGosiping = pthread_create(&tGosiping, NULL,
-						gossiping, clienteSeed);
+				int32_t idTGosiping = pthread_create(&tGosiping, NULL, gossiping, clienteSeed);
 			}
 
 			i++;
@@ -1706,8 +1815,6 @@ void gossiping(int cliente) {
 
 		if (!list_any_satisfy(clientes, estaEnLaLista)) {
 			list_add(clientes, unaM);
-
-
 		}
 
 		free(direccion);

@@ -76,3 +76,24 @@
 
 [ERROR] 14:17:43:969 Kernel/(8209:8268):  No se encontro ni en MM ni en FS la key : 154
 [ERROR] 14:17:46:545 Kernel/(8209:8270):  No se encontro ni en MM ni en FS la key : 16
+[INFO] 20:03:16:175 LFS/(12907:12915):  gossiping 
+[INFO] 20:03:16:176 LFS/(12907:12915):  hice el send de peticion : 8
+[INFO] 20:03:16:177 LFS/(12907:12915):  recibi socket : 5
+[INFO] 20:03:16:177 LFS/(12907:12915):  entre al while 
+[INFO] 20:03:16:216 LFS/(12907:12915):  por salir del while 
+[INFO] 20:03:16:216 LFS/(12907:12915):  sali del while 
+[INFO] 20:03:16:216 LFS/(12907:12915):  sali del while e hice el iterate 
+[INFO] 22:09:11:252 LFS/(17628:17636):  gossiping 
+[INFO] 22:09:11:314 LFS/(17628:17636):  hice el send de peticion : 8 a socket : 3
+[INFO] 22:09:11:316 LFS/(17628:17636):  recibi socket : 5
+[INFO] 22:09:11:318 LFS/(17628:17636):  entre al while 
+[INFO] 22:09:11:318 LFS/(17628:17636):  por salir del while 
+[INFO] 22:09:11:318 LFS/(17628:17636):  sali del while 
+[INFO] 22:09:11:318 LFS/(17628:17636):  sali del while e hice el iterate 
+[INFO] 22:09:21:750 LFS/(17647:17655):  gossiping 
+[INFO] 22:09:21:751 LFS/(17647:17655):  hice el send de peticion : 8 a socket : 3
+[INFO] 22:09:21:751 LFS/(17647:17655):  recibi socket : 5
+[INFO] 22:09:21:751 LFS/(17647:17655):  entre al while 
+[INFO] 22:09:21:788 LFS/(17647:17655):  por salir del while 
+[INFO] 22:09:21:788 LFS/(17647:17655):  sali del while 
+[INFO] 22:09:21:788 LFS/(17647:17655):  sali del while e hice el iterate 

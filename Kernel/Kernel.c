@@ -166,6 +166,7 @@ pthread_mutex_t SEMAFORODECONEXIONMEMORIAS;
 
 int main() {
 	pthread_mutex_init(&SEMAFORODECONEXIONMEMORIAS, NULL);
+
 	listaMetricas = list_create();
 	metricasDeUltimos30Segundos = list_create();
 	configuracion = config_create("Kernel_config");
@@ -212,13 +213,14 @@ int main() {
 	pthread_create(&hiloEjecutarReady, NULL, (void*) ejecutarReady, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
-	pthread_create(&goissiping, NULL, (void*)operacion_gossiping, NULL);
+	//pthread_create(&goissiping, NULL, (void*)operacion_gossiping, NULL);
 	pthread_create(&describe, NULL, (void*) refreshMetadata, NULL);
 	//pthread_join(metrics, NULL);
 	pthread_join(describe, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	pthread_join(hiloEjecutarReady, NULL);
-	pthread_join(goissiping, NULL);
+	//pthread_join(goissiping, NULL);
+	operacion_gossiping();
 	return 0;
 }
 
@@ -647,75 +649,153 @@ int numeroSinUsar() {
 }
 
 void operacion_gossiping() {
-	while (1) {
-		sem_wait(&MEMORIAPRINCIPAL);
-		printf("GOSSIPING\n");
-		//Borro las anteriores
-		list_clean(memoriasRecibidas);
-		//Pido Gossiping
-		char* buffer = malloc(3 * sizeof(int));
-		int peticion = 8;
-		int tamanioPeticion = sizeof(int);
-		int fin = 0;
-		memcpy(buffer, &tamanioPeticion, sizeof(int));
-		memcpy(buffer + sizeof(int), &peticion, sizeof(int));
-		memcpy(buffer + 2 * sizeof(int), &fin, sizeof(int));
-		send(memoriaPrincipal->socket, buffer, 3 * sizeof(int), 0);
+	//while (1) {
+			sem_wait(&MEMORIAPRINCIPAL);
 
-		//Recibo el gossiping
-		int* socket = malloc(sizeof(int));
-		recv(memoriaPrincipal->socket, socket, sizeof(int), 0);
+			char* mensajeALogear4 = malloc(	strlen(" gossiping ") + 1);
+			strcpy(mensajeALogear4, " gossiping ");
+			t_log* g_logger4;
+			g_logger4 = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+			log_info(g_logger4, mensajeALogear4);
+			log_destroy(g_logger4);
+			free(mensajeALogear4);
 
-		while (*socket != 0) {
-			struct sockaddr_in *direccion = malloc(sizeof(struct sockaddr_in));
-			recv(memoriaPrincipal->socket, direccion, sizeof(struct sockaddr_in), 0);
+			//Pido Gossiping
+			char* buffer = malloc(3 * sizeof(int));
+			int peticion = 8;
+			int tamanioPeticion = sizeof(int);
+			int fin = 0;
+			memcpy(buffer, &tamanioPeticion, sizeof(int));
+			memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+			memcpy(buffer + 2 * sizeof(int), &fin, sizeof(int));
+			send(memoriaPrincipal->socket, buffer, 3 * sizeof(int), 0);
 
-			int32_t* num = malloc(sizeof(int));
-			recv(memoriaPrincipal->socket, num, sizeof(int32_t), 0);
+			char* mensajeALogear8 = malloc(
+							strlen(" hice el send de peticion :  a socket : ") + sizeof(int) + 1);
+			strcpy(mensajeALogear8, " hice el send de peticion : ");
+			strcat(mensajeALogear8, string_itoa(peticion));
+			strcat(mensajeALogear8, " a socket : ");
+			strcat(mensajeALogear8, string_itoa(memoriaPrincipal->socket));
 
-			printf("Num: %d\n", *num);
-			printf("Puerto: %d\n", direccion->sin_port);
+			t_log* g_logger8;
+			g_logger8 = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+			log_info(g_logger8, mensajeALogear8);
+			log_destroy(g_logger8);
+			free(mensajeALogear8);
 
-			struct datosMemoria* unaM = malloc(sizeof(struct datosMemoria));
-
-			unaM->MEMORY_NUMBER = *num;
-			unaM->direccionSocket = *direccion;
-			unaM->socket = *socket;
-
-			//Agrego la memoria recibida a mi lista de memorias
-			list_add(memoriasRecibidas, unaM);
-
-			free(direccion);
-			free(num);
-			free(socket);
-
-			socket = malloc(sizeof(int));
+			//Recibo el gossiping
+			int* socket = malloc(sizeof(int));
 			recv(memoriaPrincipal->socket, socket, sizeof(int), 0);
-		}
 
-		list_iterate(memoriasRecibidas, (void*)evaluarMemoriaRecibida);
+			char* mensajeALogear9 = malloc(
+							strlen(" recibi socket : ") + sizeof(*socket) + 1);
+			strcpy(mensajeALogear9, " recibi socket : ");
+			strcat(mensajeALogear9, string_itoa(*socket));
+			t_log* g_logger9;
+			g_logger9 = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+			log_info(g_logger9, mensajeALogear9);
+			log_destroy(g_logger9);
+			free(mensajeALogear9);
 
-				 //Me fijo las memorias que se desconectaron
-		void evaluarMemoriaConocida(struct datosMemoria *memoriaConocida){
-			int seDesconectoLaMemoria(struct datosMemoria *memoriaConocida){
-				int esLaMemoriaConocida(struct datosMemoria *memoriaRecibida){
-					return memoriaRecibida->MEMORY_NUMBER == memoriaConocida->MEMORY_NUMBER;
+
+			while (*socket != 0) {
+				char* mensajeALogear = malloc(
+								strlen(" entre al while ") + 1);
+				strcpy(mensajeALogear, " entre al while ");
+				t_log* g_logger;
+				g_logger = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+				log_info(g_logger, mensajeALogear);
+				log_destroy(g_logger);
+				free(mensajeALogear);
+
+				struct sockaddr_in *direccion = malloc(sizeof(struct sockaddr_in));
+				recv(memoriaPrincipal->socket, direccion, sizeof(struct sockaddr_in), 0);
+
+				int32_t* num = malloc(sizeof(int));
+				recv(memoriaPrincipal->socket, num, sizeof(int32_t), 0);
+
+				printf("Num: %d\n", *num);
+				printf("Puerto: %d\n", direccion->sin_port);
+
+				struct datosMemoria* unaM = malloc(sizeof(struct datosMemoria));
+
+				unaM->MEMORY_NUMBER = *num;
+				unaM->direccionSocket = *direccion;
+				unaM->socket = *socket;
+
+				//Agrego la memoria recibida a mi lista de memorias
+				list_add(memoriasRecibidas, unaM);
+
+				free(direccion);
+				free(num);
+
+				socket = malloc(sizeof(int));
+				recv(memoriaPrincipal->socket, socket, sizeof(int), 0);
+
+				char* mensajeALogear2 = malloc(
+								strlen(" por salir del while ") + 1);
+				strcpy(mensajeALogear2, " por salir del while ");
+				t_log* g_logger2;
+				g_logger2 = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+				log_info(g_logger2, mensajeALogear2);
+				log_destroy(g_logger2);
+				free(mensajeALogear2);
+			}
+
+			char* mensajeALogear7 = malloc(
+									strlen(" sali del while ") + 1);
+			strcpy(mensajeALogear7, " sali del while ");
+			t_log* g_logger7;
+			g_logger7 = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+			log_info(g_logger7, mensajeALogear7);
+			log_destroy(g_logger7);
+			free(mensajeALogear7);
+
+			if(!list_is_empty(memoriasRecibidas)){
+				list_iterate(memoriasRecibidas, (void*)evaluarMemoriaRecibida);
+			}
+			else{
+
+			}
+
+			char* mensajeALogear3 = malloc(
+							strlen(" sali del while e hice el iterate ") + 1);
+			strcpy(mensajeALogear3, " sali del while e hice el iterate ");
+			t_log* g_logger3;
+			g_logger3 = log_create("./logs.log", "LFS", 1, LOG_LEVEL_INFO);
+			log_info(g_logger3, mensajeALogear3);
+			log_destroy(g_logger3);
+			free(mensajeALogear3);
+
+			/*
+			//Me fijo las memorias que se desconectaron
+			void evaluarMemoriaConocida(struct datosMemoria *memoriaConocida){
+				int seDesconectoLaMemoria(struct datosMemoria *memoriaConocida){
+					int esLaMemoriaConocida(struct datosMemoria *memoriaRecibida){
+						return memoriaRecibida->MEMORY_NUMBER == memoriaConocida->MEMORY_NUMBER;
+					}
+				return !list_any_satisfy(memoriasRecibidas, (void*)esLaMemoriaConocida);
 				}
-			return !list_any_satisfy(memoriasRecibidas, (void*)esLaMemoriaConocida);
+
+				if(seDesconectoLaMemoria(memoriaConocida)){
+					quitarMemoriaDeSC(memoriaConocida);
+					quitarMemoriaDe1Lista(memoriaConocida, hashConsistency);
+					quitarMemoriaDe1Lista(memoriaConocida, eventualConsistency);
+				}
 			}
 
-			if(seDesconectoLaMemoria(memoriaConocida)){
-				quitarMemoriaDeSC(memoriaConocida);
-				quitarMemoriaDe1Lista(memoriaConocida, hashConsistency);
-				quitarMemoriaDe1Lista(memoriaConocida, eventualConsistency);
-			}
-		}
+			list_iterate(listaDeMemorias, (void*)evaluarMemoriaConocida);
+			*/
 
-		list_iterate(listaDeMemorias, (void*)evaluarMemoriaConocida);
-		sem_post(&MEMORIAPRINCIPAL);
-		sleep(30);
+			//Borro las anteriores
+			list_clean(memoriasRecibidas);
+
+
+			free(socket);
+			sem_post(&MEMORIAPRINCIPAL);
+			sleep(30);
 	}
-}
+//}
 
 void evaluarMemoriaRecibida(struct datosMemoria* memoriaRecibida) {
 	int yaSeEncuentraLaMemoria(struct datosMemoria* memoriaConocida) {
@@ -1447,7 +1527,9 @@ int laMemoriaEstaConectada(struct datosMemoria* unaMemoria){
 	int tamanioPeticion = sizeof(int);
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
+
 	int loQueEnvio = send(unaMemoria->socket, buffer, 2 * sizeof(int), 0);
+
 
 		//loQueEnvio = send(unaMemoria->socket, buffer, 2 * sizeof(int), 0);
 	//recibo algo de la memoria, si devuelve 0 no esta conectada
@@ -1531,7 +1613,9 @@ void mandarJournal(struct datosMemoria *unaMemoria) {
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
+	pthread_mutex_lock(&SEMAFORODECONEXIONMEMORIAS);
 	send(unaMemoria->socket, buffer, 2 * sizeof(int), 0);
+	pthread_mutex_unlock(&SEMAFORODECONEXIONMEMORIAS);
 }
 
 void guardarDiccionarioGlobal(int socketMemoria) {
@@ -1692,10 +1776,10 @@ void mandarInsert(char* tabla, char* key, char* value, int socketMemoria) {
 	memcpy(buffer + 5 * sizeof(int) + tamanioTabla + tamanioKey, value,
 			tamanioValue);
 
-	//No mandar el timestamp (no hay en kernel)
+	pthread_mutex_lock(&SEMAFORODECONEXIONMEMORIAS);
 	send(socketMemoria, buffer,
 			tamanioTabla + 5 * sizeof(int) + tamanioKey + tamanioValue, 0);
-
+	pthread_mutex_unlock(&SEMAFORODECONEXIONMEMORIAS);
 }
 
 void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones,
