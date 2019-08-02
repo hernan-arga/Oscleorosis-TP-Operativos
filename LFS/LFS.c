@@ -96,8 +96,8 @@ void crearArchivoConBloques(char*, char*, int);
 int cuantosDumpeosHuboEnLaTabla(char *);
 void compactacion(char*);
 void verificarCompactacion(char *);
-void actualizarRegistros(char *);
-void renombrarTodosLosTMPATMPC(char*);
+void actualizarRegistros(char *, char*);
+void renombrarTodosLosTMPATMPC(char*, char*);
 void actualizarRegistrosCon1TMPC(char *, char *);
 char *levantarRegistros(char *);
 void levantarRegistroDe1Bloque(char *, char **);
@@ -904,7 +904,6 @@ void dumpPorTabla(char* tabla) {
 
 	if (existeLaTabla(tabla)) {
 		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-		//pthread_mutex_lock(&unSemaforo->mutexDrop); veo en el otro tp q no lo usan aca
 
 		char* mensajeALogear = malloc( strlen(" Arranco dump de la tabla : ") + strlen(tabla) +1);
 		strcpy(mensajeALogear, " Arranco dump de la tabla : ");
@@ -921,6 +920,7 @@ void dumpPorTabla(char* tabla) {
 		//pthread_mutex_lock(&SEMAFOROCHOTO);
 
 		//Tomo el tamanio por bloque de mi LFS
+		pthread_mutex_lock(&unSemaforo->mutexDrop); //veo en el otro tp q no lo usan aca
 		char *metadataPath = string_from_format("%sMetadata/metadata.bin",
 				structConfiguracionLFS.PUNTO_MONTAJE);
 		t_config *metadata = config_create(metadataPath);
@@ -1023,6 +1023,7 @@ void dumpPorTabla(char* tabla) {
 		//antes de eliminarlo de la memtable lo pongo en el diccionario de tablasQueTienenTMPs porque sino se borra el string tambien
 		//dictionary_put(tablasQueTienenTMPs, tabla, tablaPath);
 
+		pthread_mutex_unlock(&unSemaforo->mutexDrop);
 
 		char* mensajeALogear2 = malloc( strlen(" termino dump de la tabla : ") + strlen(tabla) +1);
 		strcpy(mensajeALogear2, " termino dump de la tabla : ");
@@ -1039,7 +1040,6 @@ void dumpPorTabla(char* tabla) {
 		pthread_mutex_lock(&semaforoMemtable);
 		dictionary_remove(memtable, tabla);
 		pthread_mutex_unlock(&semaforoMemtable);
-		//pthread_mutex_unlock(&unSemaforo->mutexDrop);
 	}
 	else{
 		pthread_mutex_lock(&semaforoMemtable);
@@ -1175,10 +1175,7 @@ void verificarCompactacion(char *pathTabla) {
 
 		if (existeLaTabla(tabla)) {	//por si se borro mientras estaba en sleep
 
-			semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-			pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART);
 			compactacion(pathTabla);	//Seccion Critica
-			pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
 		}
 
 		//pthread_mutex_unlock(&unSemaforo->mutexDrop);
@@ -1210,9 +1207,8 @@ void compactacion(char* pathTabla) {
 	string_append(&pathDeMontajeDeLasTablas, "Tables/");
 	string_append(&tabla,
 			string_substring_from(pathTabla, strlen(pathDeMontajeDeLasTablas)));
-
-	renombrarTodosLosTMPATMPC(pathTabla);
-	actualizarRegistros(pathTabla);
+	renombrarTodosLosTMPATMPC(pathTabla, tabla);
+	actualizarRegistros(pathTabla, tabla);
 
 	//dictionary_iterator(tablasQueTienenTMPs, (void*) actualizarRegistros);
 	//dictionary_clean(tablasQueTienenTMPs);
@@ -1232,14 +1228,17 @@ void compactacion(char* pathTabla) {
 
 }
 
-void actualizarRegistros(char *tablaPath) {
+void actualizarRegistros(char *tablaPath, char* tabla) {
 	t_queue *tmpcs = queue_create();
 	tomarLosTmpc(tablaPath, tmpcs);
 	//printf("hola");
 	int i = 0;
 	int cantidadDeElementosEnLaCola = queue_size(tmpcs);
 	while (i < cantidadDeElementosEnLaCola) {
+		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+		pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART);
 		actualizarRegistrosCon1TMPC(queue_pop(tmpcs), tablaPath);
+		pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
 		//printf("%s", queue_pop(tmpcs));
 		//printf("%i - %i\n\n", queue_size(tmpcs), i);
 		i++;
@@ -1680,7 +1679,7 @@ void tomarLosTmpc(char *tablaPath, t_queue *tmpcs) {
 	closedir(directorio);
 }
 
-void renombrarTodosLosTMPATMPC(char* tablaPath) {
+void renombrarTodosLosTMPATMPC(char* tablaPath, char * tabla) {
 	DIR *directorio = opendir(tablaPath);
 	struct dirent *archivoALeer;
 	while ((archivoALeer = readdir(directorio)) != NULL) {
@@ -1693,7 +1692,10 @@ void renombrarTodosLosTMPATMPC(char* tablaPath) {
 			string_append(&nuevoNombre, viejoNombre);
 			string_append(&nuevoNombre, "c");
 			//pthread_mutex_lock(&SEMAFORODETMPC);
+			semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+			pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART);
 			rename(viejoNombre, nuevoNombre);	//Seccion Critica
+			pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
 			//pthread_mutex_unlock(&SEMAFORODETMPC);
 
 			//printf("%s\n", nuevoNombre);
@@ -1978,10 +1980,10 @@ char* realizarSelect(char* tabla, char* key) {
 
 	semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 	//pthread_mutex_lock(&unSemaforo->mutexDrop);
-	pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART);
 
 	actualizarTiempoDeRetardo();
 	sleep(structConfiguracionLFS.RETARDO/1000);
+	pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART);
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
 		char* pathMetadata = malloc(
