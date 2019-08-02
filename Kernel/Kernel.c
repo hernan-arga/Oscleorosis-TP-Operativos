@@ -213,14 +213,14 @@ int main() {
 	pthread_create(&hiloEjecutarReady, NULL, (void*) ejecutarReady, NULL);
 	pthread_create(&atenderPeticionesConsola, NULL,
 			(void*) atenderPeticionesDeConsola, NULL);
-	//pthread_create(&goissiping, NULL, (void*)operacion_gossiping, NULL);
+	pthread_create(&goissiping, NULL, (void*)operacion_gossiping, NULL);
 	pthread_create(&describe, NULL, (void*) refreshMetadata, NULL);
 	//pthread_join(metrics, NULL);
 	pthread_join(describe, NULL);
 	pthread_join(atenderPeticionesConsola, NULL);
 	pthread_join(hiloEjecutarReady, NULL);
-	//pthread_join(goissiping, NULL);
-	operacion_gossiping();
+	pthread_join(goissiping, NULL);
+	//operacion_gossiping();
 	return 0;
 }
 
@@ -649,7 +649,7 @@ int numeroSinUsar() {
 }
 
 void operacion_gossiping() {
-	//while (1) {
+	while (1) {
 			sem_wait(&MEMORIAPRINCIPAL);
 
 			char* mensajeALogear4 = malloc(	strlen(" gossiping ") + 1);
@@ -795,7 +795,7 @@ void operacion_gossiping() {
 			sem_post(&MEMORIAPRINCIPAL);
 			sleep(30);
 	}
-//}
+}
 
 void evaluarMemoriaRecibida(struct datosMemoria* memoriaRecibida) {
 	int yaSeEncuentraLaMemoria(struct datosMemoria* memoriaConocida) {
