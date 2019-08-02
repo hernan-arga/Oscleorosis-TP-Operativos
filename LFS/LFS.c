@@ -849,7 +849,6 @@ int insert(char* tabla, char* key, char* valor, char* timestamp) {
 		return 0;
 	} else {
 		//pthread_mutex_lock(&SEMAFOROMEMTABLE);
-		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 
 		t_registro* p_registro = malloc(8 + sizeof(unsigned long long)); // 2 int = 2* 4        +       un puntero a char = 4
 		p_registro->timestamp = atoll(timestamp);
@@ -903,7 +902,6 @@ void dump() {
 void dumpPorTabla(char* tabla) {
 
 	if (existeLaTabla(tabla)) {
-		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 
 		char* mensajeALogear = malloc( strlen(" Arranco dump de la tabla : ") + strlen(tabla) +1);
 		strcpy(mensajeALogear, " Arranco dump de la tabla : ");
@@ -920,6 +918,7 @@ void dumpPorTabla(char* tabla) {
 		//pthread_mutex_lock(&SEMAFOROCHOTO);
 
 		//Tomo el tamanio por bloque de mi LFS
+		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 		pthread_mutex_lock(&unSemaforo->mutexDrop); //veo en el otro tp q no lo usan aca
 		char *metadataPath = string_from_format("%sMetadata/metadata.bin",
 				structConfiguracionLFS.PUNTO_MONTAJE);
@@ -1929,7 +1928,6 @@ int existeLaTabla(char* nombreDeTabla) {
 }
 
 void drop(char* tabla) {
-	semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 	//pthread_mutex_lock(&unSemaforo->mutexDrop);
 
 	actualizarTiempoDeRetardo();
@@ -1978,11 +1976,11 @@ int existeCarpeta(char *nombreCarpeta) {
 char* realizarSelect(char* tabla, char* key) {
 	//pthread_mutex_lock(&SEMAFOROCHOTO);
 
-	semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 	//pthread_mutex_lock(&unSemaforo->mutexDrop);
 
 	actualizarTiempoDeRetardo();
 	sleep(structConfiguracionLFS.RETARDO/1000);
+	semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 	pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART);
 	string_to_upper(tabla);
 	if (existeLaTabla(tabla)) {
@@ -2998,6 +2996,8 @@ metadataTabla describeUnaTabla(char *tabla, int seImprimePorPantalla) {
 					structConfiguracionLFS.PUNTO_MONTAJE));
 	string_append(&pathTabla, "/");
 	string_append(&pathTabla, tabla);
+	semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
+	pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART);
 	DIR *directorio = opendir(pathTabla);
 	struct dirent *directorioALeer;
 	while ((directorioALeer = readdir(directorio)) != NULL) {
@@ -3029,9 +3029,11 @@ metadataTabla describeUnaTabla(char *tabla, int seImprimePorPantalla) {
 				printf("Tiempo de compactacion: %i\n\n",
 						metadataTabla.COMPACTION_TIME);
 			}
+			pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
 			return metadataTabla;
 		}
 	}
+	pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
 	printf("¡Error! no se encontro la metadata\n");
 	closedir(directorio);
 	//exit(-1);
@@ -3061,7 +3063,7 @@ void describeTodasLasTablas(int seImprimePorPantalla) {
 			// dameSemaforo(tabla, &semaforoTabla); todo anda mal semaforo
 			// sem_wait(semaforoTabla);
 
-			structMetadata = describeUnaTabla(directorioALeer->d_name,
+			structMetadata = describeUnaTabla(tabla,
 					seImprimePorPantalla);
 			metadataTabla * metadata = malloc(sizeof(metadata));
 			metadata->COMPACTION_TIME = structMetadata.COMPACTION_TIME;
@@ -3381,15 +3383,15 @@ void tomarPeticionCreate(int sd) {
 void tomarPeticionInsert(int sd) {
 	// deserializo peticion de mm
 	int *tamanioTabla = malloc(sizeof(int));
-	read(sd, tamanioTabla, sizeof(int));
+	recv(sd, tamanioTabla, sizeof(int), 0);
 	char *tabla = malloc(*tamanioTabla);
-	read(sd, tabla, *tamanioTabla);
+	recv(sd, tabla, *tamanioTabla, 0);
 	char *tablaCortada = string_substring_until(tabla, *tamanioTabla);
 
 	int *tamanioKey = malloc(sizeof(int));
-	read(sd, tamanioKey, sizeof(int));
+	recv(sd, tamanioKey, sizeof(int), 0);
 	int *key = malloc(*tamanioKey);
-	read(sd, key, *tamanioKey);
+	recv(sd, key, *tamanioKey, 0);
 	char* keyString = string_itoa(*key);
 
 	int *tamanioValue = malloc(sizeof(int));
