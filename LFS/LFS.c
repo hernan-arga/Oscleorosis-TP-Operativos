@@ -905,7 +905,6 @@ void dumpPorTabla(char* tabla) {
 	if (existeLaTabla(tabla)) {
 		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 		//pthread_mutex_lock(&unSemaforo->mutexDrop); veo en el otro tp q no lo usan aca
-		pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART);
 
 		char* mensajeALogear = malloc( strlen(" Arranco dump de la tabla : ") + strlen(tabla) +1);
 		strcpy(mensajeALogear, " Arranco dump de la tabla : ");
@@ -1040,8 +1039,6 @@ void dumpPorTabla(char* tabla) {
 		pthread_mutex_lock(&semaforoMemtable);
 		dictionary_remove(memtable, tabla);
 		pthread_mutex_unlock(&semaforoMemtable);
-
-		pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
 		//pthread_mutex_unlock(&unSemaforo->mutexDrop);
 	}
 	else{
