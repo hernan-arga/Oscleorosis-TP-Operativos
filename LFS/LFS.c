@@ -2588,7 +2588,7 @@ char* realizarSelect(char* tabla, char* key) {
 		unsigned long long t = 0;
 		char* unValor;
 		for (int k = 1; k < cantIgualDeKeyEnMemtable; k++) {
-			for (int j = 0; j < (cantIgualDeKeyEnMemtable); j++) {
+			for (int j = 0; j < (cantIgualDeKeyEnMemtable) - k; j++) {
 				if (arrayPorKeyDeseadaMemtable[j]->timestamp
 						< arrayPorKeyDeseadaMemtable[j + 1]->timestamp) {
 					t = arrayPorKeyDeseadaMemtable[j + 1]->timestamp;
