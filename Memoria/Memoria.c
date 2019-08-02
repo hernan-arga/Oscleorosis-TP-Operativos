@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
 	// int32_t idThreadFS = pthread_create(&threadFS, NULL, conectarseAFS, NULL);
 	conectarseAFS();
 
-	sem_wait(&sem);
+
 
 	pthread_t threadSerServidor;
 	int32_t idThreadSerServidor = pthread_create(&threadSerServidor, NULL,
@@ -313,7 +313,7 @@ OPERACION tipoDePeticion(char* peticion) {
 
 char* realizarSelect(char* tabla, char* key) {
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
-		sem_wait(&sem2);
+
 
 		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
 
@@ -351,7 +351,7 @@ char* realizarSelect(char* tabla, char* key) {
 				free(timeStamp);
 				free(laKey);
 
-				sem_post(&sem2);
+
 
 				return value;
 			}
@@ -389,7 +389,7 @@ char* realizarSelect(char* tabla, char* key) {
 		//printf("Value: %s", value);
 
 		if (value == NULL) {
-			sem_post(&sem2);
+
 
 			return NULL;
 		}
@@ -414,7 +414,7 @@ char* realizarSelect(char* tabla, char* key) {
 		free(timeStamp);
 		//free(value);
 
-		sem_post(&sem2);
+
 		return value;
 	}
 
@@ -462,14 +462,14 @@ char* realizarSelect(char* tabla, char* key) {
 
 	//printf("Value: %s", value);
 
-	sem_post(&sem2);
+
 
 	return value;
 }
 
 int realizarInsert(char* tabla, char* key, char* value) {
 
-	sem_wait(&sem2);
+
 
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
 		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
@@ -504,7 +504,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 				free(laKey);
 				free(timeStamp);
 
-				sem_post(&sem2);
+
 
 				return 0;
 			}
@@ -552,7 +552,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 
 		free(timeStamp);
 
-		sem_post(&sem2);
+
 
 		return 0;
 	}
@@ -591,7 +591,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 
 	free(timeStamp);
 
-	sem_post(&sem2);
+
 
 	return 0;
 }
@@ -631,12 +631,13 @@ char* pedirValue(char* tabla, char* laKey) {
 	memcpy(buffer + 4 * sizeof(int) + strlen(tabla), key, sizeof(int));
 
 	pthread_mutex_lock(&SEMAFORODECONEXIONFS);
-
+	conectarseAFS();
 	send(clienteFS, buffer, strlen(tabla) + 5 * sizeof(int), 0);
 
 	//deserializo value
 	int *tamanioValue = malloc(sizeof(int));
 	recv(clienteFS, tamanioValue, sizeof(int), 0);
+	desconectarFS();
 	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
 	//printf("Tamanio value: %d\n", *tamanioValue);
@@ -700,7 +701,7 @@ int ejecutarLRU() {
 	dictionary_iterator(tablaSegmentos, elMenor);
 	if (timeStamp == 0) {
 
-		sem_post(&sem2);
+
 
 		ejecutarJournaling();
 		numF = 0;
@@ -715,7 +716,7 @@ int ejecutarLRU() {
 }
 
 void ejecutarJournaling() {
-	sem_wait(&sem2);
+
 
 	void journal(char* tabla, void* valor) {
 		t_list* paginas = valor;
@@ -773,6 +774,7 @@ void ejecutarJournaling() {
 						timestamp, sizeof(unsigned long long));
 
 				pthread_mutex_lock(&SEMAFORODECONEXIONFS);
+				conectarseAFS();
 				send(clienteFS, buffer,
 						7 * sizeof(int) + strlen(tabla) + strlen(value)
 								+ sizeof(unsigned long long), 0);
@@ -782,6 +784,7 @@ void ejecutarJournaling() {
 				read(clienteFS, tamanioRespuesta, sizeof(int));
 				int* ok = malloc(*tamanioRespuesta);
 				read(clienteFS, ok, *tamanioRespuesta);
+				desconectarFS();
 				pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 				if (*ok == 0) {
 					char* mensajeALogear =
@@ -849,13 +852,13 @@ void ejecutarJournaling() {
 
 	hizoJ = 1;
 
-	sem_post(&sem2);
+
 }
 
 int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones,
 		char* tiempoCompactacion) {
 
-	sem_wait(&sem2);
+
 
 	// Serializo Peticion, Tabla y Metadata
 	char* buffer = malloc(
@@ -893,6 +896,7 @@ int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones,
 			tamanioCompactacion);
 
 	pthread_mutex_lock(&SEMAFORODECONEXIONFS);
+	conectarseAFS();
 	send(clienteFS, buffer,
 			strlen(tabla) + 6 * sizeof(int) + strlen(tipoConsistencia)
 					+ strlen(numeroParticiones) + strlen(tiempoCompactacion),
@@ -903,6 +907,7 @@ int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones,
 	read(clienteFS, tamanioRespuesta, sizeof(int));
 	int* ok = malloc(*tamanioRespuesta);
 	read(clienteFS, ok, *tamanioRespuesta);
+	desconectarFS();
 	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
 	if (*ok == 0) {
@@ -914,7 +919,7 @@ int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones,
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
-		sem_post(&sem2);
+
 		return 0;
 	}
 	if (*ok == 1) {
@@ -936,7 +941,7 @@ int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones,
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
-		sem_post(&sem2);
+
 		return 1;
 	}
 	return 0;
@@ -944,7 +949,7 @@ int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones,
 
 int realizarDrop(char* tabla) {
 
-	sem_wait(&sem2);
+
 
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
 		void* elemento = dictionary_remove(tablaSegmentos, tabla);
@@ -963,6 +968,7 @@ int realizarDrop(char* tabla) {
 	memcpy(buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
 	memcpy(buffer + 3 * sizeof(int), tabla, strlen(tabla));
 	pthread_mutex_lock(&SEMAFORODECONEXIONFS);
+	conectarseAFS();
 	send(clienteFS, buffer, strlen(tabla) + 3 * sizeof(int), 0);
 
 	// Deserializo respuesta
@@ -970,6 +976,7 @@ int realizarDrop(char* tabla) {
 	read(clienteFS, tamanioRespuesta, sizeof(int));
 	int* ok = malloc(*tamanioRespuesta);
 	read(clienteFS, ok, *tamanioRespuesta);
+	desconectarFS();
 	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
 	if (*ok == 0) {
@@ -983,7 +990,7 @@ int realizarDrop(char* tabla) {
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
-		sem_post(&sem2);
+
 		return 0;
 	}
 	if (*ok == 1) {
@@ -996,7 +1003,7 @@ int realizarDrop(char* tabla) {
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
 		free(mensajeALogear);
-		sem_post(&sem2);
+
 		return 1;
 	}
 	return 0;
@@ -1004,7 +1011,7 @@ int realizarDrop(char* tabla) {
 
 metadataTabla* realizarDescribe(char* tabla) {
 
-	sem_wait(&sem2);
+
 
 	// Serializo peticion y tabla
 	void* buffer = malloc(strlen(tabla) + 3 * sizeof(int));
@@ -1017,8 +1024,8 @@ metadataTabla* realizarDescribe(char* tabla) {
 	int tamanioTabla = strlen(tabla);
 	memcpy(buffer + 2 * sizeof(int), &tamanioTabla, sizeof(int));
 	memcpy(buffer + 3 * sizeof(int), tabla, strlen(tabla));
-	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
-
+	pthread_mutex_lock(&SEMAFORODECONEXIONFS);
+	conectarseAFS();
 	send(clienteFS, buffer, strlen(tabla) + 3 * sizeof(int), 0);
 
 	//deserializo metadata
@@ -1039,6 +1046,7 @@ metadataTabla* realizarDescribe(char* tabla) {
 	int* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
 	read(clienteFS, tiempoCompactacion, *tamanioTiempoCompactacion);
 	// aca ya tengo toda la metadata, falta guardarla en struct
+	desconectarFS();
 	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
 	metadataTabla* data = malloc(8 + 4);    // 2 int = 2*4 bytes
@@ -1054,14 +1062,14 @@ metadataTabla* realizarDescribe(char* tabla) {
 	printf("Consistencia: %s\n", data->consistencia);
 
 	//free(metadata);
-	sem_post(&sem2);
+
 
 	return data;
 }
 
 void realizarDescribeGlobal() {
 
-	sem_wait(&sem2);
+
 
 	// serializo peticion
 	void* buffer = malloc(2 * sizeof(int));
@@ -1071,6 +1079,7 @@ void realizarDescribeGlobal() {
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
 	pthread_mutex_lock(&SEMAFORODECONEXIONFS);
+	conectarseAFS();
 	send(clienteFS, buffer, 2 * sizeof(int), 0);
 
 	// deserializo
@@ -1118,9 +1127,9 @@ void realizarDescribeGlobal() {
 
 		read(clienteFS, tamanioTabla, sizeof(int));
 	}
-
+	desconectarFS();
 	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
-	sem_post(&sem2);
+
 }
 
 void consola() {
@@ -1504,18 +1513,22 @@ void conectarseAFS() {
 
 	memcpy(&tamanoValue, tamanioValue, sizeof(int));
 
-	sem_post(&sem);
-	sem_post(&sem2);
+
+
 	/*
 	sleep(30);
 
-	sem_wait(&sem2);
+
 
 	printf("Cerrar Socket\n");
 
 	close(clienteFS);
 
 	conectarseAFS(); */
+}
+
+void desconectarFS(){
+	close(clienteFS);
 }
 
 void tomarPeticionSelect(int kernel) {
@@ -1667,7 +1680,7 @@ void tomarPeticionDescribeGlobal(int kernel) {
 	memcpy(buffer, &tamanioPeticion, sizeof(int));
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 	pthread_mutex_lock(&SEMAFORODECONEXIONFS);
-
+	conectarseAFS();
 	send(clienteFS, buffer, 2 * sizeof(int), 0);
 
 	// deserializo
@@ -1740,6 +1753,7 @@ void tomarPeticionDescribeGlobal(int kernel) {
 
 		read(clienteFS, tamanioTabla2, sizeof(int));
 	}
+	desconectarFS();
 	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
 	char* buffer2 = malloc(4);
