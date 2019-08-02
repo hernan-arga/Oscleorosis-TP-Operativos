@@ -220,7 +220,7 @@ int main() {
 	pthread_join(atenderPeticionesConsola, NULL);
 	pthread_join(hiloEjecutarReady, NULL);
 	pthread_join(goissiping, NULL);
-	//operacion_gossiping();
+	operacion_gossiping();
 	return 0;
 }
 
