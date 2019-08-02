@@ -48,6 +48,7 @@ typedef struct {
 	int RETARDO;
 	int TAMANIO_VALUE;
 	int TIEMPO_DUMP;
+	char* IP;
 } configuracionLFS;
 
 typedef struct {
@@ -327,7 +328,8 @@ void levantarConfiguracionLFS() {
 	//El dump y el retardo tienen que poder modificarse en tiempo de ejecucion
 	//asi que tendria que volver a tomar su valor cuando los vaya a usar
 	structConfiguracionLFS.RETARDO = config_get_int_value(configLFS, "RETARDO");
-	config_destroy(configLFS);
+	structConfiguracionLFS.IP = config_get_string_value(configLFS, "IP");	
+config_destroy(configLFS);
 }
 
 void tomarPeticion(char* mensaje) {
@@ -3118,7 +3120,7 @@ int32_t iniciarConexion() {
 
 	//type of socket created
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_addr.s_addr = inet_addr(structConfiguracionLFS.IP);
 	address.sin_port = htons(structConfiguracionLFS.PUERTO_ESCUCHA);
 
 	//bind the socket to localhost port 8888
