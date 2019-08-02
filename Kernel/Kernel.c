@@ -897,6 +897,7 @@ void tomar_peticion(char* mensaje, int es_request, int *huboError) {
 	//free(value);
 	free(noValue);
 	free(posibleTimestamp);
+	free(mensajeSeparadoConValue);
 
 	//Fijarse despues cual seria la cantidad correcta de malloc
 	/*char** mensajeSeparado = malloc(strlen(mensaje) + 1);
@@ -933,6 +934,7 @@ void separarPorComillas(char* mensaje, char* *value, char* *noValue,
 		*value = NULL;
 		*posibleTimestamp = NULL;
 	}
+	free(mensajeSeparado);
 
 }
 
@@ -1784,6 +1786,7 @@ void mandarInsert(char* tabla, char* key, char* value, int socketMemoria) {
 	send(socketMemoria, buffer,
 			tamanioTabla + 5 * sizeof(int) + tamanioKey + tamanioValue, 0);
 	pthread_mutex_unlock(&SEMAFORODECONEXIONMEMORIAS);
+	free(buffer);
 }
 
 void mandarCreate(char *tabla, char *consistencia, char *cantidadParticiones,
@@ -1913,6 +1916,7 @@ char* pedirValue(char* tabla, char* laKey, int socketMemoria) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 		free(value);
+		free(tamanioValue);
 		return valueCortado;
 	}
 }
