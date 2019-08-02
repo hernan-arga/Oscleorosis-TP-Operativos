@@ -1561,6 +1561,7 @@ void compararRegistros(unsigned long long timestamp, int key, char *value,
 	//printf("%s\n", unBinario->registros);
 	dictionary_remove(binariosParaCompactar, pathBinario);
 	dictionary_put(binariosParaCompactar, pathBinario, unBinario);
+	free(registrosActualizados);
 
 	/*binarioCompactacion *otro = dictionary_get(binariosParaCompactar, pathBinario);
 	 printf("%s", otro->registros);*/
@@ -2868,6 +2869,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			// descarto primer renglon y sigo con el sgte
 			getline(&line, &len, fp);
 		}
+		free(ultimoCaracter);
 	}
 	while ((read = getline(&line, &len, fp)) != -1) {
 		FILE* fpCopia = fdopen(dup(fileno(fp)), "r");
@@ -2906,6 +2908,7 @@ void obtenerDatosParaKeyDeseada(FILE *fp, int key, t_registro** vectorStructs,
 			vectorStructs[i]->value = malloc(strlen(arrayLinea[2]) + 1);
 			memcpy(vectorStructs[i]->value, p_registro->value,
 					strlen(p_registro->value) + 1);
+			free(arrayLinea);
 			i++;
 			(*cant)++;
 		}
