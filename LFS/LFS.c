@@ -330,6 +330,7 @@ void levantarConfiguracionLFS() {
 	structConfiguracionLFS.RETARDO = config_get_int_value(configLFS, "RETARDO");
 	structConfiguracionLFS.IP = config_get_string_value(configLFS, "IP");	
 config_destroy(configLFS);
+	printf("%s", structConfiguracionLFS.IP);
 }
 
 void tomarPeticion(char* mensaje) {
