@@ -637,8 +637,6 @@ char* pedirValue(char* tabla, char* laKey) {
 	//deserializo value
 	int *tamanioValue = malloc(sizeof(int));
 	recv(clienteFS, tamanioValue, sizeof(int), 0);
-	desconectarFS();
-	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
 	//printf("Tamanio value: %d\n", *tamanioValue);
 
@@ -653,10 +651,14 @@ char* pedirValue(char* tabla, char* laKey) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 		perror("El value no estaba en el FS");
+		desconectarFS();
+		pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 		return NULL;
 	} else {
 		char *value = malloc(*tamanioValue);
 		recv(clienteFS, value, *tamanioValue, 0);
+		desconectarFS();
+		pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 		char *valueCortado = string_substring_until(value, *tamanioValue); //corto value
 
 		char* mensajeALogear = malloc(
