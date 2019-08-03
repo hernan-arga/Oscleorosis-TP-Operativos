@@ -24238,3 +24238,377 @@
 [INFO] 21:18:52:164 LFS/(3022:3023):  hice send de fin
 [ERROR] 21:21:24:791 LFS/(3171:3173):  No se encontro la key : 1
 >>>>>>> 281ad35e101f7b2df88321d18c5ea74a44c0bd3f
+[INFO] 09:49:49:364 LFS/(5036:5041):  se pidio gossiping 
+[INFO] 09:49:49:366 LFS/(5036:5041):  el socket que recibi es : 0
+[INFO] 09:49:49:366 LFS/(5036:5041):  sali del while 
+[INFO] 09:49:49:367 LFS/(5036:5041):  por salir del segundo while 
+[INFO] 09:49:49:367 LFS/(5036:5041):  hice send de fin
+[INFO] 09:50:14:374 MEMORIA/(5036:5041):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 09:50:24:397 MEMORIA/(5036:5041):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1468519635
+[INFO] 09:50:29:398 MEMORIA/(5036:5041):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1468520639
+[INFO] 09:50:34:399 MEMORIA/(5036:5041):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1468521643
+[INFO] 09:50:39:400 MEMORIA/(5036:5041):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1468522647
+[INFO] 09:50:39:400 LFS/(5036:5041):  se pidio gossiping 
+[INFO] 09:50:39:400 LFS/(5036:5041):  el socket que recibi es : 0
+[INFO] 09:50:39:400 LFS/(5036:5041):  sali del while 
+[INFO] 09:50:39:400 LFS/(5036:5041):  por salir del segundo while 
+[INFO] 09:50:39:401 LFS/(5036:5041):  hice send de fin
+[INFO] 09:51:09:401 LFS/(5036:5041):  se pidio gossiping 
+[INFO] 09:51:09:401 LFS/(5036:5041):  el socket que recibi es : 0
+[INFO] 09:51:09:401 LFS/(5036:5041):  sali del while 
+[INFO] 09:51:09:401 LFS/(5036:5041):  por salir del segundo while 
+[INFO] 09:51:09:401 LFS/(5036:5041):  hice send de fin
+[INFO] 09:51:39:402 LFS/(5036:5041):  se pidio gossiping 
+[INFO] 09:51:39:402 LFS/(5036:5041):  el socket que recibi es : 0
+[INFO] 09:51:39:402 LFS/(5036:5041):  sali del while 
+[INFO] 09:51:39:402 LFS/(5036:5041):  por salir del segundo while 
+[INFO] 09:51:39:402 LFS/(5036:5041):  hice send de fin
+[INFO] 09:52:09:402 LFS/(5036:5041):  se pidio gossiping 
+[INFO] 09:52:09:402 LFS/(5036:5041):  el socket que recibi es : 0
+[INFO] 09:52:09:402 LFS/(5036:5041):  sali del while 
+[INFO] 09:52:09:402 LFS/(5036:5041):  por salir del segundo while 
+[INFO] 09:52:09:403 LFS/(5036:5041):  hice send de fin
+[INFO] 09:52:39:403 LFS/(5036:5041):  se pidio gossiping 
+[INFO] 09:52:39:403 LFS/(5036:5041):  el socket que recibi es : 0
+[INFO] 09:52:39:403 LFS/(5036:5041):  sali del while 
+[INFO] 09:52:39:403 LFS/(5036:5041):  por salir del segundo while 
+[INFO] 09:52:39:403 LFS/(5036:5041):  hice send de fin
+[INFO] 09:53:15:549 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:53:15:550 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:53:15:550 LFS/(5218:5219):  sali del while 
+[INFO] 09:53:15:550 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:53:15:550 LFS/(5218:5219):  hice send de fin
+[INFO] 09:53:45:588 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:53:45:588 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:53:45:588 LFS/(5218:5219):  sali del while 
+[INFO] 09:53:45:588 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:53:45:588 LFS/(5218:5219):  hice send de fin
+[INFO] 09:54:14:254 MEMORIA/(5218:5219):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 09:54:24:278 MEMORIA/(5218:5219):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1468759515
+[INFO] 09:54:29:279 MEMORIA/(5218:5219):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1468760519
+[INFO] 09:54:34:280 MEMORIA/(5218:5219):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1468761523
+[INFO] 09:54:39:281 MEMORIA/(5218:5219):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1468762527
+[INFO] 09:54:44:282 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:54:44:282 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:54:44:282 LFS/(5218:5219):  sali del while 
+[INFO] 09:54:44:282 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:54:44:283 LFS/(5218:5219):  hice send de fin
+[INFO] 09:55:14:320 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:55:14:320 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:55:14:320 LFS/(5218:5219):  sali del while 
+[INFO] 09:55:14:320 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:55:14:320 LFS/(5218:5219):  hice send de fin
+[INFO] 09:55:44:321 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:55:44:321 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:55:44:321 LFS/(5218:5219):  sali del while 
+[INFO] 09:55:44:321 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:55:44:321 LFS/(5218:5219):  hice send de fin
+[INFO] 09:56:14:360 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:56:14:360 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:56:14:360 LFS/(5218:5219):  sali del while 
+[INFO] 09:56:14:360 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:56:14:360 LFS/(5218:5219):  hice send de fin
+[INFO] 09:56:44:360 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:56:44:360 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:56:44:360 LFS/(5218:5219):  sali del while 
+[INFO] 09:56:44:360 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:56:44:360 LFS/(5218:5219):  hice send de fin
+[INFO] 09:57:14:361 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:57:14:361 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:57:14:361 LFS/(5218:5219):  sali del while 
+[INFO] 09:57:14:361 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:57:14:361 LFS/(5218:5219):  hice send de fin
+[INFO] 09:57:44:361 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:57:44:361 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:57:44:361 LFS/(5218:5219):  sali del while 
+[INFO] 09:57:44:361 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:57:44:362 LFS/(5218:5219):  hice send de fin
+[INFO] 09:58:14:362 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:58:14:362 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:58:14:362 LFS/(5218:5219):  sali del while 
+[INFO] 09:58:14:362 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:58:14:362 LFS/(5218:5219):  hice send de fin
+[INFO] 09:58:44:362 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:58:44:362 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:58:44:362 LFS/(5218:5219):  sali del while 
+[INFO] 09:58:44:362 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:58:44:362 LFS/(5218:5219):  hice send de fin
+[INFO] 09:59:14:363 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:59:14:363 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:59:14:363 LFS/(5218:5219):  sali del while 
+[INFO] 09:59:14:364 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:59:14:364 LFS/(5218:5219):  hice send de fin
+[INFO] 09:59:44:365 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 09:59:44:365 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 09:59:44:365 LFS/(5218:5219):  sali del while 
+[INFO] 09:59:44:365 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 09:59:44:365 LFS/(5218:5219):  hice send de fin
+[INFO] 10:00:14:366 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:00:14:366 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:00:14:366 LFS/(5218:5219):  sali del while 
+[INFO] 10:00:14:366 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:00:14:366 LFS/(5218:5219):  hice send de fin
+[INFO] 10:00:44:367 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:00:44:367 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:00:44:367 LFS/(5218:5219):  sali del while 
+[INFO] 10:00:44:367 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:00:44:367 LFS/(5218:5219):  hice send de fin
+[INFO] 10:01:14:367 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:01:14:367 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:01:14:367 LFS/(5218:5219):  sali del while 
+[INFO] 10:01:14:367 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:01:14:367 LFS/(5218:5219):  hice send de fin
+[INFO] 10:01:44:368 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:01:44:368 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:01:44:368 LFS/(5218:5219):  sali del while 
+[INFO] 10:01:44:368 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:01:44:368 LFS/(5218:5219):  hice send de fin
+[INFO] 10:02:14:369 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:02:14:369 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:02:14:369 LFS/(5218:5219):  sali del while 
+[INFO] 10:02:14:369 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:02:14:369 LFS/(5218:5219):  hice send de fin
+[INFO] 10:02:44:369 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:02:44:369 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:02:44:369 LFS/(5218:5219):  sali del while 
+[INFO] 10:02:44:370 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:02:44:370 LFS/(5218:5219):  hice send de fin
+[INFO] 10:03:14:371 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:03:14:371 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:03:14:371 LFS/(5218:5219):  sali del while 
+[INFO] 10:03:14:371 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:03:14:371 LFS/(5218:5219):  hice send de fin
+[INFO] 10:03:44:371 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:03:44:371 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:03:44:371 LFS/(5218:5219):  sali del while 
+[INFO] 10:03:44:371 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:03:44:371 LFS/(5218:5219):  hice send de fin
+[INFO] 10:04:14:372 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:04:14:372 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:04:14:372 LFS/(5218:5219):  sali del while 
+[INFO] 10:04:14:372 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:04:14:372 LFS/(5218:5219):  hice send de fin
+[INFO] 10:04:44:372 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:04:44:372 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:04:44:372 LFS/(5218:5219):  sali del while 
+[INFO] 10:04:44:373 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:04:44:373 LFS/(5218:5219):  hice send de fin
+[INFO] 10:05:14:373 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:05:14:373 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:05:14:373 LFS/(5218:5219):  sali del while 
+[INFO] 10:05:14:373 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:05:14:374 LFS/(5218:5219):  hice send de fin
+[INFO] 10:05:44:374 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:05:44:374 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:05:44:374 LFS/(5218:5219):  sali del while 
+[INFO] 10:05:44:374 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:05:44:374 LFS/(5218:5219):  hice send de fin
+[INFO] 10:06:14:412 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:06:14:412 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:06:14:412 LFS/(5218:5219):  sali del while 
+[INFO] 10:06:14:412 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:06:14:413 LFS/(5218:5219):  hice send de fin
+[INFO] 10:06:44:413 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:06:44:413 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:06:44:413 LFS/(5218:5219):  sali del while 
+[INFO] 10:06:44:413 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:06:44:413 LFS/(5218:5219):  hice send de fin
+[INFO] 10:07:18:409 MEMORIA/(5218:5219):  Se realizo drop en FS de : POSTRES
+[INFO] 10:07:42:704 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:07:42:704 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:07:42:704 LFS/(5218:5219):  sali del while 
+[INFO] 10:07:42:704 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:07:42:705 LFS/(5218:5219):  hice send de fin
+[INFO] 10:07:59:957 MEMORIA/(5218:5219):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 10:16:04:184 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:16:04:184 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:16:04:184 LFS/(5218:5219):  sali del while 
+[INFO] 10:16:04:184 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:16:04:184 LFS/(5218:5219):  hice send de fin
+[INFO] 10:16:12:1 MEMORIA/(5218:5219):  Se realizo drop en FS de : POSTRES
+[INFO] 10:16:23:570 MEMORIA/(5218:5219):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 10:20:52:941 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:20:52:941 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:20:52:941 LFS/(5218:5219):  sali del while 
+[INFO] 10:20:52:941 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:20:52:941 LFS/(5218:5219):  hice send de fin
+[INFO] 10:21:00:149 MEMORIA/(5218:5219):  Se realizo drop en FS de : POSTRES
+[INFO] 10:21:22:980 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:21:22:981 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:21:22:981 LFS/(5218:5219):  sali del while 
+[INFO] 10:21:22:981 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:21:22:981 LFS/(5218:5219):  hice send de fin
+[INFO] 10:21:37:954 MEMORIA/(5218:5219):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 10:28:33:683 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:28:33:684 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:28:33:684 LFS/(5218:5219):  sali del while 
+[INFO] 10:28:33:684 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:28:33:684 LFS/(5218:5219):  hice send de fin
+[INFO] 10:28:52:853 MEMORIA/(5218:5219):  Se realizo drop en FS de : POSTRES
+[INFO] 10:29:03:724 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:29:03:724 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:29:03:724 LFS/(5218:5219):  sali del while 
+[INFO] 10:29:03:724 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:29:03:724 LFS/(5218:5219):  hice send de fin
+[INFO] 10:29:11:56 MEMORIA/(5218:5219):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 10:29:20:77 MEMORIA/(5218:5219):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1470856316
+[INFO] 10:29:25:78 MEMORIA/(5218:5219):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1470857320
+[INFO] 10:29:30:79 MEMORIA/(5218:5219):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1470858324
+[INFO] 10:29:35:81 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:29:35:81 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:29:35:81 LFS/(5218:5219):  sali del while 
+[INFO] 10:29:35:81 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:29:35:81 LFS/(5218:5219):  hice send de fin
+[INFO] 10:30:05:120 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:30:05:120 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:30:05:120 LFS/(5218:5219):  sali del while 
+[INFO] 10:30:05:120 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:30:05:120 LFS/(5218:5219):  hice send de fin
+[INFO] 10:30:33:129 MEMORIA/(5218:5220):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1470874335
+[INFO] 10:30:38:130 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:30:38:130 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:30:38:130 LFS/(5218:5219):  sali del while 
+[INFO] 10:30:38:130 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:30:38:130 LFS/(5218:5219):  hice send de fin
+[INFO] 10:30:43:131 MEMORIA/(5218:5220):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1470874335
+[INFO] 10:31:08:168 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:31:08:168 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:31:08:168 LFS/(5218:5219):  sali del while 
+[INFO] 10:31:08:169 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:31:08:169 LFS/(5218:5219):  hice send de fin
+[INFO] 10:31:38:169 LFS/(5218:5219):  se pidio gossiping 
+[INFO] 10:31:38:169 LFS/(5218:5219):  el socket que recibi es : 0
+[INFO] 10:31:38:169 LFS/(5218:5219):  sali del while 
+[INFO] 10:31:38:169 LFS/(5218:5219):  por salir del segundo while 
+[INFO] 10:31:38:169 LFS/(5218:5219):  hice send de fin
+[INFO] 10:37:05:689 LFS/(6776:6782):  se pidio gossiping 
+[INFO] 10:37:05:689 LFS/(6776:6782):  el socket que recibi es : 0
+[INFO] 10:37:05:689 LFS/(6776:6782):  sali del while 
+[INFO] 10:37:05:689 LFS/(6776:6782):  por salir del segundo while 
+[INFO] 10:37:05:689 LFS/(6776:6782):  hice send de fin
+[INFO] 10:37:38:373 MEMORIA/(6776:6782):  Se realizo drop en FS de : POSTRES
+[INFO] 10:37:39:374 LFS/(6776:6782):  se pidio gossiping 
+[INFO] 10:37:39:374 LFS/(6776:6782):  el socket que recibi es : 0
+[INFO] 10:37:39:374 LFS/(6776:6782):  sali del while 
+[INFO] 10:37:39:374 LFS/(6776:6782):  por salir del segundo while 
+[INFO] 10:37:39:374 LFS/(6776:6782):  hice send de fin
+[INFO] 10:37:56:221 MEMORIA/(6776:6782):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 10:38:06:258 MEMORIA/(6776:6782):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1471381483
+[INFO] 10:38:11:259 MEMORIA/(6776:6782):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1471382491
+[INFO] 10:38:16:260 MEMORIA/(6776:6782):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1471383499
+[INFO] 10:38:21:261 MEMORIA/(6776:6782):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1471384507
+[INFO] 10:38:26:262 LFS/(6776:6782):  se pidio gossiping 
+[INFO] 10:38:26:262 LFS/(6776:6782):  el socket que recibi es : 0
+[INFO] 10:38:26:262 LFS/(6776:6782):  sali del while 
+[INFO] 10:38:26:262 LFS/(6776:6782):  por salir del segundo while 
+[INFO] 10:38:26:262 LFS/(6776:6782):  hice send de fin
+[INFO] 10:38:34:913 MEMORIA/(6776:6782):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1471405517
+[INFO] 10:38:56:300 LFS/(6776:6782):  se pidio gossiping 
+[INFO] 10:38:56:300 LFS/(6776:6782):  el socket que recibi es : 0
+[INFO] 10:38:56:301 LFS/(6776:6782):  sali del while 
+[INFO] 10:38:56:301 LFS/(6776:6782):  por salir del segundo while 
+[INFO] 10:38:56:301 LFS/(6776:6782):  hice send de fin
+[INFO] 10:39:26:301 LFS/(6776:6782):  se pidio gossiping 
+[INFO] 10:39:26:301 LFS/(6776:6782):  el socket que recibi es : 0
+[INFO] 10:39:26:301 LFS/(6776:6782):  sali del while 
+[INFO] 10:39:26:301 LFS/(6776:6782):  por salir del segundo while 
+[INFO] 10:39:26:301 LFS/(6776:6782):  hice send de fin
+[INFO] 10:39:44:346 Memoria/(6776:6782):  Llego select con VALUE : Alfajor
+
+[ERROR] 10:39:50:648 LFS/(6776:6782):  No se encontro la key : 178
+[INFO] 10:42:48:483 LFS/(6904:6914):  se pidio gossiping 
+[INFO] 10:42:48:483 LFS/(6904:6914):  el socket que recibi es : 0
+[INFO] 10:42:48:484 LFS/(6904:6914):  sali del while 
+[INFO] 10:42:48:484 LFS/(6904:6914):  por salir del segundo while 
+[INFO] 10:42:48:484 LFS/(6904:6914):  hice send de fin
+[INFO] 10:43:13:494 MEMORIA/(6904:6914):  Se realizo drop en FS de : POSTRES
+[INFO] 10:43:18:524 LFS/(6904:6914):  se pidio gossiping 
+[INFO] 10:43:18:525 LFS/(6904:6914):  el socket que recibi es : 0
+[INFO] 10:43:18:525 LFS/(6904:6914):  sali del while 
+[INFO] 10:43:18:525 LFS/(6904:6914):  por salir del segundo while 
+[INFO] 10:43:18:525 LFS/(6904:6914):  hice send de fin
+[INFO] 10:43:42:229 MEMORIA/(6904:6914):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 10:43:52:261 MEMORIA/(6904:6914):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1471727492
+[INFO] 10:43:57:263 MEMORIA/(6904:6914):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1471728499
+[INFO] 10:44:02:264 MEMORIA/(6904:6914):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1471729504
+[INFO] 10:44:07:266 MEMORIA/(6904:6914):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1471730510
+[INFO] 10:44:12:268 LFS/(6904:6914):  se pidio gossiping 
+[INFO] 10:44:12:268 LFS/(6904:6914):  el socket que recibi es : 0
+[INFO] 10:44:12:268 LFS/(6904:6914):  sali del while 
+[INFO] 10:44:12:268 LFS/(6904:6914):  por salir del segundo while 
+[INFO] 10:44:12:268 LFS/(6904:6914):  hice send de fin
+[INFO] 10:44:42:308 LFS/(6904:6914):  se pidio gossiping 
+[INFO] 10:44:42:308 LFS/(6904:6914):  el socket que recibi es : 0
+[INFO] 10:44:42:308 LFS/(6904:6914):  sali del while 
+[INFO] 10:44:42:308 LFS/(6904:6914):  por salir del segundo while 
+[INFO] 10:44:42:309 LFS/(6904:6914):  hice send de fin
+[INFO] 10:44:58:640 MEMORIA/(6904:6914):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1471751522
+[INFO] 10:45:12:309 LFS/(6904:6914):  se pidio gossiping 
+[INFO] 10:45:12:309 LFS/(6904:6914):  el socket que recibi es : 0
+[INFO] 10:45:12:309 LFS/(6904:6914):  sali del while 
+[INFO] 10:45:12:309 LFS/(6904:6914):  por salir del segundo while 
+[INFO] 10:45:12:309 LFS/(6904:6914):  hice send de fin
+[INFO] 10:45:42:348 LFS/(6904:6914):  se pidio gossiping 
+[INFO] 10:45:42:348 LFS/(6904:6914):  el socket que recibi es : 0
+[INFO] 10:45:42:348 LFS/(6904:6914):  sali del while 
+[INFO] 10:45:42:348 LFS/(6904:6914):  por salir del segundo while 
+[INFO] 10:45:42:348 LFS/(6904:6914):  hice send de fin
+[INFO] 10:51:32:521 LFS/(7067:7068):  se pidio gossiping 
+[INFO] 10:51:32:521 LFS/(7067:7068):  el socket que recibi es : 0
+[INFO] 10:51:32:521 LFS/(7067:7068):  sali del while 
+[INFO] 10:51:32:521 LFS/(7067:7068):  por salir del segundo while 
+[INFO] 10:51:32:521 LFS/(7067:7068):  hice send de fin
+[INFO] 10:51:57:535 MEMORIA/(7067:7068):  Se realizo drop en FS de : POSTRES
+[INFO] 10:52:02:560 LFS/(7067:7068):  se pidio gossiping 
+[INFO] 10:52:02:560 LFS/(7067:7068):  el socket que recibi es : 0
+[INFO] 10:52:02:560 LFS/(7067:7068):  sali del while 
+[INFO] 10:52:02:560 LFS/(7067:7068):  por salir del segundo while 
+[INFO] 10:52:02:560 LFS/(7067:7068):  hice send de fin
+[INFO] 10:52:08:913 MEMORIA/(7067:7068):  Se realizo create en el FS : POSTRES con SC 3 60000
+[INFO] 10:52:18:963 MEMORIA/(7067:7068):  Se realizo insert en FS en tabla : POSTRES con value : "Flan" y timestamp : 1472234175
+[INFO] 10:52:23:967 MEMORIA/(7067:7068):  Se realizo insert en FS en tabla : POSTRES con value : "Chocotorta" y timestamp : 1472235180
+[INFO] 10:52:28:970 MEMORIA/(7067:7068):  Se realizo insert en FS en tabla : POSTRES con value : "Almendrado" y timestamp : 1472236185
+[INFO] 10:52:33:972 MEMORIA/(7067:7068):  Se realizo insert en FS en tabla : POSTRES con value : "Bizcochuelo" y timestamp : 1472237190
+[INFO] 10:52:43:982 MEMORIA/(7067:7068):  Se realizo insert en FS en tabla : POSTRES con value : "Muffin" y timestamp : 1472258228
+[INFO] 10:52:43:982 LFS/(7067:7068):  se pidio gossiping 
+[INFO] 10:52:43:983 LFS/(7067:7068):  el socket que recibi es : 0
+[INFO] 10:52:43:983 LFS/(7067:7068):  sali del while 
+[INFO] 10:52:43:983 LFS/(7067:7068):  por salir del segundo while 
+[INFO] 10:52:43:983 LFS/(7067:7068):  hice send de fin
+[INFO] 10:53:18:983 LFS/(7067:7068):  se pidio gossiping 
+[INFO] 10:53:18:983 LFS/(7067:7068):  el socket que recibi es : 0
+[INFO] 10:53:18:983 LFS/(7067:7068):  sali del while 
+[INFO] 10:53:18:983 LFS/(7067:7068):  por salir del segundo while 
+[INFO] 10:53:18:983 LFS/(7067:7068):  hice send de fin
+[INFO] 10:53:35:833 Memoria/(7067:7068):  Llego select con VALUE : Alfajor
+
+[INFO] 10:53:41:855 Memoria/(7067:7068):  Llego select con VALUE : Mousse
+[INFO] 10:53:47:868 Memoria/(7067:7068):  Llego select con VALUE : "Almendrado"
+
+[INFO] 10:53:53:881 Memoria/(7067:7068):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 10:53:59:896 Memoria/(7067:7068):  Llego select con VALUE : "Muffin"
+
+[INFO] 10:54:08:921 MEMORIA/(7067:7068):  Se realizo insert en FS en tabla : POSTRES con value : "Chocolate" y timestamp : 1472345159
+[INFO] 10:54:13:924 MEMORIA/(7067:7068):  Se realizo insert en FS en tabla : POSTRES con value : "Torta de ricota" y timestamp : 1472346163
+[INFO] 10:54:18:927 MEMORIA/(7067:7068):  Se realizo insert en FS en tabla : POSTRES con value : "Gelatina" y timestamp : 1472347168
+[INFO] 10:54:23:930 LFS/(7067:7068):  se pidio gossiping 
+[INFO] 10:54:23:930 LFS/(7067:7068):  el socket que recibi es : 0
+[INFO] 10:54:23:930 LFS/(7067:7068):  sali del while 
+[INFO] 10:54:23:930 LFS/(7067:7068):  por salir del segundo while 
+[INFO] 10:54:23:930 LFS/(7067:7068):  hice send de fin
+[INFO] 10:54:53:970 LFS/(7067:7068):  se pidio gossiping 
+[INFO] 10:54:53:970 LFS/(7067:7068):  el socket que recibi es : 0
+[INFO] 10:54:53:970 LFS/(7067:7068):  sali del while 
+[INFO] 10:54:53:970 LFS/(7067:7068):  por salir del segundo while 
+[INFO] 10:54:53:970 LFS/(7067:7068):  hice send de fin
+[INFO] 10:55:23:971 LFS/(7067:7068):  se pidio gossiping 
+[INFO] 10:55:23:971 LFS/(7067:7068):  el socket que recibi es : 0
+[INFO] 10:55:23:971 LFS/(7067:7068):  sali del while 
+[INFO] 10:55:23:971 LFS/(7067:7068):  por salir del segundo while 
+[INFO] 10:55:23:971 LFS/(7067:7068):  hice send de fin
+[INFO] 10:55:54:8 LFS/(7067:7068):  se pidio gossiping 
+[INFO] 10:55:54:8 LFS/(7067:7068):  el socket que recibi es : 0
+[INFO] 10:55:54:8 LFS/(7067:7068):  sali del while 
+[INFO] 10:55:54:8 LFS/(7067:7068):  por salir del segundo while 
+[INFO] 10:55:54:8 LFS/(7067:7068):  hice send de fin

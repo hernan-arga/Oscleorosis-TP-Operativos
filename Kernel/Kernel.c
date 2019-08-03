@@ -37,7 +37,7 @@ struct metricas {
 	clock_t tiempoDeCreacion;
 	double segundosDeEjecucion;
 	int tipoDeMetric; //0 para SELECT, 1 para INSERT
-	char* IPMemoria;
+	int NroMemoria;
 };
 
 struct Script {
@@ -50,7 +50,7 @@ struct Script {
 struct datosMemoria {
 	int32_t socket;
 	struct sockaddr_in direccionSocket;
-	int32_t MEMORY_NUMBER;
+	int MEMORY_NUMBER;
 };
 
 struct tabla {
@@ -100,7 +100,7 @@ void ejecutor(struct Script *);
 void ejecutarReady();
 void atenderPeticionesDeConsola();
 void refreshMetadata();
-void generarMetrica(clock_t, int, char *);
+void generarMetrica(clock_t, int, struct datosMemoria*);
 t_list * borrarObsoletos(clock_t);
 void mostrarInserts();
 void mostrarSelects();
@@ -320,22 +320,23 @@ void memoryLoad(int opcion) {
 	int operacionesTotales = list_size(listaMetricas);
 	int cantidadDeIPS = list_size(listaDeMemorias);
 	for (int i = 0; i < cantidadDeIPS; i++) {
-		char* unaIP = list_get(listaDeMemorias, i);
-
+		struct datosMemoria*unaMem =list_get(listaDeMemorias,i);
+		//char* unaIP = list_get(listaDeMemorias, i);
+		/*
 		bool _filtrarMismaIP(void* elemento) {
 			return !strcmp(unaIP, ((struct metricas *) elemento)->IPMemoria);
 		}
 		soloMismaIP = list_filter(listaMetricas, _filtrarMismaIP);
-
+		*/
 		bool _filtrarInsert(void* elemento) {
 			return 1 == ((struct metricas*) elemento)->tipoDeMetric;
 		}
-		soloInserts = list_filter(soloMismaIP, _filtrarInsert);
+		soloInserts = list_filter(listaMetricas, _filtrarInsert);
 		contador = list_size(soloInserts);
 		if (opcion == 0) {
 			printf(
-					"La cantidad de INSERTS de la Memoria con IP %s es %i, respecto de %i operaciones totales.\n",
-					unaIP, contador, operacionesTotales);
+					"La cantidad de INSERTS de la Memoria  %i es %i, respecto de %i operaciones totales.\n",
+					unaMem->MEMORY_NUMBER, contador, operacionesTotales);
 		} else {
 			char* mensajeALogear = string_new();
 			char* tiempo = temporal_get_string_time();
@@ -345,8 +346,8 @@ void memoryLoad(int opcion) {
 			string_append(&mensajeALogear, tiempoCorchetes);
 			info =
 					string_from_format(
-							"La cantidad de INSERTS de la memoria con IP %s es %i, respecto de %i operaciones totales.\n",
-							unaIP, contador, operacionesTotales);
+							"La cantidad de INSERTS de la memoria %i es %i, respecto de %i operaciones totales.\n",
+							unaMem->MEMORY_NUMBER, contador, operacionesTotales);
 			string_append(&mensajeALogear, info);
 			t_log* g_logger;
 			g_logger = log_create("./metricas.log", "Kernel", 0,
@@ -366,8 +367,8 @@ void memoryLoad(int opcion) {
 		contador = list_size(soloSelect);
 		if (opcion == 0) {
 			printf(
-					"La cantidad de SELECTS de la memoria con IP %s es %i, respecto de %i operaciones totales.\n",
-					unaIP, contador, operacionesTotales);
+					"La cantidad de SELECTS de la memoria %i es %i, respecto de %i operaciones totales.\n",
+					unaMem->MEMORY_NUMBER, contador, operacionesTotales);
 		} else {
 			char* mensajeALogear = string_new();
 			char* tiempo = temporal_get_string_time();
@@ -377,8 +378,8 @@ void memoryLoad(int opcion) {
 			string_append(&mensajeALogear, tiempoCorchetes);
 			info =
 					string_from_format(
-							"La cantidad de SELECTS de la memoria con IP %s es %i, respecto de %i operaciones totales.\n",
-							unaIP, contador, operacionesTotales);
+							"La cantidad de SELECTS de la memoria %i es %i, respecto de %i operaciones totales.\n",
+												unaMem->MEMORY_NUMBER, contador, operacionesTotales);
 			string_append(&mensajeALogear, info);
 			t_log* g_logger;
 			g_logger = log_create("./metricas.log", "Kernel", 0,
@@ -984,8 +985,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				fclose(temp);
 				planificador(nombre_archivo);
 			} else {
-				clock_t tiempoSelect = clock();
-				//generarMetrica(tiempoSelect,0,IPMemoria);
+
 
 				char* tabla = parametros[1];
 				char *key = parametros[2];
@@ -993,6 +993,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				//Aca lo manda por sockets a la memoria correspondiente y en caso de error modifica la variable huboError
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
 					//strongConsistency->socket
+					clock_t tiempoSelect = clock();
+					generarMetrica(tiempoSelect,0,strongConsistency);
 					char *value = pedirValue(tabla, key,
 							strongConsistency->socket);
 					//printf("El value es: %s\n", value);
@@ -1012,11 +1014,14 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 								//printf("\t%i", numeroEnListaMemoria);
 							}while(!laMemoriaEstaConectada(unaMemoria));
 						}
-
+						clock_t tiempoSelect = clock();
+						generarMetrica(tiempoSelect,0,unaMemoria);
 						char * value = pedirValue(tabla, key,
 								unaMemoria->socket);
 						printf("El value es: %s\n", value);
 					} else {
+						clock_t tiempoSelect = clock();
+						generarMetrica(tiempoSelect,0,strongConsistency);
 						char *value = pedirValue(tabla, key,
 								strongConsistency->socket);
 						printf("El value es: %s\n", value);
@@ -1030,12 +1035,15 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 							unaMemoria = list_remove(
 									eventualConsistency, 0);
 						}while(!laMemoriaEstaConectada(unaMemoria));
-
+						clock_t tiempoSelect = clock();
+						generarMetrica(tiempoSelect,0,unaMemoria);
 						char* value = pedirValue(tabla, key,
 								unaMemoria->socket);
 						printf("El value es: %s\n", value);
 						list_add(eventualConsistency, unaMemoria);
 					} else {
+						clock_t tiempoSelect = clock();
+						generarMetrica(tiempoSelect,0,strongConsistency);
 						char *value = pedirValue(tabla, key,
 								strongConsistency->socket);
 						printf("El value es: %s\n", value);
@@ -1093,6 +1101,8 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 				struct tabla *unaTabla = dictionary_get(tablas_conocidas,
 						tabla);
 				if (!strcmp(unaTabla->CONSISTENCY, "SC")) {
+					clock_t tiempoInsert = clock();
+					generarMetrica(tiempoInsert, 1,strongConsistency);
 					mandarInsert(tabla, key, value, strongConsistency->socket);
 				} else if (!strcmp(unaTabla->CONSISTENCY, "SHC")) {	//SHC
 					if (list_size(hashConsistency) != 0) {
@@ -1106,17 +1116,20 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 							do{
 								int max = list_size(hashConsistency);
 								int	numeroEnListaMemoria = (rand() % max);
-								unaMemoria = list_get(hashConsistency, numeroEnListaMemoria);
+								unaMemoria = list_get(hashConsistency, numeroEnListaMemoria);//FIXME
 								//printf("\t%i", numeroEnListaMemoria);
 							}while(!laMemoriaEstaConectada(unaMemoria));
 						}
-
+						clock_t tiempoInsert = clock();
+						generarMetrica(tiempoInsert, 1,unaMemoria);
+					mandarInsert(tabla, key, value,unaMemoria->socket);
 						//ESTE FALLA
-						/*clock_t tiempoInsert = clock();
-						generarMetrica(tiempoInsert, 1,
-								unaMemoria->direccionSocket.sin_addr.s_addr);*/
-						mandarInsert(tabla, key, value, unaMemoria->socket);
+
+
+
 					} else {
+						clock_t tiempoInsert = clock();
+						generarMetrica(tiempoInsert, 1,strongConsistency);
 						mandarInsert(tabla, key, value,
 								strongConsistency->socket);
 					}
@@ -1130,9 +1143,13 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 									eventualConsistency, 0);
 						}while(!laMemoriaEstaConectada(unaMemoria));
 
+						clock_t tiempoInsert = clock();
+						generarMetrica(tiempoInsert, 1,unaMemoria);
 						mandarInsert(tabla, key, value, unaMemoria->socket);
 						list_add(eventualConsistency, unaMemoria);
 					} else {
+						clock_t tiempoInsert = clock();
+						generarMetrica(tiempoInsert, 1,strongConsistency);
 						mandarInsert(tabla, key, value,
 								strongConsistency->socket);
 					}
@@ -1532,7 +1549,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		break;
 
 	case METRICS:
-		//metrics(0);
+		metrics(0);
 		break;
 
 	default:
@@ -1945,20 +1962,19 @@ char* pedirValue(char* tabla, char* laKey, int socketMemoria) {
 	}
 }
 
-void generarMetrica(clock_t tiempoInicial, int tipoDeMetrica, char* IPMemoria) {
+void generarMetrica(clock_t tiempoInicial, int tipoDeMetrica, struct datosMemoria* unaMem) {
 	struct metricas * prueba;
 	unRegistro = malloc(sizeof(struct metricas));
 	clock_t tiempoFinal = clock() - tiempoInicial;
 	unRegistro->segundosDeEjecucion = ((double) tiempoFinal) / CLOCKS_PER_SEC;
 	unRegistro->tipoDeMetric = tipoDeMetrica;
 	unRegistro->tiempoDeCreacion = clock();
-	unRegistro->IPMemoria = string_new();
-	strcpy(unRegistro->IPMemoria, IPMemoria);
+	unRegistro->NroMemoria = unaMem->MEMORY_NUMBER;
 	list_add(listaMetricas, unRegistro);
 	printf("\n ");
 	prueba = list_get(listaMetricas, 0);
 	printf("%i", prueba->tipoDeMetric);
-	printf("%s", prueba->IPMemoria);
+	printf("%i", prueba->NroMemoria);
 }
 
 int parametrosValidos(int cantidadDeParametrosNecesarios, char** parametros,
