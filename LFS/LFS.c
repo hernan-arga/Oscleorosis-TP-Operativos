@@ -48,6 +48,7 @@ typedef struct {
 	int RETARDO;
 	int TAMANIO_VALUE;
 	int TIEMPO_DUMP;
+	char* IP;
 } configuracionLFS;
 
 typedef struct {
@@ -327,7 +328,8 @@ void levantarConfiguracionLFS() {
 	//El dump y el retardo tienen que poder modificarse en tiempo de ejecucion
 	//asi que tendria que volver a tomar su valor cuando los vaya a usar
 	structConfiguracionLFS.RETARDO = config_get_int_value(configLFS, "RETARDO");
-	config_destroy(configLFS);
+	structConfiguracionLFS.IP = config_get_string_value(configLFS, "IP");	
+config_destroy(configLFS);
 }
 
 void tomarPeticion(char* mensaje) {
@@ -919,7 +921,7 @@ void dumpPorTabla(char* tabla) {
 
 		//Tomo el tamanio por bloque de mi LFS
 		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-		pthread_mutex_lock(&unSemaforo->mutexDrop); //veo en el otro tp q no lo usan aca
+		pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART); //veo en el otro tp q no lo usan aca
 		char *metadataPath = string_from_format("%sMetadata/metadata.bin",
 				structConfiguracionLFS.PUNTO_MONTAJE);
 		t_config *metadata = config_create(metadataPath);
@@ -1022,7 +1024,7 @@ void dumpPorTabla(char* tabla) {
 		//antes de eliminarlo de la memtable lo pongo en el diccionario de tablasQueTienenTMPs porque sino se borra el string tambien
 		//dictionary_put(tablasQueTienenTMPs, tabla, tablaPath);
 
-		pthread_mutex_unlock(&unSemaforo->mutexDrop);
+		pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
 
 		char* mensajeALogear2 = malloc( strlen(" termino dump de la tabla : ") + strlen(tabla) +1);
 		strcpy(mensajeALogear2, " termino dump de la tabla : ");
@@ -3118,7 +3120,7 @@ int32_t iniciarConexion() {
 
 	//type of socket created
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_addr.s_addr = inet_addr(structConfiguracionLFS.IP);
 	address.sin_port = htons(structConfiguracionLFS.PUERTO_ESCUCHA);
 
 	//bind the socket to localhost port 8888
