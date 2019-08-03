@@ -3121,7 +3121,8 @@ int32_t iniciarConexion() {
 
 	//type of socket created
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
+	// address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_addr.s_addr = inet_addr("127.0.0.1");
 	//address.sin_addr.s_addr = inet_addr(structConfiguracionLFS.IP);
 	address.sin_port = htons(structConfiguracionLFS.PUERTO_ESCUCHA);
 

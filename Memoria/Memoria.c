@@ -1527,8 +1527,8 @@ void conectarseAFS() {
 	clienteFS = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddressFS.sin_family = AF_INET;
 	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
-	//serverAddress.sin_addr.s_addr = inet_addr(t_archivoConfiguracion.IP_LFS);
-	serverAddress.sin_addr.s_addr = INADDR_ANY;
+	serverAddress.sin_addr.s_addr = inet_addr(t_archivoConfiguracion.IP_LFS);
+	//serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
 	int res = -1;
 	while(res < 0)
 	{
