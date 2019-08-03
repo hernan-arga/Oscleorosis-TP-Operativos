@@ -1279,3 +1279,11 @@
 [INFO] 02:17:03:50 Memoria/(29447:29449):  Llego select con VALUE : @
 [INFO] 02:20:55:655 MEMORIA/(29718:29720):  Se realizo create en el FS : LABUENA con SC 10 10
 [INFO] 02:21:30:478 MEMORIA/(29718:29720):  Se realizo insert en FS en tabla : LABUENA con value : I´ll be back y timestamp : 836787306
+[INFO] 20:27:10:772 MEMORIA/(2418:2421):  Se realizo create en el FS : TABLA con SC 2 10
+[ERROR] 21:17:35:611 LFS/(2980:2982):  No se encontro la key : 1
+[INFO] 21:18:52:160 LFS/(3022:3023):  se pidio gossiping 
+[INFO] 21:18:52:161 LFS/(3022:3023):  el socket que recibi es : 0
+[INFO] 21:18:52:163 LFS/(3022:3023):  sali del while 
+[INFO] 21:18:52:164 LFS/(3022:3023):  por salir del segundo while 
+[INFO] 21:18:52:164 LFS/(3022:3023):  hice send de fin
+[ERROR] 21:21:24:791 LFS/(3171:3173):  No se encontro la key : 1
