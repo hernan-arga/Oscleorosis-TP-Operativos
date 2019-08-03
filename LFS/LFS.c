@@ -923,7 +923,7 @@ void dumpPorTabla(char* tabla) {
 		//Tomo el tamanio por bloque de mi LFS
 		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
 
-		pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART); //veo en el otro tp q no lo usan aca
+		//pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART); //veo en el otro tp q no lo usan aca
 		char *metadataPath = string_from_format("%sMetadata/metadata.bin",
 				structConfiguracionLFS.PUNTO_MONTAJE);
 		t_config *metadata = config_create(metadataPath);
@@ -1026,7 +1026,7 @@ void dumpPorTabla(char* tabla) {
 		//antes de eliminarlo de la memtable lo pongo en el diccionario de tablasQueTienenTMPs porque sino se borra el string tambien
 		//dictionary_put(tablasQueTienenTMPs, tabla, tablaPath);
 
-		pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
+		//pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
 
 		char* mensajeALogear2 = malloc( strlen(" termino dump de la tabla : ") + strlen(tabla) +1);
 		strcpy(mensajeALogear2, " termino dump de la tabla : ");
