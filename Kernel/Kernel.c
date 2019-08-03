@@ -232,9 +232,9 @@ unsigned long long getMicrotime(){
 }
 
 void iniciarSemaforos() {
-	sem_init(&MAXIMOPROCESAMIENTO, 0, multiprocesamiento);
+	sem_init(&MAXIMOPROCESAMIENTO, 1, multiprocesamiento);
 	sem_init(&PEDIRDESCRIBE, 0, 0);
-	sem_init(&MEMORIAPRINCIPAL, 0, 0);
+	sem_init(&MEMORIAPRINCIPAL, 1, 0);
 }
 
 void conectarMemoriaPrcpal(){
@@ -509,14 +509,14 @@ t_list * borrarObsoletos(clock_t tiempoActual) {
 }
 
 void refreshMetadata() {
+	int refreshMetadata = config_get_int_value(configuracion,
+						"METADATA_REFRESH");
 	while (1) {
 		//Aca no me interesa esta variable pero la necesita
 		sem_wait(&MEMORIAPRINCIPAL);
 		int huboError;
 		tomar_peticion("DESCRIBE", 0, &huboError);
 		sem_post(&MEMORIAPRINCIPAL);
-		int refreshMetadata = config_get_int_value(configuracion,
-					"METADATA_REFRESH");
 		sleep(refreshMetadata /1000);
 	}
 }
@@ -549,7 +549,7 @@ OPERACION tipo_de_peticion(char* peticion) {
 				return CREATE;
 			} else {
 				if (!strcmp(peticion, "DESCRIBE")) {
-					free(peticion);
+					//free(peticion);
 					return DESCRIBE;
 				} else {
 					if (!strcmp(peticion, "DROP")) {
@@ -652,6 +652,7 @@ void operacion_gossiping() {
 	while (1) {
 			sem_wait(&MEMORIAPRINCIPAL);
 
+			/*
 			char* mensajeALogear4 = malloc(	strlen(" gossiping ") + 1);
 			strcpy(mensajeALogear4, " gossiping ");
 			t_log* g_logger4;
@@ -659,7 +660,7 @@ void operacion_gossiping() {
 			log_info(g_logger4, mensajeALogear4);
 			log_destroy(g_logger4);
 			free(mensajeALogear4);
-
+	*/
 			//Pido Gossiping
 			char* buffer = malloc(3 * sizeof(int));
 			int peticion = 8;
@@ -670,6 +671,7 @@ void operacion_gossiping() {
 			memcpy(buffer + 2 * sizeof(int), &fin, sizeof(int));
 			send(memoriaPrincipal->socket, buffer, 3 * sizeof(int), 0);
 
+			/*
 			char* mensajeALogear8 = malloc(
 							strlen(" hice el send de peticion :  a socket : ") + sizeof(int) + 1);
 			strcpy(mensajeALogear8, " hice el send de peticion : ");
@@ -682,11 +684,12 @@ void operacion_gossiping() {
 			log_info(g_logger8, mensajeALogear8);
 			log_destroy(g_logger8);
 			free(mensajeALogear8);
-
+		*/
 			//Recibo el gossiping
 			int* socket = malloc(sizeof(int));
 			recv(memoriaPrincipal->socket, socket, sizeof(int), 0);
 
+				/*
 			char* mensajeALogear9 = malloc(
 							strlen(" recibi socket : ") + sizeof(*socket) + 1);
 			strcpy(mensajeALogear9, " recibi socket : ");
@@ -696,9 +699,10 @@ void operacion_gossiping() {
 			log_info(g_logger9, mensajeALogear9);
 			log_destroy(g_logger9);
 			free(mensajeALogear9);
-
+		*/
 
 			while (*socket != 0) {
+				/*
 				char* mensajeALogear = malloc(
 								strlen(" entre al while ") + 1);
 				strcpy(mensajeALogear, " entre al while ");
@@ -707,7 +711,7 @@ void operacion_gossiping() {
 				log_info(g_logger, mensajeALogear);
 				log_destroy(g_logger);
 				free(mensajeALogear);
-
+				*/
 				struct sockaddr_in *direccion = malloc(sizeof(struct sockaddr_in));
 				recv(memoriaPrincipal->socket, direccion, sizeof(struct sockaddr_in), 0);
 
@@ -732,6 +736,7 @@ void operacion_gossiping() {
 				socket = malloc(sizeof(int));
 				recv(memoriaPrincipal->socket, socket, sizeof(int), 0);
 
+				/*
 				char* mensajeALogear2 = malloc(
 								strlen(" por salir del while ") + 1);
 				strcpy(mensajeALogear2, " por salir del while ");
@@ -740,8 +745,9 @@ void operacion_gossiping() {
 				log_info(g_logger2, mensajeALogear2);
 				log_destroy(g_logger2);
 				free(mensajeALogear2);
+				*/
 			}
-
+			/*
 			char* mensajeALogear7 = malloc(
 									strlen(" sali del while ") + 1);
 			strcpy(mensajeALogear7, " sali del while ");
@@ -750,14 +756,14 @@ void operacion_gossiping() {
 			log_info(g_logger7, mensajeALogear7);
 			log_destroy(g_logger7);
 			free(mensajeALogear7);
-
+	*/
 			if(!list_is_empty(memoriasRecibidas)){
 				list_iterate(memoriasRecibidas, (void*)evaluarMemoriaRecibida);
 			}
 			else{
 
 			}
-
+			/*
 			char* mensajeALogear3 = malloc(
 							strlen(" sali del while e hice el iterate ") + 1);
 			strcpy(mensajeALogear3, " sali del while e hice el iterate ");
@@ -766,7 +772,7 @@ void operacion_gossiping() {
 			log_info(g_logger3, mensajeALogear3);
 			log_destroy(g_logger3);
 			free(mensajeALogear3);
-
+*/
 			/*
 			//Me fijo las memorias que se desconectaron
 			void evaluarMemoriaConocida(struct datosMemoria *memoriaConocida){
@@ -893,11 +899,11 @@ void tomar_peticion(char* mensaje, int es_request, int *huboError) {
 		j++;
 	 }*/
 	realizar_peticion(mensajeSeparadoConValue, es_request, huboError);
-	free(mensajeSeparado);
+	//free(mensajeSeparado);
 	//free(value);
-	free(noValue);
-	free(posibleTimestamp);
-	free(mensajeSeparadoConValue);
+	//free(noValue);
+	//free(posibleTimestamp);
+	//free(mensajeSeparadoConValue);
 
 	//Fijarse despues cual seria la cantidad correcta de malloc
 	/*char** mensajeSeparado = malloc(strlen(mensaje) + 1);
@@ -1253,6 +1259,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 		int criterioDescribeUnaTabla(char** parametros,
 				int cantidadDeParametrosUsados) {
 			char* tabla = parametros[1];
+			printf("Tabla: %s", tabla);
 			if (tabla == NULL) {
 				return 0;
 			}
@@ -1289,20 +1296,22 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			string_to_upper(tabla);
 
 			//De alguna manera tengo que verificar que la memoria este conectada
-			struct datosMemoria *unaMemoria;
+			struct datosMemoria *unaMemoria = malloc(sizeof(struct datosMemoria));
 			do{
 				int max = list_size(listaDeMemorias);
 				int numeroEnListaMemoria = (rand() % max);
 				unaMemoria = list_get(listaDeMemorias, numeroEnListaMemoria);
 			}while(!laMemoriaEstaConectada(unaMemoria));
 
+			printf("Pide\n");
 			struct tabla *metadata = pedirDescribeUnaTabla( tabla, unaMemoria->socket);
+			printf("Pidio\n");
 
-			/*printf("%s: \n", tabla);
+			printf("%s: \n", tabla);
 			 printf("Particiones: %i\n", metadata->PARTITIONS);
 			 printf("Consistencia: %s\n", metadata->CONSISTENCY);
 			 printf("Tiempo de compactacion: %i\n\n",
-			 metadata->COMPACTION_TIME);*/
+			 metadata->COMPACTION_TIME);
 
 			actualizarDiccionarioDeTablas(tabla, metadata);
 			if (es_request) {
@@ -1416,6 +1425,12 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 			char* memoria = parametros[1];
 			string_to_upper(memoria);
 			string_to_upper(to);
+
+			printf("Consistencia: %s\n", consistencia);
+			printf("To: %s\n", to);
+			printf("numeroMemoria: %s\n", numeroMemoria);
+			printf("Memoria: %s\n", memoria);
+
 			if (strcmp(memoria, "MEMORY")) {
 				printf(
 						"El primer parametro de add tiene que ser \"MEMORY\".\n");
@@ -1435,7 +1450,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 					(void*) seEncuentraLaMemoria)) {
 				printf("No existe tal memoria.\n");
 			}
-
+			printf("Es el criterio ADD\n");
 			return !strcmp(memoria, "MEMORY") && !strcmp(to, "TO")
 					&& esUnTipoDeConsistenciaValida(consistencia)
 					&& esUnNumero(numeroMemoria)
@@ -1527,6 +1542,7 @@ void realizar_peticion(char** parametros, int es_request, int *huboError) {
 }
 
 int laMemoriaEstaConectada(struct datosMemoria* unaMemoria){
+	/*
 	void* buffer = malloc(2 * sizeof(int));
 	int peticion = 20;
 	int tamanioPeticion = sizeof(int);
@@ -1534,7 +1550,7 @@ int laMemoriaEstaConectada(struct datosMemoria* unaMemoria){
 	memcpy(buffer + sizeof(int), &peticion, sizeof(int));
 
 	int loQueEnvio = send(unaMemoria->socket, buffer, 2 * sizeof(int), 0);
-
+	*/
 
 		//loQueEnvio = send(unaMemoria->socket, buffer, 2 * sizeof(int), 0);
 	//recibo algo de la memoria, si devuelve 0 no esta conectada
@@ -1665,6 +1681,7 @@ void guardarDiccionarioGlobal(int socketMemoria) {
 		read(socketMemoria, tiempoCompactacion, *tamanioTiempoCompactacion);
 		//printf("%i\n", *tiempoCompactacion);
 
+
 		char* mensajeALogear = malloc(
 				strlen(" [DESCRIBE GLOBAL]:    ") + strlen(tablaCortada)
 						+ strlen(tipoConsistenciaCortada) + 2 * sizeof(int)
@@ -1683,8 +1700,9 @@ void guardarDiccionarioGlobal(int socketMemoria) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
+
 		//lo guardo en el diccionario
-		struct tabla* data = malloc(8 + 4);    // 2 int = 2*4 bytes
+		struct tabla* data = malloc(sizeof(struct tabla));    // 2 int = 2*4 bytes
 		data->CONSISTENCY = malloc(*tamanioConsistencia + 1);
 		memcpy(&data->PARTITIONS, numeroParticiones, sizeof(int));
 		memcpy(data->CONSISTENCY, tipoConsistenciaCortada,
@@ -1692,20 +1710,23 @@ void guardarDiccionarioGlobal(int socketMemoria) {
 		memcpy(&data->COMPACTION_TIME, tiempoCompactacion, sizeof(int));
 		dictionary_put(diccionarioDeTablasTemporal, tablaCortada, data);
 
-		/* para probar que funciona
+		 //para probar que funciona
 		 struct tabla* metadata2;
 		 metadata2 = dictionary_get(diccionarioDeTablasTemporal, tablaCortada);
 		 printf("--%i", metadata2->COMPACTION_TIME);
 		 printf("--%i", metadata2->PARTITIONS);
 		 printf("--%s", metadata2->CONSISTENCY);
-		 */
+
+		//free(tamanioTabla);
+		//tamanioTabla = malloc(sizeof(int));
 		read(socketMemoria, tamanioTabla, sizeof(int));
 	}
 	pthread_mutex_unlock(&SEMAFORODECONEXIONMEMORIAS);
 }
 
 struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria) {
-	void* buffer = malloc(sizeof(int) + sizeof(int) + strlen(tabla));
+
+	char* buffer = malloc(sizeof(int) + sizeof(int) + strlen(tabla));
 
 	int peticion = 4;
 	int tamanioPeticion = sizeof(int);
@@ -1732,7 +1753,10 @@ struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria) {
 	read(socketMemoria, tamanioTiempoCompactacion, sizeof(int));
 	int* tiempoCompactacion = malloc(*tamanioTiempoCompactacion);
 	read(socketMemoria, tiempoCompactacion, *tamanioTiempoCompactacion);
+
+	printf("LLEGO BIEN\n\n");
 	// aca ya tengo toda la metadata, falta guardarla en struct
+	/*
 	char* mensajeALogear = malloc(	strlen(" [DESCRIBE x tabla]:  ") + strlen(tabla) + strlen(tipoConsistencia) + 2 * sizeof(int)	+ 1);
 	strcpy(mensajeALogear, " [DESCRIBE x tabla]:  ");
 	strcat(mensajeALogear, tabla);
@@ -1747,12 +1771,12 @@ struct tabla *pedirDescribeUnaTabla(char* tabla, int socketMemoria) {
 	log_info(g_logger, mensajeALogear);
 	log_destroy(g_logger);
 	free(mensajeALogear);
+	*/
 
-	struct tabla* data = malloc(8 + 4);    // 2 int = 2*4 bytes
+	struct tabla* data = malloc(sizeof(struct tabla));    // 2 int = 2*4 bytes
 	data->CONSISTENCY = malloc(*tamanioConsistencia);
 	memcpy(&data->PARTITIONS, numeroParticiones, sizeof(int));
 	memcpy(data->CONSISTENCY, tipoConsistencia, *tamanioConsistencia);
-	memcpy(&data->COMPACTION_TIME, tiempoCompactacion, sizeof(int));
 
 	return data;
 }
@@ -2078,7 +2102,7 @@ void ejecutor(struct Script *ejecutando) {
 			fread(caracter, sizeof(char), 1, lql);
 		}
 		tomar_peticion(lineaDeScript, 0, &error);
-		free(lineaDeScript);
+		//free(lineaDeScript);
 		i++;
 
 		int sleepEjecucion = config_get_int_value(configuracion,
@@ -2093,10 +2117,12 @@ void ejecutor(struct Script *ejecutando) {
 		queue_push(ready, ejecutando);
 	} else {
 		sem_post(&MAXIMOPROCESAMIENTO);
+		sem_post(&MEMORIAPRINCIPAL);
 		printf("el script %s paso a exit\n", ejecutando->peticiones);
 	}
 	fclose(lql);
-	free(caracter);
+	//free(caracter);
+
 }
 
 char* tempSinAsignar() {
@@ -2113,6 +2139,7 @@ char* tempSinAsignar() {
 }
 
 void planificador(char* nombre_del_archivo) {
+	sem_wait(&MEMORIAPRINCIPAL);
 	pasar_a_new(nombre_del_archivo);
 	pasar_a_ready(new);
 }

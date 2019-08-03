@@ -60,6 +60,7 @@ typedef struct {
 	int32_t MEMORY_NUMBER;
 	char** IP_SEEDS;
 	char** PUERTO_SEEDS;
+	char * IP_LFS;
 } archivoConfiguracion;
 
 typedef struct {
@@ -132,8 +133,7 @@ unsigned long long getMicrotime();
 
 int main(int argc, char *argv[]) {
 
-	sem_init(&sem, 1, 0);
-	sem_init(&sem, 2, 0);
+	sem_init(&sem, 1, 1);
 	pthread_mutex_init(&semaforoKernel,NULL);
 	pthread_mutex_init(&SEMAFORODECONEXIONFS,NULL);
 	pthread_mutex_init(&SEMAFORODETABLASEGMENTOS,NULL);
@@ -161,6 +161,7 @@ int main(int argc, char *argv[]) {
 	t_archivoConfiguracion.MEMORY_NUMBER = config_get_int_value(config,
 			"MEMORY_NUMBER");
 
+	t_archivoConfiguracion.IP_LFS = config_get_string_value(config, "IP_LFS");
 	pthread_t threadFS;
 	// int32_t idThreadFS = pthread_create(&threadFS, NULL, conectarseAFS, NULL);
 	conectarseAFS();
@@ -312,8 +313,10 @@ OPERACION tipoDePeticion(char* peticion) {
 }
 
 char* realizarSelect(char* tabla, char* key) {
-	if (dictionary_has_key(tablaSegmentos, tabla)) {
 
+	sem_wait(&sem);
+
+	if (dictionary_has_key(tablaSegmentos, tabla)) {
 
 		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
 
@@ -351,7 +354,7 @@ char* realizarSelect(char* tabla, char* key) {
 				free(timeStamp);
 				free(laKey);
 
-
+				sem_post(&sem);
 
 				return value;
 			}
@@ -390,7 +393,7 @@ char* realizarSelect(char* tabla, char* key) {
 
 		if (value == NULL) {
 
-
+			sem_post(&sem);
 			return NULL;
 		}
 
@@ -414,7 +417,7 @@ char* realizarSelect(char* tabla, char* key) {
 		free(timeStamp);
 		//free(value);
 
-
+		sem_post(&sem);
 		return value;
 	}
 
@@ -423,6 +426,7 @@ char* realizarSelect(char* tabla, char* key) {
 	//printf("Value: %s", value);
 
 	if (value == NULL) {
+		sem_post(&sem);
 		return NULL;
 	}
 
@@ -462,14 +466,14 @@ char* realizarSelect(char* tabla, char* key) {
 
 	//printf("Value: %s", value);
 
-
+	sem_post(&sem);
 
 	return value;
 }
 
 int realizarInsert(char* tabla, char* key, char* value) {
 
-
+	sem_wait(&sem);
 
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
 		t_list* tablaPag = dictionary_get(tablaSegmentos, tabla);
@@ -504,7 +508,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 				free(laKey);
 				free(timeStamp);
 
-
+				sem_post(&sem);
 
 				return 0;
 			}
@@ -552,7 +556,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 
 		free(timeStamp);
 
-
+		sem_post(&sem);
 
 		return 0;
 	}
@@ -591,7 +595,7 @@ int realizarInsert(char* tabla, char* key, char* value) {
 
 	free(timeStamp);
 
-
+	sem_post(&sem);
 
 	return 0;
 }
@@ -603,6 +607,7 @@ int frameLibre() {
 		}
 	}
 	printf("Ejecutar LRU");
+
 	int frameLib = ejecutarLRU();
 
 	return frameLib;
@@ -637,7 +642,7 @@ char* pedirValue(char* tabla, char* laKey) {
 	//deserializo value
 	int *tamanioValue = malloc(sizeof(int));
 	recv(clienteFS, tamanioValue, sizeof(int), 0);
-	desconectarFS();
+	//desconectarFS();
 	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
 	//printf("Tamanio value: %d\n", *tamanioValue);
@@ -653,6 +658,7 @@ char* pedirValue(char* tabla, char* laKey) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 		perror("El value no estaba en el FS");
+		desconectarFS();
 		return NULL;
 	} else {
 		char *value = malloc(*tamanioValue);
@@ -670,6 +676,7 @@ char* pedirValue(char* tabla, char* laKey) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 		free(value);
+		desconectarFS();
 		return valueCortado;
 	}
 }
@@ -701,7 +708,7 @@ int ejecutarLRU() {
 	dictionary_iterator(tablaSegmentos, elMenor);
 	if (timeStamp == 0) {
 
-
+		sem_post(&sem);
 
 		ejecutarJournaling();
 		numF = 0;
@@ -717,6 +724,7 @@ int ejecutarLRU() {
 
 void ejecutarJournaling() {
 
+	sem_wait(&sem);
 
 	void journal(char* tabla, void* valor) {
 		t_list* paginas = valor;
@@ -852,13 +860,13 @@ void ejecutarJournaling() {
 
 	hizoJ = 1;
 
-
+	sem_post(&sem);
 }
 
 int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones,
 		char* tiempoCompactacion) {
 
-
+	sem_wait(&sem);
 
 	// Serializo Peticion, Tabla y Metadata
 	char* buffer = malloc(
@@ -942,14 +950,19 @@ int realizarCreate(char* tabla, char* tipoConsistencia, char* numeroParticiones,
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
+		sem_post(&sem);
+
 		return 1;
 	}
+
+	sem_post(&sem);
+
 	return 0;
 }
 
 int realizarDrop(char* tabla) {
 
-
+	sem_wait(&sem);
 
 	if (dictionary_has_key(tablaSegmentos, tabla)) {
 		void* elemento = dictionary_remove(tablaSegmentos, tabla);
@@ -991,6 +1004,8 @@ int realizarDrop(char* tabla) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
+		sem_post(&sem);
+
 		return 0;
 	}
 	if (*ok == 1) {
@@ -1004,14 +1019,19 @@ int realizarDrop(char* tabla) {
 		log_destroy(g_logger);
 		free(mensajeALogear);
 
+		sem_post(&sem);
+
 		return 1;
 	}
+
+	sem_post(&sem);
+
 	return 0;
 }
 
 metadataTabla* realizarDescribe(char* tabla) {
 
-
+	sem_wait(&sem);
 
 	// Serializo peticion y tabla
 	void* buffer = malloc(strlen(tabla) + 3 * sizeof(int));
@@ -1063,13 +1083,14 @@ metadataTabla* realizarDescribe(char* tabla) {
 
 	//free(metadata);
 
+	sem_post(&sem);
 
 	return data;
 }
 
 void realizarDescribeGlobal() {
 
-
+	sem_wait(&sem);
 
 	// serializo peticion
 	void* buffer = malloc(2 * sizeof(int));
@@ -1130,6 +1151,7 @@ void realizarDescribeGlobal() {
 	desconectarFS();
 	pthread_mutex_unlock(&SEMAFORODECONEXIONFS);
 
+	sem_post(&sem);
 }
 
 void consola() {
@@ -1183,7 +1205,7 @@ int serServidor() {
 
 	//type of socket created
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_addr.s_addr = inet_addr("192.168.3.36");
 	address.sin_port = htons(t_archivoConfiguracion.PUERTO);
 
 	//bind the socket to localhost port 8888
@@ -1503,10 +1525,16 @@ void conectarseAFS() {
 	clienteFS = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddressFS.sin_family = AF_INET;
 	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
-	serverAddress.sin_addr.s_addr = INADDR_ANY;
+	serverAddress.sin_addr.s_addr = inet_addr("10.0.2.15");
 
-	connect(clienteFS, (struct sockaddr *) &serverAddressFS,
-			sizeof(serverAddressFS));
+	int res = -1;
+	while(res < 0)
+	{
+		res = connect(clienteFS, (struct sockaddr *) &serverAddressFS,
+					sizeof(serverAddressFS));
+		sleep(5);
+	}
+
 
 	int *tamanioValue = malloc(sizeof(int));
 	recv(clienteFS, tamanioValue, sizeof(int), 0);

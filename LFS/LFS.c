@@ -48,6 +48,7 @@ typedef struct {
 	int RETARDO;
 	int TAMANIO_VALUE;
 	int TIEMPO_DUMP;
+	char* IP;
 } configuracionLFS;
 
 typedef struct {
@@ -108,7 +109,7 @@ void comparar1RegistroBinarioCon1NuevoRegistro(unsigned long long, int, char *, 
 void actualizarBin(char *);
 void liberarBloques(char *);
 void desasignarBloqueDelBitarray(int);
-void serializarDescribe(char* tabla, metadataTabla* metadata, void* buffer, int* i);
+void ializarDescribe(char* tabla, metadataTabla* metadata, void* buffer, int* i);
 void drop(char*);
 int insert(char*, char*, char*, char*);
 int existeUnaListaDeDatosADumpear();
@@ -327,7 +328,8 @@ void levantarConfiguracionLFS() {
 	//El dump y el retardo tienen que poder modificarse en tiempo de ejecucion
 	//asi que tendria que volver a tomar su valor cuando los vaya a usar
 	structConfiguracionLFS.RETARDO = config_get_int_value(configLFS, "RETARDO");
-	config_destroy(configLFS);
+	structConfiguracionLFS.IP = config_get_string_value(configLFS, "IP");	
+config_destroy(configLFS);
 }
 
 void tomarPeticion(char* mensaje) {
@@ -919,7 +921,8 @@ void dumpPorTabla(char* tabla) {
 
 		//Tomo el tamanio por bloque de mi LFS
 		semaforoDeTabla *unSemaforo = dameSemaforo(tabla);
-		//pthread_mutex_lock(&unSemaforo->mutexDrop); //veo en el otro tp q no lo usan aca
+
+		pthread_mutex_lock(&unSemaforo->MUTEX_TABLE_PART); //veo en el otro tp q no lo usan aca
 		char *metadataPath = string_from_format("%sMetadata/metadata.bin",
 				structConfiguracionLFS.PUNTO_MONTAJE);
 		t_config *metadata = config_create(metadataPath);
@@ -1022,7 +1025,7 @@ void dumpPorTabla(char* tabla) {
 		//antes de eliminarlo de la memtable lo pongo en el diccionario de tablasQueTienenTMPs porque sino se borra el string tambien
 		//dictionary_put(tablasQueTienenTMPs, tabla, tablaPath);
 
-		//pthread_mutex_unlock(&unSemaforo->mutexDrop);
+		pthread_mutex_unlock(&unSemaforo->MUTEX_TABLE_PART);
 
 		char* mensajeALogear2 = malloc( strlen(" termino dump de la tabla : ") + strlen(tabla) +1);
 		strcpy(mensajeALogear2, " termino dump de la tabla : ");
@@ -3299,6 +3302,9 @@ void tomarPeticionSelect(int sd) {
 
 	char *value = realizarSelect(tablaCortada, keyString);
 
+	printf("Si rompe despues de esto es porq el valor es null");
+	printf("\n\nValue a Mandar: %s\n\n", value);
+
 	if (value == NULL) {
 		char* mensajeALogear = malloc( strlen(" No encontre value ") +1);
 		strcpy(mensajeALogear, " No encontre value ");
@@ -3309,7 +3315,7 @@ void tomarPeticionSelect(int sd) {
 				LOG_LEVEL_ERROR);
 		log_error(g_logger, mensajeALogear);
 		log_destroy(g_logger);
-		free(mensajeALogear);
+		//free(mensajeALogear);
 
 		int ok = 0;
 		void* buffer = malloc(4);
@@ -3318,6 +3324,7 @@ void tomarPeticionSelect(int sd) {
 
 	} else {
 
+		/*
 		char* mensajeALogear = malloc( strlen(" Encontre el value : ") + strlen(value)+1);
 		strcpy(mensajeALogear, " Encontre el value : ");
 		strcat(mensajeALogear, value);
@@ -3328,13 +3335,20 @@ void tomarPeticionSelect(int sd) {
 				LOG_LEVEL_INFO);
 		log_info(g_logger, mensajeALogear);
 		log_destroy(g_logger);
-		free(mensajeALogear);
+		//free(mensajeALogear);
 
-		void *buffer = malloc(strlen(value) + sizeof(int));
+		 */
+
+		char *buffer = malloc(strlen(value) + sizeof(int));
 		int tamanio = strlen(value);
 		memcpy(buffer, &tamanio, sizeof(int));
+
+		printf("\n\nValue a Mandar: %s\n\n", value);
+
 		memcpy(buffer + sizeof(int), value, tamanio);
 		send(sd, buffer, strlen(value) + sizeof(int), 0);
+
+		free(buffer);
 	}
 }
 

@@ -922,3 +922,1954 @@ a 00:08
 [INFO] 20:32:01:259 KERNEL/(5726:5731):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
 [INFO] 20:32:16:362 KERNEL/(5726:5731):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
 >>>>>>> origin/master
+[INFO] 01:01:17:768 LFS/(26444:26448):  gossiping 
+[INFO] 01:01:17:772 LFS/(26444:26448):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:01:17:773 LFS/(26444:26448):  recibi socket : 4
+[INFO] 01:01:17:773 LFS/(26444:26448):  entre al while 
+[INFO] 01:01:17:811 LFS/(26444:26448):  por salir del while 
+[INFO] 01:01:17:811 LFS/(26444:26448):  sali del while 
+[INFO] 01:01:17:811 LFS/(26444:26448):  sali del while e hice el iterate 
+[INFO] 01:01:47:847 LFS/(26444:26448):  gossiping 
+[INFO] 01:01:47:848 LFS/(26444:26448):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:01:47:848 LFS/(26444:26448):  recibi socket : 4
+[INFO] 01:01:47:848 LFS/(26444:26448):  entre al while 
+[INFO] 01:01:47:887 LFS/(26444:26448):  por salir del while 
+[INFO] 01:01:47:887 LFS/(26444:26448):  sali del while 
+[INFO] 01:01:47:887 LFS/(26444:26448):  sali del while e hice el iterate 
+[INFO] 01:14:21:479 LFS/(26896:26900):  gossiping 
+[INFO] 01:14:21:479 LFS/(26896:26900):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:14:21:480 LFS/(26896:26900):  recibi socket : -1217484840
+[INFO] 01:17:59:625 LFS/(27384:27388):  gossiping 
+[INFO] 01:17:59:625 LFS/(27384:27388):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:17:59:626 LFS/(27384:27388):  recibi socket : 4
+[INFO] 01:17:59:626 LFS/(27384:27388):  entre al while 
+[INFO] 01:17:59:663 LFS/(27384:27388):  por salir del while 
+[INFO] 01:17:59:663 LFS/(27384:27388):  sali del while 
+[INFO] 01:17:59:663 LFS/(27384:27388):  sali del while e hice el iterate 
+[INFO] 01:18:29:664 LFS/(27384:27388):  gossiping 
+[INFO] 01:18:29:664 LFS/(27384:27388):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:18:29:666 LFS/(27384:27388):  recibi socket : 4
+[INFO] 01:18:29:666 LFS/(27384:27388):  entre al while 
+[INFO] 01:18:29:666 LFS/(27384:27388):  por salir del while 
+[INFO] 01:18:29:666 LFS/(27384:27388):  sali del while 
+[INFO] 01:18:29:666 LFS/(27384:27388):  sali del while e hice el iterate 
+[INFO] 01:24:56:741 LFS/(27559:27563):  gossiping 
+[INFO] 01:24:56:741 LFS/(27559:27563):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:24:56:742 LFS/(27559:27563):  recibi socket : 4
+[INFO] 01:24:56:743 LFS/(27559:27563):  entre al while 
+[INFO] 01:24:56:779 LFS/(27559:27563):  por salir del while 
+[INFO] 01:24:56:779 LFS/(27559:27563):  sali del while 
+[INFO] 01:24:56:779 LFS/(27559:27563):  sali del while e hice el iterate 
+[INFO] 01:25:26:780 LFS/(27559:27563):  gossiping 
+[INFO] 01:25:26:780 LFS/(27559:27563):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:25:26:781 LFS/(27559:27563):  recibi socket : 4
+[INFO] 01:25:26:781 LFS/(27559:27563):  entre al while 
+[INFO] 01:25:26:781 LFS/(27559:27563):  por salir del while 
+[INFO] 01:25:26:781 LFS/(27559:27563):  sali del while 
+[INFO] 01:25:26:781 LFS/(27559:27563):  sali del while e hice el iterate 
+[INFO] 01:25:56:822 LFS/(27559:27563):  gossiping 
+[INFO] 01:25:56:822 LFS/(27559:27563):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:25:56:822 LFS/(27559:27563):  recibi socket : 4
+[INFO] 01:25:56:822 LFS/(27559:27563):  entre al while 
+[INFO] 01:25:56:858 LFS/(27559:27563):  por salir del while 
+[INFO] 01:25:56:859 LFS/(27559:27563):  sali del while 
+[INFO] 01:25:56:859 LFS/(27559:27563):  sali del while e hice el iterate 
+[INFO] 01:26:14:686 LFS/(27583:27587):  gossiping 
+[INFO] 01:26:14:687 LFS/(27583:27587):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:26:14:688 LFS/(27583:27587):  recibi socket : 4
+[INFO] 01:26:14:688 LFS/(27583:27587):  entre al while 
+[INFO] 01:26:14:726 LFS/(27583:27587):  por salir del while 
+[INFO] 01:26:14:727 LFS/(27583:27587):  sali del while 
+[INFO] 01:26:14:727 LFS/(27583:27587):  sali del while e hice el iterate 
+[INFO] 01:28:18:792 LFS/(27734:27738):  gossiping 
+[INFO] 01:28:18:792 LFS/(27734:27738):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:28:18:793 LFS/(27734:27738):  recibi socket : 4
+[INFO] 01:28:18:793 LFS/(27734:27738):  entre al while 
+[INFO] 01:28:18:830 LFS/(27734:27738):  por salir del while 
+[INFO] 01:28:18:831 LFS/(27734:27738):  sali del while 
+[INFO] 01:28:18:831 LFS/(27734:27738):  sali del while e hice el iterate 
+[INFO] 01:34:40:545 LFS/(27809:27813):  gossiping 
+[INFO] 01:34:40:545 LFS/(27809:27813):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:34:40:545 LFS/(27809:27813):  recibi socket : 4
+[INFO] 01:34:40:546 LFS/(27809:27813):  entre al while 
+[INFO] 01:34:40:583 LFS/(27809:27813):  por salir del while 
+[INFO] 01:34:40:583 LFS/(27809:27813):  sali del while 
+[INFO] 01:34:40:583 LFS/(27809:27813):  sali del while e hice el iterate 
+[INFO] 01:35:10:583 LFS/(27809:27813):  gossiping 
+[INFO] 01:35:10:584 LFS/(27809:27813):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:35:10:584 LFS/(27809:27813):  recibi socket : 4
+[INFO] 01:35:10:584 LFS/(27809:27813):  entre al while 
+[INFO] 01:35:10:584 LFS/(27809:27813):  por salir del while 
+[INFO] 01:35:10:584 LFS/(27809:27813):  sali del while 
+[INFO] 01:35:10:585 LFS/(27809:27813):  sali del while e hice el iterate 
+[INFO] 01:35:40:625 LFS/(27809:27813):  gossiping 
+[INFO] 01:35:40:625 LFS/(27809:27813):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:35:40:626 LFS/(27809:27813):  recibi socket : 4
+[INFO] 01:35:40:626 LFS/(27809:27813):  entre al while 
+[INFO] 01:35:40:662 LFS/(27809:27813):  por salir del while 
+[INFO] 01:35:40:663 LFS/(27809:27813):  sali del while 
+[INFO] 01:35:40:663 LFS/(27809:27813):  sali del while e hice el iterate 
+[INFO] 01:37:43:221 LFS/(27864:27877):  gossiping 
+[INFO] 01:37:43:221 LFS/(27864:27877):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:37:43:222 LFS/(27864:27877):  recibi socket : 4
+[INFO] 01:37:43:222 LFS/(27864:27877):  entre al while 
+[INFO] 01:37:43:222 LFS/(27864:27877):  por salir del while 
+[INFO] 01:37:43:222 LFS/(27864:27877):  sali del while 
+[INFO] 01:37:43:222 LFS/(27864:27877):  sali del while e hice el iterate 
+[INFO] 01:38:13:223 LFS/(27864:27877):  gossiping 
+[INFO] 01:38:13:223 LFS/(27864:27877):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:38:13:223 LFS/(27864:27877):  recibi socket : 4
+[INFO] 01:38:13:223 LFS/(27864:27877):  entre al while 
+[INFO] 01:38:13:223 LFS/(27864:27877):  por salir del while 
+[INFO] 01:38:13:223 LFS/(27864:27877):  sali del while 
+[INFO] 01:38:13:223 LFS/(27864:27877):  sali del while e hice el iterate 
+[INFO] 01:39:38:172 LFS/(28005:28009):  gossiping 
+[INFO] 01:39:38:172 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:39:38:173 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:39:38:173 LFS/(28005:28009):  entre al while 
+[INFO] 01:39:38:211 LFS/(28005:28009):  por salir del while 
+[INFO] 01:39:38:211 LFS/(28005:28009):  sali del while 
+[INFO] 01:39:38:211 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:40:08:211 LFS/(28005:28009):  gossiping 
+[INFO] 01:40:08:212 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:40:08:212 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:40:08:212 LFS/(28005:28009):  entre al while 
+[INFO] 01:40:08:212 LFS/(28005:28009):  por salir del while 
+[INFO] 01:40:08:213 LFS/(28005:28009):  sali del while 
+[INFO] 01:40:08:213 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:40:38:259 LFS/(28005:28009):  gossiping 
+[INFO] 01:40:38:260 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:40:38:260 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:40:38:260 LFS/(28005:28009):  entre al while 
+[INFO] 01:40:38:298 LFS/(28005:28009):  por salir del while 
+[INFO] 01:40:38:299 LFS/(28005:28009):  sali del while 
+[INFO] 01:40:38:299 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:41:08:299 LFS/(28005:28009):  gossiping 
+[INFO] 01:41:08:300 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:41:08:300 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:41:08:300 LFS/(28005:28009):  entre al while 
+[INFO] 01:41:08:301 LFS/(28005:28009):  por salir del while 
+[INFO] 01:41:08:301 LFS/(28005:28009):  sali del while 
+[INFO] 01:41:08:301 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:41:38:344 LFS/(28005:28009):  gossiping 
+[INFO] 01:41:38:345 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:41:38:345 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:41:38:345 LFS/(28005:28009):  entre al while 
+[INFO] 01:41:38:387 LFS/(28005:28009):  por salir del while 
+[INFO] 01:41:38:387 LFS/(28005:28009):  sali del while 
+[INFO] 01:41:38:387 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:42:08:388 LFS/(28005:28009):  gossiping 
+[INFO] 01:42:08:388 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:42:08:388 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:42:08:388 LFS/(28005:28009):  entre al while 
+[INFO] 01:42:08:389 LFS/(28005:28009):  por salir del while 
+[INFO] 01:42:08:389 LFS/(28005:28009):  sali del while 
+[INFO] 01:42:08:389 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:42:38:425 LFS/(28005:28009):  gossiping 
+[INFO] 01:42:38:425 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:42:38:425 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:42:38:426 LFS/(28005:28009):  entre al while 
+[INFO] 01:42:38:463 LFS/(28005:28009):  por salir del while 
+[INFO] 01:42:38:463 LFS/(28005:28009):  sali del while 
+[INFO] 01:42:38:463 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:43:08:463 LFS/(28005:28009):  gossiping 
+[INFO] 01:43:08:463 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:43:08:464 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:43:08:464 LFS/(28005:28009):  entre al while 
+[INFO] 01:43:08:464 LFS/(28005:28009):  por salir del while 
+[INFO] 01:43:08:464 LFS/(28005:28009):  sali del while 
+[INFO] 01:43:08:464 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:43:38:504 LFS/(28005:28009):  gossiping 
+[INFO] 01:43:38:504 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:43:38:505 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:43:38:505 LFS/(28005:28009):  entre al while 
+[INFO] 01:43:38:543 LFS/(28005:28009):  por salir del while 
+[INFO] 01:43:38:543 LFS/(28005:28009):  sali del while 
+[INFO] 01:43:38:543 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:44:08:544 LFS/(28005:28009):  gossiping 
+[INFO] 01:44:08:544 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:44:08:544 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:44:08:544 LFS/(28005:28009):  entre al while 
+[INFO] 01:44:08:544 LFS/(28005:28009):  por salir del while 
+[INFO] 01:44:08:545 LFS/(28005:28009):  sali del while 
+[INFO] 01:44:08:545 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:44:34:633 Kernel/(28005:28060):  Se realizo create en FS de : TABLA
+[INFO] 01:44:39:635 KERNEL/(28005:28010):  [DESCRIBE GLOBAL]: TABLA SC 10 19
+[INFO] 01:44:39:675 LFS/(28005:28009):  gossiping 
+[INFO] 01:44:39:675 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:44:39:675 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:44:39:675 LFS/(28005:28009):  entre al while 
+[INFO] 01:44:39:715 LFS/(28005:28009):  por salir del while 
+[INFO] 01:44:39:715 LFS/(28005:28009):  sali del while 
+[INFO] 01:44:39:715 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:44:59:717 KERNEL/(28005:28010):  [DESCRIBE GLOBAL]: TABLA SC 10 19
+[INFO] 01:45:09:716 LFS/(28005:28009):  gossiping 
+[INFO] 01:45:09:716 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:45:09:716 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:45:09:717 LFS/(28005:28009):  entre al while 
+[INFO] 01:45:09:717 LFS/(28005:28009):  por salir del while 
+[INFO] 01:45:09:717 LFS/(28005:28009):  sali del while 
+[INFO] 01:45:09:717 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:45:19:720 KERNEL/(28005:28010):  [DESCRIBE GLOBAL]: TABLA SC 10 19
+[INFO] 01:45:39:723 KERNEL/(28005:28010):  [DESCRIBE GLOBAL]: TABLA SC 10 19
+[INFO] 01:45:39:723 LFS/(28005:28009):  gossiping 
+[INFO] 01:45:39:724 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:45:39:724 LFS/(28005:28009):  recibi socket : 4
+[INFO] 01:45:39:724 LFS/(28005:28009):  entre al while 
+[INFO] 01:45:39:763 LFS/(28005:28009):  por salir del while 
+[INFO] 01:45:39:764 LFS/(28005:28009):  sali del while 
+[INFO] 01:45:39:764 LFS/(28005:28009):  sali del while e hice el iterate 
+[INFO] 01:46:09:764 LFS/(28005:28009):  gossiping 
+[INFO] 01:46:09:764 LFS/(28005:28009):  hice el send de peticion : 8 a socket : 3
+[INFO] 01:46:09:764 LFS/(28005:28009):  recibi socket : -1264582576
+[INFO] 06:58:35:332 KERNEL/(7368:7373):  [DESCRIBE GLOBAL]: TABLA SC 10 1000
+[INFO] 06:58:35:332 LFS/(7368:7372):  gossiping 
+[INFO] 06:58:35:332 LFS/(7368:7372):  hice el send de peticion : 8 a socket : 3
+[INFO] 06:58:35:332 LFS/(7368:7372):  recibi socket : 4
+[INFO] 06:58:35:333 LFS/(7368:7372):  entre al while 
+[INFO] 06:58:35:371 LFS/(7368:7372):  por salir del while 
+[INFO] 06:58:35:371 LFS/(7368:7372):  sali del while 
+[INFO] 06:58:35:371 LFS/(7368:7372):  sali del while e hice el iterate 
+[INFO] 06:58:55:372 KERNEL/(7368:7373):  [DESCRIBE GLOBAL]: TABLA SC 10 1000
+[INFO] 06:59:00:375 Kernel/(7368:7375):  Se realizo create en FS de : POSTRES
+[INFO] 06:59:05:371 LFS/(7368:7372):  gossiping 
+[INFO] 06:59:05:372 LFS/(7368:7372):  hice el send de peticion : 8 a socket : 3
+[INFO] 06:59:20:391 LFS/(7368:7372):  recibi socket : 4
+[INFO] 06:59:20:391 LFS/(7368:7372):  entre al while 
+[INFO] 06:59:20:430 LFS/(7368:7372):  por salir del while 
+[INFO] 06:59:20:431 LFS/(7368:7372):  sali del while 
+[INFO] 06:59:20:431 LFS/(7368:7372):  sali del while e hice el iterate 
+[INFO] 06:59:25:433 KERNEL/(7368:7373):  [DESCRIBE GLOBAL]: TABLA SC 10 1000
+[INFO] 06:59:25:471 KERNEL/(7368:7373):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 06:59:45:474 KERNEL/(7368:7373):  [DESCRIBE GLOBAL]: TABLA SC 10 1000
+[INFO] 06:59:45:474 KERNEL/(7368:7373):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 06:59:50:431 LFS/(7368:7372):  gossiping 
+[INFO] 06:59:50:431 LFS/(7368:7372):  hice el send de peticion : 8 a socket : 3
+[INFO] 06:59:50:432 LFS/(7368:7372):  recibi socket : 4
+[INFO] 06:59:50:432 LFS/(7368:7372):  entre al while 
+[INFO] 06:59:50:432 LFS/(7368:7372):  por salir del while 
+[INFO] 06:59:50:432 LFS/(7368:7372):  sali del while 
+[INFO] 06:59:50:432 LFS/(7368:7372):  sali del while e hice el iterate 
+[INFO] 07:00:05:518 KERNEL/(7368:7373):  [DESCRIBE GLOBAL]: TABLA SC 10 1000
+[INFO] 07:00:05:518 KERNEL/(7368:7373):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:00:20:433 LFS/(7368:7372):  gossiping 
+[INFO] 07:00:20:433 LFS/(7368:7372):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:00:20:434 LFS/(7368:7372):  recibi socket : 4
+[INFO] 07:00:20:434 LFS/(7368:7372):  entre al while 
+[INFO] 07:00:20:434 LFS/(7368:7372):  por salir del while 
+[INFO] 07:00:20:434 LFS/(7368:7372):  sali del while 
+[INFO] 07:00:20:434 LFS/(7368:7372):  sali del while e hice el iterate 
+[INFO] 07:00:25:558 KERNEL/(7368:7373):  [DESCRIBE GLOBAL]: TABLA SC 10 1000
+[INFO] 07:00:25:558 KERNEL/(7368:7373):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:00:45:561 KERNEL/(7368:7373):  [DESCRIBE GLOBAL]: TABLA SC 10 1000
+[INFO] 07:00:45:562 KERNEL/(7368:7373):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:00:50:434 LFS/(7368:7372):  gossiping 
+[INFO] 07:00:50:434 LFS/(7368:7372):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:00:53:213 Kernel/(7368:7384):  Llego select con VALUE : @
+[INFO] 07:00:53:214 LFS/(7368:7372):  recibi socket : 4
+[INFO] 07:00:53:214 LFS/(7368:7372):  entre al while 
+[INFO] 07:00:53:214 LFS/(7368:7372):  por salir del while 
+[INFO] 07:00:53:214 LFS/(7368:7372):  sali del while 
+[INFO] 07:00:53:214 LFS/(7368:7372):  sali del while e hice el iterate 
+[ERROR] 07:00:58:623 Kernel/(7368:7384):  No se encontro ni en MM ni en FS la key : 178
+[ERROR] 07:00:58:624 Kernel/(7368:7384):  No se encontro ni en MM ni en FS la key : 1888
+[INFO] 07:04:01:970 LFS/(7848:7852):  gossiping 
+[INFO] 07:04:01:971 LFS/(7848:7852):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:04:01:971 LFS/(7848:7852):  recibi socket : 4
+[INFO] 07:04:01:971 LFS/(7848:7852):  entre al while 
+[INFO] 07:04:01:973 LFS/(7848:7852):  por salir del while 
+[INFO] 07:04:01:979 LFS/(7848:7852):  sali del while 
+[INFO] 07:04:01:979 LFS/(7848:7852):  sali del while e hice el iterate 
+[INFO] 07:04:24:761 Kernel/(7848:7855):  Se realizo create en FS de : POSTRES
+[INFO] 07:04:29:811 KERNEL/(7848:7853):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:04:31:980 LFS/(7848:7852):  gossiping 
+[INFO] 07:04:31:980 LFS/(7848:7852):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:04:49:923 LFS/(7848:7852):  recibi socket : 4
+[INFO] 07:04:49:923 LFS/(7848:7852):  entre al while 
+[INFO] 07:04:49:963 LFS/(7848:7852):  por salir del while 
+[INFO] 07:04:49:963 LFS/(7848:7852):  sali del while 
+[INFO] 07:04:49:963 LFS/(7848:7852):  sali del while e hice el iterate 
+[INFO] 07:04:54:967 KERNEL/(7848:7853):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:05:15:11 KERNEL/(7848:7853):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:05:19:963 LFS/(7848:7852):  gossiping 
+[INFO] 07:05:19:964 LFS/(7848:7852):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:05:20:15 LFS/(7848:7852):  recibi socket : 4
+[INFO] 07:05:20:15 LFS/(7848:7852):  entre al while 
+[INFO] 07:05:20:54 LFS/(7848:7852):  por salir del while 
+[INFO] 07:05:20:54 LFS/(7848:7852):  sali del while 
+[INFO] 07:05:20:55 LFS/(7848:7852):  sali del while e hice el iterate 
+[INFO] 07:05:35:15 KERNEL/(7848:7853):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:05:55:20 KERNEL/(7848:7853):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:05:55:20 LFS/(7848:7852):  gossiping 
+[INFO] 07:05:55:20 LFS/(7848:7852):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:06:00:188 Kernel/(7848:7865):  Llego select con VALUE : @
+[INFO] 07:06:00:189 LFS/(7848:7852):  recibi socket : 4
+[INFO] 07:06:00:189 LFS/(7848:7852):  entre al while 
+[INFO] 07:06:00:227 LFS/(7848:7852):  por salir del while 
+[INFO] 07:06:00:227 LFS/(7848:7852):  sali del while 
+[INFO] 07:06:00:227 LFS/(7848:7852):  sali del while e hice el iterate 
+[INFO] 07:06:05:244 Kernel/(7848:7865):  Llego select con VALUE : @
+[ERROR] 07:06:10:291 Kernel/(7848:7865):  No se encontro ni en MM ni en FS la key : 1888
+[INFO] 07:06:15:295 KERNEL/(7848:7853):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:06:20:366 Kernel/(7848:7866):  Llego select con VALUE : ˆ µ
+[ERROR] 07:06:25:384 Kernel/(7848:7866):  No se encontro ni en MM ni en FS la key : 120
+[INFO] 07:06:30:228 LFS/(7848:7852):  gossiping 
+[INFO] 07:06:30:228 LFS/(7848:7852):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:06:50:423 LFS/(7848:7852):  recibi socket : 4
+[INFO] 07:06:50:423 LFS/(7848:7852):  entre al while 
+[INFO] 07:06:50:463 LFS/(7848:7852):  por salir del while 
+[INFO] 07:06:50:463 LFS/(7848:7852):  sali del while 
+[INFO] 07:06:50:463 LFS/(7848:7852):  sali del while e hice el iterate 
+[INFO] 07:06:55:467 KERNEL/(7848:7853):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:09:30:51 KERNEL/(8213:8218):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:09:30:51 LFS/(8213:8217):  gossiping 
+[INFO] 07:09:30:51 LFS/(8213:8217):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:09:30:51 LFS/(8213:8217):  recibi socket : 4
+[INFO] 07:09:30:51 LFS/(8213:8217):  entre al while 
+[INFO] 07:09:30:90 LFS/(8213:8217):  por salir del while 
+[INFO] 07:09:30:90 LFS/(8213:8217):  sali del while 
+[INFO] 07:09:30:90 LFS/(8213:8217):  sali del while e hice el iterate 
+[INFO] 07:09:50:93 KERNEL/(8213:8218):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:10:00:91 LFS/(8213:8217):  gossiping 
+[INFO] 07:10:00:91 LFS/(8213:8217):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:10:00:91 LFS/(8213:8217):  recibi socket : 4
+[INFO] 07:10:00:91 LFS/(8213:8217):  entre al while 
+[INFO] 07:10:00:91 LFS/(8213:8217):  por salir del while 
+[INFO] 07:10:00:92 LFS/(8213:8217):  sali del while 
+[INFO] 07:10:00:92 LFS/(8213:8217):  sali del while e hice el iterate 
+[INFO] 07:10:10:132 KERNEL/(8213:8218):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:10:30:136 KERNEL/(8213:8218):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:10:30:136 LFS/(8213:8217):  gossiping 
+[INFO] 07:10:30:136 LFS/(8213:8217):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:10:30:137 LFS/(8213:8217):  recibi socket : 4
+[INFO] 07:10:30:137 LFS/(8213:8217):  entre al while 
+[INFO] 07:10:30:174 LFS/(8213:8217):  por salir del while 
+[INFO] 07:10:30:175 LFS/(8213:8217):  sali del while 
+[INFO] 07:10:30:175 LFS/(8213:8217):  sali del while e hice el iterate 
+[INFO] 07:10:50:176 KERNEL/(8213:8218):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:11:00:175 LFS/(8213:8217):  gossiping 
+[INFO] 07:11:00:176 LFS/(8213:8217):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:11:00:176 LFS/(8213:8217):  recibi socket : 4
+[INFO] 07:11:00:176 LFS/(8213:8217):  entre al while 
+[INFO] 07:11:00:176 LFS/(8213:8217):  por salir del while 
+[INFO] 07:11:00:177 LFS/(8213:8217):  sali del while 
+[INFO] 07:11:00:177 LFS/(8213:8217):  sali del while e hice el iterate 
+[INFO] 07:11:10:217 KERNEL/(8213:8218):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:11:30:218 KERNEL/(8213:8218):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:11:30:218 LFS/(8213:8217):  gossiping 
+[INFO] 07:11:30:218 LFS/(8213:8217):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:11:30:219 LFS/(8213:8217):  recibi socket : 4
+[INFO] 07:11:30:219 LFS/(8213:8217):  entre al while 
+[INFO] 07:11:30:255 LFS/(8213:8217):  por salir del while 
+[INFO] 07:11:30:255 LFS/(8213:8217):  sali del while 
+[INFO] 07:11:30:255 LFS/(8213:8217):  sali del while e hice el iterate 
+[INFO] 07:12:51:711 KERNEL/(8612:8617):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:12:51:711 LFS/(8612:8616):  gossiping 
+[INFO] 07:12:51:711 LFS/(8612:8616):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:12:51:712 LFS/(8612:8616):  recibi socket : 4
+[INFO] 07:12:51:712 LFS/(8612:8616):  entre al while 
+[INFO] 07:12:51:751 LFS/(8612:8616):  por salir del while 
+[INFO] 07:12:51:751 LFS/(8612:8616):  sali del while 
+[INFO] 07:12:51:751 LFS/(8612:8616):  sali del while e hice el iterate 
+[INFO] 07:13:11:752 KERNEL/(8612:8617):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:13:19:896 Kernel/(8612:8622):  Se realizo DROP de tabla : POSTRES
+[INFO] 07:13:21:752 LFS/(8612:8616):  gossiping 
+[INFO] 07:13:21:752 LFS/(8612:8616):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:13:21:752 LFS/(8612:8616):  recibi socket : 4
+[INFO] 07:13:21:753 LFS/(8612:8616):  entre al while 
+[INFO] 07:13:21:753 LFS/(8612:8616):  por salir del while 
+[INFO] 07:13:21:753 LFS/(8612:8616):  sali del while 
+[INFO] 07:13:21:753 LFS/(8612:8616):  sali del while e hice el iterate 
+[INFO] 07:13:26:937 Kernel/(8612:8623):  Se realizo create en FS de : POSTRES
+[INFO] 07:13:31:938 KERNEL/(8612:8617):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:13:56:994 KERNEL/(8612:8617):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:13:57:34 LFS/(8612:8616):  gossiping 
+[INFO] 07:13:57:35 LFS/(8612:8616):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:13:57:35 LFS/(8612:8616):  recibi socket : 4
+[INFO] 07:13:57:36 LFS/(8612:8616):  entre al while 
+[INFO] 07:13:57:75 LFS/(8612:8616):  por salir del while 
+[INFO] 07:13:57:75 LFS/(8612:8616):  sali del while 
+[INFO] 07:13:57:75 LFS/(8612:8616):  sali del while e hice el iterate 
+[INFO] 07:14:17:36 KERNEL/(8612:8617):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:14:27:75 LFS/(8612:8616):  gossiping 
+[INFO] 07:14:27:76 LFS/(8612:8616):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:14:27:76 LFS/(8612:8616):  recibi socket : 4
+[INFO] 07:14:27:76 LFS/(8612:8616):  entre al while 
+[INFO] 07:14:27:77 LFS/(8612:8616):  por salir del while 
+[INFO] 07:14:27:77 LFS/(8612:8616):  sali del while 
+[INFO] 07:14:27:77 LFS/(8612:8616):  sali del while e hice el iterate 
+[INFO] 07:14:37:76 KERNEL/(8612:8617):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:14:44:906 Kernel/(8612:8630):  Llego select con VALUE : Alfajor
+
+[ERROR] 07:14:50:320 Kernel/(8612:8630):  No se encontro ni en MM ni en FS la key : 178
+[ERROR] 07:15:00:439 Kernel/(8612:8630):  No se encontro ni en MM ni en FS la key : 1888
+[INFO] 07:16:08:276 LFS/(8975:8992):  gossiping 
+[INFO] 07:16:08:276 LFS/(8975:8992):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:16:08:277 LFS/(8975:8992):  recibi socket : 4
+[INFO] 07:16:08:277 LFS/(8975:8992):  entre al while 
+[INFO] 07:16:08:315 LFS/(8975:8992):  por salir del while 
+[INFO] 07:16:08:315 LFS/(8975:8992):  sali del while 
+[INFO] 07:16:08:315 LFS/(8975:8992):  sali del while e hice el iterate 
+[INFO] 07:16:25:383 Kernel/(8975:8996):  Se realizo create en FS de : POSTRES
+[INFO] 07:16:30:433 KERNEL/(8975:8993):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:16:38:315 LFS/(8975:8992):  gossiping 
+[INFO] 07:16:38:315 LFS/(8975:8992):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:16:50:544 LFS/(8975:8992):  recibi socket : 4
+[INFO] 07:16:50:544 LFS/(8975:8992):  entre al while 
+[INFO] 07:16:50:582 LFS/(8975:8992):  por salir del while 
+[INFO] 07:16:50:583 LFS/(8975:8992):  sali del while 
+[INFO] 07:16:50:583 LFS/(8975:8992):  sali del while e hice el iterate 
+[INFO] 07:16:55:587 KERNEL/(8975:8993):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:17:15:632 KERNEL/(8975:8993):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:17:20:583 LFS/(8975:8992):  gossiping 
+[INFO] 07:17:20:584 LFS/(8975:8992):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:17:20:584 LFS/(8975:8992):  recibi socket : 4
+[INFO] 07:17:20:584 LFS/(8975:8992):  entre al while 
+[INFO] 07:17:20:584 LFS/(8975:8992):  por salir del while 
+[INFO] 07:17:20:584 LFS/(8975:8992):  sali del while 
+[INFO] 07:17:20:584 LFS/(8975:8992):  sali del while e hice el iterate 
+[INFO] 07:17:35:674 Kernel/(8975:9005):  Llego select con VALUE : Alfajor
+
+[INFO] 07:17:40:678 KERNEL/(8975:8993):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:17:45:770 Kernel/(8975:9005):  Llego select con VALUE : Mousse
+
+[INFO] 07:17:50:585 LFS/(8975:8992):  gossiping 
+[INFO] 07:17:50:586 LFS/(8975:8992):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:17:50:796 Kernel/(8975:9005):  Llego select con VALUE : "Almendrado"
+
+[INFO] 07:17:50:803 LFS/(8975:8992):  recibi socket : 4
+[INFO] 07:17:50:803 LFS/(8975:8992):  entre al while 
+[INFO] 07:17:50:803 LFS/(8975:8992):  por salir del while 
+[INFO] 07:17:50:803 LFS/(8975:8992):  sali del while 
+[INFO] 07:17:50:803 LFS/(8975:8992):  sali del while e hice el iterate 
+[INFO] 07:17:55:824 Kernel/(8975:9007):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 07:18:00:828 KERNEL/(8975:8993):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:18:05:883 Kernel/(8975:9007):  Llego select con VALUE : "Muffin"
+
+[INFO] 07:18:25:913 KERNEL/(8975:8993):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:18:25:950 LFS/(8975:8992):  gossiping 
+[INFO] 07:18:25:951 LFS/(8975:8992):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:18:25:951 LFS/(8975:8992):  recibi socket : 4
+[INFO] 07:18:25:951 LFS/(8975:8992):  entre al while 
+[INFO] 07:18:25:990 LFS/(8975:8992):  por salir del while 
+[INFO] 07:18:25:991 LFS/(8975:8992):  sali del while 
+[INFO] 07:18:25:991 LFS/(8975:8992):  sali del while e hice el iterate 
+[INFO] 07:18:45:995 KERNEL/(8975:8993):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:18:55:991 LFS/(8975:8992):  gossiping 
+[INFO] 07:18:55:991 LFS/(8975:8992):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:18:55:992 LFS/(8975:8992):  recibi socket : 4
+[INFO] 07:18:55:992 LFS/(8975:8992):  entre al while 
+[INFO] 07:18:55:992 LFS/(8975:8992):  por salir del while 
+[INFO] 07:18:55:992 LFS/(8975:8992):  sali del while 
+[INFO] 07:18:55:992 LFS/(8975:8992):  sali del while e hice el iterate 
+[INFO] 07:19:37:80 LFS/(9380:9384):  gossiping 
+[INFO] 07:19:37:80 LFS/(9380:9384):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:19:37:81 LFS/(9380:9384):  recibi socket : 4
+[INFO] 07:19:37:81 LFS/(9380:9384):  entre al while 
+[INFO] 07:19:37:119 LFS/(9380:9384):  por salir del while 
+[INFO] 07:19:37:119 LFS/(9380:9384):  sali del while 
+[INFO] 07:19:37:119 LFS/(9380:9384):  sali del while e hice el iterate 
+[INFO] 07:19:49:341 Kernel/(9380:9387):  Se realizo create en FS de : POSTRES
+[INFO] 07:20:14:357 KERNEL/(9380:9385):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:20:14:394 LFS/(9380:9384):  gossiping 
+[INFO] 07:20:14:395 LFS/(9380:9384):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:20:14:395 LFS/(9380:9384):  recibi socket : 4
+[INFO] 07:20:14:395 LFS/(9380:9384):  entre al while 
+[INFO] 07:20:14:434 LFS/(9380:9384):  por salir del while 
+[INFO] 07:20:14:435 LFS/(9380:9384):  sali del while 
+[INFO] 07:20:14:435 LFS/(9380:9384):  sali del while e hice el iterate 
+[INFO] 07:20:34:436 KERNEL/(9380:9385):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:20:44:435 LFS/(9380:9384):  gossiping 
+[INFO] 07:20:44:435 LFS/(9380:9384):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:20:44:436 LFS/(9380:9384):  recibi socket : 4
+[INFO] 07:20:44:436 LFS/(9380:9384):  entre al while 
+[INFO] 07:20:44:436 LFS/(9380:9384):  por salir del while 
+[INFO] 07:20:44:436 LFS/(9380:9384):  sali del while 
+[INFO] 07:20:44:436 LFS/(9380:9384):  sali del while e hice el iterate 
+[INFO] 07:20:54:476 KERNEL/(9380:9385):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:21:14:478 KERNEL/(9380:9385):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:21:14:478 LFS/(9380:9384):  gossiping 
+[INFO] 07:21:14:479 LFS/(9380:9384):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:21:14:479 LFS/(9380:9384):  recibi socket : 4
+[INFO] 07:21:14:479 LFS/(9380:9384):  entre al while 
+[INFO] 07:21:14:514 LFS/(9380:9384):  por salir del while 
+[INFO] 07:21:14:515 LFS/(9380:9384):  sali del while 
+[INFO] 07:21:14:515 LFS/(9380:9384):  sali del while e hice el iterate 
+[INFO] 07:21:21:657 Kernel/(9380:9396):  Llego select con VALUE : Alfajor
+
+[INFO] 07:21:26:661 Kernel/(9380:9396):  Llego select con VALUE : Mousse
+
+[INFO] 07:21:31:665 Kernel/(9380:9396):  Llego select con VALUE : "Almendrado"
+
+[INFO] 07:21:36:666 KERNEL/(9380:9385):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:21:41:710 Kernel/(9380:9398):  Llego select con VALUE : "Bizcochuelo"
+
+[INFO] 07:21:44:515 LFS/(9380:9384):  gossiping 
+[INFO] 07:21:44:515 LFS/(9380:9384):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:21:46:713 Kernel/(9380:9398):  Llego select con VALUE : "Muffin"
+
+[INFO] 07:21:46:713 LFS/(9380:9384):  recibi socket : 4
+[INFO] 07:21:46:713 LFS/(9380:9384):  entre al while 
+[INFO] 07:21:46:719 LFS/(9380:9384):  por salir del while 
+[INFO] 07:21:46:719 LFS/(9380:9384):  sali del while 
+[INFO] 07:21:46:720 LFS/(9380:9384):  sali del while e hice el iterate 
+[INFO] 07:22:06:766 KERNEL/(9380:9385):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:22:16:720 LFS/(9380:9384):  gossiping 
+[INFO] 07:22:16:720 LFS/(9380:9384):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:22:16:720 LFS/(9380:9384):  recibi socket : 4
+[INFO] 07:22:16:720 LFS/(9380:9384):  entre al while 
+[INFO] 07:22:16:721 LFS/(9380:9384):  por salir del while 
+[INFO] 07:22:16:721 LFS/(9380:9384):  sali del while 
+[INFO] 07:22:16:721 LFS/(9380:9384):  sali del while e hice el iterate 
+[INFO] 07:22:26:844 KERNEL/(9380:9385):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:22:46:846 KERNEL/(9380:9385):  [DESCRIBE GLOBAL]: POSTRES SC 3 60000
+[INFO] 07:22:46:846 LFS/(9380:9384):  gossiping 
+[INFO] 07:22:46:846 LFS/(9380:9384):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:22:46:846 LFS/(9380:9384):  recibi socket : 4
+[INFO] 07:22:46:846 LFS/(9380:9384):  entre al while 
+[INFO] 07:22:46:883 LFS/(9380:9384):  por salir del while 
+[INFO] 07:22:46:883 LFS/(9380:9384):  sali del while 
+[INFO] 07:22:46:883 LFS/(9380:9384):  sali del while e hice el iterate 
+[INFO] 07:28:21:928 LFS/(10270:10274):  gossiping 
+[INFO] 07:28:21:928 LFS/(10270:10274):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:28:21:929 LFS/(10270:10274):  recibi socket : 5
+[INFO] 07:28:21:929 LFS/(10270:10274):  entre al while 
+[INFO] 07:28:21:967 LFS/(10270:10274):  por salir del while 
+[INFO] 07:28:21:967 LFS/(10270:10274):  entre al while 
+[INFO] 07:28:21:967 LFS/(10270:10274):  por salir del while 
+[INFO] 07:28:21:967 LFS/(10270:10274):  sali del while 
+[INFO] 07:28:21:968 LFS/(10270:10274):  sali del while e hice el iterate 
+[INFO] 07:28:51:968 LFS/(10270:10274):  gossiping 
+[INFO] 07:28:51:968 LFS/(10270:10274):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:28:51:968 LFS/(10270:10274):  recibi socket : 5
+[INFO] 07:28:51:969 LFS/(10270:10274):  entre al while 
+[INFO] 07:28:51:969 LFS/(10270:10274):  por salir del while 
+[INFO] 07:28:51:969 LFS/(10270:10274):  entre al while 
+[INFO] 07:28:51:969 LFS/(10270:10274):  por salir del while 
+[INFO] 07:28:51:969 LFS/(10270:10274):  sali del while 
+[INFO] 07:28:51:969 LFS/(10270:10274):  sali del while e hice el iterate 
+[INFO] 07:29:06:972 Kernel/(10270:10282):  Se realizo create en FS de : COLORS
+[INFO] 07:29:06:974 Kernel/(10270:10282):  Llego select con VALUE : "Blue"
+[INFO] 07:29:07:19 Kernel/(10270:10285):  Llego select con VALUE : "Red"
+[INFO] 07:29:07:20 Kernel/(10270:10285):  Llego select con VALUE : "Red"
+[INFO] 07:29:07:27 Kernel/(10270:10286):  Llego select con VALUE : "Blue"
+[INFO] 07:29:07:66 Kernel/(10270:10286):  Llego select con VALUE : "Black"
+[INFO] 07:29:21:972 KERNEL/(10270:10275):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:29:21:972 LFS/(10270:10274):  gossiping 
+[INFO] 07:29:21:972 LFS/(10270:10274):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:29:21:972 LFS/(10270:10274):  recibi socket : 5
+[INFO] 07:29:21:972 LFS/(10270:10274):  entre al while 
+[INFO] 07:29:21:973 LFS/(10270:10274):  por salir del while 
+[INFO] 07:29:21:973 LFS/(10270:10274):  entre al while 
+[INFO] 07:29:21:973 LFS/(10270:10274):  por salir del while 
+[INFO] 07:29:21:973 LFS/(10270:10274):  sali del while 
+[INFO] 07:29:21:974 LFS/(10270:10274):  sali del while e hice el iterate 
+[INFO] 07:29:41:974 KERNEL/(10270:10275):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:30:39:125 LFS/(10774:10778):  gossiping 
+[INFO] 07:30:39:125 LFS/(10774:10778):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:30:39:126 LFS/(10774:10778):  recibi socket : 5
+[INFO] 07:30:39:126 LFS/(10774:10778):  entre al while 
+[INFO] 07:30:39:162 LFS/(10774:10778):  por salir del while 
+[INFO] 07:30:39:163 LFS/(10774:10778):  sali del while 
+[INFO] 07:30:39:163 LFS/(10774:10778):  sali del while e hice el iterate 
+[INFO] 07:31:09:163 LFS/(10774:10778):  gossiping 
+[INFO] 07:31:09:163 LFS/(10774:10778):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:31:09:164 LFS/(10774:10778):  recibi socket : 5
+[INFO] 07:31:09:164 LFS/(10774:10778):  entre al while 
+[INFO] 07:31:09:165 LFS/(10774:10778):  por salir del while 
+[INFO] 07:31:09:165 LFS/(10774:10778):  entre al while 
+[INFO] 07:31:09:165 LFS/(10774:10778):  por salir del while 
+[INFO] 07:31:09:165 LFS/(10774:10778):  sali del while 
+[INFO] 07:31:09:165 LFS/(10774:10778):  sali del while e hice el iterate 
+[INFO] 07:31:25:549 Kernel/(10774:10786):  Se realizo create en FS de : COLORS
+[INFO] 07:31:25:551 Kernel/(10774:10786):  Llego select con VALUE : "Blue"
+[INFO] 07:31:25:595 Kernel/(10774:10789):  Llego select con VALUE : "Red"
+[INFO] 07:31:25:596 Kernel/(10774:10789):  Llego select con VALUE : "Red"
+[INFO] 07:31:25:603 Kernel/(10774:10790):  Llego select con VALUE : "Blue"
+[INFO] 07:31:25:644 Kernel/(10774:10790):  Llego select con VALUE : "Black"
+[INFO] 07:31:39:167 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:31:39:167 LFS/(10774:10778):  gossiping 
+[INFO] 07:31:39:167 LFS/(10774:10778):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:31:39:167 LFS/(10774:10778):  recibi socket : 5
+[INFO] 07:31:39:167 LFS/(10774:10778):  entre al while 
+[INFO] 07:31:39:168 LFS/(10774:10778):  por salir del while 
+[INFO] 07:31:39:168 LFS/(10774:10778):  entre al while 
+[INFO] 07:31:39:168 LFS/(10774:10778):  por salir del while 
+[INFO] 07:31:39:168 LFS/(10774:10778):  sali del while 
+[INFO] 07:31:39:168 LFS/(10774:10778):  sali del while e hice el iterate 
+[INFO] 07:31:59:169 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:32:09:168 LFS/(10774:10778):  gossiping 
+[INFO] 07:32:09:168 LFS/(10774:10778):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:32:09:169 LFS/(10774:10778):  recibi socket : 5
+[INFO] 07:32:09:169 LFS/(10774:10778):  entre al while 
+[INFO] 07:32:09:169 LFS/(10774:10778):  por salir del while 
+[INFO] 07:32:09:169 LFS/(10774:10778):  entre al while 
+[INFO] 07:32:09:169 LFS/(10774:10778):  por salir del while 
+[INFO] 07:32:09:169 LFS/(10774:10778):  sali del while 
+[INFO] 07:32:09:170 LFS/(10774:10778):  sali del while e hice el iterate 
+[INFO] 07:32:19:172 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:32:32:937 Kernel/(10774:10801):  Se realizo create en FS de : MARCAS
+[ERROR] 07:32:37:941 Kernel/(10774:10801):  No se encontro ni en MM ni en FS la key : 1
+[INFO] 07:32:42:944 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:32:42:983 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:32:42:983 LFS/(10774:10778):  gossiping 
+[INFO] 07:32:42:983 LFS/(10774:10778):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:32:42:983 Kernel/(10774:10804):  Llego select con VALUE : "Nike"
+[INFO] 07:32:42:983 LFS/(10774:10778):  recibi socket : 5
+[INFO] 07:32:42:983 LFS/(10774:10778):  entre al while 
+[INFO] 07:32:42:984 LFS/(10774:10778):  por salir del while 
+[INFO] 07:32:42:984 LFS/(10774:10778):  entre al while 
+[INFO] 07:32:42:984 LFS/(10774:10778):  por salir del while 
+[INFO] 07:32:42:984 LFS/(10774:10778):  sali del while 
+[INFO] 07:32:42:984 LFS/(10774:10778):  sali del while e hice el iterate 
+[INFO] 07:32:43:23 Kernel/(10774:10804):  Llego select con VALUE : "Nike"
+[INFO] 07:32:43:71 Kernel/(10774:10806):  Llego select con VALUE : "Adidas"
+[INFO] 07:33:03:26 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:33:03:26 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:33:12:985 LFS/(10774:10778):  gossiping 
+[INFO] 07:33:12:985 LFS/(10774:10778):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:33:12:985 LFS/(10774:10778):  recibi socket : 5
+[INFO] 07:33:12:985 LFS/(10774:10778):  entre al while 
+[INFO] 07:33:12:986 LFS/(10774:10778):  por salir del while 
+[INFO] 07:33:12:986 LFS/(10774:10778):  entre al while 
+[INFO] 07:33:12:986 LFS/(10774:10778):  por salir del while 
+[INFO] 07:33:12:986 LFS/(10774:10778):  sali del while 
+[INFO] 07:33:12:986 LFS/(10774:10778):  sali del while e hice el iterate 
+[INFO] 07:33:23:69 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:33:23:69 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:33:43:72 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:33:43:72 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:33:43:73 LFS/(10774:10778):  gossiping 
+[INFO] 07:33:43:73 LFS/(10774:10778):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:33:43:73 LFS/(10774:10778):  recibi socket : 5
+[INFO] 07:33:43:73 LFS/(10774:10778):  entre al while 
+[INFO] 07:33:43:73 LFS/(10774:10778):  por salir del while 
+[INFO] 07:33:43:74 LFS/(10774:10778):  entre al while 
+[INFO] 07:33:43:74 LFS/(10774:10778):  por salir del while 
+[INFO] 07:33:43:74 LFS/(10774:10778):  sali del while 
+[INFO] 07:33:43:74 LFS/(10774:10778):  sali del while e hice el iterate 
+[INFO] 07:34:03:113 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:34:03:113 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:34:13:75 LFS/(10774:10778):  gossiping 
+[INFO] 07:34:13:75 LFS/(10774:10778):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:34:13:76 LFS/(10774:10778):  recibi socket : 5
+[INFO] 07:34:13:76 LFS/(10774:10778):  entre al while 
+[INFO] 07:34:13:76 LFS/(10774:10778):  por salir del while 
+[INFO] 07:34:13:76 LFS/(10774:10778):  entre al while 
+[INFO] 07:34:13:77 LFS/(10774:10778):  por salir del while 
+[INFO] 07:34:13:77 LFS/(10774:10778):  sali del while 
+[INFO] 07:34:13:77 LFS/(10774:10778):  sali del while e hice el iterate 
+[INFO] 07:34:23:118 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:34:23:118 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:34:43:161 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:34:43:161 KERNEL/(10774:10779):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:34:43:161 LFS/(10774:10778):  gossiping 
+[INFO] 07:34:43:161 LFS/(10774:10778):  hice el send de peticion : 8 a socket : 4
+[INFO] 07:34:43:161 LFS/(10774:10778):  recibi socket : 5
+[INFO] 07:34:43:161 LFS/(10774:10778):  entre al while 
+[INFO] 07:34:43:200 LFS/(10774:10778):  por salir del while 
+[INFO] 07:34:43:200 LFS/(10774:10778):  entre al while 
+[INFO] 07:34:43:200 LFS/(10774:10778):  por salir del while 
+[INFO] 07:34:43:200 LFS/(10774:10778):  sali del while 
+[INFO] 07:34:43:200 LFS/(10774:10778):  sali del while e hice el iterate 
+[INFO] 07:40:59:999 LFS/(15806:15810):  gossiping 
+[INFO] 07:40:59:999 LFS/(15806:15810):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:40:59:0 LFS/(15806:15810):  recibi socket : 5
+[INFO] 07:40:59:0 LFS/(15806:15810):  entre al while 
+[INFO] 07:41:00:38 LFS/(15806:15810):  por salir del while 
+[INFO] 07:41:00:39 LFS/(15806:15810):  sali del while 
+[INFO] 07:41:00:39 LFS/(15806:15810):  sali del while e hice el iterate 
+[INFO] 07:41:25:42 Kernel/(15806:15816):  Se realizo create en FS de : COLORS
+[INFO] 07:41:25:43 Kernel/(15806:15816):  Llego select con VALUE : "Blue"
+[INFO] 07:41:25:87 Kernel/(15806:15819):  Llego select con VALUE : "Red"
+[INFO] 07:41:25:88 Kernel/(15806:15819):  Llego select con VALUE : "Red"
+[INFO] 07:41:25:95 Kernel/(15806:15820):  Llego select con VALUE : "Blue"
+[INFO] 07:41:25:135 Kernel/(15806:15820):  Llego select con VALUE : "Black"
+[INFO] 07:41:30:39 LFS/(15806:15810):  gossiping 
+[INFO] 07:41:30:40 LFS/(15806:15810):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:41:30:40 LFS/(15806:15810):  recibi socket : 5
+[INFO] 07:41:30:40 LFS/(15806:15810):  entre al while 
+[INFO] 07:41:30:41 LFS/(15806:15810):  por salir del while 
+[INFO] 07:41:30:41 LFS/(15806:15810):  entre al while 
+[INFO] 07:41:30:41 LFS/(15806:15810):  por salir del while 
+[INFO] 07:41:30:41 LFS/(15806:15810):  sali del while 
+[INFO] 07:41:30:41 LFS/(15806:15810):  sali del while e hice el iterate 
+[INFO] 07:41:40:41 KERNEL/(15806:15811):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:42:55:196 LFS/(16283:16287):  gossiping 
+[INFO] 07:42:55:196 LFS/(16283:16287):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:42:55:196 LFS/(16283:16287):  recibi socket : 5
+[INFO] 07:42:55:196 LFS/(16283:16287):  entre al while 
+[INFO] 07:42:55:234 LFS/(16283:16287):  por salir del while 
+[INFO] 07:42:55:234 LFS/(16283:16287):  entre al while 
+[INFO] 07:42:55:234 LFS/(16283:16287):  por salir del while 
+[INFO] 07:42:55:235 LFS/(16283:16287):  sali del while 
+[INFO] 07:42:55:235 LFS/(16283:16287):  sali del while e hice el iterate 
+[INFO] 07:43:08:905 Kernel/(16283:16292):  Se realizo create en FS de : COLORS
+[INFO] 07:43:08:907 Kernel/(16283:16292):  Llego select con VALUE : "Blue"
+[INFO] 07:43:08:951 Kernel/(16283:16295):  Llego select con VALUE : "Red"
+[INFO] 07:43:08:952 Kernel/(16283:16295):  Llego select con VALUE : "Red"
+[INFO] 07:43:08:959 Kernel/(16283:16296):  Llego select con VALUE : "Blue"
+[INFO] 07:43:08:998 Kernel/(16283:16296):  Llego select con VALUE : "Black"
+[INFO] 07:43:15:236 KERNEL/(16283:16288):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:43:25:235 LFS/(16283:16287):  gossiping 
+[INFO] 07:43:25:236 LFS/(16283:16287):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:43:25:236 LFS/(16283:16287):  recibi socket : 5
+[INFO] 07:43:25:236 LFS/(16283:16287):  entre al while 
+[INFO] 07:43:25:236 LFS/(16283:16287):  por salir del while 
+[INFO] 07:43:25:236 LFS/(16283:16287):  entre al while 
+[INFO] 07:43:25:237 LFS/(16283:16287):  por salir del while 
+[INFO] 07:43:25:237 LFS/(16283:16287):  sali del while 
+[INFO] 07:43:25:237 LFS/(16283:16287):  sali del while e hice el iterate 
+[INFO] 07:44:45:920 LFS/(16960:16964):  gossiping 
+[INFO] 07:44:45:920 LFS/(16960:16964):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:44:45:921 LFS/(16960:16964):  recibi socket : 5
+[INFO] 07:44:45:921 LFS/(16960:16964):  entre al while 
+[INFO] 07:44:45:959 LFS/(16960:16964):  por salir del while 
+[INFO] 07:44:45:959 LFS/(16960:16964):  entre al while 
+[INFO] 07:44:45:959 LFS/(16960:16964):  por salir del while 
+[INFO] 07:44:45:959 LFS/(16960:16964):  sali del while 
+[INFO] 07:44:45:959 LFS/(16960:16964):  sali del while e hice el iterate 
+[INFO] 07:45:10:962 Kernel/(16960:16979):  Se realizo create en FS de : COLORS
+[INFO] 07:45:10:964 Kernel/(16960:16979):  Llego select con VALUE : "Blue"
+[INFO] 07:45:11:7 Kernel/(16960:16982):  Llego select con VALUE : "Red"
+[INFO] 07:45:11:8 Kernel/(16960:16982):  Llego select con VALUE : "Red"
+[INFO] 07:45:11:13 Kernel/(16960:16983):  Llego select con VALUE : "Blue"
+[INFO] 07:45:11:51 Kernel/(16960:16983):  Llego select con VALUE : "Black"
+[INFO] 07:45:15:960 LFS/(16960:16964):  gossiping 
+[INFO] 07:45:15:960 LFS/(16960:16964):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:45:15:961 LFS/(16960:16964):  recibi socket : 5
+[INFO] 07:45:15:961 LFS/(16960:16964):  entre al while 
+[INFO] 07:45:15:961 LFS/(16960:16964):  por salir del while 
+[INFO] 07:45:15:961 LFS/(16960:16964):  entre al while 
+[INFO] 07:45:15:961 LFS/(16960:16964):  por salir del while 
+[INFO] 07:45:15:961 LFS/(16960:16964):  sali del while 
+[INFO] 07:45:15:961 LFS/(16960:16964):  sali del while e hice el iterate 
+[INFO] 07:45:25:960 KERNEL/(16960:16965):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:45:45:962 KERNEL/(16960:16965):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:45:45:963 LFS/(16960:16964):  gossiping 
+[INFO] 07:45:45:963 LFS/(16960:16964):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:45:45:963 LFS/(16960:16964):  recibi socket : 5
+[INFO] 07:45:45:963 LFS/(16960:16964):  entre al while 
+[INFO] 07:45:45:964 LFS/(16960:16964):  por salir del while 
+[INFO] 07:45:45:964 LFS/(16960:16964):  entre al while 
+[INFO] 07:45:45:964 LFS/(16960:16964):  por salir del while 
+[INFO] 07:45:45:964 LFS/(16960:16964):  sali del while 
+[INFO] 07:45:45:964 LFS/(16960:16964):  sali del while e hice el iterate 
+[INFO] 07:46:05:965 KERNEL/(16960:16965):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:46:34:688 KERNEL/(16995:17000):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:46:34:689 LFS/(16995:16999):  gossiping 
+[INFO] 07:46:34:689 LFS/(16995:16999):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:46:34:689 LFS/(16995:16999):  recibi socket : 5
+[INFO] 07:46:34:689 LFS/(16995:16999):  entre al while 
+[INFO] 07:46:34:726 LFS/(16995:16999):  por salir del while 
+[INFO] 07:46:34:727 LFS/(16995:16999):  entre al while 
+[INFO] 07:46:34:727 LFS/(16995:16999):  por salir del while 
+[INFO] 07:46:34:727 LFS/(16995:16999):  sali del while 
+[INFO] 07:46:34:727 LFS/(16995:16999):  sali del while e hice el iterate 
+[INFO] 07:50:41:874 LFS/(17515:17519):  gossiping 
+[INFO] 07:50:41:874 LFS/(17515:17519):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:50:41:875 LFS/(17515:17519):  recibi socket : 5
+[INFO] 07:50:41:875 LFS/(17515:17519):  entre al while 
+[INFO] 07:50:41:915 LFS/(17515:17519):  por salir del while 
+[INFO] 07:50:41:915 LFS/(17515:17519):  entre al while 
+[INFO] 07:50:41:915 LFS/(17515:17519):  por salir del while 
+[INFO] 07:50:41:916 LFS/(17515:17519):  sali del while 
+[INFO] 07:50:41:916 LFS/(17515:17519):  sali del while e hice el iterate 
+[INFO] 07:50:57:236 Kernel/(17515:17524):  Se realizo create en FS de : COLORS
+[INFO] 07:51:02:237 KERNEL/(17515:17520):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:51:02:275 Kernel/(17515:17524):  Llego select con VALUE : "Blue"
+[INFO] 07:51:02:322 Kernel/(17515:17527):  Llego select con VALUE : "Red"
+[INFO] 07:51:02:323 Kernel/(17515:17527):  Llego select con VALUE : "Red"
+[INFO] 07:51:02:330 Kernel/(17515:17528):  Llego select con VALUE : "Blue"
+[INFO] 07:51:02:371 Kernel/(17515:17528):  Llego select con VALUE : "Black"
+[INFO] 07:51:11:916 LFS/(17515:17519):  gossiping 
+[INFO] 07:51:11:916 LFS/(17515:17519):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:51:11:917 LFS/(17515:17519):  recibi socket : 5
+[INFO] 07:51:11:917 LFS/(17515:17519):  entre al while 
+[INFO] 07:51:11:917 LFS/(17515:17519):  por salir del while 
+[INFO] 07:51:11:917 LFS/(17515:17519):  entre al while 
+[INFO] 07:51:11:917 LFS/(17515:17519):  por salir del while 
+[INFO] 07:51:11:917 LFS/(17515:17519):  sali del while 
+[INFO] 07:51:11:917 LFS/(17515:17519):  sali del while e hice el iterate 
+[INFO] 07:51:22:277 KERNEL/(17515:17520):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:51:42:280 KERNEL/(17515:17520):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:51:42:280 LFS/(17515:17519):  gossiping 
+[INFO] 07:51:42:280 LFS/(17515:17519):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:51:42:280 LFS/(17515:17519):  recibi socket : 5
+[INFO] 07:51:42:280 LFS/(17515:17519):  entre al while 
+[INFO] 07:51:42:280 LFS/(17515:17519):  por salir del while 
+[INFO] 07:51:42:280 LFS/(17515:17519):  entre al while 
+[INFO] 07:51:42:281 LFS/(17515:17519):  por salir del while 
+[INFO] 07:51:42:281 LFS/(17515:17519):  sali del while 
+[INFO] 07:51:42:281 LFS/(17515:17519):  sali del while e hice el iterate 
+[INFO] 07:51:51:49 Kernel/(17515:17537):  Se realizo create en FS de : MARCAS
+[ERROR] 07:51:56:53 Kernel/(17515:17537):  No se encontro ni en MM ni en FS la key : 1
+[INFO] 07:51:56:59 Kernel/(17515:17540):  Llego select con VALUE : "Nike"
+[INFO] 07:51:56:99 Kernel/(17515:17540):  Llego select con VALUE : "Nike"
+[INFO] 07:51:56:107 Kernel/(17515:17541):  Llego select con VALUE : "Adidas"
+[INFO] 07:52:02:322 KERNEL/(17515:17520):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:52:02:322 KERNEL/(17515:17520):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:52:12:281 LFS/(17515:17519):  gossiping 
+[INFO] 07:52:12:281 LFS/(17515:17519):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:52:12:282 LFS/(17515:17519):  recibi socket : 5
+[INFO] 07:52:12:282 LFS/(17515:17519):  entre al while 
+[INFO] 07:52:12:282 LFS/(17515:17519):  por salir del while 
+[INFO] 07:52:12:282 LFS/(17515:17519):  entre al while 
+[INFO] 07:52:12:282 LFS/(17515:17519):  por salir del while 
+[INFO] 07:52:12:282 LFS/(17515:17519):  sali del while 
+[INFO] 07:52:12:282 LFS/(17515:17519):  sali del while e hice el iterate 
+[INFO] 07:52:22:325 KERNEL/(17515:17520):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:52:22:325 KERNEL/(17515:17520):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:55:01:428 LFS/(17941:17945):  gossiping 
+[INFO] 07:55:01:428 LFS/(17941:17945):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:55:01:429 LFS/(17941:17945):  recibi socket : 5
+[INFO] 07:55:01:429 LFS/(17941:17945):  entre al while 
+[INFO] 07:55:01:467 LFS/(17941:17945):  por salir del while 
+[INFO] 07:55:01:467 LFS/(17941:17945):  entre al while 
+[INFO] 07:55:01:467 LFS/(17941:17945):  por salir del while 
+[INFO] 07:55:01:467 LFS/(17941:17945):  sali del while 
+[INFO] 07:55:01:468 LFS/(17941:17945):  sali del while e hice el iterate 
+[INFO] 07:55:12:390 Kernel/(17941:17949):  Se realizo create en FS de : COLORS
+[INFO] 07:55:12:391 Kernel/(17941:17949):  Llego select con VALUE : "Blue"
+[INFO] 07:55:12:435 Kernel/(17941:17953):  Llego select con VALUE : "Red"
+[INFO] 07:55:12:436 Kernel/(17941:17953):  Llego select con VALUE : "Red"
+[INFO] 07:55:12:443 Kernel/(17941:17954):  Llego select con VALUE : "Blue"
+[INFO] 07:55:12:483 Kernel/(17941:17954):  Llego select con VALUE : "Black"
+[INFO] 07:55:21:469 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:55:31:468 LFS/(17941:17945):  gossiping 
+[INFO] 07:55:31:469 LFS/(17941:17945):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:55:35:861 Kernel/(17941:17960):  Se realizo create en FS de : MARCAS
+[INFO] 07:55:35:862 LFS/(17941:17945):  recibi socket : 5
+[INFO] 07:55:35:862 LFS/(17941:17945):  entre al while 
+[INFO] 07:55:35:862 LFS/(17941:17945):  por salir del while 
+[INFO] 07:55:35:862 LFS/(17941:17945):  entre al while 
+[INFO] 07:55:35:862 LFS/(17941:17945):  por salir del while 
+[INFO] 07:55:35:862 LFS/(17941:17945):  sali del while 
+[INFO] 07:55:35:862 LFS/(17941:17945):  sali del while e hice el iterate 
+[ERROR] 07:55:40:865 Kernel/(17941:17960):  No se encontro ni en MM ni en FS la key : 1
+[INFO] 07:55:45:867 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:55:45:868 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:55:45:869 Kernel/(17941:17963):  Llego select con VALUE : "Nike"
+[INFO] 07:55:45:907 Kernel/(17941:17963):  Llego select con VALUE : "Nike"
+[INFO] 07:55:45:911 Kernel/(17941:17965):  Llego select con VALUE : "Adidas"
+[INFO] 07:56:05:909 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:56:05:910 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:56:05:910 LFS/(17941:17945):  gossiping 
+[INFO] 07:56:05:910 LFS/(17941:17945):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:56:05:910 LFS/(17941:17945):  recibi socket : 5
+[INFO] 07:56:05:910 LFS/(17941:17945):  entre al while 
+[INFO] 07:56:05:910 LFS/(17941:17945):  por salir del while 
+[INFO] 07:56:05:911 LFS/(17941:17945):  entre al while 
+[INFO] 07:56:05:911 LFS/(17941:17945):  por salir del while 
+[INFO] 07:56:05:911 LFS/(17941:17945):  sali del while 
+[INFO] 07:56:05:911 LFS/(17941:17945):  sali del while e hice el iterate 
+[INFO] 07:56:25:912 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:56:25:913 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:56:35:912 LFS/(17941:17945):  gossiping 
+[INFO] 07:56:35:912 LFS/(17941:17945):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:56:35:913 LFS/(17941:17945):  recibi socket : 5
+[INFO] 07:56:35:913 LFS/(17941:17945):  entre al while 
+[INFO] 07:56:35:913 LFS/(17941:17945):  por salir del while 
+[INFO] 07:56:35:913 LFS/(17941:17945):  entre al while 
+[INFO] 07:56:35:913 LFS/(17941:17945):  por salir del while 
+[INFO] 07:56:35:913 LFS/(17941:17945):  sali del while 
+[INFO] 07:56:35:913 LFS/(17941:17945):  sali del while e hice el iterate 
+[INFO] 07:56:45:916 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:56:45:916 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:56:53:793 Kernel/(17941:17975):  Se realizo create en FS de : CELULARES
+[INFO] 07:56:53:794 Kernel/(17941:17975):  Llego select con VALUE : "iPhone"
+[INFO] 07:56:53:835 Kernel/(17941:17978):  Llego select con VALUE : "iPhone"
+[INFO] 07:56:53:875 Kernel/(17941:17978):  Llego select con VALUE : "iPhone"
+[INFO] 07:56:53:915 Kernel/(17941:17978):  Llego select con VALUE : "iPhone"
+[INFO] 07:56:53:927 Kernel/(17941:17979):  Llego select con VALUE : "Android"
+[INFO] 07:56:53:971 Kernel/(17941:17979):  Llego select con VALUE : "Android"
+[INFO] 07:56:54:14 Kernel/(17941:17980):  Llego select con VALUE : "Android"
+[INFO] 07:56:54:55 Kernel/(17941:17980):  Llego select con VALUE : "Android"
+[INFO] 07:56:54:95 Kernel/(17941:17980):  Llego select con VALUE : "Android"
+[INFO] 07:57:05:958 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:57:05:958 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:57:05:958 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: CELULARES SHC 4 600000
+[INFO] 07:57:05:958 LFS/(17941:17945):  gossiping 
+[INFO] 07:57:05:958 LFS/(17941:17945):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:57:05:959 LFS/(17941:17945):  recibi socket : 5
+[INFO] 07:57:05:959 LFS/(17941:17945):  entre al while 
+[INFO] 07:57:05:999 LFS/(17941:17945):  por salir del while 
+[INFO] 07:57:05:999 LFS/(17941:17945):  entre al while 
+[INFO] 07:57:05:999 LFS/(17941:17945):  por salir del while 
+[INFO] 07:57:05:999 LFS/(17941:17945):  sali del while 
+[INFO] 07:57:05:999 LFS/(17941:17945):  sali del while e hice el iterate 
+[INFO] 07:57:45:769 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:57:45:769 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:57:45:769 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: CELULARES SHC 4 600000
+[INFO] 07:57:45:769 LFS/(17941:17945):  gossiping 
+[INFO] 07:57:45:769 LFS/(17941:17945):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:57:45:770 LFS/(17941:17945):  recibi socket : 5
+[INFO] 07:57:45:770 LFS/(17941:17945):  entre al while 
+[INFO] 07:57:45:806 LFS/(17941:17945):  por salir del while 
+[INFO] 07:57:45:807 LFS/(17941:17945):  entre al while 
+[INFO] 07:57:45:807 LFS/(17941:17945):  por salir del while 
+[INFO] 07:57:45:807 LFS/(17941:17945):  sali del while 
+[INFO] 07:57:45:807 LFS/(17941:17945):  sali del while e hice el iterate 
+[INFO] 07:58:05:773 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:58:05:773 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:58:05:773 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: CELULARES SHC 4 600000
+[INFO] 07:58:15:807 LFS/(17941:17945):  gossiping 
+[INFO] 07:58:15:808 LFS/(17941:17945):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:58:15:808 LFS/(17941:17945):  recibi socket : 5
+[INFO] 07:58:15:808 LFS/(17941:17945):  entre al while 
+[INFO] 07:58:15:808 LFS/(17941:17945):  por salir del while 
+[INFO] 07:58:15:808 LFS/(17941:17945):  entre al while 
+[INFO] 07:58:15:808 LFS/(17941:17945):  por salir del while 
+[INFO] 07:58:15:809 LFS/(17941:17945):  sali del while 
+[INFO] 07:58:15:809 LFS/(17941:17945):  sali del while e hice el iterate 
+[INFO] 07:58:25:777 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:58:25:777 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:58:25:777 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: CELULARES SHC 4 600000
+[INFO] 07:58:45:817 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:58:45:817 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:58:45:817 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: CELULARES SHC 4 600000
+[INFO] 07:58:45:818 LFS/(17941:17945):  gossiping 
+[INFO] 07:58:45:818 LFS/(17941:17945):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:58:45:818 LFS/(17941:17945):  recibi socket : 5
+[INFO] 07:58:45:818 LFS/(17941:17945):  entre al while 
+[INFO] 07:58:45:855 LFS/(17941:17945):  por salir del while 
+[INFO] 07:58:45:855 LFS/(17941:17945):  entre al while 
+[INFO] 07:58:45:855 LFS/(17941:17945):  por salir del while 
+[INFO] 07:58:45:855 LFS/(17941:17945):  sali del while 
+[INFO] 07:58:45:855 LFS/(17941:17945):  sali del while e hice el iterate 
+[INFO] 07:59:05:822 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:59:05:823 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:59:05:823 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: CELULARES SHC 4 600000
+[INFO] 07:59:15:856 LFS/(17941:17945):  gossiping 
+[INFO] 07:59:15:856 LFS/(17941:17945):  hice el send de peticion : 8 a socket : 3
+[INFO] 07:59:15:856 LFS/(17941:17945):  recibi socket : 5
+[INFO] 07:59:15:856 LFS/(17941:17945):  entre al while 
+[INFO] 07:59:15:856 LFS/(17941:17945):  por salir del while 
+[INFO] 07:59:15:857 LFS/(17941:17945):  entre al while 
+[INFO] 07:59:15:857 LFS/(17941:17945):  por salir del while 
+[INFO] 07:59:15:857 LFS/(17941:17945):  sali del while 
+[INFO] 07:59:15:857 LFS/(17941:17945):  sali del while e hice el iterate 
+[INFO] 07:59:25:867 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: MARCAS EC 4 600000
+[INFO] 07:59:25:867 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: COLORS SC 4 600000
+[INFO] 07:59:25:867 KERNEL/(17941:17946):  [DESCRIBE GLOBAL]: CELULARES SHC 4 600000
+[INFO] 08:09:06:295 LFS/(18862:18866):  gossiping 
+[INFO] 08:09:06:296 LFS/(18862:18866):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:09:06:296 LFS/(18862:18866):  recibi socket : 4
+[INFO] 08:09:06:296 LFS/(18862:18866):  entre al while 
+[INFO] 08:09:06:334 LFS/(18862:18866):  por salir del while 
+[INFO] 08:09:06:334 LFS/(18862:18866):  entre al while 
+[INFO] 08:09:06:335 LFS/(18862:18866):  por salir del while 
+[INFO] 08:09:06:335 LFS/(18862:18866):  entre al while 
+[INFO] 08:09:06:335 LFS/(18862:18866):  por salir del while 
+[INFO] 08:09:06:335 LFS/(18862:18866):  sali del while 
+[INFO] 08:09:06:335 LFS/(18862:18866):  sali del while e hice el iterate 
+[INFO] 08:09:36:335 LFS/(18862:18866):  gossiping 
+[INFO] 08:09:36:336 LFS/(18862:18866):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:09:36:336 LFS/(18862:18866):  recibi socket : 4
+[INFO] 08:09:36:336 LFS/(18862:18866):  entre al while 
+[INFO] 08:09:36:336 LFS/(18862:18866):  por salir del while 
+[INFO] 08:09:36:336 LFS/(18862:18866):  entre al while 
+[INFO] 08:09:36:337 LFS/(18862:18866):  por salir del while 
+[INFO] 08:09:36:337 LFS/(18862:18866):  entre al while 
+[INFO] 08:09:36:337 LFS/(18862:18866):  por salir del while 
+[INFO] 08:09:36:337 LFS/(18862:18866):  entre al while 
+[INFO] 08:09:36:337 LFS/(18862:18866):  por salir del while 
+[INFO] 08:09:36:337 LFS/(18862:18866):  sali del while 
+[INFO] 08:09:36:337 LFS/(18862:18866):  sali del while e hice el iterate 
+[INFO] 08:10:06:337 LFS/(18862:18866):  gossiping 
+[INFO] 08:10:06:338 LFS/(18862:18866):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:10:06:338 LFS/(18862:18866):  recibi socket : 4
+[INFO] 08:10:06:338 LFS/(18862:18866):  entre al while 
+[INFO] 08:10:06:339 LFS/(18862:18866):  por salir del while 
+[INFO] 08:10:06:339 LFS/(18862:18866):  entre al while 
+[INFO] 08:10:06:339 LFS/(18862:18866):  por salir del while 
+[INFO] 08:10:06:339 LFS/(18862:18866):  entre al while 
+[INFO] 08:10:06:339 LFS/(18862:18866):  por salir del while 
+[INFO] 08:10:06:339 LFS/(18862:18866):  entre al while 
+[INFO] 08:10:06:339 LFS/(18862:18866):  por salir del while 
+[INFO] 08:10:06:339 LFS/(18862:18866):  sali del while 
+[INFO] 08:10:06:339 LFS/(18862:18866):  sali del while e hice el iterate 
+[INFO] 08:10:36:340 LFS/(18862:18866):  gossiping 
+[INFO] 08:10:36:340 LFS/(18862:18866):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:10:36:340 LFS/(18862:18866):  recibi socket : 4
+[INFO] 08:10:36:340 LFS/(18862:18866):  entre al while 
+[INFO] 08:10:36:341 LFS/(18862:18866):  por salir del while 
+[INFO] 08:10:36:341 LFS/(18862:18866):  entre al while 
+[INFO] 08:10:36:341 LFS/(18862:18866):  por salir del while 
+[INFO] 08:10:36:341 LFS/(18862:18866):  entre al while 
+[INFO] 08:10:36:341 LFS/(18862:18866):  por salir del while 
+[INFO] 08:10:36:341 LFS/(18862:18866):  entre al while 
+[INFO] 08:10:36:341 LFS/(18862:18866):  por salir del while 
+[INFO] 08:10:36:341 LFS/(18862:18866):  sali del while 
+[INFO] 08:10:36:341 LFS/(18862:18866):  sali del while e hice el iterate 
+[INFO] 08:10:51:304 Kernel/(18862:18939):  Se realizo create en FS de : MARINOS
+[INFO] 08:10:57:312 KERNEL/(18862:18945):  [DESCRIBE x tabla]:  MARINOS SC 1 10000
+[INFO] 08:11:04:326 Kernel/(18862:18952):  Se realizo create en FS de : AVES
+[INFO] 08:11:09:328 KERNEL/(18862:18867):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:11:09:329 KERNEL/(18862:18867):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:11:09:329 LFS/(18862:18866):  gossiping 
+[INFO] 08:11:09:329 LFS/(18862:18866):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:11:09:330 LFS/(18862:18866):  recibi socket : 4
+[INFO] 08:11:09:330 LFS/(18862:18866):  entre al while 
+[INFO] 08:11:09:366 LFS/(18862:18866):  por salir del while 
+[INFO] 08:11:09:367 LFS/(18862:18866):  entre al while 
+[INFO] 08:11:09:367 LFS/(18862:18866):  por salir del while 
+[INFO] 08:11:09:367 LFS/(18862:18866):  entre al while 
+[INFO] 08:11:09:367 LFS/(18862:18866):  por salir del while 
+[INFO] 08:11:09:367 LFS/(18862:18866):  entre al while 
+[INFO] 08:11:09:367 LFS/(18862:18866):  por salir del while 
+[INFO] 08:11:09:367 LFS/(18862:18866):  sali del while 
+[INFO] 08:11:09:367 LFS/(18862:18866):  sali del while e hice el iterate 
+[INFO] 08:11:14:332 Kernel/(18862:18958):  Se realizo create en FS de : MAMIFEROS
+[INFO] 08:11:20:343 KERNEL/(18862:18966):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:11:20:343 KERNEL/(18862:18966):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 08:11:20:343 KERNEL/(18862:18966):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:11:29:333 KERNEL/(18862:18867):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:11:29:333 KERNEL/(18862:18867):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 08:11:29:334 KERNEL/(18862:18867):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:11:32:351 Kernel/(18862:18982):  Llego select con VALUE : "Halcon"
+[INFO] 08:14:39:715 KERNEL/(19771:19776):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:14:39:715 KERNEL/(19771:19776):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 08:14:39:715 KERNEL/(19771:19776):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:14:39:716 LFS/(19771:19775):  gossiping 
+[INFO] 08:14:39:716 LFS/(19771:19775):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:14:39:717 LFS/(19771:19775):  recibi socket : 4
+[INFO] 08:14:39:717 LFS/(19771:19775):  entre al while 
+[INFO] 08:14:39:754 LFS/(19771:19775):  por salir del while 
+[INFO] 08:14:39:755 LFS/(19771:19775):  entre al while 
+[INFO] 08:14:39:755 LFS/(19771:19775):  por salir del while 
+[INFO] 08:14:39:755 LFS/(19771:19775):  entre al while 
+[INFO] 08:14:39:755 LFS/(19771:19775):  por salir del while 
+[INFO] 08:14:39:755 LFS/(19771:19775):  entre al while 
+[INFO] 08:14:39:755 LFS/(19771:19775):  por salir del while 
+[INFO] 08:14:39:755 LFS/(19771:19775):  sali del while 
+[INFO] 08:14:39:755 LFS/(19771:19775):  sali del while e hice el iterate 
+[INFO] 08:15:18:1 KERNEL/(19906:19911):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:15:18:2 KERNEL/(19906:19911):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 08:15:18:2 KERNEL/(19906:19911):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:15:18:2 LFS/(19906:19910):  gossiping 
+[INFO] 08:15:18:2 LFS/(19906:19910):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:15:18:2 LFS/(19906:19910):  recibi socket : 4
+[INFO] 08:15:18:2 LFS/(19906:19910):  entre al while 
+[INFO] 08:15:19:39 LFS/(19906:19910):  por salir del while 
+[INFO] 08:15:19:39 LFS/(19906:19910):  entre al while 
+[INFO] 08:15:19:39 LFS/(19906:19910):  por salir del while 
+[INFO] 08:15:19:39 LFS/(19906:19910):  entre al while 
+[INFO] 08:15:19:39 LFS/(19906:19910):  por salir del while 
+[INFO] 08:15:19:39 LFS/(19906:19910):  entre al while 
+[INFO] 08:15:19:39 LFS/(19906:19910):  por salir del while 
+[INFO] 08:15:19:39 LFS/(19906:19910):  sali del while 
+[INFO] 08:15:19:40 LFS/(19906:19910):  sali del while e hice el iterate 
+[INFO] 08:15:39:5 KERNEL/(19906:19911):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:15:39:5 KERNEL/(19906:19911):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 08:15:39:5 KERNEL/(19906:19911):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:15:49:40 LFS/(19906:19910):  gossiping 
+[INFO] 08:15:49:40 LFS/(19906:19910):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:15:49:41 LFS/(19906:19910):  recibi socket : 4
+[INFO] 08:15:49:41 LFS/(19906:19910):  entre al while 
+[INFO] 08:15:49:41 LFS/(19906:19910):  por salir del while 
+[INFO] 08:15:49:41 LFS/(19906:19910):  entre al while 
+[INFO] 08:15:49:41 LFS/(19906:19910):  por salir del while 
+[INFO] 08:15:49:41 LFS/(19906:19910):  sali del while 
+[INFO] 08:15:49:41 LFS/(19906:19910):  sali del while e hice el iterate 
+[INFO] 08:15:59:46 KERNEL/(19906:19911):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:15:59:46 KERNEL/(19906:19911):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 08:15:59:46 KERNEL/(19906:19911):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:16:19:51 KERNEL/(19906:19911):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:16:19:51 KERNEL/(19906:19911):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 08:16:19:51 KERNEL/(19906:19911):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:16:19:51 LFS/(19906:19910):  gossiping 
+[INFO] 08:16:19:51 LFS/(19906:19910):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:16:19:52 LFS/(19906:19910):  recibi socket : 4
+[INFO] 08:16:19:52 LFS/(19906:19910):  entre al while 
+[INFO] 08:16:19:52 LFS/(19906:19910):  por salir del while 
+[INFO] 08:16:19:52 LFS/(19906:19910):  sali del while 
+[INFO] 08:16:19:52 LFS/(19906:19910):  sali del while e hice el iterate 
+[INFO] 08:19:09:284 LFS/(20132:20136):  gossiping 
+[INFO] 08:19:09:284 LFS/(20132:20136):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:19:09:285 LFS/(20132:20136):  recibi socket : 4
+[INFO] 08:19:09:285 LFS/(20132:20136):  entre al while 
+[INFO] 08:19:09:322 LFS/(20132:20136):  por salir del while 
+[INFO] 08:19:09:323 LFS/(20132:20136):  entre al while 
+[INFO] 08:19:09:323 LFS/(20132:20136):  por salir del while 
+[INFO] 08:19:09:323 LFS/(20132:20136):  entre al while 
+[INFO] 08:19:09:323 LFS/(20132:20136):  por salir del while 
+[INFO] 08:19:09:323 LFS/(20132:20136):  entre al while 
+[INFO] 08:19:09:323 LFS/(20132:20136):  por salir del while 
+[INFO] 08:19:09:323 LFS/(20132:20136):  sali del while 
+[INFO] 08:19:09:323 LFS/(20132:20136):  sali del while e hice el iterate 
+[INFO] 08:19:39:324 LFS/(20132:20136):  gossiping 
+[INFO] 08:19:39:324 LFS/(20132:20136):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:19:39:324 LFS/(20132:20136):  recibi socket : 4
+[INFO] 08:19:39:324 LFS/(20132:20136):  entre al while 
+[INFO] 08:19:39:324 LFS/(20132:20136):  por salir del while 
+[INFO] 08:19:39:325 LFS/(20132:20136):  entre al while 
+[INFO] 08:19:39:325 LFS/(20132:20136):  por salir del while 
+[INFO] 08:19:39:325 LFS/(20132:20136):  entre al while 
+[INFO] 08:19:39:325 LFS/(20132:20136):  por salir del while 
+[INFO] 08:19:39:325 LFS/(20132:20136):  entre al while 
+[INFO] 08:19:39:325 LFS/(20132:20136):  por salir del while 
+[INFO] 08:19:39:325 LFS/(20132:20136):  sali del while 
+[INFO] 08:19:39:325 LFS/(20132:20136):  sali del while e hice el iterate 
+[INFO] 08:20:09:325 LFS/(20132:20136):  gossiping 
+[INFO] 08:20:09:325 LFS/(20132:20136):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:20:09:326 LFS/(20132:20136):  recibi socket : 4
+[INFO] 08:20:09:326 LFS/(20132:20136):  entre al while 
+[INFO] 08:20:09:326 LFS/(20132:20136):  por salir del while 
+[INFO] 08:20:09:326 LFS/(20132:20136):  entre al while 
+[INFO] 08:20:09:326 LFS/(20132:20136):  por salir del while 
+[INFO] 08:20:09:326 LFS/(20132:20136):  entre al while 
+[INFO] 08:20:09:326 LFS/(20132:20136):  por salir del while 
+[INFO] 08:20:09:326 LFS/(20132:20136):  entre al while 
+[INFO] 08:20:09:326 LFS/(20132:20136):  por salir del while 
+[INFO] 08:20:09:327 LFS/(20132:20136):  sali del while 
+[INFO] 08:20:09:327 LFS/(20132:20136):  sali del while e hice el iterate 
+[INFO] 08:20:26:773 Kernel/(20132:20194):  Se realizo create en FS de : MARINOS
+[INFO] 08:20:31:774 KERNEL/(20132:20137):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:20:32:780 KERNEL/(20132:20199):  [DESCRIBE x tabla]:  MARINOS SC 1 10000
+[INFO] 08:20:39:327 LFS/(20132:20136):  gossiping 
+[INFO] 08:20:39:327 LFS/(20132:20136):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:20:39:327 LFS/(20132:20136):  recibi socket : 4
+[INFO] 08:20:39:327 LFS/(20132:20136):  entre al while 
+[INFO] 08:20:39:327 LFS/(20132:20136):  por salir del while 
+[INFO] 08:20:39:328 LFS/(20132:20136):  entre al while 
+[INFO] 08:20:39:328 LFS/(20132:20136):  por salir del while 
+[INFO] 08:20:39:328 LFS/(20132:20136):  entre al while 
+[INFO] 08:20:39:328 LFS/(20132:20136):  por salir del while 
+[INFO] 08:20:39:328 LFS/(20132:20136):  entre al while 
+[INFO] 08:20:39:328 LFS/(20132:20136):  por salir del while 
+[INFO] 08:20:39:328 LFS/(20132:20136):  sali del while 
+[INFO] 08:20:39:328 LFS/(20132:20136):  sali del while e hice el iterate 
+[INFO] 08:20:39:795 Kernel/(20132:20205):  Se realizo create en FS de : AVES
+[INFO] 08:20:45:805 Kernel/(20132:20211):  Se realizo create en FS de : MAMIFEROS
+[INFO] 08:20:51:815 KERNEL/(20132:20217):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:20:51:815 KERNEL/(20132:20217):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 08:20:51:815 KERNEL/(20132:20217):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:20:56:818 KERNEL/(20132:20137):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:20:56:819 KERNEL/(20132:20137):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 08:20:56:819 KERNEL/(20132:20137):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:21:02:859 Kernel/(20132:20233):  Llego select con VALUE : "Halcon"
+[INFO] 08:26:40:512 LFS/(21122:21126):  gossiping 
+[INFO] 08:26:40:512 LFS/(21122:21126):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:26:40:514 LFS/(21122:21126):  recibi socket : 4
+[INFO] 08:26:40:514 LFS/(21122:21126):  entre al while 
+[INFO] 08:26:40:550 LFS/(21122:21126):  por salir del while 
+[INFO] 08:26:40:551 LFS/(21122:21126):  entre al while 
+[INFO] 08:26:40:551 LFS/(21122:21126):  por salir del while 
+[INFO] 08:26:40:551 LFS/(21122:21126):  entre al while 
+[INFO] 08:26:40:551 LFS/(21122:21126):  por salir del while 
+[INFO] 08:26:40:551 LFS/(21122:21126):  entre al while 
+[INFO] 08:26:40:551 LFS/(21122:21126):  por salir del while 
+[INFO] 08:26:40:551 LFS/(21122:21126):  sali del while 
+[INFO] 08:26:40:551 LFS/(21122:21126):  sali del while e hice el iterate 
+[INFO] 08:27:10:552 LFS/(21122:21126):  gossiping 
+[INFO] 08:27:10:552 LFS/(21122:21126):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:27:10:553 LFS/(21122:21126):  recibi socket : 4
+[INFO] 08:27:10:553 LFS/(21122:21126):  entre al while 
+[INFO] 08:27:10:553 LFS/(21122:21126):  por salir del while 
+[INFO] 08:27:10:553 LFS/(21122:21126):  entre al while 
+[INFO] 08:27:10:553 LFS/(21122:21126):  por salir del while 
+[INFO] 08:27:10:553 LFS/(21122:21126):  entre al while 
+[INFO] 08:27:10:553 LFS/(21122:21126):  por salir del while 
+[INFO] 08:27:10:554 LFS/(21122:21126):  entre al while 
+[INFO] 08:27:10:554 LFS/(21122:21126):  por salir del while 
+[INFO] 08:27:10:554 LFS/(21122:21126):  sali del while 
+[INFO] 08:27:10:554 LFS/(21122:21126):  sali del while e hice el iterate 
+[INFO] 08:27:40:554 LFS/(21122:21126):  gossiping 
+[INFO] 08:27:40:554 LFS/(21122:21126):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:27:40:555 LFS/(21122:21126):  recibi socket : 4
+[INFO] 08:27:40:555 LFS/(21122:21126):  entre al while 
+[INFO] 08:27:40:555 LFS/(21122:21126):  por salir del while 
+[INFO] 08:27:40:555 LFS/(21122:21126):  entre al while 
+[INFO] 08:27:40:555 LFS/(21122:21126):  por salir del while 
+[INFO] 08:27:40:556 LFS/(21122:21126):  entre al while 
+[INFO] 08:27:40:556 LFS/(21122:21126):  por salir del while 
+[INFO] 08:27:40:556 LFS/(21122:21126):  entre al while 
+[INFO] 08:27:40:556 LFS/(21122:21126):  por salir del while 
+[INFO] 08:27:40:556 LFS/(21122:21126):  sali del while 
+[INFO] 08:27:40:556 LFS/(21122:21126):  sali del while e hice el iterate 
+[INFO] 08:27:45:529 Kernel/(21122:21172):  Se realizo create en FS de : MARINOS
+[INFO] 08:27:51:536 KERNEL/(21122:21178):  [DESCRIBE x tabla]:  MARINOS SC 1 10000
+[INFO] 08:27:58:550 Kernel/(21122:21183):  Se realizo create en FS de : AVES
+[INFO] 08:28:03:553 KERNEL/(21122:21127):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:28:03:553 KERNEL/(21122:21127):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:28:08:555 Kernel/(21122:21190):  Se realizo create en FS de : MAMIFEROS
+[INFO] 08:28:10:556 LFS/(21122:21126):  gossiping 
+[INFO] 08:28:10:557 LFS/(21122:21126):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:28:10:557 LFS/(21122:21126):  recibi socket : 4
+[INFO] 08:28:10:558 LFS/(21122:21126):  entre al while 
+[INFO] 08:28:10:558 LFS/(21122:21126):  por salir del while 
+[INFO] 08:28:10:558 LFS/(21122:21126):  entre al while 
+[INFO] 08:28:10:558 LFS/(21122:21126):  por salir del while 
+[INFO] 08:28:10:558 LFS/(21122:21126):  entre al while 
+[INFO] 08:28:10:558 LFS/(21122:21126):  por salir del while 
+[INFO] 08:28:10:558 LFS/(21122:21126):  entre al while 
+[INFO] 08:28:10:558 LFS/(21122:21126):  por salir del while 
+[INFO] 08:28:10:558 LFS/(21122:21126):  sali del while 
+[INFO] 08:28:10:558 LFS/(21122:21126):  sali del while e hice el iterate 
+[INFO] 08:28:14:567 KERNEL/(21122:21198):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:28:14:567 KERNEL/(21122:21198):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 08:28:14:567 KERNEL/(21122:21198):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:28:23:593 KERNEL/(21122:21127):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 08:28:23:593 KERNEL/(21122:21127):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 08:28:23:593 KERNEL/(21122:21127):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:28:26:615 Kernel/(21122:21215):  Llego select con VALUE : "Halcon"
+[INFO] 08:36:45:473 LFS/(21981:21985):  gossiping 
+[INFO] 08:36:45:473 LFS/(21981:21985):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:36:45:473 LFS/(21981:21985):  recibi socket : 4
+[INFO] 08:36:45:473 LFS/(21981:21985):  entre al while 
+[INFO] 08:36:45:511 LFS/(21981:21985):  por salir del while 
+[INFO] 08:36:45:511 LFS/(21981:21985):  entre al while 
+[INFO] 08:36:45:511 LFS/(21981:21985):  por salir del while 
+[INFO] 08:36:45:511 LFS/(21981:21985):  entre al while 
+[INFO] 08:36:45:511 LFS/(21981:21985):  por salir del while 
+[INFO] 08:36:45:511 LFS/(21981:21985):  entre al while 
+[INFO] 08:36:45:511 LFS/(21981:21985):  por salir del while 
+[INFO] 08:36:45:511 LFS/(21981:21985):  sali del while 
+[INFO] 08:36:45:512 LFS/(21981:21985):  sali del while e hice el iterate 
+[INFO] 08:37:15:512 LFS/(21981:21985):  gossiping 
+[INFO] 08:37:15:512 LFS/(21981:21985):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:37:15:513 LFS/(21981:21985):  recibi socket : 4
+[INFO] 08:37:15:513 LFS/(21981:21985):  entre al while 
+[INFO] 08:37:15:513 LFS/(21981:21985):  por salir del while 
+[INFO] 08:37:15:513 LFS/(21981:21985):  entre al while 
+[INFO] 08:37:15:513 LFS/(21981:21985):  por salir del while 
+[INFO] 08:37:15:514 LFS/(21981:21985):  entre al while 
+[INFO] 08:37:15:514 LFS/(21981:21985):  por salir del while 
+[INFO] 08:37:15:514 LFS/(21981:21985):  entre al while 
+[INFO] 08:37:15:514 LFS/(21981:21985):  por salir del while 
+[INFO] 08:37:15:514 LFS/(21981:21985):  sali del while 
+[INFO] 08:37:15:514 LFS/(21981:21985):  sali del while e hice el iterate 
+[INFO] 08:37:30:478 Kernel/(21981:22019):  Se realizo create en FS de : MARINOS
+[INFO] 08:37:36:485 KERNEL/(21981:22024):  [DESCRIBE x tabla]:  MARINOS SC 1 10000
+[INFO] 08:40:40:480 KERNEL/(22380:22385):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:40:40:480 LFS/(22380:22384):  gossiping 
+[INFO] 08:40:40:480 LFS/(22380:22384):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:40:40:482 LFS/(22380:22384):  recibi socket : 4
+[INFO] 08:40:40:482 LFS/(22380:22384):  entre al while 
+[INFO] 08:40:40:518 LFS/(22380:22384):  por salir del while 
+[INFO] 08:40:40:519 LFS/(22380:22384):  entre al while 
+[INFO] 08:40:40:519 LFS/(22380:22384):  por salir del while 
+[INFO] 08:40:40:519 LFS/(22380:22384):  entre al while 
+[INFO] 08:40:40:519 LFS/(22380:22384):  por salir del while 
+[INFO] 08:40:40:519 LFS/(22380:22384):  entre al while 
+[INFO] 08:40:40:519 LFS/(22380:22384):  por salir del while 
+[INFO] 08:40:40:519 LFS/(22380:22384):  sali del while 
+[INFO] 08:40:40:519 LFS/(22380:22384):  sali del while e hice el iterate 
+[INFO] 08:40:54:124 KERNEL/(22397:22402):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:40:54:125 LFS/(22397:22401):  gossiping 
+[INFO] 08:40:54:125 LFS/(22397:22401):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:40:54:126 LFS/(22397:22401):  recibi socket : 4
+[INFO] 08:40:54:126 LFS/(22397:22401):  entre al while 
+[INFO] 08:40:54:162 LFS/(22397:22401):  por salir del while 
+[INFO] 08:40:54:162 LFS/(22397:22401):  entre al while 
+[INFO] 08:40:54:163 LFS/(22397:22401):  por salir del while 
+[INFO] 08:40:54:163 LFS/(22397:22401):  entre al while 
+[INFO] 08:40:54:163 LFS/(22397:22401):  por salir del while 
+[INFO] 08:40:54:163 LFS/(22397:22401):  entre al while 
+[INFO] 08:40:54:163 LFS/(22397:22401):  por salir del while 
+[INFO] 08:40:54:163 LFS/(22397:22401):  sali del while 
+[INFO] 08:40:54:163 LFS/(22397:22401):  sali del while e hice el iterate 
+[INFO] 08:41:04:409 KERNEL/(22411:22416):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:41:04:409 LFS/(22411:22415):  gossiping 
+[INFO] 08:41:04:409 LFS/(22411:22415):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:41:04:411 LFS/(22411:22415):  recibi socket : 4
+[INFO] 08:41:04:411 LFS/(22411:22415):  entre al while 
+[INFO] 08:41:04:451 LFS/(22411:22415):  por salir del while 
+[INFO] 08:41:04:451 LFS/(22411:22415):  entre al while 
+[INFO] 08:41:04:451 LFS/(22411:22415):  por salir del while 
+[INFO] 08:41:04:451 LFS/(22411:22415):  entre al while 
+[INFO] 08:41:04:451 LFS/(22411:22415):  por salir del while 
+[INFO] 08:41:04:451 LFS/(22411:22415):  entre al while 
+[INFO] 08:41:04:451 LFS/(22411:22415):  por salir del while 
+[INFO] 08:41:04:451 LFS/(22411:22415):  sali del while 
+[INFO] 08:41:04:452 LFS/(22411:22415):  sali del while e hice el iterate 
+[INFO] 08:41:33:193 KERNEL/(22436:22441):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:41:33:194 LFS/(22436:22440):  gossiping 
+[INFO] 08:41:33:194 LFS/(22436:22440):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:41:33:194 LFS/(22436:22440):  recibi socket : 4
+[INFO] 08:41:33:194 LFS/(22436:22440):  entre al while 
+[INFO] 08:41:33:231 LFS/(22436:22440):  por salir del while 
+[INFO] 08:41:33:231 LFS/(22436:22440):  entre al while 
+[INFO] 08:41:33:231 LFS/(22436:22440):  por salir del while 
+[INFO] 08:41:33:231 LFS/(22436:22440):  entre al while 
+[INFO] 08:41:33:231 LFS/(22436:22440):  por salir del while 
+[INFO] 08:41:33:231 LFS/(22436:22440):  entre al while 
+[INFO] 08:41:33:231 LFS/(22436:22440):  por salir del while 
+[INFO] 08:41:33:231 LFS/(22436:22440):  sali del while 
+[INFO] 08:41:33:232 LFS/(22436:22440):  sali del while e hice el iterate 
+[INFO] 08:41:53:196 KERNEL/(22436:22441):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:42:03:232 LFS/(22436:22440):  gossiping 
+[INFO] 08:42:03:232 LFS/(22436:22440):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:42:03:233 LFS/(22436:22440):  recibi socket : 4
+[INFO] 08:42:03:233 LFS/(22436:22440):  entre al while 
+[INFO] 08:42:03:233 LFS/(22436:22440):  por salir del while 
+[INFO] 08:42:03:233 LFS/(22436:22440):  entre al while 
+[INFO] 08:42:03:233 LFS/(22436:22440):  por salir del while 
+[INFO] 08:42:03:233 LFS/(22436:22440):  sali del while 
+[INFO] 08:42:03:233 LFS/(22436:22440):  sali del while e hice el iterate 
+[INFO] 08:43:28:83 LFS/(23148:23152):  gossiping 
+[INFO] 08:43:28:84 LFS/(23148:23152):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:43:28:84 LFS/(23148:23152):  recibi socket : 4
+[INFO] 08:43:28:84 LFS/(23148:23152):  entre al while 
+[INFO] 08:43:28:122 LFS/(23148:23152):  por salir del while 
+[INFO] 08:43:28:122 LFS/(23148:23152):  entre al while 
+[INFO] 08:43:28:123 LFS/(23148:23152):  por salir del while 
+[INFO] 08:43:28:123 LFS/(23148:23152):  sali del while 
+[INFO] 08:43:28:123 LFS/(23148:23152):  sali del while e hice el iterate 
+[INFO] 08:43:58:123 LFS/(23148:23152):  gossiping 
+[INFO] 08:43:58:123 LFS/(23148:23152):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:43:58:124 LFS/(23148:23152):  recibi socket : 4
+[INFO] 08:43:58:124 LFS/(23148:23152):  entre al while 
+[INFO] 08:43:58:124 LFS/(23148:23152):  por salir del while 
+[INFO] 08:43:58:124 LFS/(23148:23152):  entre al while 
+[INFO] 08:43:58:125 LFS/(23148:23152):  por salir del while 
+[INFO] 08:43:58:125 LFS/(23148:23152):  entre al while 
+[INFO] 08:43:58:125 LFS/(23148:23152):  por salir del while 
+[INFO] 08:43:58:125 LFS/(23148:23152):  entre al while 
+[INFO] 08:43:58:125 LFS/(23148:23152):  por salir del while 
+[INFO] 08:43:58:125 LFS/(23148:23152):  sali del while 
+[INFO] 08:43:58:125 LFS/(23148:23152):  sali del while e hice el iterate 
+[INFO] 08:44:28:126 LFS/(23148:23152):  gossiping 
+[INFO] 08:44:28:126 LFS/(23148:23152):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:44:28:126 LFS/(23148:23152):  recibi socket : 4
+[INFO] 08:44:28:126 LFS/(23148:23152):  entre al while 
+[INFO] 08:44:28:127 LFS/(23148:23152):  por salir del while 
+[INFO] 08:44:28:127 LFS/(23148:23152):  entre al while 
+[INFO] 08:44:28:127 LFS/(23148:23152):  por salir del while 
+[INFO] 08:44:28:127 LFS/(23148:23152):  entre al while 
+[INFO] 08:44:28:127 LFS/(23148:23152):  por salir del while 
+[INFO] 08:44:28:127 LFS/(23148:23152):  entre al while 
+[INFO] 08:44:28:127 LFS/(23148:23152):  por salir del while 
+[INFO] 08:44:28:127 LFS/(23148:23152):  sali del while 
+[INFO] 08:44:28:127 LFS/(23148:23152):  sali del while e hice el iterate 
+[INFO] 08:44:58:128 LFS/(23148:23152):  gossiping 
+[INFO] 08:44:58:129 LFS/(23148:23152):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:44:58:129 LFS/(23148:23152):  recibi socket : 4
+[INFO] 08:44:58:130 LFS/(23148:23152):  entre al while 
+[INFO] 08:44:58:130 LFS/(23148:23152):  por salir del while 
+[INFO] 08:44:58:130 LFS/(23148:23152):  entre al while 
+[INFO] 08:44:58:130 LFS/(23148:23152):  por salir del while 
+[INFO] 08:44:58:130 LFS/(23148:23152):  entre al while 
+[INFO] 08:44:58:130 LFS/(23148:23152):  por salir del while 
+[INFO] 08:44:58:130 LFS/(23148:23152):  entre al while 
+[INFO] 08:44:58:130 LFS/(23148:23152):  por salir del while 
+[INFO] 08:44:58:130 LFS/(23148:23152):  sali del while 
+[INFO] 08:44:58:130 LFS/(23148:23152):  sali del while e hice el iterate 
+[INFO] 08:45:24:785 Kernel/(23148:23235):  Se realizo create en FS de : MARINOS
+[INFO] 08:45:29:786 KERNEL/(23148:23153):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:45:29:786 LFS/(23148:23152):  gossiping 
+[INFO] 08:45:29:786 LFS/(23148:23152):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:45:34:788 KERNEL/(23148:23241):  [DESCRIBE x tabla]:  MARINOS SC 1 10000
+[INFO] 08:48:47:12 LFS/(24004:24008):  gossiping 
+[INFO] 08:48:47:12 LFS/(24004:24008):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:48:47:13 LFS/(24004:24008):  recibi socket : 4
+[INFO] 08:48:47:13 LFS/(24004:24008):  entre al while 
+[INFO] 08:48:47:50 LFS/(24004:24008):  por salir del while 
+[INFO] 08:48:47:51 LFS/(24004:24008):  entre al while 
+[INFO] 08:48:47:51 LFS/(24004:24008):  por salir del while 
+[INFO] 08:48:47:51 LFS/(24004:24008):  sali del while 
+[INFO] 08:48:47:51 LFS/(24004:24008):  sali del while e hice el iterate 
+[INFO] 08:49:17:51 LFS/(24004:24008):  gossiping 
+[INFO] 08:49:17:52 LFS/(24004:24008):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:49:17:53 LFS/(24004:24008):  recibi socket : 4
+[INFO] 08:49:17:53 LFS/(24004:24008):  entre al while 
+[INFO] 08:49:17:53 LFS/(24004:24008):  por salir del while 
+[INFO] 08:49:17:53 LFS/(24004:24008):  entre al while 
+[INFO] 08:49:17:53 LFS/(24004:24008):  por salir del while 
+[INFO] 08:49:17:53 LFS/(24004:24008):  entre al while 
+[INFO] 08:49:17:53 LFS/(24004:24008):  por salir del while 
+[INFO] 08:49:17:53 LFS/(24004:24008):  entre al while 
+[INFO] 08:49:17:53 LFS/(24004:24008):  por salir del while 
+[INFO] 08:49:17:53 LFS/(24004:24008):  sali del while 
+[INFO] 08:49:17:54 LFS/(24004:24008):  sali del while e hice el iterate 
+[INFO] 08:49:47:55 LFS/(24004:24008):  gossiping 
+[INFO] 08:49:47:55 LFS/(24004:24008):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:49:47:56 LFS/(24004:24008):  recibi socket : 4
+[INFO] 08:49:47:56 LFS/(24004:24008):  entre al while 
+[INFO] 08:49:47:56 LFS/(24004:24008):  por salir del while 
+[INFO] 08:49:47:56 LFS/(24004:24008):  entre al while 
+[INFO] 08:49:47:56 LFS/(24004:24008):  por salir del while 
+[INFO] 08:49:47:56 LFS/(24004:24008):  entre al while 
+[INFO] 08:49:47:57 LFS/(24004:24008):  por salir del while 
+[INFO] 08:49:47:57 LFS/(24004:24008):  entre al while 
+[INFO] 08:49:47:57 LFS/(24004:24008):  por salir del while 
+[INFO] 08:49:47:57 LFS/(24004:24008):  sali del while 
+[INFO] 08:49:47:57 LFS/(24004:24008):  sali del while e hice el iterate 
+[INFO] 08:50:17:57 LFS/(24004:24008):  gossiping 
+[INFO] 08:50:17:57 LFS/(24004:24008):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:50:17:58 LFS/(24004:24008):  recibi socket : 4
+[INFO] 08:50:17:58 LFS/(24004:24008):  entre al while 
+[INFO] 08:50:17:58 LFS/(24004:24008):  por salir del while 
+[INFO] 08:50:17:58 LFS/(24004:24008):  entre al while 
+[INFO] 08:50:17:58 LFS/(24004:24008):  por salir del while 
+[INFO] 08:50:17:59 LFS/(24004:24008):  entre al while 
+[INFO] 08:50:17:59 LFS/(24004:24008):  por salir del while 
+[INFO] 08:50:17:59 LFS/(24004:24008):  entre al while 
+[INFO] 08:50:17:59 LFS/(24004:24008):  por salir del while 
+[INFO] 08:50:17:59 LFS/(24004:24008):  sali del while 
+[INFO] 08:50:17:59 LFS/(24004:24008):  sali del while e hice el iterate 
+[INFO] 08:50:32:59 Kernel/(24004:24080):  Se realizo create en FS de : MARINOS
+[INFO] 08:50:38:69 KERNEL/(24004:24087):  [DESCRIBE x tabla]:  MARINOS SC 1 10000
+[INFO] 08:53:48:881 KERNEL/(24319:24324):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:53:48:882 LFS/(24319:24323):  gossiping 
+[INFO] 08:53:48:882 LFS/(24319:24323):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:53:48:883 LFS/(24319:24323):  recibi socket : 4
+[INFO] 08:53:48:883 LFS/(24319:24323):  entre al while 
+[INFO] 08:53:48:923 LFS/(24319:24323):  por salir del while 
+[INFO] 08:53:48:923 LFS/(24319:24323):  entre al while 
+[INFO] 08:53:48:923 LFS/(24319:24323):  por salir del while 
+[INFO] 08:53:48:923 LFS/(24319:24323):  entre al while 
+[INFO] 08:53:48:923 LFS/(24319:24323):  por salir del while 
+[INFO] 08:53:48:923 LFS/(24319:24323):  entre al while 
+[INFO] 08:53:48:923 LFS/(24319:24323):  por salir del while 
+[INFO] 08:53:48:923 LFS/(24319:24323):  sali del while 
+[INFO] 08:53:48:924 LFS/(24319:24323):  sali del while e hice el iterate 
+[INFO] 08:53:58:800 KERNEL/(24332:24337):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:53:58:801 LFS/(24332:24336):  gossiping 
+[INFO] 08:53:58:801 LFS/(24332:24336):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:53:58:802 LFS/(24332:24336):  recibi socket : 4
+[INFO] 08:53:58:802 LFS/(24332:24336):  entre al while 
+[INFO] 08:53:58:838 LFS/(24332:24336):  por salir del while 
+[INFO] 08:53:58:839 LFS/(24332:24336):  entre al while 
+[INFO] 08:53:58:839 LFS/(24332:24336):  por salir del while 
+[INFO] 08:53:58:839 LFS/(24332:24336):  entre al while 
+[INFO] 08:53:58:839 LFS/(24332:24336):  por salir del while 
+[INFO] 08:53:58:839 LFS/(24332:24336):  entre al while 
+[INFO] 08:53:58:839 LFS/(24332:24336):  por salir del while 
+[INFO] 08:53:58:839 LFS/(24332:24336):  sali del while 
+[INFO] 08:53:58:840 LFS/(24332:24336):  sali del while e hice el iterate 
+[INFO] 08:54:23:201 KERNEL/(24355:24360):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:54:23:201 LFS/(24355:24359):  gossiping 
+[INFO] 08:54:23:202 LFS/(24355:24359):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:54:23:202 LFS/(24355:24359):  recibi socket : 4
+[INFO] 08:54:23:202 LFS/(24355:24359):  entre al while 
+[INFO] 08:54:23:239 LFS/(24355:24359):  por salir del while 
+[INFO] 08:54:23:239 LFS/(24355:24359):  entre al while 
+[INFO] 08:54:23:239 LFS/(24355:24359):  por salir del while 
+[INFO] 08:54:23:239 LFS/(24355:24359):  entre al while 
+[INFO] 08:54:23:239 LFS/(24355:24359):  por salir del while 
+[INFO] 08:54:23:239 LFS/(24355:24359):  entre al while 
+[INFO] 08:54:23:239 LFS/(24355:24359):  por salir del while 
+[INFO] 08:54:23:239 LFS/(24355:24359):  sali del while 
+[INFO] 08:54:23:240 LFS/(24355:24359):  sali del while e hice el iterate 
+[INFO] 08:54:43:203 KERNEL/(24355:24360):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 08:54:53:240 LFS/(24355:24359):  gossiping 
+[INFO] 08:54:53:240 LFS/(24355:24359):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:54:53:241 LFS/(24355:24359):  recibi socket : 4
+[INFO] 08:54:53:241 LFS/(24355:24359):  entre al while 
+[INFO] 08:54:53:241 LFS/(24355:24359):  por salir del while 
+[INFO] 08:54:53:241 LFS/(24355:24359):  entre al while 
+[INFO] 08:54:53:241 LFS/(24355:24359):  por salir del while 
+[INFO] 08:54:53:241 LFS/(24355:24359):  sali del while 
+[INFO] 08:54:53:241 LFS/(24355:24359):  sali del while e hice el iterate 
+[INFO] 08:59:40:204 LFS/(25076:25080):  gossiping 
+[INFO] 08:59:40:204 LFS/(25076:25080):  hice el send de peticion : 8 a socket : 3
+[INFO] 08:59:40:206 LFS/(25076:25080):  recibi socket : 5
+[INFO] 08:59:40:206 LFS/(25076:25080):  entre al while 
+[INFO] 08:59:40:242 LFS/(25076:25080):  por salir del while 
+[INFO] 08:59:40:243 LFS/(25076:25080):  entre al while 
+[INFO] 08:59:40:243 LFS/(25076:25080):  por salir del while 
+[INFO] 08:59:40:243 LFS/(25076:25080):  sali del while 
+[INFO] 08:59:40:243 LFS/(25076:25080):  sali del while e hice el iterate 
+[INFO] 09:00:10:244 LFS/(25076:25080):  gossiping 
+[INFO] 09:00:10:244 LFS/(25076:25080):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:00:10:245 LFS/(25076:25080):  recibi socket : 5
+[INFO] 09:00:10:246 LFS/(25076:25080):  entre al while 
+[INFO] 09:00:10:247 LFS/(25076:25080):  por salir del while 
+[INFO] 09:00:10:247 LFS/(25076:25080):  entre al while 
+[INFO] 09:00:10:247 LFS/(25076:25080):  por salir del while 
+[INFO] 09:00:10:247 LFS/(25076:25080):  entre al while 
+[INFO] 09:00:10:247 LFS/(25076:25080):  por salir del while 
+[INFO] 09:00:10:247 LFS/(25076:25080):  sali del while 
+[INFO] 09:00:10:247 LFS/(25076:25080):  sali del while e hice el iterate 
+[INFO] 09:00:40:284 LFS/(25076:25080):  gossiping 
+[INFO] 09:00:40:284 LFS/(25076:25080):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:00:40:285 LFS/(25076:25080):  recibi socket : 5
+[INFO] 09:00:40:285 LFS/(25076:25080):  entre al while 
+[INFO] 09:00:40:286 LFS/(25076:25080):  por salir del while 
+[INFO] 09:00:40:286 LFS/(25076:25080):  entre al while 
+[INFO] 09:00:40:287 LFS/(25076:25080):  por salir del while 
+[INFO] 09:00:40:287 LFS/(25076:25080):  entre al while 
+[INFO] 09:00:40:287 LFS/(25076:25080):  por salir del while 
+[INFO] 09:00:40:287 LFS/(25076:25080):  sali del while 
+[INFO] 09:00:40:287 LFS/(25076:25080):  sali del while e hice el iterate 
+[INFO] 09:01:10:288 LFS/(25076:25080):  gossiping 
+[INFO] 09:01:10:288 LFS/(25076:25080):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:01:12:493 Kernel/(25076:25142):  Se realizo create en FS de : ANIMALS
+[INFO] 09:01:12:495 LFS/(25076:25080):  recibi socket : 5
+[INFO] 09:01:12:495 LFS/(25076:25080):  entre al while 
+[INFO] 09:01:12:495 LFS/(25076:25080):  por salir del while 
+[INFO] 09:01:12:495 LFS/(25076:25080):  entre al while 
+[INFO] 09:01:12:495 LFS/(25076:25080):  por salir del while 
+[INFO] 09:01:12:495 LFS/(25076:25080):  entre al while 
+[INFO] 09:01:12:496 LFS/(25076:25080):  por salir del while 
+[INFO] 09:01:12:496 LFS/(25076:25080):  sali del while 
+[INFO] 09:01:12:496 LFS/(25076:25080):  sali del while e hice el iterate 
+[INFO] 09:01:17:497 Kernel/(25076:25142):  Se realizo create en FS de : METALS
+[INFO] 09:01:22:499 KERNEL/(25076:25081):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:01:22:539 KERNEL/(25076:25081):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[ERROR] 09:01:27:550 Kernel/(25076:25152):  No se encontro ni en MM ni en FS la key : 126
+[ERROR] 09:01:32:568 Kernel/(25076:25156):  No se encontro ni en MM ni en FS la key : 65
+[ERROR] 09:01:37:573 Kernel/(25076:25156):  No se encontro ni en MM ni en FS la key : 136
+[INFO] 09:01:42:576 KERNEL/(25076:25081):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:01:42:615 KERNEL/(25076:25081):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 09:01:42:615 LFS/(25076:25080):  gossiping 
+[INFO] 09:01:42:615 LFS/(25076:25080):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:01:42:616 LFS/(25076:25080):  recibi socket : 5
+[INFO] 09:01:42:616 LFS/(25076:25080):  entre al while 
+[INFO] 09:01:42:617 LFS/(25076:25080):  por salir del while 
+[INFO] 09:01:42:618 LFS/(25076:25080):  entre al while 
+[INFO] 09:01:42:618 LFS/(25076:25080):  por salir del while 
+[INFO] 09:01:42:618 LFS/(25076:25080):  entre al while 
+[INFO] 09:01:42:618 LFS/(25076:25080):  por salir del while 
+[INFO] 09:01:42:618 LFS/(25076:25080):  sali del while 
+[INFO] 09:01:42:618 LFS/(25076:25080):  sali del while e hice el iterate 
+[ERROR] 09:01:47:652 Kernel/(25076:25168):  No se encontro ni en MM ni en FS la key : 136
+[ERROR] 09:01:52:670 Kernel/(25076:25172):  No se encontro ni en MM ni en FS la key : 105
+[ERROR] 09:02:12:665 Kernel/(25076:25172):  No se encontro ni en MM ni en FS la key : 64
+[INFO] 09:02:17:667 KERNEL/(25076:25081):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:02:17:707 KERNEL/(25076:25081):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 09:02:17:707 LFS/(25076:25080):  gossiping 
+[INFO] 09:02:17:707 LFS/(25076:25080):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:02:22:710 Kernel/(25076:25183):  Llego select con VALUE : "aluminiferous"
+
+[INFO] 09:02:22:729 LFS/(25076:25080):  recibi socket : 5
+[INFO] 09:02:22:729 LFS/(25076:25080):  entre al while 
+[INFO] 09:02:22:729 LFS/(25076:25080):  por salir del while 
+[INFO] 09:02:22:729 LFS/(25076:25080):  entre al while 
+[INFO] 09:02:22:729 LFS/(25076:25080):  por salir del while 
+[INFO] 09:02:22:729 LFS/(25076:25080):  entre al while 
+[INFO] 09:02:22:729 LFS/(25076:25080):  por salir del while 
+[INFO] 09:02:22:729 LFS/(25076:25080):  sali del while 
+[INFO] 09:02:22:729 LFS/(25076:25080):  sali del while e hice el iterate 
+[INFO] 09:02:27:732 Kernel/(25076:25189):  Llego select con VALUE : "ferrous"
+
+[ERROR] 09:02:32:752 Kernel/(25076:25193):  No se encontro ni en MM ni en FS la key : 16
+[INFO] 09:02:37:755 KERNEL/(25076:25081):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:02:37:795 KERNEL/(25076:25081):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 09:02:37:795 Kernel/(25076:25193):  Llego select con VALUE : "chemicals"
+[INFO] 09:02:42:798 Kernel/(25076:25193):  Llego select con VALUE : "biological"
+
+[ERROR] 09:02:47:814 Kernel/(25076:25203):  No se encontro ni en MM ni en FS la key : 135
+[INFO] 09:02:52:730 LFS/(25076:25080):  gossiping 
+[INFO] 09:02:52:730 LFS/(25076:25080):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:02:52:731 LFS/(25076:25080):  recibi socket : 5
+[INFO] 09:02:52:731 LFS/(25076:25080):  entre al while 
+[INFO] 09:02:52:732 LFS/(25076:25080):  por salir del while 
+[INFO] 09:02:52:732 LFS/(25076:25080):  entre al while 
+[INFO] 09:02:52:732 LFS/(25076:25080):  por salir del while 
+[INFO] 09:02:52:733 LFS/(25076:25080):  entre al while 
+[INFO] 09:02:52:733 LFS/(25076:25080):  por salir del while 
+[INFO] 09:02:52:733 LFS/(25076:25080):  sali del while 
+[INFO] 09:02:52:733 LFS/(25076:25080):  sali del while e hice el iterate 
+[INFO] 09:10:48:212 LFS/(26064:26068):  gossiping 
+[INFO] 09:10:48:212 LFS/(26064:26068):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:10:48:213 LFS/(26064:26068):  recibi socket : 5
+[INFO] 09:10:48:213 LFS/(26064:26068):  entre al while 
+[INFO] 09:10:48:250 LFS/(26064:26068):  por salir del while 
+[INFO] 09:10:48:251 LFS/(26064:26068):  entre al while 
+[INFO] 09:10:48:251 LFS/(26064:26068):  por salir del while 
+[INFO] 09:10:48:251 LFS/(26064:26068):  entre al while 
+[INFO] 09:10:48:251 LFS/(26064:26068):  por salir del while 
+[INFO] 09:10:48:251 LFS/(26064:26068):  sali del while 
+[INFO] 09:10:48:251 LFS/(26064:26068):  sali del while e hice el iterate 
+[INFO] 09:11:18:252 LFS/(26064:26068):  gossiping 
+[INFO] 09:11:18:252 LFS/(26064:26068):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:11:18:253 LFS/(26064:26068):  recibi socket : 5
+[INFO] 09:11:18:253 LFS/(26064:26068):  entre al while 
+[INFO] 09:11:18:253 LFS/(26064:26068):  por salir del while 
+[INFO] 09:11:18:253 LFS/(26064:26068):  entre al while 
+[INFO] 09:11:18:253 LFS/(26064:26068):  por salir del while 
+[INFO] 09:11:18:253 LFS/(26064:26068):  entre al while 
+[INFO] 09:11:18:253 LFS/(26064:26068):  por salir del while 
+[INFO] 09:11:18:253 LFS/(26064:26068):  sali del while 
+[INFO] 09:11:18:254 LFS/(26064:26068):  sali del while e hice el iterate 
+[INFO] 09:11:53:260 Kernel/(26064:26086):  Se realizo create en FS de : ANIMALS
+[INFO] 09:11:58:263 Kernel/(26064:26086):  Se realizo create en FS de : METALS
+[INFO] 09:11:58:265 LFS/(26064:26068):  gossiping 
+[INFO] 09:11:58:265 LFS/(26064:26068):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:11:58:266 LFS/(26064:26068):  recibi socket : 5
+[INFO] 09:11:58:266 LFS/(26064:26068):  entre al while 
+[INFO] 09:11:58:266 LFS/(26064:26068):  por salir del while 
+[INFO] 09:11:58:266 LFS/(26064:26068):  entre al while 
+[INFO] 09:11:58:266 LFS/(26064:26068):  por salir del while 
+[INFO] 09:11:58:266 LFS/(26064:26068):  entre al while 
+[INFO] 09:11:58:267 LFS/(26064:26068):  por salir del while 
+[INFO] 09:11:58:267 LFS/(26064:26068):  sali del while 
+[INFO] 09:11:58:267 LFS/(26064:26068):  sali del while e hice el iterate 
+[ERROR] 09:12:03:274 Kernel/(26064:26091):  No se encontro ni en MM ni en FS la key : 126
+[INFO] 09:12:08:277 KERNEL/(26064:26069):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:12:08:278 KERNEL/(26064:26069):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[ERROR] 09:12:13:281 Kernel/(26064:26094):  No se encontro ni en MM ni en FS la key : 65
+[ERROR] 09:12:18:283 Kernel/(26064:26094):  No se encontro ni en MM ni en FS la key : 136
+[ERROR] 09:12:23:320 Kernel/(26064:26098):  No se encontro ni en MM ni en FS la key : 136
+[INFO] 09:12:28:324 KERNEL/(26064:26069):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:12:28:362 KERNEL/(26064:26069):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[ERROR] 09:12:33:365 Kernel/(26064:26102):  No se encontro ni en MM ni en FS la key : 105
+[ERROR] 09:12:48:331 Kernel/(26064:26102):  No se encontro ni en MM ni en FS la key : 64
+[INFO] 09:12:48:332 LFS/(26064:26068):  gossiping 
+[INFO] 09:12:48:332 LFS/(26064:26068):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:12:48:333 LFS/(26064:26068):  recibi socket : 5
+[INFO] 09:12:48:333 LFS/(26064:26068):  entre al while 
+[INFO] 09:12:48:333 LFS/(26064:26068):  por salir del while 
+[INFO] 09:12:48:333 LFS/(26064:26068):  entre al while 
+[INFO] 09:12:48:333 LFS/(26064:26068):  por salir del while 
+[INFO] 09:12:48:333 LFS/(26064:26068):  entre al while 
+[INFO] 09:12:48:333 LFS/(26064:26068):  por salir del while 
+[INFO] 09:12:48:333 LFS/(26064:26068):  sali del while 
+[INFO] 09:12:48:333 LFS/(26064:26068):  sali del while e hice el iterate 
+[INFO] 09:12:53:335 KERNEL/(26064:26069):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:12:53:336 KERNEL/(26064:26069):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 09:12:58:379 Kernel/(26064:26107):  Llego select con VALUE : "aluminiferous"
+
+[ERROR] 09:13:03:803 Kernel/(26064:26110):  No se encontro ni en MM ni en FS la key : 71
+[INFO] 09:18:14:468 LFS/(26356:26360):  gossiping 
+[INFO] 09:18:14:469 LFS/(26356:26360):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:18:14:469 LFS/(26356:26360):  recibi socket : 5
+[INFO] 09:18:14:469 LFS/(26356:26360):  entre al while 
+[INFO] 09:18:14:507 LFS/(26356:26360):  por salir del while 
+[INFO] 09:18:14:507 LFS/(26356:26360):  entre al while 
+[INFO] 09:18:14:507 LFS/(26356:26360):  por salir del while 
+[INFO] 09:18:14:507 LFS/(26356:26360):  entre al while 
+[INFO] 09:18:14:507 LFS/(26356:26360):  por salir del while 
+[INFO] 09:18:14:507 LFS/(26356:26360):  sali del while 
+[INFO] 09:18:14:507 LFS/(26356:26360):  sali del while e hice el iterate 
+[INFO] 09:18:44:508 LFS/(26356:26360):  gossiping 
+[INFO] 09:18:44:508 LFS/(26356:26360):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:18:44:509 LFS/(26356:26360):  recibi socket : 5
+[INFO] 09:18:44:509 LFS/(26356:26360):  entre al while 
+[INFO] 09:18:44:509 LFS/(26356:26360):  por salir del while 
+[INFO] 09:18:44:509 LFS/(26356:26360):  entre al while 
+[INFO] 09:18:44:509 LFS/(26356:26360):  por salir del while 
+[INFO] 09:18:44:509 LFS/(26356:26360):  entre al while 
+[INFO] 09:18:44:509 LFS/(26356:26360):  por salir del while 
+[INFO] 09:18:44:509 LFS/(26356:26360):  sali del while 
+[INFO] 09:18:44:509 LFS/(26356:26360):  sali del while e hice el iterate 
+[INFO] 09:18:51:764 Kernel/(26356:26375):  Se realizo create en FS de : ANIMALS
+[INFO] 09:18:56:768 Kernel/(26356:26375):  Se realizo create en FS de : METALS
+[INFO] 09:19:01:770 KERNEL/(26356:26361):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:19:01:771 KERNEL/(26356:26361):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[ERROR] 09:19:06:772 Kernel/(26356:26380):  No se encontro ni en MM ni en FS la key : 126
+[ERROR] 09:19:11:781 Kernel/(26356:26383):  No se encontro ni en MM ni en FS la key : 65
+[ERROR] 09:19:16:782 Kernel/(26356:26383):  No se encontro ni en MM ni en FS la key : 136
+[INFO] 09:19:16:784 LFS/(26356:26360):  gossiping 
+[INFO] 09:19:16:784 LFS/(26356:26360):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:19:16:784 LFS/(26356:26360):  recibi socket : 5
+[INFO] 09:19:16:784 LFS/(26356:26360):  entre al while 
+[INFO] 09:19:16:784 LFS/(26356:26360):  por salir del while 
+[INFO] 09:19:16:784 LFS/(26356:26360):  entre al while 
+[INFO] 09:19:16:784 LFS/(26356:26360):  por salir del while 
+[INFO] 09:19:16:784 LFS/(26356:26360):  entre al while 
+[INFO] 09:19:16:784 LFS/(26356:26360):  por salir del while 
+[INFO] 09:19:16:784 LFS/(26356:26360):  sali del while 
+[INFO] 09:19:16:784 LFS/(26356:26360):  sali del while e hice el iterate 
+[INFO] 09:19:21:787 KERNEL/(26356:26361):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:19:21:826 KERNEL/(26356:26361):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[ERROR] 09:19:26:837 Kernel/(26356:26387):  No se encontro ni en MM ni en FS la key : 136
+[ERROR] 09:19:31:846 Kernel/(26356:26391):  No se encontro ni en MM ni en FS la key : 105
+[ERROR] 09:19:51:844 Kernel/(26356:26391):  No se encontro ni en MM ni en FS la key : 64
+[INFO] 09:19:56:848 KERNEL/(26356:26361):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:19:56:886 KERNEL/(26356:26361):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 09:19:56:887 LFS/(26356:26360):  gossiping 
+[INFO] 09:19:56:887 LFS/(26356:26360):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:19:56:887 LFS/(26356:26360):  recibi socket : 5
+[INFO] 09:19:56:887 LFS/(26356:26360):  entre al while 
+[INFO] 09:19:56:887 LFS/(26356:26360):  por salir del while 
+[INFO] 09:19:56:887 LFS/(26356:26360):  entre al while 
+[INFO] 09:19:56:888 LFS/(26356:26360):  por salir del while 
+[INFO] 09:19:56:888 LFS/(26356:26360):  entre al while 
+[INFO] 09:19:56:888 LFS/(26356:26360):  por salir del while 
+[INFO] 09:19:56:888 LFS/(26356:26360):  sali del while 
+[INFO] 09:19:56:888 LFS/(26356:26360):  sali del while e hice el iterate 
+[INFO] 09:20:01:929 Kernel/(26356:26396):  Llego select con VALUE : "aluminiferous"
+
+[ERROR] 09:20:08:107 Kernel/(26356:26399):  No se encontro ni en MM ni en FS la key : 71
+[INFO] 09:25:08:612 LFS/(26601:26605):  gossiping 
+[INFO] 09:25:08:612 LFS/(26601:26605):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:25:08:612 LFS/(26601:26605):  recibi socket : 5
+[INFO] 09:25:08:612 LFS/(26601:26605):  entre al while 
+[INFO] 09:25:08:650 LFS/(26601:26605):  por salir del while 
+[INFO] 09:25:08:651 LFS/(26601:26605):  entre al while 
+[INFO] 09:25:08:651 LFS/(26601:26605):  por salir del while 
+[INFO] 09:25:08:651 LFS/(26601:26605):  entre al while 
+[INFO] 09:25:08:651 LFS/(26601:26605):  por salir del while 
+[INFO] 09:25:08:651 LFS/(26601:26605):  sali del while 
+[INFO] 09:25:08:651 LFS/(26601:26605):  sali del while e hice el iterate 
+[INFO] 09:25:33:653 Kernel/(26601:26616):  Se realizo create en FS de : ANIMALS
+[INFO] 09:25:38:656 Kernel/(26601:26616):  Se realizo create en FS de : METALS
+[INFO] 09:25:38:657 LFS/(26601:26605):  gossiping 
+[INFO] 09:25:38:657 LFS/(26601:26605):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:25:38:657 LFS/(26601:26605):  recibi socket : 5
+[INFO] 09:25:38:657 LFS/(26601:26605):  entre al while 
+[INFO] 09:25:38:658 LFS/(26601:26605):  por salir del while 
+[INFO] 09:25:38:658 LFS/(26601:26605):  entre al while 
+[INFO] 09:25:38:658 LFS/(26601:26605):  por salir del while 
+[INFO] 09:25:38:658 LFS/(26601:26605):  entre al while 
+[INFO] 09:25:38:658 LFS/(26601:26605):  por salir del while 
+[INFO] 09:25:38:658 LFS/(26601:26605):  sali del while 
+[INFO] 09:25:38:658 LFS/(26601:26605):  sali del while e hice el iterate 
+[ERROR] 09:25:43:664 Kernel/(26601:26623):  No se encontro ni en MM ni en FS la key : 126
+[INFO] 09:25:48:667 KERNEL/(26601:26606):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:25:48:707 KERNEL/(26601:26606):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[ERROR] 09:25:53:709 Kernel/(26601:26624):  No se encontro ni en MM ni en FS la key : 65
+[ERROR] 09:25:58:711 Kernel/(26601:26624):  No se encontro ni en MM ni en FS la key : 136
+[ERROR] 09:26:03:730 Kernel/(26601:26630):  No se encontro ni en MM ni en FS la key : 136
+[INFO] 09:26:08:733 KERNEL/(26601:26606):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:26:08:771 KERNEL/(26601:26606):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[ERROR] 09:26:13:774 Kernel/(26601:26632):  No se encontro ni en MM ni en FS la key : 105
+[ERROR] 09:26:28:739 Kernel/(26601:26632):  No se encontro ni en MM ni en FS la key : 64
+[INFO] 09:26:28:739 LFS/(26601:26605):  gossiping 
+[INFO] 09:26:28:739 LFS/(26601:26605):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:26:28:739 LFS/(26601:26605):  recibi socket : 5
+[INFO] 09:26:28:739 LFS/(26601:26605):  entre al while 
+[INFO] 09:26:28:739 LFS/(26601:26605):  por salir del while 
+[INFO] 09:26:28:739 LFS/(26601:26605):  entre al while 
+[INFO] 09:26:28:739 LFS/(26601:26605):  por salir del while 
+[INFO] 09:26:28:739 LFS/(26601:26605):  entre al while 
+[INFO] 09:26:28:739 LFS/(26601:26605):  por salir del while 
+[INFO] 09:26:28:739 LFS/(26601:26605):  sali del while 
+[INFO] 09:26:28:740 LFS/(26601:26605):  sali del while e hice el iterate 
+[INFO] 09:26:33:744 KERNEL/(26601:26606):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:26:33:783 KERNEL/(26601:26606):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 09:26:38:825 Kernel/(26601:26649):  Llego select con VALUE : "aluminiferous"
+
+[INFO] 09:28:50:538 KERNEL/(26851:26856):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:28:50:539 KERNEL/(26851:26856):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 09:28:50:539 LFS/(26851:26855):  gossiping 
+[INFO] 09:28:50:539 LFS/(26851:26855):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:28:50:539 LFS/(26851:26855):  recibi socket : 5
+[INFO] 09:28:50:539 LFS/(26851:26855):  entre al while 
+[INFO] 09:28:50:574 LFS/(26851:26855):  por salir del while 
+[INFO] 09:28:50:575 LFS/(26851:26855):  entre al while 
+[INFO] 09:28:50:575 LFS/(26851:26855):  por salir del while 
+[INFO] 09:28:50:575 LFS/(26851:26855):  entre al while 
+[INFO] 09:28:50:575 LFS/(26851:26855):  por salir del while 
+[INFO] 09:28:50:575 LFS/(26851:26855):  sali del while 
+[INFO] 09:28:50:575 LFS/(26851:26855):  sali del while e hice el iterate 
+[INFO] 09:29:10:541 KERNEL/(26851:26856):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:29:10:541 KERNEL/(26851:26856):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 09:29:20:575 LFS/(26851:26855):  gossiping 
+[INFO] 09:29:20:576 LFS/(26851:26855):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:29:20:576 LFS/(26851:26855):  recibi socket : 5
+[INFO] 09:29:20:576 LFS/(26851:26855):  entre al while 
+[INFO] 09:29:20:576 LFS/(26851:26855):  por salir del while 
+[INFO] 09:29:20:576 LFS/(26851:26855):  entre al while 
+[INFO] 09:29:20:576 LFS/(26851:26855):  por salir del while 
+[INFO] 09:29:20:576 LFS/(26851:26855):  entre al while 
+[INFO] 09:29:20:576 LFS/(26851:26855):  por salir del while 
+[INFO] 09:29:20:576 LFS/(26851:26855):  sali del while 
+[INFO] 09:29:20:577 LFS/(26851:26855):  sali del while e hice el iterate 
+[INFO] 09:29:30:582 KERNEL/(26851:26856):  [DESCRIBE GLOBAL]: ANIMALS EC 2 5000
+[INFO] 09:29:30:582 KERNEL/(26851:26856):  [DESCRIBE GLOBAL]: METALS EC 3 5000
+[INFO] 09:29:35:588 Kernel/(26851:26870):  Se realizo DROP de tabla : ANIMALS
+[INFO] 09:29:40:596 Kernel/(26851:26872):  Se realizo DROP de tabla : METALS
+[INFO] 09:29:50:507 Kernel/(26851:26876):  Se realizo create en FS de : ANIMALS
+[INFO] 09:29:55:509 Kernel/(26851:26876):  Se realizo create en FS de : METALS
+[ERROR] 09:30:00:517 Kernel/(26851:26881):  No se encontro ni en MM ni en FS la key : 126
+[ERROR] 09:30:05:525 Kernel/(26851:26883):  No se encontro ni en MM ni en FS la key : 65
+[ERROR] 09:30:10:527 Kernel/(26851:26883):  No se encontro ni en MM ni en FS la key : 136
+[ERROR] 09:30:15:550 Kernel/(26851:26888):  No se encontro ni en MM ni en FS la key : 136
+[ERROR] 09:30:20:559 Kernel/(26851:26890):  No se encontro ni en MM ni en FS la key : 105
+[ERROR] 09:30:50:569 Kernel/(26851:26890):  No se encontro ni en MM ni en FS la key : 64
+[INFO] 09:30:55:583 Kernel/(26851:26899):  Llego select con VALUE : "aluminiferous"
+
+[INFO] 09:37:55:468 LFS/(27220:27224):  gossiping 
+[INFO] 09:37:55:468 LFS/(27220:27224):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:37:55:469 LFS/(27220:27224):  recibi socket : 4
+[INFO] 09:37:55:469 LFS/(27220:27224):  entre al while 
+[INFO] 09:37:55:506 LFS/(27220:27224):  por salir del while 
+[INFO] 09:37:55:507 LFS/(27220:27224):  entre al while 
+[INFO] 09:37:55:507 LFS/(27220:27224):  por salir del while 
+[INFO] 09:37:55:507 LFS/(27220:27224):  entre al while 
+[INFO] 09:37:55:507 LFS/(27220:27224):  por salir del while 
+[INFO] 09:37:55:507 LFS/(27220:27224):  entre al while 
+[INFO] 09:37:55:507 LFS/(27220:27224):  por salir del while 
+[INFO] 09:37:55:507 LFS/(27220:27224):  sali del while 
+[INFO] 09:37:55:507 LFS/(27220:27224):  sali del while e hice el iterate 
+[INFO] 09:38:25:508 LFS/(27220:27224):  gossiping 
+[INFO] 09:38:25:509 LFS/(27220:27224):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:38:25:509 LFS/(27220:27224):  recibi socket : 4
+[INFO] 09:38:25:509 LFS/(27220:27224):  entre al while 
+[INFO] 09:38:25:509 LFS/(27220:27224):  por salir del while 
+[INFO] 09:38:25:509 LFS/(27220:27224):  entre al while 
+[INFO] 09:38:25:509 LFS/(27220:27224):  por salir del while 
+[INFO] 09:38:25:509 LFS/(27220:27224):  entre al while 
+[INFO] 09:38:25:509 LFS/(27220:27224):  por salir del while 
+[INFO] 09:38:25:510 LFS/(27220:27224):  entre al while 
+[INFO] 09:38:25:510 LFS/(27220:27224):  por salir del while 
+[INFO] 09:38:25:510 LFS/(27220:27224):  sali del while 
+[INFO] 09:38:25:510 LFS/(27220:27224):  sali del while e hice el iterate 
+[INFO] 09:38:57:476 LFS/(27220:27224):  gossiping 
+[INFO] 09:38:57:476 LFS/(27220:27224):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:38:57:480 LFS/(27220:27224):  recibi socket : 4
+[INFO] 09:38:57:480 LFS/(27220:27224):  entre al while 
+[INFO] 09:38:57:480 LFS/(27220:27224):  por salir del while 
+[INFO] 09:38:57:480 LFS/(27220:27224):  entre al while 
+[INFO] 09:38:57:480 LFS/(27220:27224):  por salir del while 
+[INFO] 09:38:57:480 LFS/(27220:27224):  entre al while 
+[INFO] 09:38:57:480 LFS/(27220:27224):  por salir del while 
+[INFO] 09:38:57:480 LFS/(27220:27224):  entre al while 
+[INFO] 09:38:57:480 LFS/(27220:27224):  por salir del while 
+[INFO] 09:38:57:480 LFS/(27220:27224):  sali del while 
+[INFO] 09:38:57:480 LFS/(27220:27224):  sali del while e hice el iterate 
+[INFO] 09:39:05:401 Kernel/(27220:27273):  Se realizo create en FS de : MARINOS
+[INFO] 09:39:11:409 KERNEL/(27220:27278):  [DESCRIBE x tabla]:  MARINOS SC 1 10000
+[INFO] 09:39:18:424 Kernel/(27220:27287):  Se realizo create en FS de : AVES
+[INFO] 09:39:24:434 Kernel/(27220:27293):  Se realizo create en FS de : MAMIFEROS
+[INFO] 09:39:30:442 KERNEL/(27220:27298):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:39:30:442 KERNEL/(27220:27298):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:39:30:442 KERNEL/(27220:27298):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:39:37:479 Kernel/(27220:27313):  Llego select con VALUE : "Halcon"
+[INFO] 09:41:49:716 KERNEL/(27423:27428):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:41:49:716 KERNEL/(27423:27428):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:41:49:716 KERNEL/(27423:27428):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:41:49:716 LFS/(27423:27427):  gossiping 
+[INFO] 09:41:49:717 LFS/(27423:27427):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:41:49:718 LFS/(27423:27427):  recibi socket : 4
+[INFO] 09:41:49:718 LFS/(27423:27427):  entre al while 
+[INFO] 09:41:49:755 LFS/(27423:27427):  por salir del while 
+[INFO] 09:41:49:755 LFS/(27423:27427):  sali del while 
+[INFO] 09:41:49:755 LFS/(27423:27427):  sali del while e hice el iterate 
+[INFO] 09:42:00:414 KERNEL/(27423:27426):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:42:00:415 KERNEL/(27423:27426):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:42:00:415 KERNEL/(27423:27426):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:42:09:721 KERNEL/(27423:27428):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:42:09:721 KERNEL/(27423:27426):  [DESCRIBE x tabla]:  AVES MAMIFEROS15  1528841043 3
+[INFO] 09:42:09:721 KERNEL/(27423:27428):  [DESCRIBE GLOBAL]: `ê MARINOS -1216920749 1
+[INFO] 09:42:27:150 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:42:27:151 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:42:27:151 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:42:27:151 LFS/(27432:27436):  gossiping 
+[INFO] 09:42:27:151 LFS/(27432:27436):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:42:27:151 LFS/(27432:27436):  recibi socket : 4
+[INFO] 09:42:27:151 LFS/(27432:27436):  entre al while 
+[INFO] 09:42:27:191 LFS/(27432:27436):  por salir del while 
+[INFO] 09:42:27:191 LFS/(27432:27436):  sali del while 
+[INFO] 09:42:27:191 LFS/(27432:27436):  sali del while e hice el iterate 
+[INFO] 09:42:43:774 KERNEL/(27432:27435):  [DESCRIBE x tabla]:  MAMIFEROS SC 3 60000
+[INFO] 09:42:48:777 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:42:48:777 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:42:48:778 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:42:57:192 LFS/(27432:27436):  gossiping 
+[INFO] 09:42:57:192 LFS/(27432:27436):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:42:57:192 LFS/(27432:27436):  recibi socket : 4
+[INFO] 09:42:57:192 LFS/(27432:27436):  entre al while 
+[INFO] 09:42:57:193 LFS/(27432:27436):  por salir del while 
+[INFO] 09:42:57:193 LFS/(27432:27436):  sali del while 
+[INFO] 09:42:57:193 LFS/(27432:27436):  sali del while e hice el iterate 
+[INFO] 09:43:08:818 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:43:08:818 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:43:08:818 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:43:28:821 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:43:28:821 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:43:28:822 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:43:28:822 LFS/(27432:27436):  gossiping 
+[INFO] 09:43:28:822 LFS/(27432:27436):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:43:28:822 LFS/(27432:27436):  recibi socket : 4
+[INFO] 09:43:28:822 LFS/(27432:27436):  entre al while 
+[INFO] 09:43:28:858 LFS/(27432:27436):  por salir del while 
+[INFO] 09:43:28:858 LFS/(27432:27436):  sali del while 
+[INFO] 09:43:28:859 LFS/(27432:27436):  sali del while e hice el iterate 
+[INFO] 09:43:48:862 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:43:48:862 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:43:48:862 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:43:58:859 LFS/(27432:27436):  gossiping 
+[INFO] 09:43:58:859 LFS/(27432:27436):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:43:58:859 LFS/(27432:27436):  recibi socket : 4
+[INFO] 09:43:58:859 LFS/(27432:27436):  entre al while 
+[INFO] 09:43:58:859 LFS/(27432:27436):  por salir del while 
+[INFO] 09:43:58:860 LFS/(27432:27436):  sali del while 
+[INFO] 09:43:58:860 LFS/(27432:27436):  sali del while e hice el iterate 
+[INFO] 09:44:08:907 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:44:08:907 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:44:08:907 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:44:28:911 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:44:28:911 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:44:28:911 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:44:28:911 LFS/(27432:27436):  gossiping 
+[INFO] 09:44:28:911 LFS/(27432:27436):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:44:28:912 LFS/(27432:27436):  recibi socket : 4
+[INFO] 09:44:28:912 LFS/(27432:27436):  entre al while 
+[INFO] 09:44:28:950 LFS/(27432:27436):  por salir del while 
+[INFO] 09:44:28:951 LFS/(27432:27436):  sali del while 
+[INFO] 09:44:28:951 LFS/(27432:27436):  sali del while e hice el iterate 
+[INFO] 09:44:48:954 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:44:48:955 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:44:48:955 KERNEL/(27432:27437):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:44:58:952 LFS/(27432:27436):  gossiping 
+[INFO] 09:44:58:952 LFS/(27432:27436):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:44:58:952 LFS/(27432:27436):  recibi socket : 4
+[INFO] 09:44:58:952 LFS/(27432:27436):  entre al while 
+[INFO] 09:44:58:953 LFS/(27432:27436):  por salir del while 
+[INFO] 09:44:58:953 LFS/(27432:27436):  sali del while 
+[INFO] 09:44:58:953 LFS/(27432:27436):  sali del while e hice el iterate 
+[INFO] 09:45:14:930 KERNEL/(27467:27472):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:45:14:930 KERNEL/(27467:27472):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:45:14:930 KERNEL/(27467:27472):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:45:14:930 LFS/(27467:27471):  gossiping 
+[INFO] 09:45:14:930 LFS/(27467:27471):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:45:14:930 LFS/(27467:27471):  recibi socket : 4
+[INFO] 09:45:14:930 LFS/(27467:27471):  entre al while 
+[INFO] 09:45:14:967 LFS/(27467:27471):  por salir del while 
+[INFO] 09:45:14:967 LFS/(27467:27471):  sali del while 
+[INFO] 09:45:14:967 LFS/(27467:27471):  sali del while e hice el iterate 
+[INFO] 09:46:38:47 KERNEL/(27501:27506):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:46:38:47 KERNEL/(27501:27506):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:46:38:47 KERNEL/(27501:27506):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:46:38:47 LFS/(27501:27505):  gossiping 
+[INFO] 09:46:38:47 LFS/(27501:27505):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:46:38:47 LFS/(27501:27505):  recibi socket : 4
+[INFO] 09:46:38:47 LFS/(27501:27505):  entre al while 
+[INFO] 09:46:38:87 LFS/(27501:27505):  por salir del while 
+[INFO] 09:46:38:87 LFS/(27501:27505):  sali del while 
+[INFO] 09:46:38:87 LFS/(27501:27505):  sali del while e hice el iterate 
+[INFO] 09:47:32:730 KERNEL/(27525:27530):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:47:32:730 KERNEL/(27525:27530):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:47:32:730 KERNEL/(27525:27530):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:47:32:730 LFS/(27525:27529):  gossiping 
+[INFO] 09:47:32:730 LFS/(27525:27529):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:47:32:730 LFS/(27525:27529):  recibi socket : 4
+[INFO] 09:47:32:730 LFS/(27525:27529):  entre al while 
+[INFO] 09:47:32:767 LFS/(27525:27529):  por salir del while 
+[INFO] 09:47:32:767 LFS/(27525:27529):  sali del while 
+[INFO] 09:47:32:767 LFS/(27525:27529):  sali del while e hice el iterate 
+[INFO] 09:47:45:97 KERNEL/(27525:27528):  [DESCRIBE x tabla]:  MAMIFEROS SC 3 60000
+[INFO] 09:47:52:734 KERNEL/(27525:27530):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:47:52:734 KERNEL/(27525:27530):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:47:52:734 KERNEL/(27525:27530):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:51:17:911 KERNEL/(27717:27722):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:51:17:911 KERNEL/(27717:27722):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:51:17:911 KERNEL/(27717:27722):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:51:17:911 LFS/(27717:27721):  gossiping 
+[INFO] 09:51:17:911 LFS/(27717:27721):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:51:17:912 LFS/(27717:27721):  recibi socket : 4
+[INFO] 09:51:17:912 LFS/(27717:27721):  entre al while 
+[INFO] 09:51:17:951 LFS/(27717:27721):  por salir del while 
+[INFO] 09:51:17:951 LFS/(27717:27721):  sali del while 
+[INFO] 09:51:17:951 LFS/(27717:27721):  sali del while e hice el iterate 
+[INFO] 09:51:32:609 KERNEL/(27717:27720):  [DESCRIBE x tabla]:  MAMIFEROS SC 3 60000
+[INFO] 09:51:37:915 KERNEL/(27717:27722):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:51:37:915 KERNEL/(27717:27722):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:51:37:915 KERNEL/(27717:27722):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:52:42:811 KERNEL/(27756:27761):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:52:42:811 KERNEL/(27756:27761):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:52:42:811 KERNEL/(27756:27761):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:52:42:811 LFS/(27756:27760):  gossiping 
+[INFO] 09:52:42:811 LFS/(27756:27760):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:52:42:811 LFS/(27756:27760):  recibi socket : 4
+[INFO] 09:52:42:811 LFS/(27756:27760):  entre al while 
+[INFO] 09:52:42:851 LFS/(27756:27760):  por salir del while 
+[INFO] 09:52:42:851 LFS/(27756:27760):  sali del while 
+[INFO] 09:52:42:851 LFS/(27756:27760):  sali del while e hice el iterate 
+[INFO] 09:53:02:814 KERNEL/(27756:27761):  [DESCRIBE GLOBAL]: AVES SC 5 50000
+[INFO] 09:53:02:814 KERNEL/(27756:27761):  [DESCRIBE GLOBAL]: MAMIFEROS SC 3 60000
+[INFO] 09:53:02:815 KERNEL/(27756:27761):  [DESCRIBE GLOBAL]: MARINOS SC 1 10000
+[INFO] 09:57:31:450 LFS/(27812:27816):  gossiping 
+[INFO] 09:57:31:451 LFS/(27812:27816):  hice el send de peticion : 8 a socket : 3
+[INFO] 09:57:31:451 LFS/(27812:27816):  recibi socket : 4
+[INFO] 09:57:31:451 LFS/(27812:27816):  entre al while 
+[INFO] 09:57:31:491 LFS/(27812:27816):  por salir del while 
+[INFO] 09:57:31:491 LFS/(27812:27816):  sali del while 
+[INFO] 09:57:31:491 LFS/(27812:27816):  sali del while e hice el iterate 
