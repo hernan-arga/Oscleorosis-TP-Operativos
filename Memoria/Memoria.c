@@ -61,6 +61,7 @@ typedef struct {
 	char** IP_SEEDS;
 	char** PUERTO_SEEDS;
 	char * IP_LFS;
+	char * IP;
 } archivoConfiguracion;
 
 typedef struct {
@@ -162,6 +163,7 @@ int main(int argc, char *argv[]) {
 			"MEMORY_NUMBER");
 
 	t_archivoConfiguracion.IP_LFS = config_get_string_value(config, "IP_LFS");
+	t_archivoConfiguracion.IP = config_get_string_value(config, "IP");
 	pthread_t threadFS;
 	// int32_t idThreadFS = pthread_create(&threadFS, NULL, conectarseAFS, NULL);
 	conectarseAFS();
@@ -1205,7 +1207,7 @@ int serServidor() {
 
 	//type of socket created
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr("192.168.3.36");
+	address.sin_addr.s_addr = inet_addr(t_archivoConfiguracion.IP);
 	address.sin_port = htons(t_archivoConfiguracion.PUERTO);
 
 	//bind the socket to localhost port 8888
@@ -1525,8 +1527,8 @@ void conectarseAFS() {
 	clienteFS = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddressFS.sin_family = AF_INET;
 	serverAddressFS.sin_port = htons(t_archivoConfiguracion.PUERTO_FS);
-	serverAddress.sin_addr.s_addr = inet_addr("10.0.2.15");
-
+	//serverAddress.sin_addr.s_addr = inet_addr(t_archivoConfiguracion.IP_LFS);
+	serverAddress.sin_addr.s_addr = INADDR_ANY;
 	int res = -1;
 	while(res < 0)
 	{
